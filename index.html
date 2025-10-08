@@ -31,23 +31,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
     }
     
     .datetime-row {
       display: flex;
       align-items: center;
-      justify-content: center; /* 中央揃え */
+      justify-content: center;
       gap: 30px;
-      flex-wrap: wrap; /* 折り返しを許可 */
-    }
-
-    .countdown-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      margin-top: 15px; /* 上部に余白を追加 */
+      flex-wrap: wrap;
     }
 
     #date {
@@ -68,10 +60,25 @@
     #countdown {
       color: #667eea;
       font-weight: bold;
-      font-size: 18px; /* 時刻とのバランスを調整 */
+      font-size: 18px;
       letter-spacing: 1px;
     }
-
+    .time-calculator-container { 
+      display: flex; align-items: center; gap: 6px; justify-content: center; background: #fff; padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-wrap: wrap; width: fit-content; margin: 0 auto;
+    }
+    .time-calculator-container label { font-size: 14px; }
+    .time-calculator-container input[type="time"], 
+    .time-calculator-container input[type="number"] { 
+      width: 85px; padding: 5px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc;
+    }
+    .time-calculator-container button { 
+      padding: 6px 12px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; transition: background-color 0.2s;
+    }
+    .time-calculator-container button:hover { background: #1d4ed8; }
+    .time-calculator-container pre { 
+      background: #f0f2f5; padding: 6px 10px; font-size: 14px; border-radius: 6px; margin: 0; text-align: center; border: 1px solid #e0e2e5;
+    }
+    
     .tab-container {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -84,6 +91,32 @@
 
     .tab-menu {
       display: flex;
+      align-items: center;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      margin: 6px;
+      background-color: #e9ecef;
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .search-container i {
+      color: #666;
+    }
+    #appSearchInput {
+      border: none;
+      background: transparent;
+      outline: none;
+      padding: 10px 8px;
+      font-size: 14px;
+      width: 150px;
+      transition: width 0.3s ease-in-out;
+    }
+    #appSearchInput:focus {
+      width: 200px;
     }
 
     .tab-item {
@@ -193,7 +226,7 @@
       display: flex;
       gap: 30px;
       justify-content: center;
-      align-items: flex-start;
+      align-items: stretch;
       flex-wrap: wrap;
     }
 
@@ -202,10 +235,21 @@
       flex-direction: column;
       align-items: center;
       gap: 15px;
+      flex-grow: 1;
+      flex-basis: 320px;
     }
+    
+    /* ★★ 変更点: バス時刻表の幅を3枠分に ★★ */
+    .status-item-large {
+       flex-grow: 3;
+       flex-basis: 1020px;
+       min-width: 320px;
+    }
+
     .status-item-title { font-weight: bold; color: #333; font-size: 16px; }
     .status-speedtest-container, .status-weather-container {
-      width: 350px;
+      width: 100%;
+      max-width: 350px;
       height: 200px;
       border-radius: 10px;
       overflow: hidden;
@@ -218,13 +262,44 @@
     .status-weather-container iframe { width: 100%; height: 100%; border: none; }
 
     .main-content { padding: 20px; }
-    .grid-container { display: flex; flex-direction: column; gap: 20px; max-width: 100%; padding: 10px; }
-    .section { display: flex; align-items: flex-start; gap: 15px; }
-    .section-title { display: flex; align-items: center; flex-shrink: 0; }
-    .section-title-text { margin-right: 10px; line-height: 1.2; font-size: 18px; font-weight: bold; color: #333; }
-    .section-title-line { width: 2px; height: 80px; background: linear-gradient(180deg, #ddd 0%, transparent 100%); }
-    .section-icons { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 12px; flex: 1; justify-content: start; }
-    .section-icons-left { display: flex; flex-wrap: wrap; gap: 12px; flex: 1; }
+    
+    /* ★★ 変更点: カテゴリ分けをなくし、常に横並びにするスタイル ★★ */
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-start;
+      max-width: 100%;
+      padding: 10px;
+    }
+
+    .search-item.hidden {
+      display: none;
+    }
+
+    /* ★★ 新規追加: 検索中のレイアウト制御 ★★ */
+    #search-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    #search-wrapper.search-active {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
+    .search-active .main-content,
+    .search-active .submenu {
+      display: contents; /* 中身の要素を直接のFlexアイテムとして扱う */
+    }
+    .search-active .tab-item.active {
+      background: none;
+      color: #666;
+      box-shadow: none;
+      transform: none;
+    }
+
     .icon-item { text-align: center; width: 70px; margin: 0; position: relative; }
     .icon-link {
       width: 55px; height: 55px; background-color: #fff; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -249,18 +324,14 @@
     #google-container.radial-active .radial-icon.gmail { transform: translate(-60px, 0) scale(1); }
     .radial-icon.calendar { background-color: #EBF2FC; } .radial-icon.photos { background-color: #FCE8E6; }
     .radial-icon.drive { background-color: #E6F4EA; } .radial-icon.gmail { background-color: #FEF7E0; }
-    .section-row-three { display: flex; gap: 40px; align-items: flex-start; }
-    .section-row-three .section { flex: 1; min-width: 0; }
-    .section-row { display: flex; gap: 40px; align-items: flex-start; }
-    .section-row .section { flex: 1; min-width: 0; }
     .answer-i-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white !important; font-weight: bold; font-size: 20px; }
     .bustarain-icon { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white !important; }
     .remote-it-icon { background: linear-gradient(135deg, #4285f4 0%, #1976d2 100%); color: white !important; }
 
     /* --- ここからバス電光掲示板のスタイル --- */
     .bus-display-wrapper {
-        max-width: 1200px;
-        margin: 20px auto;
+        width: 100%;
+        margin: 0;
         font-family: 'MS Gothic', monospace;
     }
     .display-board {
@@ -274,6 +345,12 @@
     .schedule-type {
         font-size: 13px; color: #009900; font-weight: bold; background-color: #fff; padding: 3px 6px; border-radius: 5px; border: 2px solid #009900; flex-shrink: 0;
     }
+    .time-control-section {
+        background-color: #d8e8d8; padding: 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .time-control-section label { font-size: 13px; font-weight: bold; color: #333; }
+    .time-control-section input[type="datetime-local"] { font-family: sans-serif; padding: 4px; border: 1px solid #009900; border-radius: 4px; }
+    .time-control-section button { background-color: #0066cc; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
     #justDepartedSection { margin-bottom: 8px; }
     .just-departed-info {
         font-size: 12px; color: #444; background-color: #e0e0e0; padding: 3px 8px; margin: 0 auto 4px auto; border: 1px solid #ccc;
@@ -312,44 +389,24 @@
     @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
     /* --- バス電光掲示板のスタイルここまで --- */
 
-    /* --- ここから時間計算ツールのスタイル --- */
-    .time-calculator-section {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 15px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(0,0,0,0.05);
-      font-family: sans-serif;
+    @media (max-width: 1200px) {
+      .departures-row {
+        flex-direction: column;
+      }
     }
-    .time-calculator-section .container { 
-      display: flex; align-items: center; gap: 6px; justify-content: center; background: #fff; padding: 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); flex-wrap: wrap; 
-    }
-    .time-calculator-section input[type="time"], 
-    .time-calculator-section input[type="number"] { 
-      width: 80px; padding: 4px; font-size: 13px; 
-    }
-    .time-calculator-section button { 
-      padding: 6px 10px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; 
-    }
-    /* ★★ 変更点: 結果表示のスタイル調整 ★★ */
-    .time-calculator-section .container pre { 
-      background: #eee; padding: 6px; font-size: 12px; border-radius: 6px; margin: 0; text-align: center; 
-    }
-    /* --- 時間計算ツールのスタイルここまで --- */
 
     @media (max-width: 900px) {
-      .clock-area, .bus-display-wrapper, .tab-container, .submenu, .time-calculator-section { max-width: 95%; margin-left: auto; margin-right: auto; }
+      .clock-area, .tab-container, .submenu { max-width: 95%; margin-left: auto; margin-right: auto; }
       .datetime-row { flex-direction: column; gap: 10px; }
+      .tab-menu { flex-wrap: wrap; }
+      .search-container { width: calc(100% - 12px); order: -1; }
+      #appSearchInput { width: 100%; }
       .tab-item { padding: 12px 16px; font-size: 13px; min-width: 100px; }
       .icon-item { width: 80px; }
       .icon-link { width: 60px; height: 60px; }
-      .section-row, .section-row-three { flex-direction: column; gap: 20px; }
       .status-submenu { flex-direction: column; gap: 20px; align-items: center; }
       .status-speedtest-container, .status-weather-container { width: 300px; height: 180px; }
       
-      .departures-row { flex-direction: column; gap: 8px; }
       .next-departure-time { flex-direction: row; align-items: center; gap: 8px; margin-top: 5px; }
       .next-departure-remaining { font-size: 18px; min-width: auto; text-align: left; }
     }
@@ -365,44 +422,25 @@
         <div id="clock">00:00:00</div>
         <div id="countdown">現在は授業時間外です</div>
       </div>
-    </div>
-  </div>
-
-  <!-- ★★ 変更点: 時間計算ツールをここに移動 ★★ -->
-  <div class="time-calculator-section">
-    <div class="container">
-      <label>基準 <input id="baseTime" type="time" step="1" value="12:00:00"></label>
-      <label>＋ <input id="addHours" type="number" min="0" value="0">時</label>
-      <label><input id="addMinutes" type="number" min="0" value="0">分</label>
-      <label><input id="addSeconds" type="number" min="0" value="0">秒</label>
-      <button id="calcBtn">計算</button>
-      <!-- ★★ 変更点: 結果表示をcontainer内に移動 ★★ -->
-      <pre id="result">結果：</pre>
+      <div class="time-calculator-container">
+        <label>基準 <input id="baseTime" type="time" step="1" value="12:00:00"></label>
+        <label>＋ <input id="addHours" type="number" min="0" value="0">時</label>
+        <label><input id="addMinutes" type="number" min="0" value="0">分</label>
+        <label><input id="addSeconds" type="number" min="0" value="0">秒</label>
+        <button id="calcBtn">計算</button>
+        <pre id="result">結果：</pre>
+      </div>
     </div>
   </div>
   
-  <!-- バス電光掲示板 -->
-  <div class="bus-display-wrapper">
-      <div class="display-board">
-          <div class="main-header">
-              <div class="bus-stop-name">鷹取団地前→</div>
-              <div class="direction-controls">
-                  <button id="shinkaichi-btn" class="direction-button">神戸駅前・兵庫駅・大学病院方面</button>
-                  <button id="yoshidacho-btn" class="direction-button active">板宿・新長田駅前・鷹取駅前方面</button>
-              </div>
-              <div class="schedule-type" id="scheduleType"></div>
-          </div>
-          <div id="justDepartedSection"></div>
-          <div class="departures-row" id="upcomingDeparturesContainer">
-              <!-- 動的に生成される先発・次発情報 -->
-          </div>
-      </div>
-  </div>
-
   <!-- タブメニュー -->
   <div class="tab-container">
     <div class="tab-menu">
-      <div class="tab-item active" onclick="showHome()"> <i class="fas fa-home"></i> HOME </div>
+      <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="appSearchInput" placeholder="検索...">
+      </div>
+      <div class="tab-item active" onclick="showApps()"> <i class="fas fa-th-large"></i> Apps </div>
       <div class="tab-item" onclick="toggleSomeStatus()"> <i class="fas fa-chart-line"></i> Some Status </div>
       <div class="tab-item" onclick="toggleGameStatus()"> <i class="fas fa-gamepad"></i> Game Status </div>
       <a href="https://sites.google.com/view/foretsy/管理者ページ" class="tab-item" target="_blank"> <i class="fas fa-cog"></i> ADMIN </a>
@@ -410,100 +448,93 @@
     </div>
   </div>
 
-  <!-- Game Status サブメニュー -->
-  <div class="submenu" id="gameSubmenu">
-    <div class="game-buttons">
-      <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a>
-      <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a>
-    </div>
-  </div>
-
-  <!-- Some Status サブメニュー -->
-  <div class="submenu" id="statusSubmenu">
-    <div class="status-submenu">
-      <div class="status-item">
-        <div class="status-item-title">回線速度テスト</div>
-        <div class="status-speedtest-container"> <iframe src="https://fast.com/ja/" title="速度テスト"></iframe> </div>
-      </div>
-      <div class="status-item">
-        <div class="status-item-title">兵庫県警報・注意報</div>
-        <div class="status-weather-container"> <iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe> </div>
+  <!-- ★★ 新規追加: 検索時にコンテンツをラップするコンテナ ★★ -->
+  <div id="search-wrapper">
+    <!-- Game Status サブメニュー -->
+    <div class="submenu" id="gameSubmenu">
+      <div class="game-buttons">
+        <a href="https://apexlegendsstatus.com/current-map" class="game-button apex search-item" data-search-text="Apex Legends"> <i class="fas fa-crosshairs"></i> Apex Legends </a>
+        <a href="https://www.splatoon3-schedule.net" class="game-button splatoon search-item" data-search-text="Splatoon 3 スプラトゥーン"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a>
       </div>
     </div>
-  </div>
 
-  <!-- メインコンテンツ -->
-  <div class="main-content" id="mainContent">
-    <!-- アイコンリンク集 -->
-    <div class="grid-container">
-      <div class="section">
-        <div class="section-title"> <div class="section-title-text">Apps</div> <div class="section-title-line"></div> </div>
-        <div class="section-icons">
-          <div class="icon-item" id="google-container">
-            <a href="https://www.google.com" class="icon-link" id="google-link"> <img src="https://www.google.com/favicon.ico" class="icon-img" alt="Google"> </a>
-            <div id="google-radial-menu">
-              <a href="https://calendar.google.com" target="_blank" class="radial-icon calendar"> <img src="https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png" class="radial-img" alt="Calendar"> </a>
-              <a href="https://photos.google.com" target="_blank" class="radial-icon photos"> <img src="https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png" class="radial-img" alt="Photos"> </a>
-              <a href="https://drive.google.com" target="_blank" class="radial-icon drive"> <img src="https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png" class="radial-img" alt="Drive"> </a>
-              <a href="https://mail.google.com" target="_blank" class="radial-icon gmail"> <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" class="radial-img" alt="Gmail"> </a>
+    <!-- Some Status サブメニュー -->
+    <div class="submenu" id="statusSubmenu">
+      <div class="status-submenu">
+        <div class="status-item status-item-large search-item" data-search-text="バス運行情報 時刻表 鷹取団地">
+          <div class="status-item-title">バス運行情報</div>
+          <div class="bus-display-wrapper">
+            <div class="display-board">
+                <div class="main-header">
+                    <div class="bus-stop-name">鷹取団地前→</div>
+                    <div class="direction-controls">
+                        <button id="shinkaichi-btn" class="direction-button">神戸駅前・兵庫駅・大学病院方面</button>
+                        <button id="yoshidacho-btn" class="direction-button active">板宿・新長田駅前・鷹取駅前方面</button>
+                    </div>
+                    <div class="schedule-type" id="scheduleType"></div>
+                </div>
+                <div class="time-control-section">
+                  <label for="busTimeInput">時刻指定:</label>
+                  <input type="datetime-local" id="busTimeInput">
+                  <button id="busTimeResetBtn">現在時刻に戻す</button>
+                </div>
+                <div id="justDepartedSection"></div>
+                <div class="departures-row" id="upcomingDeparturesContainer">
+                    <!-- 動的に生成される先発・次発情報 -->
+                </div>
             </div>
-            <div class="label-text">Google</div>
           </div>
-          <div class="icon-item"> <a href="https://www.yahoo.co.jp" class="icon-link" target="_blank"> <img src="https://www.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!"> </a> <div class="label-text">Yahoo!</div> </div>
-          <div class="icon-item"> <a href="https://x.com/i/timeline" class="icon-link" target="_blank"> <img src="https://twitter.com/favicon.ico" class="icon-img" alt="X"> </a> <div class="label-text">X</div> </div>
-          <div class="icon-item"> <a href="https://www.instagram.com" class="icon-link" target="_blank"> <img src="https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png" class="icon-img" alt="Instagram"> </a> <div class="label-text">Instagram</div> </div>
-          <div class="icon-item"> <a href="https://www.youtube.com/feed/subscriptions" class="icon-link" target="_blank"> <img src="https://www.youtube.com/favicon.ico" class="icon-img" alt="YouTube"> </a> <div class="label-text">YouTube</div> </div>
-          <div class="icon-item"> <a href="https://www.youtube.com/feed/subscriptions/shorts" class="icon-link" target="_blank"> <i class="fab fa-youtube" style="color: #ff0000;"></i> </a> <div class="label-text">YT Shorts</div> </div>
-          <div class="icon-item"> <a href="https://app.remote.it" class="icon-link remote-it-icon" target="_blank"> <i class="fas fa-desktop"></i> </a> <div class="label-text">Remote It</div> </div>
-          <div class="icon-item"> <a href="https://www.tiktok.com" class="icon-link" target="_blank"> <img src="https://www.tiktok.com/favicon.ico" class="icon-img" alt="TikTok"> </a> <div class="label-text">TikTok</div> </div>
-          <div class="icon-item"> <a href="https://www.twitch.tv" class="icon-link" target="_blank"> <img src="https://www.twitch.tv/favicon.ico" class="icon-img" alt="Twitch"> </a> <div class="label-text">Twitch</div> </div>
-          <div class="icon-item"> <a href="https://discord.com/channels/@me" class="icon-link" target="_blank"> <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" class="icon-img" alt="Discord"> </a> <div class="label-text">Discord</div> </div>
-          <div class="icon-item"> <a href="https://open.spotify.com/intl-ja" class="icon-link" target="_blank"> <img src="https://open.spotify.com/favicon.ico" class="icon-img" alt="Spotify"> </a> <div class="label-text">Spotify</div> </div>
-          <div class="icon-item"> <a href="https://kotsu.city.kobe.lg.jp/" class="icon-link" target="_blank"> <i class="fas fa-subway" style="color: #0066cc;"></i> </a> <div class="label-text">神戸市交通局</div> </div>
-          <div class="icon-item"> <a href="https://gigafile.nu/" class="icon-link" target="_blank"> <img src="https://gigafile.nu/favicon.ico" class="icon-img" alt="GigaFile便"> </a> <div class="label-text">GigaFile</div> </div>
+        </div>
+
+        <div class="status-item search-item" data-search-text="回線速度テスト スピードテスト fast.com">
+          <div class="status-item-title">回線速度テスト</div>
+          <div class="status-speedtest-container"> <iframe src="https://fast.com/ja/" title="速度テスト"></iframe> </div>
+        </div>
+        <div class="status-item search-item" data-search-text="兵庫県警報・注意報 天気 ウェザーニュース">
+          <div class="status-item-title">兵庫県警報・注意報</div>
+          <div class="status-weather-container"> <iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe> </div>
         </div>
       </div>
-      <div class="section-row-three">
-        <div class="section">
-          <div class="section-title"> <div class="section-title-text">AI</div> <div class="section-title-line"></div> </div>
-          <div class="section-icons-left">
-            <div class="icon-item"> <a href="https://chatgpt.com" class="icon-link" target="_blank"> <i class="fas fa-robot" style="color: #10a37f;"></i> </a> <div class="label-text">ChatGPT</div> </div>
-            <div class="icon-item"> <a href="https://aistudio.google.com/prompts/new_chat" class="icon-link" target="_blank"> <i class="fas fa-brain" style="color: #4285f4;"></i> </a> <div class="label-text">Google AI</div> </div>
-            <div class="icon-item"> <a href="https://claude.ai" class="icon-link" target="_blank"> <i class="fas fa-comments" style="color: #ff6b47;"></i> </a> <div class="label-text">Claude AI</div> </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="main-content" id="mainContent">
+      <div class="grid-container" id="gridContainer">
+          <div class="icon-item search-item" id="google-container" data-search-text="Google グーグル">
+              <a href="https://www.google.com" class="icon-link" id="google-link"> <img src="https://www.google.com/favicon.ico" class="icon-img" alt="Google"> </a>
+              <div id="google-radial-menu">
+                  <a href="https://calendar.google.com" target="_blank" class="radial-icon calendar"> <img src="https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png" class="radial-img" alt="Calendar"> </a>
+                  <a href="https://photos.google.com" target="_blank" class="radial-icon photos"> <img src="https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png" class="radial-img" alt="Photos"> </a>
+                  <a href="https://drive.google.com" target="_blank" class="radial-icon drive"> <img src="https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png" class="radial-img" alt="Drive"> </a>
+                  <a href="https://mail.google.com" target="_blank" class="radial-icon gmail"> <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" class="radial-img" alt="Gmail"> </a>
+              </div>
+              <div class="label-text">Google</div>
           </div>
-        </div>
-        <div class="section">
-          <div class="section-title"> <div class="section-title-text">Sites</div> <div class="section-title-line"></div> </div>
-          <div class="section-icons-left">
-            <div class="icon-item"> <a href="https://sites.google.com/view/bustar/home" class="icon-link bustarain-icon" target="_blank"> <i class="fas fa-bus"></i> </a> <div class="label-text">BUSTARAIN</div> </div>
-            <div class="icon-item"> <a href="https://sites.google.com/view/answer-i/home" class="icon-link answer-i-icon" target="_blank"> <i class="fas fa-question-circle"></i> </a> <div class="label-text">Answer I</div> </div>
-          </div>
-        </div>
-        <div class="section">
-          <div class="section-title"> <div class="section-title-text">ブルーロック</div> <div class="section-title-line"></div> </div>
-          <div class="section-icons-left">
-            <div class="icon-item"> <a href="https://rawkuro.net/manga/bururokku004/di285hua" class="icon-link" target="_blank"> <i class="fas fa-futbol" style="color: #1e90ff;"></i> </a> <div class="label-text">Rawkuro</div> </div>
-            <div class="icon-item"> <a href="https://mn4u.net/tgm-84/" class="icon-link" target="_blank"> <i class="fas fa-book-open" style="color: #ff6347;"></i> </a> <div class="label-text">MN4U</div> </div>
-            <div class="icon-item"> <a href="https://kmanga.kodansha.com/title/10008/episode/360423" class="icon-link" target="_blank"> <i class="fas fa-book" style="color: #2e8b57;"></i> </a> <div class="label-text">講談社</div> </div>
-          </div>
-        </div>
-      </div>
-      <div class="section-row">
-        <div class="section">
-          <div class="section-title"> <div class="section-title-text">フリマ</div> <div class="section-title-line"></div> </div>
-          <div class="section-icons-left">
-            <div class="icon-item"> <a href="https://www.mercari.com/jp/" class="icon-link" target="_blank"> <i class="fas fa-shopping-bag" style="color: #ff6b35;"></i> </a> <div class="label-text">メルカリ</div> </div>
-            <div class="icon-item"> <a href="https://paypayfleamarket.yahoo.co.jp/" class="icon-link" target="_blank"> <i class="fas fa-shopping-cart" style="color: #ff0033;"></i> </a> <div class="label-text">Yahoo!フリマ</div> </div>
-            <div class="icon-item"> <a href="https://member.kms.kuronekoyamato.co.jp/member" class="icon-link" target="_blank"> <i class="fas fa-truck" style="color: #00a54f;"></i> </a> <div class="label-text">ヤマト運輸</div> </div>
-          </div>
-        </div>
-        <div class="section">
-          <div class="section-title"> <div class="section-title-text">Create Site</div> <div class="section-title-line"></div> </div>
-          <div class="section-icons-left">
-            <div class="icon-item"> <a href="https://sites.google.com/new" class="icon-link" target="_blank"> <img src="https://ssl.gstatic.com/sites/p/f9e774/system/app/images/favicon.ico" class="icon-img" alt="Google Sites"> </a> <div class="label-text">Google Sites</div> </div>
-            <div class="icon-item"> <a href="https://github.com" class="icon-link" target="_blank"> <i class="fab fa-github" style="color: #181717;"></i> </a> <div class="label-text">GitHub</div> </div>
-          </div>
-        </div>
+          <div class="icon-item search-item" data-search-text="Yahoo! ヤフー"> <a href="https://www.yahoo.co.jp" class="icon-link" target="_blank"> <img src="https://www.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!"> </a> <div class="label-text">Yahoo!</div> </div>
+          <div class="icon-item search-item" data-search-text="X Twitter ツイッター"> <a href="https://x.com/i/timeline" class="icon-link" target="_blank"> <img src="https://twitter.com/favicon.ico" class="icon-img" alt="X"> </a> <div class="label-text">X</div> </div>
+          <div class="icon-item search-item" data-search-text="Instagram インスタグラム"> <a href="https://www.instagram.com" class="icon-link" target="_blank"> <img src="https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png" class="icon-img" alt="Instagram"> </a> <div class="label-text">Instagram</div> </div>
+          <div class="icon-item search-item" data-search-text="YouTube ユーチューブ"> <a href="https://www.youtube.com/feed/subscriptions" class="icon-link" target="_blank"> <img src="https://www.youtube.com/favicon.ico" class="icon-img" alt="YouTube"> </a> <div class="label-text">YouTube</div> </div>
+          <div class="icon-item search-item" data-search-text="YT Shorts YouTube ショート"> <a href="https://www.youtube.com/feed/subscriptions/shorts" class="icon-link" target="_blank"> <i class="fab fa-youtube" style="color: #ff0000;"></i> </a> <div class="label-text">YT Shorts</div> </div>
+          <div class="icon-item search-item" data-search-text="Remote It リモート"> <a href="https://app.remote.it" class="icon-link remote-it-icon" target="_blank"> <i class="fas fa-desktop"></i> </a> <div class="label-text">Remote It</div> </div>
+          <div class="icon-item search-item" data-search-text="TikTok ティックトック"> <a href="https://www.tiktok.com" class="icon-link" target="_blank"> <img src="https://www.tiktok.com/favicon.ico" class="icon-img" alt="TikTok"> </a> <div class="label-text">TikTok</div> </div>
+          <div class="icon-item search-item" data-search-text="Twitch ツイッチ"> <a href="https://www.twitch.tv" class="icon-link" target="_blank"> <img src="https://www.twitch.tv/favicon.ico" class="icon-img" alt="Twitch"> </a> <div class="label-text">Twitch</div> </div>
+          <div class="icon-item search-item" data-search-text="Discord ディスコード"> <a href="https://discord.com/channels/@me" class="icon-link" target="_blank"> <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" class="icon-img" alt="Discord"> </a> <div class="label-text">Discord</div> </div>
+          <div class="icon-item search-item" data-search-text="Spotify スポティファイ"> <a href="https://open.spotify.com/intl-ja" class="icon-link" target="_blank"> <img src="https://open.spotify.com/favicon.ico" class="icon-img" alt="Spotify"> </a> <div class="label-text">Spotify</div> </div>
+          <div class="icon-item search-item" data-search-text="神戸市交通局 地下鉄 バス"> <a href="https://kotsu.city.kobe.lg.jp/" class="icon-link" target="_blank"> <i class="fas fa-subway" style="color: #0066cc;"></i> </a> <div class="label-text">神戸市交通局</div> </div>
+          <div class="icon-item search-item" data-search-text="GigaFile ギガファイル便"> <a href="https://gigafile.nu/" class="icon-link" target="_blank"> <img src="https://gigafile.nu/favicon.ico" class="icon-img" alt="GigaFile便"> </a> <div class="label-text">GigaFile</div> </div>
+          <div class="icon-item search-item" data-search-text="ChatGPT AI"> <a href="https://chatgpt.com" class="icon-link" target="_blank"> <i class="fas fa-robot" style="color: #10a37f;"></i> </a> <div class="label-text">ChatGPT</div> </div>
+          <div class="icon-item search-item" data-search-text="Google AI Gemini"> <a href="https://aistudio.google.com/prompts/new_chat" class="icon-link" target="_blank"> <i class="fas fa-brain" style="color: #4285f4;"></i> </a> <div class="label-text">Google AI</div> </div>
+          <div class="icon-item search-item" data-search-text="Claude AI クロード"> <a href="https://claude.ai" class="icon-link" target="_blank"> <i class="fas fa-comments" style="color: #ff6b47;"></i> </a> <div class="label-text">Claude AI</div> </div>
+          <div class="icon-item search-item" data-search-text="BUSTARAIN バスタレイン"> <a href="https://sites.google.com/view/bustar/home" class="icon-link bustarain-icon" target="_blank"> <i class="fas fa-bus"></i> </a> <div class="label-text">BUSTARAIN</div> </div>
+          <div class="icon-item search-item" data-search-text="Answer I アンサー"> <a href="https://sites.google.com/view/answer-i/home" class="icon-link answer-i-icon" target="_blank"> <i class="fas fa-question-circle"></i> </a> <div class="label-text">Answer I</div> </div>
+          <div class="icon-item search-item" data-search-text="Rawkuro ブルーロック 漫画"> <a href="https://rawkuro.net/manga/bururokku004/di285hua" class="icon-link" target="_blank"> <i class="fas fa-futbol" style="color: #1e90ff;"></i> </a> <div class="label-text">Rawkuro</div> </div>
+          <div class="icon-item search-item" data-search-text="MN4U ブルーロック 漫画"> <a href="https://mn4u.net/tgm-84/" class="icon-link" target="_blank"> <i class="fas fa-book-open" style="color: #ff6347;"></i> </a> <div class="label-text">MN4U</div> </div>
+          <div class="icon-item search-item" data-search-text="講談社 ブルーロック 漫画"> <a href="https://kmanga.kodansha.com/title/10008/episode/360423" class="icon-link" target="_blank"> <i class="fas fa-book" style="color: #2e8b57;"></i> </a> <div class="label-text">講談社</div> </div>
+          <div class="icon-item search-item" data-search-text="メルカリ フリマ"> <a href="https://www.mercari.com/jp/" class="icon-link" target="_blank"> <i class="fas fa-shopping-bag" style="color: #ff6b35;"></i> </a> <div class="label-text">メルカリ</div> </div>
+          <div class="icon-item search-item" data-search-text="Yahoo!フリマ ヤフー"> <a href="https://paypayfleamarket.yahoo.co.jp/" class="icon-link" target="_blank"> <i class="fas fa-shopping-cart" style="color: #ff0033;"></i> </a> <div class="label-text">Yahoo!フリマ</div> </div>
+          <div class="icon-item search-item" data-search-text="ヤマト運輸 宅急便"> <a href="https://member.kms.kuronekoyamato.co.jp/member" class="icon-link" target="_blank"> <i class="fas fa-truck" style="color: #00a54f;"></i> </a> <div class="label-text">ヤマト運輸</div> </div>
+          <div class="icon-item search-item" data-search-text="Google Sites サイト作成"> <a href="https://sites.google.com/new" class="icon-link" target="_blank"> <img src="https://ssl.gstatic.com/sites/p/f9e774/system/app/images/favicon.ico" class="icon-img" alt="Google Sites"> </a> <div class="label-text">Google Sites</div> </div>
+          <div class="icon-item search-item" data-search-text="GitHub ギットハブ"> <a href="https://github.com" class="icon-link" target="_blank"> <i class="fab fa-github" style="color: #181717;"></i> </a> <div class="label-text">GitHub</div> </div>
       </div>
     </div>
   </div>
@@ -519,6 +550,7 @@
     ];
     let isGameStatusOpen = false;
     let isSomeStatusOpen = false;
+    let lastActiveView = 'apps'; // 最後に表示していたビューを記憶
 
     function parseTimeToDate(timeStr) {
       const [h, m] = timeStr.split(":").map(Number); const now = new Date(); now.setHours(h, m, 0, 0); return now;
@@ -556,42 +588,48 @@
       document.getElementById('date').textContent = `${year}/${month}/${day}(${weekday})`;
       updateCountdown(now);
     }
-    function showHome() {
+    
+    function showApps() {
       document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-      document.querySelector('.tab-item').classList.add('active');
+      const appsTab = Array.from(document.querySelectorAll('.tab-item')).find(el => el.textContent.includes('Apps'));
+      if(appsTab) appsTab.classList.add('active');
+
+      document.getElementById('mainContent').style.display = 'block';
       document.getElementById('gameSubmenu').classList.remove('show');
       document.getElementById('statusSubmenu').classList.remove('show');
       isGameStatusOpen = false; isSomeStatusOpen = false;
-      document.getElementById('mainContent').style.display = 'block';
+      lastActiveView = 'apps';
     }
+
     function toggleSomeStatus() {
-      const statusSubmenu = document.getElementById('statusSubmenu'); const gameSubmenu = document.getElementById('gameSubmenu');
-      document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-      gameSubmenu.classList.remove('show'); isGameStatusOpen = false;
+      const statusSubmenu = document.getElementById('statusSubmenu');
       if (!isSomeStatusOpen) {
-        statusSubmenu.classList.add('show'); isSomeStatusOpen = true;
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-item')[1].classList.add('active');
         document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('gameSubmenu').classList.remove('show');
+        statusSubmenu.classList.add('show');
+        isGameStatusOpen = false; isSomeStatusOpen = true;
+        lastActiveView = 'status';
       } else {
-        statusSubmenu.classList.remove('show'); isSomeStatusOpen = false;
-        document.querySelector('.tab-item').classList.add('active');
-        document.getElementById('mainContent').style.display = 'block';
+        showApps();
       }
     }
     function toggleGameStatus() {
-      const gameSubmenu = document.getElementById('gameSubmenu'); const statusSubmenu = document.getElementById('statusSubmenu');
-      document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-      statusSubmenu.classList.remove('show'); isSomeStatusOpen = false;
+      const gameSubmenu = document.getElementById('gameSubmenu');
       if (!isGameStatusOpen) {
-        gameSubmenu.classList.add('show'); isGameStatusOpen = true;
+        document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-item')[2].classList.add('active');
         document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('statusSubmenu').classList.remove('show');
+        gameSubmenu.classList.add('show');
+        isSomeStatusOpen = false; isGameStatusOpen = true;
+        lastActiveView = 'game';
       } else {
-        gameSubmenu.classList.remove('show'); isGameStatusOpen = false;
-        document.querySelector('.tab-item').classList.add('active');
-        document.getElementById('mainContent').style.display = 'block';
+        showApps();
       }
     }
+
     function setupGoogleIconInteraction() {
         const googleContainer = document.getElementById('google-container'); const googleLink = document.getElementById('google-link'); let clickTimer = null; const doubleClickThreshold = 250;
         googleLink.addEventListener('click', function(event) {
@@ -600,6 +638,36 @@
             else { clickTimer = setTimeout(() => { clickTimer = null; googleContainer.classList.toggle('radial-active'); }, doubleClickThreshold); }
         });
         document.addEventListener('click', function(event) { if (googleContainer.classList.contains('radial-active') && !googleContainer.contains(event.target)) { googleContainer.classList.remove('radial-active'); } });
+    }
+
+    function filterContent() {
+      const searchTerm = document.getElementById('appSearchInput').value.toLowerCase();
+      const searchWrapper = document.getElementById('search-wrapper');
+      const allSearchItems = searchWrapper.querySelectorAll('.search-item');
+
+      if (searchTerm) {
+        searchWrapper.classList.add('search-active');
+        // 検索中はタブの表示状態を無視して全コンテンツを対象にする
+        document.getElementById('mainContent').style.display = '';
+        document.getElementById('gameSubmenu').classList.add('show');
+        document.getElementById('statusSubmenu').classList.add('show');
+      } else {
+        searchWrapper.classList.remove('search-active');
+        // 検索解除時は最後にアクティブだったビューに戻す
+        if (lastActiveView === 'apps') showApps();
+        if (lastActiveView === 'status') toggleSomeStatus();
+        if (lastActiveView === 'game') toggleGameStatus();
+        return;
+      }
+
+      allSearchItems.forEach(item => {
+        const searchText = item.dataset.searchText.toLowerCase();
+        if (searchText.includes(searchTerm)) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
     }
 
     // --- バス電光掲示板のJavaScript ---
@@ -619,11 +687,29 @@
         }
     };
     let currentDirection = 'yoshidacho';
-    function getBusCurrentDateTime() { return new Date(); }
+    
+    function getBusCurrentDateTime() {
+        const input = document.getElementById('busTimeInput');
+        if (input.value) {
+            const date = new Date(input.value);
+            return isNaN(date.getTime()) ? new Date() : date;
+        }
+        return new Date();
+    }
+    
     function updateScheduleType() {
         const now = getBusCurrentDateTime(); const scheduleTypeElement = document.getElementById('scheduleType');
-        if (isHoliday(now)) { scheduleTypeElement.textContent = '休日ダイヤ'; scheduleTypeElement.style.color = '#cc0000'; scheduleTypeElement.style.borderColor = '#cc0000'; }
-        else { scheduleTypeElement.textContent = '平日ダイヤ'; scheduleTypeElement.style.color = '#009900'; scheduleTypeElement.style.borderColor = '#009900'; }
+        let text = isHoliday(now) ? '休日ダイヤ' : '平日ダイヤ';
+        if(document.getElementById('busTimeInput').value) {
+            text += " (指定時刻)";
+        }
+        scheduleTypeElement.textContent = text;
+        
+        if (isHoliday(now)) { 
+            scheduleTypeElement.style.color = '#cc0000'; scheduleTypeElement.style.borderColor = '#cc0000'; 
+        } else { 
+            scheduleTypeElement.style.color = '#009900'; scheduleTypeElement.style.borderColor = '#009900'; 
+        }
     }
     function isHoliday(date) {
         const day = date.getDay(); const month = date.getMonth() + 1; const dateNum = date.getDate(); const year = date.getFullYear();
@@ -645,7 +731,8 @@
                 });
             });
         };
-        const today = new Date(now); const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+        const today = new Date(now); today.setHours(0,0,0,0);
+        const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1); yesterday.setHours(0,0,0,0);
         collectDepartures(yesterday); collectDepartures(today);
         return allDepartures.filter(dep => dep.date >= fiveMinutesAgo).sort((a, b) => a.date - b.date);
     }
@@ -696,20 +783,29 @@
         const container = document.getElementById('upcomingDeparturesContainer');
         const upcomingDepartures = allDepartures.filter(dep => dep.date >= getBusCurrentDateTime());
         const nextDeparture = upcomingDepartures[0]; const secondDeparture = upcomingDepartures[1];
-        if (!nextDeparture) { container.innerHTML = `<div class="no-next-departure">本日の運行は終了しました</div>`; return; }
+        if (!nextDeparture) { container.innerHTML = `<div class="no-next-departure">指定時刻以降の運行はありません</div>`; return; }
         let html = createDepartureHTML(nextDeparture, '先発');
         if (secondDeparture) { html += createDepartureHTML(secondDeparture, '次発'); }
         else { html += `<div class="departure-item"><div class="next-departure-content"><div class="departure-details-left"><div class="departure-type-label">【次発】</div></div><div class="no-next-departure" style="padding:0;">ありません</div></div></div>`; }
         container.innerHTML = html;
     }
     function updateBusCountdowns() {
-        const countdownElements = document.querySelectorAll('.remaining-time-countdown'); const now = new Date().getTime();
+        const countdownElements = document.querySelectorAll('.remaining-time-countdown'); 
+        const now = getBusCurrentDateTime().getTime();
         countdownElements.forEach(el => {
             const depTime = parseInt(el.dataset.deptime, 10); if (isNaN(depTime)) return;
             const diff = depTime - now; const remainingDiv = el.closest('.next-departure-remaining');
             if (diff < 0) { el.textContent = "出発"; if(remainingDiv) remainingDiv.classList.remove('blink'); return; }
             const minutes = Math.floor(diff / 60000); const seconds = Math.floor((diff % 60000) / 1000);
-            el.textContent = `Left ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (minutes > 99) {
+                const hours = Math.floor(minutes / 60);
+                const remainingMinutes = minutes % 60;
+                el.textContent = `Left ${hours}h${String(remainingMinutes).padStart(2, '0')}m`;
+            } else {
+                el.textContent = `Left ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
             if(remainingDiv) { if (diff < 60000) { remainingDiv.classList.add('blink'); } else { remainingDiv.classList.remove('blink'); } }
         });
     }
@@ -723,7 +819,7 @@
         document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
     }
 
-    // --- ここから時間計算ツールのJavaScript ---
+    // --- 時間計算ツールのJavaScript ---
     function pad(n){return String(n).padStart(2,'0');}
 
     function parseTimeInput(timeStr){
@@ -752,32 +848,37 @@
 
       document.getElementById('result').textContent = `結果：${pad(nh)}:${pad(nm)}:${pad(ns)} (${off===0?'同日':off+'日後'})`;
     }
-    // --- 時間計算ツールのJavaScriptここまで ---
-
+    
     // 初期化と定期実行
     function init() {
-      // サイト集の初期化
       updateClockAndDate(); 
-      showHome(); 
+      showApps(); 
       setupGoogleIconInteraction();
-      
-      // バス電光掲示板の初回表示とイベントリスナー設定
       updateDisplay(); 
       document.getElementById('shinkaichi-btn').addEventListener('click', () => changeDirection('shinkaichi'));
       document.getElementById('yoshidacho-btn').addEventListener('click', () => changeDirection('yoshidacho'));
-
-      // 時間計算ツールのイベントリスナーを追加
+      document.getElementById('busTimeInput').addEventListener('change', updateDisplay);
+      document.getElementById('busTimeResetBtn').addEventListener('click', () => {
+          document.getElementById('busTimeInput').value = '';
+          updateDisplay();
+      });
       document.getElementById('calcBtn').addEventListener('click', calc);
+      document.getElementById('appSearchInput').addEventListener('input', filterContent);
     }
     
     // 定期実行処理
     setInterval(() => { 
         updateClockAndDate(); 
-        updateBusCountdowns(); 
-    }, 1000); // 1秒ごとに時計とバスのカウントダウンを更新
-    setInterval(updateDisplay, 30000); // 30秒ごとにバスデータを更新
+        if (!document.getElementById('busTimeInput').value) {
+            updateBusCountdowns();
+        }
+    }, 1000); 
+    setInterval(() => {
+        if (!document.getElementById('busTimeInput').value) {
+            updateDisplay();
+        }
+    }, 30000); 
     
-    // DOM読み込み完了後に初期化関数を実行
     document.addEventListener('DOMContentLoaded', init);
   </script>
 
