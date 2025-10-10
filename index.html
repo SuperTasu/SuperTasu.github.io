@@ -20,6 +20,8 @@
       --input-bg: #e9ecef;
       --memo-bg: rgba(255, 255, 255, 0.8);
       --memo-border: #dcdcdc;
+      --bus-board-bg: #e8f5e8;
+      --bus-card-bg: #fff;
     }
 
     body.dark-theme {
@@ -35,48 +37,12 @@
       --input-bg: #3a3a3a;
       --memo-bg: rgba(40, 40, 40, 0.8);
       --memo-border: #555;
+      --bus-board-bg: #2a3a2a;
+      --bus-card-bg: #3c4c3c;
     }
     
-    body {
-      margin: 0;
-      background-color: var(--bg-color);
-      color: var(--text-color-primary);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    
-    /* ★★ 変更: 全体レイアウトをCSS Gridに変更 ★★ */
-    .page-wrapper {
-      display: grid;
-      grid-template-columns: 2fr 1fr; /* 左側が2, 右側が1の比率 */
-      grid-template-rows: auto 1fr; /* ヘッダーとメインコンテンツ */
-      grid-template-areas:
-        "header header"
-        "main   memo";
-      gap: 20px;
-      padding: 20px;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-
-    .header-area { grid-area: header; }
-    .main-area { grid-area: main; overflow-y: auto; }
-    .memo-area { grid-area: memo; display: flex; flex-direction: column; }
-
-    .clock-area {
-      background: var(--card-bg);
-      box-shadow: var(--card-shadow);
-      margin: 0; /* マージンをリセット */
-      border-radius: 20px;
-      padding: 15px 25px;
-      border: 1px solid var(--card-border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
+    body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; }
+    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
     .clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
     .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
     #date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
@@ -98,7 +64,6 @@
     body.dark-theme #resultTime { background: rgba(255,255,255,0.1); }
     #resetCalcBtn { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; padding: 5px; line-height: 1; }
     #resetCalcBtn:hover { color: #667eea; }
-    
     .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
     .tab-menu { display: flex; align-items: center; }
     .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
@@ -112,11 +77,6 @@
     .tab-menu #tab-all { margin-right: 1px; }
     .tab-menu #tab-google { margin-left: 1px; margin-right: 1px; }
     .tab-menu #tab-sns { margin-left: 1px; }
-
-    #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; margin-top: 20px; }
-    #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
-    body.dark-theme #search-wrapper::before { opacity: 0.2; }
-    
     .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
     .icon-item { text-align: center; width: 70px; margin: 0; }
     .icon-link { width: 55px; height: 55px; background-color: var(--icon-bg); border-radius: 20px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -126,92 +86,99 @@
     .icon-img { width: 28px; height: 28px; border-radius: 8px; object-fit: contain; }
     .label-text { font-size: 11px; margin-top: 4px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; }
 
-    /* ★★ 新規: メモ帳のスタイル ★★ */
-    .memo-container {
-        display: flex; flex-direction: column; height: 100%;
-        background: var(--memo-bg); border-radius: 15px;
-        border: 1px solid var(--memo-border);
-        box-shadow: var(--card-shadow);
-        backdrop-filter: blur(5px);
-    }
-    .memo-header {
-        padding: 10px 15px; display: flex; align-items: center; justify-content: space-between;
-        border-bottom: 1px solid var(--memo-border);
-    }
+    #memo-wrapper { max-width: 1200px; margin: 20px auto 0; }
+    .memo-container { display: flex; flex-direction: column; height: 180px; background: var(--memo-bg); border-radius: 15px; border: 1px solid var(--memo-border); box-shadow: var(--card-shadow); backdrop-filter: blur(5px); }
+    .memo-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--memo-border); }
     .memo-header h3 { margin: 0; font-size: 16px; }
-    #undoBtn {
-        background: none; border: none; font-size: 16px;
-        color: var(--text-color-secondary); cursor: pointer;
-    }
+    #undoBtn { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; }
     #undoBtn:hover { color: #667eea; }
-    #memo-textarea {
-        flex-grow: 1; width: 100%; border: none; background: transparent;
-        padding: 15px; font-size: 14px; resize: none; outline: none;
-        box-sizing: border-box; color: var(--text-color-primary);
-    }
-    
-    /* レスポンシブ対応 */
-    @media (max-width: 900px) {
-      .page-wrapper {
-        grid-template-columns: 1fr;
-        grid-template-areas: "header" "main" "memo";
-        height: auto;
-      }
-      .memo-area { min-height: 300px; }
-    }
-    
-    /* 既存の細かいスタイルは省略 */
-    .submenu{display:none;background:linear-gradient(135deg,#f0f2f5 0%,#e6eaef 100%);padding:15px;border-radius:15px;margin:0 auto 15px;max-width:100%;box-shadow:var(--card-shadow);animation:slideDown .3s ease-out;position:relative;z-index:10}body.dark-theme .submenu{background:linear-gradient(135deg,#2c2c2c 0%,#3a3a3a 100%)}.submenu.show{display:block}@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}.game-buttons{display:flex;flex-direction:row;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap}.game-button{display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;text-decoration:none;border-radius:25px;font-weight:bold;font-size:14px;transition:all .3s ease;box-shadow:0 4px 12px rgba(102,126,234,.3);width:180px;justify-content:center}.game-button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4);background:linear-gradient(135deg,#764ba2 0%,#667eea 100%)}.game-button.apex{background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);box-shadow:0 4px 12px rgba(255,107,53,.3)}.game-button.apex:hover{box-shadow:0 6px 20px rgba(255,107,53,.4);background:linear-gradient(135deg,#f7931e 0%,#ff6b35 100%)}.game-button.splatoon{background:linear-gradient(135deg,#00d4ff 0%,#ff6b8a 100%);box-shadow:0 4px 12px rgba(0,212,255,.3)}.status-submenu{display:flex;gap:30px;justify-content:center;align-items:stretch;flex-wrap:wrap}.status-item{display:flex;flex-direction:column;align-items:center;gap:15px;flex-grow:1;flex-basis:320px}.status-item-large{flex-grow:3;flex-basis:1020px;min-width:320px}.status-item-title{font-weight:bold;color:var(--text-color-primary);font-size:16px}.status-speedtest-container,.status-weather-container{width:100%;max-width:350px;height:200px;border-radius:10px;overflow:hidden;position:relative}.status-speedtest-container{background-color:#000}.status-weather-container{background-color:#fff}.status-speedtest-container iframe,.status-weather-container iframe{width:100%;height:100%;border:none}.main-content{padding-top:10px}
+    #memo-textarea { flex-grow: 1; width: 100%; border: none; background: transparent; padding: 15px; font-size: 14px; resize: none; outline: none; box-sizing: border-box; color: var(--text-color-primary); border-radius: 0 0 15px 15px; }
+
+    #search-wrapper { max-width: 1200px; margin: 20px auto 0; user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
+    #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
+    body.dark-theme #search-wrapper::before { opacity: 0.2; }
+    .main-content{padding-top:10px}
+
+    /* ★★ 新規/変更: バス時刻表の新しいスタイル ★★ */
+    #bus-schedule-container { display: none; max-width: 1200px; margin: 20px auto 0; font-family: 'Segoe UI', sans-serif; }
+    .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
+    .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
+    .direction-controls { display: flex; gap: 8px; }
+    .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
+    body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
+    .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
+    .schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
+    #justDepartedSection { margin-bottom: 15px; }
+    .just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
+    body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
+    .departures-container { display: grid; gap: 15px; }
+    .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
+    .bus-card__main { display: flex; align-items: center; gap: 20px; }
+    .bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
+    .bus-card__details { display: flex; flex-direction: column; gap: 4px; }
+    .bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
+    .itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
+    .bus-card__side { text-align: right; }
+    .bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
+    .detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
+    .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
+    .blink { animation: blink 1s infinite; }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
   </style>
 </head>
 <body>
   
-  <div class="page-wrapper">
-    <header class="header-area">
-      <div class="clock-area">
-        <div class="clock-content-wrapper">
-          <div class="datetime-row"> <div id="date"></div> <div id="clock"></div> <div id="countdown"></div> </div>
-          <div class="time-calculator-container">
-            <i class="fas fa-calculator"></i>
-            <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
-            <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
-            <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
-            <span id="resultTime"></span>
-            <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
-          </div>
-        </div>
-        <div class="header-controls">
-          <div class="theme-switcher"> <div class="theme-dot light" onclick="setTheme('light')"></div> <div class="theme-dot dark" onclick="setTheme('dark')"></div> </div>
-          <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
-          <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
+  <header class="header-area">
+    <div class="clock-area">
+      <div class="clock-content-wrapper">
+        <div class="datetime-row"> <div id="date"></div> <div id="clock"></div> <div id="countdown"></div> </div>
+        <div class="time-calculator-container">
+          <i class="fas fa-calculator"></i>
+          <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
+          <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
+          <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
+          <span id="resultTime"></span>
+          <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
         </div>
       </div>
-    </header>
-
-    <main class="main-area">
-      <div class="tab-container">
-        <div class="tab-menu">
-          <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
-          <div class="tab-item" id="tab-all" onclick="activateTab('all')"> <i class="fas fa-th-large"></i> All Apps </div>
-          <div class="tab-item" id="tab-google" onclick="activateTab('google')"> <i class="fab fa-google"></i> Google </div>
-          <div class="tab-item" id="tab-sns" onclick="activateTab('sns')"> <i class="fas fa-users"></i> SNS </div>
-          <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
-        </div>
+      <div class="header-controls">
+        <div class="theme-switcher"> <div class="theme-dot light" onclick="setTheme('light')"></div> <div class="theme-dot dark" onclick="setTheme('dark')"></div> </div>
+        <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
+        <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
       </div>
+    </div>
+  </header>
 
-      <div id="search-wrapper">
-        <div class="submenu" id="gameSubmenu">
-          <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex search-item" data-search-text="Apex Legends"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon search-item" data-search-text="Splatoon 3 スプラトゥーン"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div>
-        </div>
-        <div class="submenu" id="statusSubmenu">
-          <div class="status-submenu">
-            <div class="status-item status-item-large search-item" data-search-text="バス運行情報 時刻表 鷹取団地"> <div class="status-item-title">バス運行情報</div> <div class="bus-display-wrapper"> <div class="display-board"> <div class="main-header"><div class="bus-stop-name">鷹取団地前→</div><div class="direction-controls"><button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button><button id="yoshidacho-btn" class="direction-button active">板宿方面</button></div><div class="schedule-type" id="scheduleType"></div></div><div class="time-control-section"><label for="busTimeInput">時刻指定:</label><input type="datetime-local" id="busTimeInput"><button id="busTimeResetBtn">現在時刻に戻す</button></div><div id="justDepartedSection"></div><div class="departures-row" id="upcomingDeparturesContainer"></div> </div> </div> </div>
-            <div class="status-item search-item" data-search-text="回線速度テスト スピードテスト fast.com"><div class="status-item-title">回線速度テスト</div><div class="status-speedtest-container"> <iframe src="https://fast.com/ja/" title="速度テスト"></iframe> </div></div>
-            <div class="status-item search-item" data-search-text="兵庫県警報・注意報 天気 ウェザーニュース"><div class="status-item-title">兵庫県警報・注意報</div><div class="status-weather-container"> <iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe> </div></div>
+  <main class="main-area">
+    <div class="tab-container">
+      <div class="tab-menu">
+        <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
+        <div class="tab-item" id="tab-all" onclick="activateTab('all')"> <i class="fas fa-th-large"></i> All Apps </div>
+        <div class="tab-item" id="tab-google" onclick="activateTab('google')"> <i class="fab fa-google"></i> Google </div>
+        <div class="tab-item" id="tab-sns" onclick="activateTab('sns')"> <i class="fas fa-users"></i> SNS </div>
+        <div class="tab-item" id="tab-bus" onclick="activateTab('bus')"> <i class="fas fa-bus"></i> Bus </div>
+      </div>
+    </div>
+    
+    <div id="memo-wrapper">
+      <aside class="memo-area">
+        <div class="memo-container">
+          <div class="memo-header">
+            <h3><i class="fas fa-book-open"></i> Memo</h3>
+            <button id="undoBtn" title="元に戻す"><i class="fas fa-undo"></i></button>
           </div>
+          <textarea id="memo-textarea" placeholder="ここにメモを入力..."></textarea>
         </div>
-        <div class="main-content" id="mainContent">
-          <div class="grid-container" id="gridContainer">
+      </aside>
+    </div>
+
+    <div id="search-wrapper">
+      <div class="main-content" id="mainContent">
+        <div class="grid-container" id="gridContainer">
+          <!-- アイコンリストは変更なし -->
             <div class="icon-item search-item" data-category="google" data-search-text="Google グーグル"><a href="https://www.google.com" class="icon-link"> <img src="https://www.google.com/favicon.ico" class="icon-img" alt="Google"> </a><div class="label-text">Google</div></div>
             <div class="icon-item search-item" data-category="google" data-search-text="Gmail Google Mail メール"><a href="https://mail.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" class="icon-img" alt="Gmail"> </a><div class="label-text">Gmail</div></div>
             <div class="icon-item search-item" data-category="google" data-search-text="Google Calendar カレンダー"><a href="https://calendar.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png" class="icon-img" alt="Calendar"> </a><div class="label-text">Calendar</div></div>
@@ -243,85 +210,81 @@
             <div class="icon-item search-item" data-category="other" data-search-text="ヤマト運輸 宅急便"> <a href="https://www.kuronekoyamato.co.jp/" class="icon-link" target="_blank"> <i class="fas fa-truck" style="color: #00a54f;"></i> </a> <div class="label-text">ヤマト運輸</div> </div>
             <div class="icon-item search-item" data-category="google" data-search-text="Google Sites サイト作成"> <a href="https://sites.google.com/new" class="icon-link" target="_blank"> <i class="fas fa-palette" style="color: #4285f4;"></i> </a> <div class="label-text">Google Sites</div> </div>
             <div class="icon-item search-item" data-category="other" data-search-text="GitHub ギットハブ"> <a href="https://github.com" class="icon-link" target="_blank"> <i class="fab fa-github" style="color: #181717;"></i> </a> <div class="label-text">GitHub</div> </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ★★ 新規: バス時刻表専用のコンテナ ★★ -->
+    <div id="bus-schedule-container">
+      <div class="bus-display-board">
+        <div class="bus-header">
+          <div class="bus-stop-name">鷹取団地前</div>
+          <div class="direction-controls">
+            <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
+            <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
           </div>
+          <div class="schedule-type" id="scheduleType"></div>
+        </div>
+        <div id="justDepartedSection"></div>
+        <div class="departures-container" id="upcomingDeparturesContainer">
+          <!-- バスカードはJSで動的に生成されます -->
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <aside class="memo-area">
-      <div class="memo-container">
-        <div class="memo-header">
-          <h3><i class="fas fa-book-open"></i> Memo</h3>
-          <button id="undoBtn" title="元に戻す"><i class="fas fa-undo"></i></button>
-        </div>
-        <textarea id="memo-textarea" placeholder="ここにメモを入力..."></textarea>
-      </div>
-    </aside>
-  </div>
-  
-  <!-- ★★ 変更: バス時刻表のJavaScriptを外部ファイルとして読み込む ★★ -->
   <script src="bus-schedule.js"></script>
   
   <script>
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
-    const mainContent=document.getElementById("mainContent"),gameSubmenu=document.getElementById("gameSubmenu"),statusSubmenu=document.getElementById("statusSubmenu");
+    const searchWrapper=document.getElementById("search-wrapper");
+    const memoWrapper = document.getElementById('memo-wrapper');
+    const busScheduleContainer = document.getElementById('bus-schedule-container');
+
     function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
     function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
     function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
     function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
     function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
-    function activateTab(t){document.querySelectorAll(".tab-item").forEach(t=>t.classList.remove("active"));const e=document.getElementById(`tab-${t}`);e&&e.classList.add("active"),mainContent.style.display="none",gameSubmenu.classList.remove("show"),statusSubmenu.classList.remove("show"),"status"===t?(gameSubmenu.classList.add("show"),statusSubmenu.classList.add("show")):(mainContent.style.display="block",filterIconsByCategory(t)),localStorage.setItem("siteActiveTab",t)}
+    
+    function activateTab(tabId) {
+        document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
+        const activeTabElement = document.getElementById(`tab-${tabId}`);
+        if(activeTabElement) activeTabElement.classList.add('active');
+
+        searchWrapper.style.display = 'none';
+        memoWrapper.style.display = 'none';
+        busScheduleContainer.style.display = 'none';
+
+        if (tabId === 'bus') {
+            busScheduleContainer.style.display = 'block';
+        } else {
+            searchWrapper.style.display = 'block';
+            memoWrapper.style.display = 'block';
+            filterIconsByCategory(tabId);
+        }
+        localStorage.setItem('siteActiveTab', tabId);
+    }
+
     function filterIconsByCategory(t){document.querySelectorAll(".icon-item").forEach(e=>{"all"===t||e.dataset.category===t?e.style.display="block":e.style.display="none"})}
-    function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase(),e=document.getElementById("search-wrapper"),n=document.querySelectorAll(".search-item");if(t)e.classList.add("search-active"),mainContent.style.display="",gameSubmenu.classList.add("show"),statusSubmenu.classList.add("show"),document.querySelectorAll(".icon-item").forEach(t=>t.style.display="block");else{e.classList.remove("search-active"),n.forEach(t=>t.classList.remove("hidden"));const t=localStorage.getItem("siteActiveTab")||"all";return void activateTab(t)}n.forEach(e=>{e.dataset.searchText.toLowerCase().includes(t)?e.classList.remove("hidden"):e.classList.add("hidden")})}
-    const TABS_ORDER=["all","google","sns","status"],swipeArea=document.getElementById("search-wrapper");let touchStartX=0,touchStartY=0,touchEndX=0,touchEndY=0;
+    function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase(),e=document.querySelectorAll(".search-item");if(t){searchWrapper.classList.add("search-active");document.querySelectorAll(".icon-item").forEach(t=>t.style.display="block")}else{searchWrapper.classList.remove("search-active"),e.forEach(t=>t.classList.remove("hidden"));const t=localStorage.getItem("siteActiveTab")||"all";return void activateTab(t)}e.forEach(e=>{e.dataset.searchText.toLowerCase().includes(t)?e.classList.remove("hidden"):e.classList.add("hidden")})}
+    
+    const TABS_ORDER=["all","google","sns","bus"],swipeArea=document.getElementById("search-wrapper");let touchStartX=0,touchStartY=0,touchEndX=0,touchEndY=0;
     function handleTouchStart(t){touchStartX=t.changedTouches[0].screenX,touchStartY=t.changedTouches[0].screenY}
     function handleTouchEnd(t){touchEndX=t.changedTouches[0].screenX,touchEndY=t.changedTouches[0].screenY,handleSwipeGesture()}
     function handleSwipeGesture(){const t=touchEndX-touchStartX,e=touchEndY-touchStartY;if(Math.abs(t)>Math.abs(e)&&Math.abs(t)>50){const e=localStorage.getItem("siteActiveTab")||"all";let n=TABS_ORDER.indexOf(e);t<0?n=(n+1)%TABS_ORDER.length:n=(n-1+TABS_ORDER.length)%TABS_ORDER.length,activateTab(TABS_ORDER[n])}}
     
     function pad(n){return String(n).padStart(2,'0');}
-    function calcTime() {
-      const now = new Date();
-      const addH = +document.getElementById('addHours').value || 0;
-      const addM = +document.getElementById('addMinutes').value || 0;
-      const addS = +document.getElementById('addSeconds').value || 0;
-      const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000);
-      const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds());
-      const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
-      const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0);
-      const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000);
-      let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : '';
-      document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`;
-    }
-    function resetCalc() {
-      document.getElementById('addHours').value = 0;
-      document.getElementById('addMinutes').value = 0;
-      document.getElementById('addSeconds').value = 0;
-      calcTime();
-    }
+    function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
+    function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
     
-    // ★★ 新規: メモ帳機能 ★★
     const memoTextarea = document.getElementById('memo-textarea');
     const undoBtn = document.getElementById('undoBtn');
     let memoHistory = [localStorage.getItem('siteMemo') || ''];
     let currentHistoryIndex = 0;
     
-    function saveMemo() {
-        const currentText = memoTextarea.value;
-        localStorage.setItem('siteMemo', currentText);
-        // 履歴スタックを更新（現在の履歴以降を削除し、新しい状態を追加）
-        if (currentText !== memoHistory[currentHistoryIndex]) {
-            memoHistory = memoHistory.slice(0, currentHistoryIndex + 1);
-            memoHistory.push(currentText);
-            currentHistoryIndex++;
-        }
-    }
-    function undoMemo() {
-        if (currentHistoryIndex > 0) {
-            currentHistoryIndex--;
-            memoTextarea.value = memoHistory[currentHistoryIndex];
-            localStorage.setItem('siteMemo', memoHistory[currentHistoryIndex]);
-        }
-    }
+    function saveMemo() { const currentText = memoTextarea.value; localStorage.setItem('siteMemo', currentText); if (currentText !== memoHistory[currentHistoryIndex]) { memoHistory = memoHistory.slice(0, currentHistoryIndex + 1); memoHistory.push(currentText); currentHistoryIndex++; } }
+    function undoMemo() { if (currentHistoryIndex > 0) { currentHistoryIndex--; memoTextarea.value = memoHistory[currentHistoryIndex]; localStorage.setItem('siteMemo', memoHistory[currentHistoryIndex]); } }
 
     function init() {
       const savedTheme = localStorage.getItem('siteTheme') || 'light';
@@ -331,35 +294,31 @@
       updateClockAndDate(); 
       resetCalc();
       
-      // バス時刻表の初期化 (外部ファイルから呼び出し)
-      if (window.initBusSchedule) {
-        window.initBusSchedule();
-      }
+      if (window.initBusSchedule) { window.initBusSchedule(); }
 
-      // メモ帳の初期化
       memoTextarea.value = memoHistory[0];
       memoTextarea.addEventListener('input', saveMemo);
       undoBtn.addEventListener('click', undoMemo);
 
       document.getElementById('appSearchInput').addEventListener('input', filterContent);
-      swipeArea.addEventListener('touchstart', handleTouchStart, false);
-      swipeArea.addEventListener('touchend', handleTouchEnd, false);
-      
-      ['addHours', 'addMinutes', 'addSeconds'].forEach(id => {
-        document.getElementById(id).addEventListener('input', calcTime);
+      [swipeArea, busScheduleContainer].forEach(area => {
+        area.addEventListener('touchstart', handleTouchStart, false);
+        area.addEventListener('touchend', handleTouchEnd, false);
       });
+      
+      ['addHours', 'addMinutes', 'addSeconds'].forEach(id => { document.getElementById(id).addEventListener('input', calcTime); });
       document.getElementById('resetCalcBtn').addEventListener('click', resetCalc);
     }
     
     setInterval(() => { 
         updateClockAndDate(); 
         calcTime();
-        if (window.updateBusCountdowns && !document.getElementById('busTimeInput').value) {
+        if (window.updateBusCountdowns && document.getElementById('tab-bus').classList.contains('active')) {
             window.updateBusCountdowns();
         }
     }, 1000); 
     setInterval(() => {
-        if (window.updateBusDisplay && !document.getElementById('busTimeInput').value) {
+        if (window.updateBusDisplay && document.getElementById('tab-bus').classList.contains('active')) {
             window.updateBusDisplay();
         }
     }, 30000); 
