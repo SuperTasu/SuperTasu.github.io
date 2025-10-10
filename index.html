@@ -92,27 +92,22 @@
     .icon-img { width: 28px; height: 28px; border-radius: 8px; object-fit: contain; }
     .label-text { font-size: 11px; margin-top: 4px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; }
 
-    #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; height: 100%; }
+    #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
     #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
     body.dark-theme #search-wrapper::before { opacity: 0.2; }
     .main-content{padding-top:10px}
 
     /* ★★ 変更: メモ帳のスタイル ★★ */
-    .memo-container { display: flex; flex-direction: column; height: 100%; background: var(--memo-bg); border-radius: 15px; border: 1px solid var(--memo-border); box-shadow: var(--card-shadow); backdrop-filter: blur(5px); transition: height 0.3s ease-out; }
-    .memo-container.minimized { height: 45px; overflow: hidden; }
-    .memo-header { padding: 10px 15px; display: flex; align-items: center; border-bottom: 1px solid var(--memo-border); }
-    .memo-header h3 { margin: 0; font-size: 16px; flex-grow: 1; }
-    .memo-controls button { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; margin-left: 10px; }
-    .memo-controls button:hover { color: #667eea; }
+    .memo-container { display: flex; flex-direction: column; height: 100%; background: var(--memo-bg); border-radius: 15px; border: 1px solid var(--memo-border); box-shadow: var(--card-shadow); backdrop-filter: blur(5px); }
+    .memo-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--memo-border); }
+    .memo-header h3 { margin: 0; font-size: 16px; }
+    .memo-header button { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; }
+    .memo-header button:hover { color: #667eea; }
     #memo-textarea { flex-grow: 1; width: 100%; border: none; background: transparent; padding: 15px; font-size: 14px; resize: none; outline: none; box-sizing: border-box; color: var(--text-color-primary); border-radius: 0 0 15px 15px; }
-    #password-prompt { padding: 20px; text-align: center; display: none; }
-    #password-input { padding: 8px; border-radius: 5px; border: 1px solid var(--memo-border); margin-right: 5px; }
-    #unlock-submit-btn { padding: 8px 12px; border-radius: 5px; border: none; background-color: #667eea; color: white; cursor: pointer; }
-    .memo-container.locked #memo-textarea { display: none; }
-    .memo-container.locked #password-prompt { display: block; }
-    .memo-container.minimized #memo-textarea, .memo-container.minimized #password-prompt { display: none; }
+    #memo-locked-view { display: flex; justify-content: center; align-items: center; height: 100%; }
+    #unlock-memo-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background-color: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .hidden { display: none !important; }
 
-    /* 以下、StatusとBusのスタイル */
     #status-container { display: none; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
     .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
     .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -140,6 +135,7 @@
     .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
     .blink { animation: blink 1s infinite; }
     @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
+
     .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
     .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
@@ -203,19 +199,20 @@
         </div>
       </div>
       <aside class="memo-area">
-        <div class="memo-container" id="memo-container">
-          <div class="memo-header">
-            <h3><i class="fas fa-book-open"></i> Memo</h3>
-            <div class="memo-controls">
+        <div class="memo-container">
+          <!-- ★★ 変更: メモ帳のロック/解除UI ★★ -->
+          <div id="memo-unlocked-view" class="hidden">
+            <div class="memo-header">
+              <h3><i class="fas fa-book-open"></i> Memo</h3>
+              <div>
                 <button id="undoBtn" title="元に戻す"><i class="fas fa-undo"></i></button>
-                <button id="lockBtn" title="ロック"><i class="fas fa-unlock"></i></button>
-                <button id="minimizeBtn" title="最小化"><i class="fas fa-chevron-down"></i></button>
+                <button id="lock-memo-btn" title="ロックして新規パスワード設定"><i class="fas fa-lock"></i></button>
+              </div>
             </div>
+            <textarea id="memo-textarea" placeholder="ここにメモを入力..."></textarea>
           </div>
-          <textarea id="memo-textarea" placeholder="ここにメモを入力..."></textarea>
-          <div id="password-prompt">
-            <input type="password" id="password-input" placeholder="パスワード">
-            <button id="unlock-submit-btn">ロック解除</button>
+          <div id="memo-locked-view">
+            <button id="unlock-memo-btn"><i class="fas fa-lock"></i> メモを解除</button>
           </div>
         </div>
       </aside>
@@ -234,6 +231,7 @@
             <div id="justDepartedSection"></div>
             <div class="departures-container" id="upcomingDeparturesContainer"></div>
         </div>
+
         <div class="other-statuses">
             <div class="status-card">
                 <h3 class="status-card-title">Game Status</h3>
@@ -295,122 +293,65 @@
     function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
     function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
     
-    // ★★ 変更: メモ帳の全機能 ★★
-    const memoContainer = document.getElementById('memo-container');
+    // ★★ 変更: メモ帳のパスワード機能 ★★
+    const memoUnlockedView = document.getElementById('memo-unlocked-view');
+    const memoLockedView = document.getElementById('memo-locked-view');
     const memoTextarea = document.getElementById('memo-textarea');
     const undoBtn = document.getElementById('undoBtn');
-    const lockBtn = document.getElementById('lockBtn');
-    const minimizeBtn = document.getElementById('minimizeBtn');
-    const passwordPrompt = document.getElementById('password-prompt');
-    const passwordInput = document.getElementById('password-input');
-    const unlockSubmitBtn = document.getElementById('unlock-submit-btn');
-
-    let memoHistory = [];
-    let currentHistoryIndex = -1;
-
-    // --- 簡易的な暗号化とハッシュ ---
-    const simpleCipher = (text, key) => {
-        if (!key) return text;
-        let result = "";
-        for (let i = 0; i < text.length; i++) {
-            result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-        }
-        return result;
-    };
-    const simpleHash = str => {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
-            hash |= 0; // 32bit整数に変換
-        }
-        return String(hash);
-    };
-
-    function updateMemoHistory(text) {
-        memoHistory = memoHistory.slice(0, currentHistoryIndex + 1);
-        memoHistory.push(text);
-        currentHistoryIndex++;
-    }
-
-    function saveMemo() {
-        const currentText = memoTextarea.value;
-        const password = sessionStorage.getItem('memoSessionPassword');
-        const encryptedText = simpleCipher(currentText, password);
-        localStorage.setItem('memoContent', encryptedText);
-        updateMemoHistory(currentText);
-    }
-    function undoMemo() {
-        if (currentHistoryIndex > 0) {
-            currentHistoryIndex--;
-            memoTextarea.value = memoHistory[currentHistoryIndex];
-            saveMemo(); // Undo後も保存
-        }
-    }
+    const lockBtn = document.getElementById('lock-memo-btn');
+    const unlockBtn = document.getElementById('unlock-memo-btn');
     
-    function toggleMinimize() {
-        memoContainer.classList.toggle('minimized');
-        const isMinimized = memoContainer.classList.contains('minimized');
-        minimizeBtn.innerHTML = `<i class="fas ${isMinimized ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>`;
-        localStorage.setItem('memoMinimized', isMinimized);
+    let isMemoLocked = localStorage.getItem('isMemoLocked') !== 'false';
+    let memoHistory = [localStorage.getItem('siteMemo') || ''];
+    let currentHistoryIndex = 0;
+
+    // パスワードを簡易的にハッシュ化する関数（暗号学的に安全ではない）
+    const hashString = s => { let h = 0; for(let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0; return h; };
+
+    function updateMemoView() {
+        if (isMemoLocked) {
+            memoUnlockedView.classList.add('hidden');
+            memoLockedView.classList.remove('hidden');
+        } else {
+            memoUnlockedView.classList.remove('hidden');
+            memoLockedView.classList.add('hidden');
+            memoTextarea.value = localStorage.getItem('siteMemo') || '';
+        }
+        localStorage.setItem('isMemoLocked', isMemoLocked);
+    }
+
+    function unlockMemo() {
+        const storedHash = localStorage.getItem('memoPasswordHash');
+        if (!storedHash) { // パスワードが未設定の場合
+            isMemoLocked = false;
+            updateMemoView();
+            return;
+        }
+        const password = prompt('パスワードを入力してください:');
+        if (password !== null && hashString(password).toString() === storedHash) {
+            isMemoLocked = false;
+            updateMemoView();
+        } else if (password !== null) {
+            alert('パスワードが違います。');
+        }
     }
 
     function lockMemo() {
-        memoContainer.classList.add('locked');
-        lockBtn.innerHTML = '<i class="fas fa-lock"></i>';
-        sessionStorage.removeItem('memoSessionPassword');
-        localStorage.setItem('memoLockState', 'locked');
-        memoTextarea.value = '';
-    }
-
-    function unlockMemo(password) {
-        const encryptedContent = localStorage.getItem('memoContent') || '';
-        const decryptedContent = simpleCipher(encryptedContent, password);
-        memoTextarea.value = decryptedContent;
-        memoContainer.classList.remove('locked');
-        lockBtn.innerHTML = '<i class="fas fa-unlock"></i>';
-        sessionStorage.setItem('memoSessionPassword', password);
-        localStorage.setItem('memoLockState', 'unlocked');
-        memoHistory = [decryptedContent];
-        currentHistoryIndex = 0;
-    }
-
-    function handleLockToggle() {
-        const passwordHash = localStorage.getItem('memoPasswordHash');
-        if (memoContainer.classList.contains('locked')) { // アンロックしようとしている
-            passwordInput.focus();
-            return;
-        }
-        // ロックしようとしている
-        if (!passwordHash) { // 初回ロック
-            const newPassword = prompt('メモ帳のパスワードを設定してください:');
-            if (!newPassword) return;
-            const confirmPassword = prompt('確認のため、もう一度パスワードを入力してください:');
-            if (newPassword === confirmPassword) {
-                localStorage.setItem('memoPasswordHash', simpleHash(newPassword));
-                sessionStorage.setItem('memoSessionPassword', newPassword);
-                saveMemo();
-                lockMemo();
+        const newPassword = prompt('新しいパスワードを設定してください (空の場合はパスワードなし):');
+        if (newPassword !== null) {
+            if (newPassword) {
+                localStorage.setItem('memoPasswordHash', hashString(newPassword));
             } else {
-                alert('パスワードが一致しません。');
+                localStorage.removeItem('memoPasswordHash'); // パスワードを削除
             }
-        } else {
-            saveMemo();
-            lockMemo();
+            isMemoLocked = true;
+            updateMemoView();
+            alert('メモをロックしました。');
         }
     }
-    
-    function handleUnlockAttempt() {
-        const enteredPassword = passwordInput.value;
-        const storedHash = localStorage.getItem('memoPasswordHash');
-        if (simpleHash(enteredPassword) === storedHash) {
-            unlockMemo(enteredPassword);
-            passwordInput.value = '';
-        } else {
-            alert('パスワードが違います。');
-            passwordInput.value = '';
-        }
-    }
+
+    function saveMemo() { const currentText = memoTextarea.value; localStorage.setItem('siteMemo', currentText); if (currentText !== memoHistory[currentHistoryIndex]) { memoHistory = memoHistory.slice(0, currentHistoryIndex + 1); memoHistory.push(currentText); currentHistoryIndex++; } }
+    function undoMemo() { if (currentHistoryIndex > 0) { currentHistoryIndex--; memoTextarea.value = memoHistory[currentHistoryIndex]; localStorage.setItem('siteMemo', memoHistory[currentHistoryIndex]); } }
 
     function init() {
       const savedTheme = localStorage.getItem('siteTheme') || 'light';
@@ -422,30 +363,11 @@
       
       if (window.initBusSchedule) { window.initBusSchedule(); }
 
-      // メモ帳初期化
-      if (localStorage.getItem('memoMinimized') === 'true') { toggleMinimize(); }
-      const passwordHash = localStorage.getItem('memoPasswordHash');
-      if (passwordHash && localStorage.getItem('memoLockState') !== 'unlocked') {
-          lockMemo();
-      } else if (passwordHash) {
-          // ページリロード時はパスワードを要求
-          const sessionPassword = prompt('メモ帳のパスワードを入力してください:');
-          if (sessionPassword && simpleHash(sessionPassword) === passwordHash) {
-              unlockMemo(sessionPassword);
-          } else {
-              lockMemo();
-          }
-      } else {
-          memoTextarea.value = localStorage.getItem('memoContent') || '';
-          updateMemoHistory(memoTextarea.value);
-      }
-
+      updateMemoView();
       memoTextarea.addEventListener('input', saveMemo);
       undoBtn.addEventListener('click', undoMemo);
-      minimizeBtn.addEventListener('click', toggleMinimize);
-      lockBtn.addEventListener('click', handleLockToggle);
-      unlockSubmitBtn.addEventListener('click', handleUnlockAttempt);
-      passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleUnlockAttempt(); });
+      lockBtn.addEventListener('click', lockMemo);
+      unlockBtn.addEventListener('click', unlockMemo);
 
       document.getElementById('appSearchInput').addEventListener('input', filterContent);
       [mainGrid, statusContainer].forEach(area => {
