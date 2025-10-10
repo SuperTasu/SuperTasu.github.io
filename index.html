@@ -43,15 +43,8 @@
     
     body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; }
     
-    /* ★★ 変更: 全体レイアウト ★★ */
     .page-container { max-width: 1200px; margin: 0 auto; }
-    .main-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr; /* 左(アプリ)が2, 右(メモ)が1 */
-      grid-template-areas: "apps memo";
-      gap: 20px;
-      margin-top: 20px;
-    }
+    .main-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-areas: "apps memo"; gap: 20px; margin-top: 20px; }
     .apps-area { grid-area: apps; }
     .memo-area { grid-area: memo; }
     
@@ -111,7 +104,9 @@
     #undoBtn:hover { color: #667eea; }
     #memo-textarea { flex-grow: 1; width: 100%; border: none; background: transparent; padding: 15px; font-size: 14px; resize: none; outline: none; box-sizing: border-box; color: var(--text-color-primary); border-radius: 0 0 15px 15px; }
 
-    #bus-schedule-container { display: none; margin-top: 20px; font-family: 'Segoe UI', sans-serif; }
+    /* ★★ 変更: Statusタブ用のコンテナ ★★ */
+    #status-container { display: none; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+    
     .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
     .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
     .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
@@ -138,12 +133,21 @@
     .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
     .blink { animation: blink 1s infinite; }
     @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
+
+    /* ★★ 新規: その他のステータスのスタイル ★★ */
+    .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
+    .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
+    .game-buttons { display: flex; gap: 15px; }
+    .game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+    .game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
+    .iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
+    .iframe-container iframe { width: 100%; height: 100%; border: none; }
     
     @media (max-width: 900px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas: "apps" "memo";
-      }
+      body { padding: 10px; }
+      .main-grid { grid-template-columns: 1fr; grid-template-areas: "apps" "memo"; }
       .memo-area { min-height: 250px; }
     }
   </style>
@@ -178,7 +182,7 @@
         <div class="tab-item" id="tab-all" onclick="activateTab('all')"> <i class="fas fa-th-large"></i> All Apps </div>
         <div class="tab-item" id="tab-google" onclick="activateTab('google')"> <i class="fab fa-google"></i> Google </div>
         <div class="tab-item" id="tab-sns" onclick="activateTab('sns')"> <i class="fas fa-users"></i> SNS </div>
-        <div class="tab-item" id="tab-bus" onclick="activateTab('bus')"> <i class="fas fa-bus"></i> Bus </div>
+        <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
       </div>
     </div>
 
@@ -187,38 +191,8 @@
         <div id="search-wrapper">
           <div class="main-content" id="mainContent">
             <div class="grid-container" id="gridContainer">
-              <!-- アイコンリストは変更なし -->
-              <div class="icon-item search-item" data-category="google" data-search-text="Google グーグル"><a href="https://www.google.com" class="icon-link"> <img src="https://www.google.com/favicon.ico" class="icon-img" alt="Google"> </a><div class="label-text">Google</div></div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Gmail Google Mail メール"><a href="https://mail.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" class="icon-img" alt="Gmail"> </a><div class="label-text">Gmail</div></div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Google Calendar カレンダー"><a href="https://calendar.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png" class="icon-img" alt="Calendar"> </a><div class="label-text">Calendar</div></div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Google Photos フォト 写真"><a href="https://photos.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png" class="icon-img" alt="Photos"> </a><div class="label-text">Photos</div></div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Google Drive ドライブ"><a href="https://drive.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png" class="icon-img" alt="Drive"> </a><div class="label-text">Drive</div></div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Yahoo! ヤフー"> <a href="https://www.yahoo.co.jp" class="icon-link" target="_blank"> <img src="https://www.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!"> </a> <div class="label-text">Yahoo!</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="X Twitter ツイッター"> <a href="https://x.com/i/timeline" class="icon-link" target="_blank"> <img src="https://twitter.com/favicon.ico" class="icon-img" alt="X"> </a> <div class="label-text">X</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="Instagram インスタグラム"> <a href="https://www.instagram.com" class="icon-link" target="_blank"> <img src="https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png" class="icon-img" alt="Instagram"> </a> <div class="label-text">Instagram</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="YouTube ユーチューブ"> <a href="https://www.youtube.com/feed/subscriptions" class="icon-link" target="_blank"> <img src="https://www.youtube.com/favicon.ico" class="icon-img" alt="YouTube"> </a> <div class="label-text">YouTube</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="YT Shorts YouTube ショート"> <a href="https://www.youtube.com/feed/subscriptions/shorts" class="icon-link" target="_blank"> <i class="fab fa-youtube" style="color: #ff0000;"></i> </a> <div class="label-text">YT Shorts</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Remote It リモート"> <a href="https://app.remote.it" class="icon-link" target="_blank"> <i class="fas fa-desktop" style="color: #4285f4;"></i> </a> <div class="label-text">Remote It</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="TikTok ティックトック"> <a href="https://www.tiktok.com" class="icon-link" target="_blank"> <img src="https://www.tiktok.com/favicon.ico" class="icon-img" alt="TikTok"> </a> <div class="label-text">TikTok</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="Twitch ツイッチ"> <a href="https://www.twitch.tv" class="icon-link" target="_blank"> <img src="https://www.twitch.tv/favicon.ico" class="icon-img" alt="Twitch"> </a> <div class="label-text">Twitch</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Abema アベマ"> <a href="https://abema.tv/" class="icon-link" target="_blank"> <img src="https://abema.tv/favicon.ico" class="icon-img" alt="Abema"> </a> <div class="label-text">Abema</div> </div>
-              <div class="icon-item search-item" data-category="sns" data-search-text="Discord ディスコード"> <a href="https://discord.com/channels/@me" class="icon-link" target="_blank"> <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" class="icon-img" alt="Discord"> </a> <div class="label-text">Discord</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Spotify スポティファイ"> <a href="https://open.spotify.com/intl-ja" class="icon-link" target="_blank"> <img src="https://open.spotify.com/favicon.ico" class="icon-img" alt="Spotify"> </a> <div class="label-text">Spotify</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="神戸市交通局 地下鉄 バス"> <a href="https://kotsu.city.kobe.lg.jp/" class="icon-link" target="_blank"> <i class="fas fa-subway" style="color: #0066cc;"></i> </a> <div class="label-text">神戸市交通局</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="GigaFile ギガファイル便"> <a href="https://gigafile.nu/" class="icon-link" target="_blank"> <img src="https://gigafile.nu/favicon.ico" class="icon-img" alt="GigaFile便"> </a> <div class="label-text">GigaFile</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="ChatGPT AI"> <a href="https://chatgpt.com" class="icon-link" target="_blank"> <img src="https://chat.openai.com/favicon.ico" class="icon-img" alt="ChatGPT"> </a> <div class="label-text">ChatGPT</div> </div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Google AI Gemini"> <a href="https://aistudio.google.com/prompts/new_chat" class="icon-link" target="_blank"> <i class="fas fa-brain" style="color: #4285f4;"></i> </a> <div class="label-text">Google AI</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Claude AI クロード"> <a href="https://claude.ai" class="icon-link" target="_blank"> <img src="https://claude.ai/favicon.ico" class="icon-img" alt="Claude AI"> </a> <div class="label-text">Claude AI</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="BUSTARAIN バスタレイン"> <a href="https://sites.google.com/view/bustar/home" class="icon-link bustarain-icon" target="_blank"> <i class="fas fa-bus"></i> </a> <div class="label-text">BUSTARAIN</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Answer I アンサー"> <a href="https://sites.google.com/view/answer-i/home" class="icon-link answer-i-icon" target="_blank"> <i class="fas fa-question-circle"></i> </a> <div class="label-text">Answer I</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Rawkuro ブルーロック 漫画"> <a href="https://rawkuro.net/manga/bururokku004/di285hua" class="icon-link" target="_blank"> <i class="fas fa-futbol" style="color: #1e90ff;"></i> </a> <div class="label-text">Rawkuro</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="MN4U ブルーロック 漫画"> <a href="https://mn4u.net/tgm-84/" class="icon-link" target="_blank"> <img src="https://mn4u.net/favicon.ico" class="icon-img" alt="MN4U"> </a> <div class="label-text">MN4U</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="講談社 ブルーロック 漫画"> <a href="https://kmanga.kodansha.com/title/10008/episode/360423" class="icon-link" target="_blank"> <img src="https://kmanga.kodansha.com/favicon.ico" class="icon-img" alt="講談社"> </a> <div class="label-text">講談社</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="メルカリ フリマ"> <a href="https://www.mercari.com/jp/" class="icon-link" target="_blank"> <img src="https://mercari.com/favicon.ico" class="icon-img" alt="メルカリ"> </a> <div class="label-text">メルカリ</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="Yahoo!フリマ ヤフー"> <a href="https://paypayfleamarket.yahoo.co.jp/" class="icon-link" target="_blank"> <img src="https://paypayfleamarket.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!フリマ"> </a> <div class="label-text">Yahoo!フリマ</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="ヤマト運輸 宅急便"> <a href="https://www.kuronekoyamato.co.jp/" class="icon-link" target="_blank"> <i class="fas fa-truck" style="color: #00a54f;"></i> </a> <div class="label-text">ヤマト運輸</div> </div>
-              <div class="icon-item search-item" data-category="google" data-search-text="Google Sites サイト作成"> <a href="https://sites.google.com/new" class="icon-link" target="_blank"> <i class="fas fa-palette" style="color: #4285f4;"></i> </a> <div class="label-text">Google Sites</div> </div>
-              <div class="icon-item search-item" data-category="other" data-search-text="GitHub ギットハブ"> <a href="https://github.com" class="icon-link" target="_blank"> <i class="fab fa-github" style="color: #181717;"></i> </a> <div class="label-text">GitHub</div> </div>
+              <!-- アイコンリスト -->
+              <div class="icon-item search-item" data-category="google" data-search-text="Google グーグル"><a href="https://www.google.com" class="icon-link"> <img src="https://www.google.com/favicon.ico" class="icon-img" alt="Google"> </a><div class="label-text">Google</div></div><div class="icon-item search-item" data-category="google" data-search-text="Gmail Google Mail メール"><a href="https://mail.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" class="icon-img" alt="Gmail"> </a><div class="label-text">Gmail</div></div><div class="icon-item search-item" data-category="google" data-search-text="Google Calendar カレンダー"><a href="https://calendar.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png" class="icon-img" alt="Calendar"> </a><div class="label-text">Calendar</div></div><div class="icon-item search-item" data-category="google" data-search-text="Google Photos フォト 写真"><a href="https://photos.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png" class="icon-img" alt="Photos"> </a><div class="label-text">Photos</div></div><div class="icon-item search-item" data-category="google" data-search-text="Google Drive ドライブ"><a href="https://drive.google.com" target="_blank" class="icon-link"> <img src="https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png" class="icon-img" alt="Drive"> </a><div class="label-text">Drive</div></div><div class="icon-item search-item" data-category="other" data-search-text="Yahoo! ヤフー"> <a href="https://www.yahoo.co.jp" class="icon-link" target="_blank"> <img src="https://www.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!"> </a> <div class="label-text">Yahoo!</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="X Twitter ツイッター"> <a href="https://x.com/i/timeline" class="icon-link" target="_blank"> <img src="https://twitter.com/favicon.ico" class="icon-img" alt="X"> </a> <div class="label-text">X</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="Instagram インスタグラム"> <a href="https://www.instagram.com" class="icon-link" target="_blank"> <img src="https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png" class="icon-img" alt="Instagram"> </a> <div class="label-text">Instagram</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="YouTube ユーチューブ"> <a href="https://www.youtube.com/feed/subscriptions" class="icon-link" target="_blank"> <img src="https://www.youtube.com/favicon.ico" class="icon-img" alt="YouTube"> </a> <div class="label-text">YouTube</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="YT Shorts YouTube ショート"> <a href="https://www.youtube.com/feed/subscriptions/shorts" class="icon-link" target="_blank"> <i class="fab fa-youtube" style="color: #ff0000;"></i> </a> <div class="label-text">YT Shorts</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Remote It リモート"> <a href="https://app.remote.it" class="icon-link" target="_blank"> <i class="fas fa-desktop" style="color: #4285f4;"></i> </a> <div class="label-text">Remote It</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="TikTok ティックトック"> <a href="https://www.tiktok.com" class="icon-link" target="_blank"> <img src="https://www.tiktok.com/favicon.ico" class="icon-img" alt="TikTok"> </a> <div class="label-text">TikTok</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="Twitch ツイッチ"> <a href="https://www.twitch.tv" class="icon-link" target="_blank"> <img src="https://www.twitch.tv/favicon.ico" class="icon-img" alt="Twitch"> </a> <div class="label-text">Twitch</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Abema アベマ"> <a href="https://abema.tv/" class="icon-link" target="_blank"> <img src="https://abema.tv/favicon.ico" class="icon-img" alt="Abema"> </a> <div class="label-text">Abema</div> </div><div class="icon-item search-item" data-category="sns" data-search-text="Discord ディスコード"> <a href="https://discord.com/channels/@me" class="icon-link" target="_blank"> <img src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg" class="icon-img" alt="Discord"> </a> <div class="label-text">Discord</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Spotify スポティファイ"> <a href="https://open.spotify.com/intl-ja" class="icon-link" target="_blank"> <img src="https://open.spotify.com/favicon.ico" class="icon-img" alt="Spotify"> </a> <div class="label-text">Spotify</div> </div><div class="icon-item search-item" data-category="other" data-search-text="神戸市交通局 地下鉄 バス"> <a href="https://kotsu.city.kobe.lg.jp/" class="icon-link" target="_blank"> <i class="fas fa-subway" style="color: #0066cc;"></i> </a> <div class="label-text">神戸市交通局</div> </div><div class="icon-item search-item" data-category="other" data-search-text="GigaFile ギガファイル便"> <a href="https://gigafile.nu/" class="icon-link" target="_blank"> <img src="https://gigafile.nu/favicon.ico" class="icon-img" alt="GigaFile便"> </a> <div class="label-text">GigaFile</div> </div><div class="icon-item search-item" data-category="other" data-search-text="ChatGPT AI"> <a href="https://chatgpt.com" class="icon-link" target="_blank"> <img src="https://chat.openai.com/favicon.ico" class="icon-img" alt="ChatGPT"> </a> <div class="label-text">ChatGPT</div> </div><div class="icon-item search-item" data-category="google" data-search-text="Google AI Gemini"> <a href="https://aistudio.google.com/prompts/new_chat" class="icon-link" target="_blank"> <i class="fas fa-brain" style="color: #4285f4;"></i> </a> <div class="label-text">Google AI</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Claude AI クロード"> <a href="https://claude.ai" class="icon-link" target="_blank"> <img src="https://claude.ai/favicon.ico" class="icon-img" alt="Claude AI"> </a> <div class="label-text">Claude AI</div> </div><div class="icon-item search-item" data-category="other" data-search-text="BUSTARAIN バスタレイン"> <a href="https://sites.google.com/view/bustar/home" class="icon-link bustarain-icon" target="_blank"> <i class="fas fa-bus"></i> </a> <div class="label-text">BUSTARAIN</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Answer I アンサー"> <a href="https://sites.google.com/view/answer-i/home" class="icon-link answer-i-icon" target="_blank"> <i class="fas fa-question-circle"></i> </a> <div class="label-text">Answer I</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Rawkuro ブルーロック 漫画"> <a href="https://rawkuro.net/manga/bururokku004/di285hua" class="icon-link" target="_blank"> <i class="fas fa-futbol" style="color: #1e90ff;"></i> </a> <div class="label-text">Rawkuro</div> </div><div class="icon-item search-item" data-category="other" data-search-text="MN4U ブルーロック 漫画"> <a href="https://mn4u.net/tgm-84/" class="icon-link" target="_blank"> <img src="https://mn4u.net/favicon.ico" class="icon-img" alt="MN4U"> </a> <div class="label-text">MN4U</div> </div><div class="icon-item search-item" data-category="other" data-search-text="講談社 ブルーロック 漫画"> <a href="https://kmanga.kodansha.com/title/10008/episode/360423" class="icon-link" target="_blank"> <img src="https://kmanga.kodansha.com/favicon.ico" class="icon-img" alt="講談社"> </a> <div class="label-text">講談社</div> </div><div class="icon-item search-item" data-category="other" data-search-text="メルカリ フリマ"> <a href="https://www.mercari.com/jp/" class="icon-link" target="_blank"> <img src="https://mercari.com/favicon.ico" class="icon-img" alt="メルカリ"> </a> <div class="label-text">メルカリ</div> </div><div class="icon-item search-item" data-category="other" data-search-text="Yahoo!フリマ ヤフー"> <a href="https://paypayfleamarket.yahoo.co.jp/" class="icon-link" target="_blank"> <img src="https://paypayfleamarket.yahoo.co.jp/favicon.ico" class="icon-img" alt="Yahoo!フリマ"> </a> <div class="label-text">Yahoo!フリマ</div> </div><div class="icon-item search-item" data-category="other" data-search-text="ヤマト運輸 宅急便"> <a href="https://www.kuronekoyamato.co.jp/" class="icon-link" target="_blank"> <i class="fas fa-truck" style="color: #00a54f;"></i> </a> <div class="label-text">ヤマト運輸</div> </div><div class="icon-item search-item" data-category="google" data-search-text="Google Sites サイト作成"> <a href="https://sites.google.com/new" class="icon-link" target="_blank"> <i class="fas fa-palette" style="color: #4285f4;"></i> </a> <div class="label-text">Google Sites</div> </div><div class="icon-item search-item" data-category="other" data-search-text="GitHub ギットハブ"> <a href="https://github.com" class="icon-link" target="_blank"> <i class="fab fa-github" style="color: #181717;"></i> </a> <div class="label-text">GitHub</div> </div>
             </div>
           </div>
         </div>
@@ -234,19 +208,37 @@
       </aside>
     </div>
 
-    <div id="bus-schedule-container">
-      <div class="bus-display-board">
-        <div class="bus-header">
-          <div class="bus-stop-name">鷹取団地前</div>
-          <div class="direction-controls">
-            <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
-            <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
-          </div>
-          <div class="schedule-type" id="scheduleType"></div>
+    <div id="status-container">
+        <div class="bus-display-board">
+            <div class="bus-header">
+                <div class="bus-stop-name">鷹取団地前</div>
+                <div class="direction-controls">
+                    <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
+                    <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
+                </div>
+                <div class="schedule-type" id="scheduleType"></div>
+            </div>
+            <div id="justDepartedSection"></div>
+            <div class="departures-container" id="upcomingDeparturesContainer"></div>
         </div>
-        <div id="justDepartedSection"></div>
-        <div class="departures-container" id="upcomingDeparturesContainer"></div>
-      </div>
+
+        <div class="other-statuses">
+            <div class="status-card">
+                <h3 class="status-card-title">Game Status</h3>
+                <div class="game-buttons">
+                    <a href="https://apexlegendsstatus.com/current-map" class="game-button apex"> <i class="fas fa-crosshairs"></i> Apex Legends </a>
+                    <a href="https://www.splatoon3-schedule.net" class="game-button splatoon"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a>
+                </div>
+            </div>
+            <div class="status-card">
+                <h3 class="status-card-title">回線速度テスト</h3>
+                <div class="iframe-container"><iframe src="https://fast.com/ja/" title="速度テスト"></iframe></div>
+            </div>
+            <div class="status-card">
+                <h3 class="status-card-title">兵庫県警報・注意報</h3>
+                <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div>
+            </div>
+        </div>
     </div>
   </div>
 
@@ -255,7 +247,7 @@
   <script>
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
     const mainGrid = document.getElementById('main-grid');
-    const busScheduleContainer = document.getElementById('bus-schedule-container');
+    const statusContainer = document.getElementById('status-container');
 
     function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
     function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
@@ -268,12 +260,12 @@
         const activeTabElement = document.getElementById(`tab-${tabId}`);
         if(activeTabElement) activeTabElement.classList.add('active');
         
-        if (tabId === 'bus') {
+        if (tabId === 'status') {
             mainGrid.style.display = 'none';
-            busScheduleContainer.style.display = 'block';
+            statusContainer.style.display = 'flex';
         } else {
             mainGrid.style.display = 'grid';
-            busScheduleContainer.style.display = 'none';
+            statusContainer.style.display = 'none';
             filterIconsByCategory(tabId);
         }
         localStorage.setItem('siteActiveTab', tabId);
@@ -282,7 +274,7 @@
     function filterIconsByCategory(t){document.querySelectorAll(".icon-item").forEach(e=>{"all"===t||e.dataset.category===t?e.style.display="block":e.style.display="none"})}
     function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase(),e=document.querySelectorAll(".icon-item");if(t){activateTab('all')}else{const t=localStorage.getItem("siteActiveTab")||"all";return void activateTab(t)}e.forEach(e=>{e.dataset.searchText.toLowerCase().includes(t)?e.style.display="block":e.style.display="none"})}
     
-    const TABS_ORDER=["all","google","sns","bus"];
+    const TABS_ORDER=["all","google","sns","status"];
     let touchStartX=0,touchStartY=0;
     function handleTouchStart(t){touchStartX=t.changedTouches[0].screenX,touchStartY=t.changedTouches[0].screenY}
     function handleTouchEnd(t){const e=t.changedTouches[0].screenX,n=t.changedTouches[0].screenY,o=e-touchStartX,a=n-touchStartY;if(Math.abs(o)>Math.abs(a)&&Math.abs(o)>50){const t=localStorage.getItem("siteActiveTab")||"all";let e=TABS_ORDER.indexOf(t);o<0?e=(e+1)%TABS_ORDER.length:e=(e-1+TABS_ORDER.length)%TABS_ORDER.length,activateTab(TABS_ORDER[e])}}
@@ -313,7 +305,7 @@
       undoBtn.addEventListener('click', undoMemo);
 
       document.getElementById('appSearchInput').addEventListener('input', filterContent);
-      [mainGrid, busScheduleContainer].forEach(area => {
+      [mainGrid, statusContainer].forEach(area => {
         area.addEventListener('touchstart', handleTouchStart, false);
         area.addEventListener('touchend', handleTouchEnd, false);
       });
@@ -325,12 +317,12 @@
     setInterval(() => { 
         updateClockAndDate(); 
         calcTime();
-        if (window.updateBusCountdowns && document.getElementById('tab-bus').classList.contains('active')) {
+        if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) {
             window.updateBusCountdowns();
         }
     }, 1000); 
     setInterval(() => {
-        if (window.updateBusDisplay && document.getElementById('tab-bus').classList.contains('active')) {
+        if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) {
             window.updateBusDisplay();
         }
     }, 30000); 
