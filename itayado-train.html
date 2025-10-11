@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電光掲示板 - 板宿・新長田</title>
+  <style>
+    body { font-family: "Arial", sans-serif; background-color: #fff; color: #547443; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; box-sizing: border-box; }
+    .header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; margin-bottom: 20px; flex-wrap: wrap; gap: 20px; }
+    .station-title { font-size: clamp(32px, 8vw, 56px); color: #005739; margin: 0; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); letter-spacing: 2px; flex: 1; min-width: 200px; }
+    .header-info { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .clock { font-size: clamp(24px, 6vw, 36px); color: #547443; font-weight: bold; text-align: right; }
+    .day-indicator { font-size: clamp(14px, 3.5vw, 18px); padding: 6px 12px; border-radius: 8px; font-weight: bold; text-align: center; white-space: nowrap; }
+    .weekday { background-color: #e8f5e8; color: #2d5016; }
+    .holiday { background-color: #ffe8e8; color: #8b0000; }
+    .container { display: flex; gap: 20px; width: 100%; max-width: 800px; flex-wrap: wrap; justify-content: center; }
+    .board { border: 2px solid #005739; background: #f0f8ff; padding: 15px; flex: 1; min-width: 280px; max-width: 380px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+    .title { font-size: clamp(16px, 4.5vw, 20px); margin-bottom: 10px; border-bottom: 2px solid #547443; padding-bottom: 5px; color: #547443; line-height: 1.2; }
+    .departure { font-size: clamp(14px, 4vw, 18px); margin: 8px 0; line-height: 1.3; }
+    .next-times { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; font-size: clamp(13px, 3.5vw, 16px); color: #547443; }
+    .next-times div { background-color: #e8f5e8; padding: 4px 8px; border-radius: 4px; min-width: 50px; text-align: center; }
+    /* 青セクションのスタイル */
+    .blue-section { width: 100%; max-width: 800px; }
+    .blue-header { justify-content: flex-start; }
+    .blue-station-title { color: #1e5799; text-align: left; }
+    .blue-clock { color: #1e5799; }
+    .blue-day-indicator.weekday { background-color: #e6f3ff; color: #1e5799; }
+    .blue-day-indicator.holiday { background-color: #cce6ff; color: #0d4080; }
+    .blue-board { border-color: #1e5799; }
+    .blue-title-text { border-bottom-color: #1e5799; color: #1e5799; }
+    .blue-next-times div { background-color: #e6f3ff; }
+
+    @media screen and (max-width: 768px) {
+      body { padding: 8px; }
+      .header, .blue-header { flex-direction: column; align-items: center; text-align: center; gap: 15px; margin-bottom: 15px; }
+      .blue-header { align-items: flex-start; text-align: left; }
+      .station-title, .blue-station-title { min-width: unset; text-align: center; }
+      .header-info { align-items: center; }
+      .clock, .blue-clock { text-align: center; }
+      .blue-section { padding: 0; margin-top: 20px; }
+      .container { flex-direction: column; gap: 15px; }
+      .board { min-width: unset; max-width: unset; width: 100%; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="station-title">S10 板宿駅</h1>
+    <div class="header-info">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="day-indicator" id="dayIndicator">--</div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="board" id="northbound"><div class="title">① 三宮・新神戸・谷上方面行</div><div class="departure" id="north-1"></div><div class="departure" id="north-2"></div><div class="next-times" id="north-nexts"></div></div>
+    <div class="board" id="southbound"><div class="title">② 名谷・西神中央方面行</div><div class="departure" id="south-1"></div><div class="departure" id="south-2"></div><div class="next-times" id="south-nexts"></div></div>
+  </div>
+
+  <div class="blue-section">
+    <div class="header blue-header">
+      <h1 class="station-title blue-station-title">K10 新長田駅</h1>
+      <div class="header-info">
+        <div class="clock blue-clock" id="clock2">--:--:--</div>
+        <div class="day-indicator blue-day-indicator" id="dayIndicator2">--</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="board blue-board" id="shinnagata"><div class="title blue-title-text">① 三宮・花時計前方面行</div><div class="departure" id="shinnagata-1"></div><div class="departure" id="shinnagata-2"></div><div class="next-times blue-next-times" id="shinnagata-nexts"></div></div>
+    </div>
+  </div>
+  <script>
+    const northTimesWeekdays={5:[28,41,48,58],6:[6,15,24,30,40,46,52,59],7:[4,9,15,19,23,27,32,36,40,44,48,51,55,58],8:[2,5,9,13,17,21,25,30,34,39,44,49,53,59],9:[4,9,16,20,24,29,33,38,46,54],10:[2,10,17,25,32,40,47,55],11:[2,10,17,25,32,40,47,55],12:[2,10,17,25,32,40,47,55],13:[2,10,17,25,32,40,47,55],14:[2,10,17,25,32,40,47,55],15:[2,10,17,25,32,40,47,54,57],16:[3,9,16,24,31,37,43,49,55],17:[1,9,15,20,25,31,36,42,48,54],18:[0,5,11,17,22,27,34,40,46,51,56],19:[2,8,14,21,26,33,38,44,50,56],20:[1,8,13,18,24,30,37,44,49,55],21:[1,7,13,19,24,30,35,41,48,55],22:[1,8,15,23,33,41,49,56],23:[7,17,33,42,50],0:[10,21]};
+    const northTimesHolidays={5:[28,41,48],6:[1,13,23,32,41,48,55],7:[4,10,16,22,27,33,39,45,52,59],8:[4,10,14,20,25,31,37,42,47,53,59],9:[5,10,16,23,31,38,47,54],10:[2,10,17,25,32,40,47,55],11:[2,10,17,25,32,40,47,55],12:[2,10,17,25,32,40,47,55],13:[2,10,17,25,32,40,47,55],14:[2,10,17,25,32,40,47,55],15:[2,10,17,25,32,40,47,55],16:[1,7,12,19,25,32,40,48,55],17:[3,10,18,25,32,39,46,53],18:[0,7,14,20,27,34,40,46,54],19:[1,9,17,24,31,38,46,54],20:[1,8,15,23,30,37,45,52],21:[0,8,15,23,31,39,47,54],22:[1,8,12,20,27,35,42,50,57],23:[4,17,32,44,50],0:[]};
+    const southTimesWeekdays={5:[42,55],6:[5,15,26,35,42,52],7:[0,7,14,19,23,28,32,35,39,44,48,53,58],8:[3,7,12,16,20,24,27,31,34,38,41,45,49,53,57],9:[2,6,10,15,20,27,33,36,41,46,52],10:[0,8,14,21,28,36,43,51,58],11:[6,13,21,28,36,43,51,58],12:[6,13,21,28,36,43,51,58],13:[6,13,21,28,36,43,51,58],14:[6,13,21,28,36,43,51,58],15:[6,13,21,29,36,43,51,58],16:[8,15,22,28,34,40,45,51,57],17:[3,8,14,20,25,31,36,41,46,53],18:[0,6,11,17,23,28,35,41,47,52,58],19:[4,9,15,21,27,32,37,43,49,55],20:[2,8,14,21,27,33,38,44,50,55],21:[1,8,15,23,28,36,42,47,53],22:[1,10,21,27,35,43,51,59],23:[7,12,17,25,31,37,50],0:[2,19,33,48]};
+    const southTimesHolidays={5:[42,55],6:[9,22,30,40,52,59],7:[5,11,23,29,35,39,45,50,57],8:[2,7,13,20,24,30,36,40,46,51,57],9:[2,10,16,22,28,35,40,44,52,59],10:[6,14,21,28,36,43,51,58],11:[6,13,21,28,36,43,51,58],12:[6,13,21,28,36,43,51,58],13:[6,13,21,28,36,43,51,58],14:[6,13,21,28,36,43,51,58],15:[6,13,21,27,36,44,51,58],16:[6,13,21,29,36,44,51,58],17:[4,11,18,24,31,39,46,54],18:[0,8,14,22,29,36,44,51,58],19:[6,13,22,28,35,41,48,54],20:[1,9,16,24,32,40,48,57],21:[6,13,21,28,36,44,51,59],22:[7,15,22,29,36,42,49,56],23:[5,15,21,27,38,50],0:[1]};
+    const shinnagataTimes={5:[35,51],6:[8,20,31,40,50,57],7:[5,12,20,26,32,38,44,50,56],8:[2,8,14,20,26,32,38,44,52,57],9:[0,4,10,20,30,40,50],10:[0,10,20,30,40,50],11:[0,10,20,30,40,50],12:[0,10,20,30,40,50],13:[0,10,20,30,40,50],14:[0,10,20,30,40,50],15:[0,10,20,30,40,50],16:[0,10,20,30,40,50],17:[0,7,15,23,30,37,45,52],18:[0,7,15,22,30,37,45,52],19:[0,10,20,23,30,40,50],20:[0,10,20,30,40,50],21:[0,10,20,30,41,53],22:[5,17,29,45,50,59],23:[15,30,45,56],0:[]};
+    const shinnagataTimesHolidays={5:[35,51],6:[9,20,35,45,55],7:[5,15,25,35,45,55],8:[2,10,17,25,32,40,45,50],9:[0,5,10,20,30,40,50],10:[0,10,20,30,40,50],11:[0,10,20,30,40,50],12:[0,10,20,30,40,50],13:[0,10,20,30,40,50],14:[0,10,20,30,40,50],15:[0,10,20,30,40,50],16:[0,10,20,30,40,50],17:[0,10,20,30,40,50],18:[0,10,20,30,40,50],19:[0,10,20,30,40,50],20:[0,10,20,30,40,50],21:[0,10,20,30,41,53],22:[5,17,29,45,50,59],23:[15,30,45,56],0:[]};
+    function isHoliday(t){const e=t.getFullYear(),n=t.getMonth()+1,o=t.getDate(),a=t.getDay();if(0===a||6===a)return!0;const i=[[1,1],[2,11],[2,23],[4,29],[5,3],[5,4],[5,5],[8,11],[11,3],[11,23]];for(let[t,o]of i)if(n===t&&o===a)return!0;if(2024===e){const t=[[1,8],[3,20],[7,15],[9,16],[9,22],[10,14]];for(let[e,o]of t)if(n===e&&o===a)return!0}else if(2025===e){const t=[[1,13],[3,20],[7,21],[9,15],[9,23],[10,13]];for(let[e,o]of t)if(n===e&&o===a)return!0}return!1}
+    function getNextDepartures(t){const e=new Date,n=e.getHours(),o=e.getMinutes(),a=[];for(let e=n;e<=23||0===e&&0===n;e=(e+1)%24){const i=t[e]||[];for(let t of i)if(e>n||e===n&&t>o){if(a.push({hour:e,min:t}),a.length>=7)return a}if(23===e&&0!==n)break}if(a.length<7)for(let e=0;e<=6;e++){const n=t[e]||[];for(let t of n)if(a.push({hour:e,min:t}),a.length>=7)return a}return a}
+    function formatTime(t){return`${t.hour.toString().padStart(2,"0")}:${t.min.toString().padStart(2,"0")}`}
+    function countdown(t){const e=new Date,n=new Date(e);if(n.setHours(t.hour),n.setMinutes(t.min),n.setSeconds(0),n<=e)n.setDate(e.getDate()+1);const o=Math.floor((n-e)/1e3),a=Math.floor(o/3600),i=Math.floor(o%3600/60),r=o%60;return a>0?`${a}時間${i}分${r}秒後`:`${i}分${r}秒後`}
+    function updateBoardLine(t,e){const n=getNextDepartures(t);if(0===n.length)return document.getElementById(`${e}-1`).textContent="先発：運行終了",document.getElementById(`${e}-2`).textContent="次発：運行終了",void(document.getElementById(`${e}-nexts`).innerHTML="");if(n.length>=1){const t=n[0];document.getElementById(`${e}-1`).textContent=`先発：${formatTime(t)}（${countdown(t)}）`}if(n.length>=2){const t=n[1];document.getElementById(`${e}-2`).textContent=`次発：${formatTime(t)}（${countdown(t)}）`}const o=document.getElementById(`${e}-nexts`);o.innerHTML="",n.slice(2,7).forEach(t=>{const e=document.createElement("div");e.textContent=`${formatTime(t)}`,o.appendChild(e)})}
+    function updateDayIndicator(){const t=new Date,e=document.getElementById("dayIndicator"),n=document.getElementById("dayIndicator2");isHoliday(t)?(e.textContent="土・休日ダイヤ",e.className="day-indicator holiday",n.textContent="土・休日ダイヤ",n.className="day-indicator blue-day-indicator holiday"):(e.textContent="平日ダイヤ",e.className="day-indicator weekday",n.textContent="平日ダイヤ",n.className="day-indicator blue-day-indicator weekday")}
+    function updateClock(){const t=new Date,e=t.getHours().toString().padStart(2,"0"),n=t.getMinutes().toString().padStart(2,"0"),o=t.getSeconds().toString().padStart(2,"0"),a=`${e}:${n}:${o}`;document.getElementById("clock").textContent=a,document.getElementById("clock2").textContent=a}
+    function updateAll(){updateClock(),updateDayIndicator();const t=isHoliday(new Date);t?(updateBoardLine(northTimesHolidays,"north"),updateBoardLine(southTimesHolidays,"south"),updateBoardLine(shinnagataTimesHolidays,"shinnagata")):(updateBoardLine(northTimesWeekdays,"north"),updateBoardLine(southTimesWeekdays,"south"),updateBoardLine(shinnagataTimes,"shinnagata"))}
+    updateAll(),setInterval(updateAll,1e3);
+  </script>
+</body>
+</html>
