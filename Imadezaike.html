@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バス電光掲示板</title>
+    <style>
+        body {
+            font-family: 'MS Gothic', monospace;
+            background-color: #fff;
+            color: #333;
+            margin: 0;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                font-size: 12px;
+            }
+        }
+        
+        .display-board {
+            background-color: #fff;
+            border: 3px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .display-board {
+                padding: 10px;
+                border-width: 2px;
+            }
+        }
+        
+        .header-container {
+            position: relative;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-main-title {
+            width: 100%;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #009900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            user-select: none; /* スワイプ操作のためにテキスト選択を無効化 */
+            cursor: grab;
+        }
+
+        .swipe-indicator {
+            color: #aaa;
+            font-weight: bold;
+            font-size: 0.8em;
+            margin: 0 10px;
+            cursor: pointer; /* クリック可能であることを示すカーソル */
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                margin-bottom: 15px;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+             .header-main-title {
+                font-size: 24px;
+             }
+        }
+        
+        .direction-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .time-info {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            flex-shrink: 0;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .time-info {
+                position: static;
+                order: -1; /* 時刻情報をタイトルの上に表示 */
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+        }
+
+        .current-time {
+            font-size: 16px;
+            color: #0066cc;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .current-time {
+                font-size: 14px;
+            }
+        }
+        
+        .schedule-type {
+            font-size: 14px;
+            color: #009900;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 5px;
+            border: 2px solid #009900;
+        }
+        
+        @media (max-width: 768px) {
+            .schedule-type {
+                font-size: 12px;
+            }
+        }
+
+        .next-departure {
+            background-color: #e8f5e8;
+            border: 3px solid #009900;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .next-departure-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #009900;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .next-departure-title {
+                font-size: 18px;
+            }
+        }
+        
+        #justDepartedSection {
+            margin-bottom: 10px;
+        }
+        .just-departed-info {
+            font-size: 13px;
+            color: #444;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            margin: 0 auto 5px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .just-departed-info .route-number {
+             font-size: 12px;
+             padding: 1px 4px;
+             border-width: 1px;
+             margin-right: 5px;
+             color: #333;
+             border-color: #333;
+        }
+        .just-departed-info .detail-button {
+            flex-shrink: 0;
+            padding: 2px 8px;
+            font-size: 11px;
+        }
+
+        .next-departure-content-wrapper {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #009900;
+        }
+        
+        .next-departure-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .next-departure-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .next-departure-route {
+            flex: 1;
+            text-align: left;
+            /* --- 強調のためのスタイル追加 --- */
+            font-size: 22px;
+            font-weight: bold;
+            color: #0066cc;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .next-departure-route .route-number {
+            /* --- 強調のためのスタイル追加 --- */
+            font-size: 28px;
+            padding: 4px 12px;
+            border-width: 3px;
+            border-radius: 8px;
+            margin-right: 12px;
+            background-color: #0066cc;
+            color: white;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        @media (max-width: 768px) {
+            .next-departure-route {
+                text-align: center;
+                width: 100%;
+                font-size: 18px;
+            }
+             .next-departure-route .route-number {
+                font-size: 24px;
+            }
+        }
+        
+        .next-departure-time {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .next-departure-time {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        .next-departure-clock {
+            font-size: 24px;
+            font-weight: bold;
+            color: #cc0000;
+        }
+        
+        .next-departure-remaining {
+            font-size: 20px;
+            font-weight: bold;
+            color: #009900;
+        }
+        
+        @media (max-width: 768px) {
+            .next-departure-clock {
+                font-size: 28px;
+            }
+            
+            .next-departure-remaining {
+                font-size: 24px;
+            }
+        }
+        
+        .departure-detail-embedded {
+            position: relative;
+            margin-top: 10px;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .departure-detail-embedded iframe {
+            display: block;
+            border: none;
+            width: 100%;
+            min-height: 300px;
+        }
+        
+        @media (max-width: 768px) {
+            .departure-detail-embedded iframe {
+                min-height: 250px;
+            }
+        }
+
+        .expand-iframe-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            z-index: 10;
+            background-color: rgba(0, 102, 204, 0.8);
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .expand-iframe-btn:hover {
+            background-color: rgba(0, 82, 163, 1);
+        }
+
+        #departureList {
+            display: none;
+        }
+        
+        .departure-info {
+            display: flex;
+            margin-bottom: 6px;
+            padding: 8px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .departure-info {
+                flex-direction: column;
+                font-size: 14px;
+                padding: 6px;
+                white-space: normal;
+                gap: 3px;
+            }
+        }
+        
+        .departure-label {
+            width: 60px;
+            color: #333;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .departure-label {
+                width: 100%;
+                text-align: center;
+                font-size: 12px;
+                order: 1;
+            }
+        }
+        
+        .departure-route {
+            flex: 1;
+            color: #0066cc;
+            overflow: visible;
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 768px) {
+            .departure-route {
+                width: 100%;
+                text-align: center;
+                order: 2;
+                font-size: 16px;
+                white-space: normal;
+            }
+        }
+        
+        .route-number {
+            display: inline-block;
+            border: 2px solid #0066cc;
+            padding: 2px 6px;
+            margin-right: 8px;
+            background-color: #fff;
+            color: #0066cc;
+            font-size: 14px;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .route-number {
+                font-size: 16px;
+                min-width: 30px;
+                padding: 3px 8px;
+            }
+        }
+        
+        .time-remaining-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .time-remaining-section {
+                flex-direction: column;
+                order: 3;
+                width: 100%;
+                align-items: center;
+                gap: 8px;
+                margin-top: 5px;
+            }
+        }
+        
+        .departure-time {
+            color: #cc0000;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .departure-time {
+                font-size: 20px;
+                font-weight: bold;
+            }
+        }
+        
+        .remaining-time {
+            color: #009900;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .remaining-time {
+                font-size: 18px;
+            }
+        }
+        
+        .side-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .side-info {
+                width: 100%;
+                align-items: center;
+                order: 4;
+                gap: 8px;
+                margin-top: 5px;
+            }
+        }
+        
+        .detail-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-family: inherit; /* フォントを継承 */
+        }
+        
+        @media (max-width: 768px) {
+            .detail-button {
+                padding: 5px 10px;
+                font-size: 14px;
+                margin: 2px;
+            }
+        }
+        
+        .detail-button:hover {
+            background-color: #0052a3;
+        }
+        
+        .no-service, .no-next-departure {
+            color: #cc0000;
+            font-size: 16px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .no-service, .no-next-departure {
+                font-size: 14px;
+                padding: 15px;
+            }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .direction-button {
+            background-color: #f0f0f0;
+            border: 2px solid #333;
+            padding: 8px 16px;
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            white-space: normal;
+            word-wrap: break-word;
+            line-height: 1.2;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .direction-button {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+        
+        .direction-button.active {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        
+        .direction-button:hover:not(.active) {
+            background-color: #e0e0e0;
+        }
+        
+        .operation-panel {
+            background-color: #f8f8ff;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .operation-panel-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        .operation-panel-header:hover {
+            background-color: rgba(0, 102, 204, 0.1);
+        }
+        
+        .operation-panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 0 10px 0 0;
+        }
+        
+        .collapse-icon {
+            font-size: 14px;
+            color: #0066cc;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapse-icon.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .operation-panel-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
+        
+        .operation-panel-content.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .operation-panel-title {
+                font-size: 18px;
+            }
+            
+            .collapse-icon {
+                font-size: 16px;
+            }
+        }
+        
+        .route-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .route-checkboxes {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+        
+        .route-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        @media (max-width: 768px) {
+            .route-checkbox {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+        
+        .route-checkbox input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 768px) {
+            .route-checkbox input[type="checkbox"] {
+                margin-right: 12px;
+                transform: scale(1.4);
+            }
+        }
+        
+        .route-checkbox label {
+            flex: 1;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .route-checkbox-number {
+            display: inline-block;
+            border: 1px solid #0066cc;
+            padding: 1px 4px;
+            margin-right: 6px;
+            background-color: #fff;
+            color: #0066cc;
+            font-size: 11px;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .route-checkbox-number {
+                font-size: 12px;
+                min-width: 25px;
+                padding: 2px 6px;
+            }
+        }
+        
+        .filter-controls {
+            text-align: center;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        .filter-button {
+            background-color: #009900;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+        
+        .filter-button:hover {
+            background-color: #007700;
+        }
+        
+        .filter-button.secondary {
+            background-color: #666;
+        }
+        
+        .filter-button.secondary:hover {
+            background-color: #555;
+        }
+        
+        .datetime-search {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .datetime-search {
+                padding: 8px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+        }
+        
+        .datetime-title {
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .datetime-title {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+        }
+        
+        .datetime-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .datetime-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .datetime-input {
+            padding: 4px 6px;
+            font-size: 12px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .datetime-input {
+                padding: 8px 12px;
+                font-size: 16px;
+                width: 200px;
+            }
+        }
+        
+        .search-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #009900;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .search-button {
+                padding: 10px 20px;
+                font-size: 16px;
+                margin: 5px;
+            }
+        }
+        
+        .reset-button {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .reset-button {
+                padding: 10px 20px;
+                font-size: 16px;
+                margin: 5px;
+            }
+        }
+
+        .departures-container {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+        }
+
+        .show-departures-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 80%;
+            max-width: 300px;
+            font-family: inherit;
+        }
+
+        .show-departures-btn:hover {
+            background-color: #0052a3;
+        }
+
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.visible {
+            display: flex;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .close-modal {
+            color: #aaa;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #000;
+        }
+        #modalDepartureList .departure-info {
+            margin-bottom: 10px;
+            padding: 12px;
+        }
+        
+        .iframe-modal-content {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            width: 95%;
+            height: 90vh;
+            max-width: 1200px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        #closeIframeModal {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            color: #000;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        #iframeModalContainer {
+            width: 100%;
+            height: 100%;
+            flex-grow: 1;
+        }
+        #iframeModalContainer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="display-board">
+        <div class="header-container">
+             <div class="time-info">
+                <div class="current-time" id="currentTime"></div>
+                <div class="schedule-type" id="scheduleType"></div>
+            </div>
+            <div class="header-main-title" id="headerMainTitle">
+                 <span class="swipe-indicator" id="prevStopBtn">◀</span>
+                 <span id="busStopName"></span>
+                 <span class="swipe-indicator" id="nextStopBtn">▶</span>
+            </div>
+            <div class="direction-controls">
+                <button id="shinkaichi-btn" class="direction-button active">新開地・夢野方面</button>
+                <button id="yoshidacho-btn" class="direction-button">吉田町・名倉町方面</button>
+            </div>
+        </div>
+        
+        <div class="operation-panel" id="operationPanel">
+            <div class="operation-panel-header" id="operationPanelHeader">
+                <div class="operation-panel-title">表示設定（系統・時刻）</div>
+                <div class="collapse-icon" id="collapseIcon">▼</div>
+            </div>
+            <div class="operation-panel-content" id="operationPanelContent">
+                <div class="route-checkboxes" id="routeCheckhouses">
+                    <!-- 動的に生成される系統チェックボックス -->
+                </div>
+                <div class="filter-controls">
+                    <button id="selectAllBtn" class="filter-button">すべて選択</button>
+                    <button id="clearAllBtn" class="filter-button secondary">すべて解除</button>
+                </div>
+                <div class="datetime-search">
+                    <div class="datetime-title">時刻指定検索</div>
+                    <div class="datetime-controls">
+                        <input type="date" id="searchDate" class="datetime-input">
+                        <input type="time" id="searchTime" class="datetime-input">
+                        <button id="searchBtn" class="search-button">検索</button>
+                        <button id="resetBtn" class="reset-button">現在時刻</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="next-departure" id="nextDepartureSection">
+            <div class="next-departure-title">先発</div>
+            <div id="justDepartedSection"></div>
+            <div id="nextDepartureContentWrapper">
+                <!-- 動的に生成される先発情報 -->
+            </div>
+        </div>
+        
+        <div class="departures-container">
+            <button id="showDeparturesBtn" class="show-departures-btn">出発予定一覧を表示</button>
+            <div id="departureList">
+                <!-- 動的に生成される発車情報（この部分は非表示） -->
+            </div>
+        </div>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">出発予定一覧</div>
+                <span id="closeModal" class="close-modal">&times;</span>
+            </div>
+            <div id="modalDepartureList">
+                <!-- JavaScriptによって出発情報がここにコピーされます -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="iframeModalOverlay" class="modal-overlay">
+        <div class="iframe-modal-content">
+            <span id="closeIframeModal" class="close-modal">&times;</span>
+            <div id="iframeModalContainer">
+                <!-- ここに拡大表示するiframeが挿入される -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const busStops = {
+            wadamisaki: { name: '和田岬', adjustment: { yoshidacho: 1, shinkaichi: -1 } },
+            imade: { name: '今出在家町', adjustment: { yoshidacho: 0, shinkaichi: 0 } },
+            museum: { name: '県立兵庫津ミュージアム前', adjustment: { yoshidacho: -1, shinkaichi: 1 } },
+            market: { name: '中央市場', adjustment: { yoshidacho: -2, shinkaichi: 2 } }
+        };
+
+        const detailUrls = {
+            wadamisaki: {
+                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0151" },
+                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0150" }
+            },
+            imade: {
+                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151" },
+                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150" }
+            },
+            museum: {
+                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0151" },
+                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0150" }
+            },
+            market: {
+                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0151" },
+                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0150" }
+            }
+        };
+
+        const timetables = {
+            shinkaichi: {
+                route3: { name: "新開地・夢野方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [35] }, { hour: 7, minutes: [3, 15, 27, 39, 51] }, { hour: 8, minutes: [3, 35] }, { hour: 9, minutes: [34] }, { hour: 10, minutes: [34] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [12, 23, 30, 39, 48, 57] }, { hour: 18, minutes: [13, 23, 33, 43, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [3] }], holidays: [{ hour: 6, minutes: [30, 49] }, { hour: 7, minutes: [8, 35, 51] }, { hour: 8, minutes: [35] }, { hour: 9, minutes: [33] }, { hour: 10, minutes: [33] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [33] }, { hour: 18, minutes: [13, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [37] }] },
+                route9: { name: "新開地・兵庫駅前方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 7, minutes: [10] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [2] }, { hour: 10, minutes: [2] }, { hour: 11, minutes: [2] }, { hour: 12, minutes: [2] }, { hour: 13, minutes: [2] }, { hour: 14, minutes: [2] }, { hour: 15, minutes: [2] }, { hour: 16, minutes: [2] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [5] }, { hour: 19, minutes: [5] }, { hour: 20, minutes: [5] }, { hour: 21, minutes: [5] }], holidays: [{ hour: 7, minutes: [21] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [3] }, { hour: 10, minutes: [3] }, { hour: 11, minutes: [3] }, { hour: 12, minutes: [3] }, { hour: 13, minutes: [3] }, { hour: 14, minutes: [3] }, { hour: 15, minutes: [3] }, { hour: 16, minutes: [3] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [3] }, { hour: 19, minutes: [3] }, { hour: 20, minutes: [3] }, { hour: 21, minutes: [3] }, { hour: 22, minutes: [3] }] }
+            },
+            yoshidacho: {
+                route3: { name: "名倉町方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 9, minutes: [45] }, { hour: 11, minutes: [45] }, { hour: 13, minutes: [45] }, { hour: 15, minutes: [45] }], holidays: [{ hour: 9, minutes: [42] }, { hour: 11, minutes: [43] }, { hour: 13, minutes: [43] }, { hour: 15, minutes: [43] }] },
+                route9: { name: "新開地先行 吉田町１丁目方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [38] }, { hour: 7, minutes: [1, 12, 22, 32, 42, 49, 55] }, { hour: 8, minutes: [0, 5, 13, 15, 20, 25, 30, 35, 40, 45, 55] }, { hour: 9, minutes: [16] }, { hour: 10, minutes: [16, 45] }, { hour: 11, minutes: [16] }, { hour: 12, minutes: [16, 45] }, { hour: 13, minutes: [16] }, { hour: 14, minutes: [16, 45] }, { hour: 15, minutes: [16] }, { hour: 16, minutes: [16, 45] }, { hour: 17, minutes: [16, 49] }, { hour: 18, minutes: [4, 19, 34, 49] }, { hour: 19, minutes: [4, 19, 34, 49] }, { hour: 20, minutes: [17, 37] }, { hour: 21, minutes: [17, 30] }, { hour: 22, minutes: [40] }], holidays: [{ hour: 6, minutes: [38, 57] }, { hour: 7, minutes: [14, 23, 31, 50] }, { hour: 8, minutes: [11, 22, 42] }, { hour: 9, minutes: [14] }, { hour: 10, minutes: [15, 43] }, { hour: 11, minutes: [15] }, { hour: 12, minutes: [15, 43] }, { hour: 13, minutes: [15] }, { hour: 14, minutes: [15, 43] }, { hour: 15, minutes: [15] }, { hour: 16, minutes: [15, 43] }, { hour: 17, minutes: [15, 41] }, { hour: 18, minutes: [11, 15, 42] }, { hour: 19, minutes: [13, 15, 45] }, { hour: 20, minutes: [15, 41] }, { hour: 21, minutes: [8, 38] }, { hour: 22, minutes: [8, 38] }] }
+            }
+        };
+        
+        let currentDirection = 'shinkaichi';
+        let currentBusStop = 'imade'; 
+        let customDateTime = null;
+        let selectedRoutes = new Set();
+        const busStopOrder = ['wadamisaki', 'imade', 'museum', 'market'];
+
+        function getCurrentDateTime() {
+            return customDateTime || new Date();
+        }
+
+        function updateTime() {
+            const now = getCurrentDateTime();
+            const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            const timeElement = document.getElementById('currentTime');
+            timeElement.textContent = timeString;
+            if (customDateTime) {
+                timeElement.style.backgroundColor = 'rgba(255, 200, 200, 0.9)';
+                timeElement.style.color = '#cc0000';
+            } else {
+                timeElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                timeElement.style.color = '#0066cc';
+            }
+            
+            const scheduleTypeElement = document.getElementById('scheduleType');
+            if (isHoliday(now)) {
+                scheduleTypeElement.textContent = '休日ダイヤ';
+                scheduleTypeElement.style.color = '#cc0000';
+                scheduleTypeElement.style.borderColor = '#cc0000';
+            } else {
+                scheduleTypeElement.textContent = '平日ダイヤ';
+                scheduleTypeElement.style.color = '#009900';
+                scheduleTypeElement.style.borderColor = '#009900';
+            }
+        }
+
+        function isHoliday(date) {
+            const day = date.getDay();
+            const month = date.getMonth() + 1;
+            const dateNum = date.getDate();
+            const year = date.getFullYear();
+            
+            if (year === 2025 && month === 8 && dateNum === 15) return true;
+            return day === 0 || day === 6;
+        }
+        
+        function updateBusStopName() {
+            document.getElementById('busStopName').textContent = busStops[currentBusStop].name;
+        }
+        
+        function selectBusStop(stopId) {
+            if (!stopId || currentBusStop === stopId) return;
+            currentBusStop = stopId;
+            updateDisplay();
+        }
+
+        function toggleOperationPanel() {
+            const content = document.getElementById('operationPanelContent');
+            const icon = document.getElementById('collapseIcon');
+            const isExpanded = content.classList.contains('expanded');
+            
+            if (isExpanded) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+                icon.textContent = '▼';
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+                icon.textContent = '▲';
+            }
+        }
+        
+        function createRouteCheckboxes() {
+            const checkboxContainer = document.getElementById('routeCheckhouses');
+            const currentTimetable = timetables[currentDirection];
+            
+            checkboxContainer.innerHTML = '';
+            
+            Object.keys(currentTimetable).forEach(routeKey => {
+                const route = currentTimetable[routeKey];
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'route-checkbox';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `route-${routeKey}`;
+                checkbox.value = routeKey;
+                checkbox.checked = selectedRoutes.has(routeKey);
+                
+                const label = document.createElement('label');
+                label.htmlFor = `route-${routeKey}`;
+                label.innerHTML = `<span class="route-checkbox-number">${route.number}</span>${route.name}`;
+                
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(label);
+                checkboxContainer.appendChild(checkboxDiv);
+                
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedRoutes.add(routeKey);
+                    } else {
+                        selectedRoutes.delete(routeKey);
+                    }
+                    updateDisplay();
+                });
+            });
+        }
+        
+        function getAllDepartures() {
+            const now = getCurrentDateTime();
+            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+            
+            const allDepartures = [];
+            const timetableForDirection = timetables[currentDirection];
+            const timeAdjustment = busStops[currentBusStop]?.adjustment[currentDirection] ?? 0;
+
+            const routesToShow = selectedRoutes.size > 0 
+                ? Array.from(selectedRoutes) 
+                : Object.keys(timetableForDirection);
+
+            const collectDepartures = (date) => {
+                const scheduleType = isHoliday(date) ? 'holidays' : 'weekdays';
+                routesToShow.forEach(routeKey => {
+                    const routeInfo = timetableForDirection[routeKey];
+                    if (!routeInfo || !routeInfo[scheduleType]) return;
+
+                    const schedule = routeInfo[scheduleType];
+                    schedule.forEach(hourData => {
+                        hourData.minutes.forEach(minute => {
+                            const baseDepartureDate = new Date(date);
+                            baseDepartureDate.setHours(hourData.hour, minute, 0, 0);
+
+                            const adjustedDepartureDate = new Date(baseDepartureDate.getTime() + timeAdjustment * 60000);
+                            
+                            if (adjustedDepartureDate.getDate() !== now.getDate() && adjustedDepartureDate.getDate() !== (new Date(now.getTime() - 24*60*60*1000)).getDate()) {
+                                return;
+                            }
+
+                            const detailUrl = detailUrls[currentBusStop]?.[currentDirection]?.[routeKey] || "";
+
+                            allDepartures.push({
+                                routeKey: routeKey,
+                                routeName: routeInfo.name,
+                                routeNumber: routeInfo.number,
+                                detailUrl: detailUrl,
+                                detailLabel: routeInfo.detailLabel || "詳細",
+                                date: adjustedDepartureDate
+                            });
+                        });
+                    });
+                });
+            };
+            
+            const today = new Date(now);
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            
+            collectDepartures(yesterday);
+            collectDepartures(today);
+
+            return allDepartures
+                .filter(dep => dep.date >= fiveMinutesAgo)
+                .sort((a, b) => a.date - b.date);
+        }
+        
+        function updateJustDeparted(allDepartures) {
+            const justDepartedSection = document.getElementById('justDepartedSection');
+            const now = getCurrentDateTime();
+            
+            const recentlyDeparted = allDepartures.filter(dep => 
+                dep.date < now && (now.getTime() - dep.date.getTime()) < 5 * 60 * 1000
+            );
+            
+            justDepartedSection.innerHTML = ''; 
+            
+            if (recentlyDeparted.length > 0) {
+                recentlyDeparted.forEach(dep => {
+                    const timeStr = `${String(dep.date.getHours()).padStart(2, '0')}:${String(dep.date.getMinutes()).padStart(2, '0')}`;
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'just-departed-info';
+
+                    let detailButtonHtml = '';
+                    if (dep.detailUrl) {
+                        detailButtonHtml = `<button class="detail-button" data-url="${dep.detailUrl}">詳細</button>`;
+                    }
+
+                    infoDiv.innerHTML = `
+                        <span>
+                            <span class="route-number">${dep.routeNumber}</span>
+                            <strong>${dep.routeName}</strong> (${timeStr}発) の定刻は過ぎました。
+                        </span>
+                        ${detailButtonHtml}
+                    `;
+                    justDepartedSection.appendChild(infoDiv);
+                });
+            }
+        }
+
+        function updateNextDeparture(allDepartures) {
+            const nextDepartureWrapper = document.getElementById('nextDepartureContentWrapper');
+            const now = getCurrentDateTime();
+            
+            const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
+            
+            if (upcomingDepartures.length === 0) {
+                const message = selectedRoutes.size > 0 ? 
+                    '選択された系統の今後の運行便がありません' : 
+                    '本日の運行は終了しました';
+                nextDepartureWrapper.innerHTML = `<div class="no-next-departure">${message}</div>`;
+                return;
+            }
+            
+            const nextDeparture = upcomingDepartures[0];
+            const depTime = nextDeparture.date;
+            const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
+            
+            const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
+            const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
+            
+            let detailContent = '';
+            if (nextDeparture.detailUrl) {
+                detailContent = `
+                    <div class="departure-detail-embedded">
+                        <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                        <iframe src="${nextDeparture.detailUrl}" width="100%" height="300" frameborder="0" style="border-radius: 5px; margin-top: 10px;"></iframe>
+                    </div>`;
+            }
+            
+            nextDepartureWrapper.innerHTML = `
+                <div class="next-departure-content">
+                    <div class="next-departure-route">
+                        <span class="route-number">${nextDeparture.routeNumber}</span>${nextDeparture.routeName}
+                    </div>
+                    <div class="next-departure-time">
+                        <div class="next-departure-clock">${timeStr}</div>
+                        <div class="next-departure-remaining">(${remainingText})</div>
+                    </div>
+                </div>
+                ${detailContent}`;
+        }
+
+        function createDepartureElement(departure, index, now) {
+            const departureDiv = document.createElement('div');
+            departureDiv.className = 'departure-info';
+            const depTime = departure.date;
+            
+            const label = `${index + 2}便目`;
+            const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
+            
+            const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
+            const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
+            
+            let detailButton = '';
+            if (departure.detailUrl) {
+                // --- 変更点: aタグをbuttonタグに変更し、data-url属性を追加 ---
+                detailButton = `<button class="detail-button" data-url="${departure.detailUrl}">${departure.detailLabel}</button>`;
+            }
+            
+            departureDiv.innerHTML = `
+                <div class="departure-label">${label}</div>
+                <div class="departure-route"><span class="route-number">${departure.routeNumber}</span>${departure.routeName}</div>
+                <div class="time-remaining-section">
+                    <div class="departure-time">${timeStr}</div>
+                    <div class="remaining-time">(${remainingText})</div>
+                </div>
+                <div class="side-info">
+                    ${detailButton}
+                </div>`;
+            
+            return departureDiv;
+        }
+
+        function updateDepartures(allDepartures) {
+            const now = getCurrentDateTime();
+            const departureList = document.getElementById('departureList');
+            departureList.innerHTML = '';
+            
+            const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
+            
+            if (upcomingDepartures.length <= 1) {
+                departureList.innerHTML = `<div class="no-service">次の便はありません</div>`;
+                return;
+            }
+            
+            const departuresToShow = upcomingDepartures.slice(1, 6);
+            departuresToShow.forEach((departure, index) => {
+                const departureElement = createDepartureElement(departure, index, now);
+                departureList.appendChild(departureElement);
+            });
+        }
+
+        function initializeDateTimeInputs() {
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            document.getElementById('searchDate').value = dateStr;
+            document.getElementById('searchTime').value = timeStr;
+        }
+        
+        function updateDisplay() {
+            const allDepartures = getAllDepartures();
+            
+            updateTime();
+            updateBusStopName();
+            updateJustDeparted(allDepartures);
+            updateNextDeparture(allDepartures);
+            updateDepartures(allDepartures);
+        }
+
+        function changeDirection(direction) {
+            currentDirection = direction;
+            selectedRoutes.clear();
+            createRouteCheckboxes();
+            updateDisplay();
+            
+            document.getElementById('shinkaichi-btn').classList.toggle('active', direction === 'shinkaichi');
+            document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDateTimeInputs();
+            createRouteCheckboxes();
+            updateDisplay();
+            
+            setInterval(() => {
+                if (!customDateTime) {
+                    updateTime();
+                }
+            }, 1000);
+
+            setInterval(() => {
+                if (!customDateTime) {
+                    updateDisplay();
+                }
+            }, 30000);
+            
+            document.getElementById('shinkaichi-btn').addEventListener('click', () => changeDirection('shinkaichi'));
+            document.getElementById('yoshidacho-btn').addEventListener('click', () => changeDirection('yoshidacho'));
+
+            const swipeTarget = document.getElementById('headerMainTitle');
+            let touchStartX = 0;
+            let touchEndX = 0;
+            const swipeThreshold = 50;
+
+            function changeToNextStop() {
+                const currentIndex = busStopOrder.indexOf(currentBusStop);
+                const nextIndex = (currentIndex + 1) % busStopOrder.length;
+                selectBusStop(busStopOrder[nextIndex]);
+            }
+
+            function changeToPrevStop() {
+                const currentIndex = busStopOrder.indexOf(currentBusStop);
+                const prevIndex = (currentIndex - 1 + busStopOrder.length) % busStopOrder.length;
+                selectBusStop(busStopOrder[prevIndex]);
+            }
+            
+            document.getElementById('prevStopBtn').addEventListener('click', changeToPrevStop);
+            document.getElementById('nextStopBtn').addEventListener('click', changeToNextStop);
+
+            swipeTarget.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            swipeTarget.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                const swipeDistance = touchEndX - touchStartX;
+                if (Math.abs(swipeDistance) < swipeThreshold) return;
+                if (swipeDistance < 0) {
+                    changeToNextStop();
+                } else {
+                    changeToPrevStop();
+                }
+            }
+
+            document.getElementById('operationPanelHeader').addEventListener('click', toggleOperationPanel);
+            
+            document.getElementById('selectAllBtn').addEventListener('click', function() {
+                document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = true;
+                    selectedRoutes.add(checkbox.value);
+                });
+                updateDisplay();
+            });
+            
+            document.getElementById('clearAllBtn').addEventListener('click', function() {
+                document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+                selectedRoutes.clear();
+                updateDisplay();
+            });
+            
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                const dateValue = document.getElementById('searchDate').value;
+                const timeValue = document.getElementById('searchTime').value;
+                if (dateValue && timeValue) {
+                    customDateTime = new Date(`${dateValue}T${timeValue}`);
+                    updateDisplay();
+                }
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                customDateTime = null;
+                initializeDateTimeInputs();
+                updateDisplay();
+            });
+
+            const showDeparturesBtn = document.getElementById('showDeparturesBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const closeModalBtn = document.getElementById('closeModal');
+            const modalDepartureList = document.getElementById('modalDepartureList');
+            const departureListSource = document.getElementById('departureList');
+
+            showDeparturesBtn.addEventListener('click', () => {
+                modalDepartureList.innerHTML = departureListSource.innerHTML;
+                modalOverlay.classList.add('visible');
+            });
+
+            const closeModal = () => modalOverlay.classList.remove('visible');
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            // --- 変更点: iframe拡大表示モーダルのロジックを共通化 ---
+            const iframeModalOverlay = document.getElementById('iframeModalOverlay');
+            const closeIframeModalBtn = document.getElementById('closeIframeModal');
+            const iframeModalContainer = document.getElementById('iframeModalContainer');
+
+            function openIframeModal(url) {
+                if (url) {
+                    iframeModalContainer.innerHTML = `<iframe src="${url}"></iframe>`;
+                    iframeModalOverlay.classList.add('visible');
+                }
+            }
+
+            function closeIframeModal() {
+                iframeModalOverlay.classList.remove('visible');
+                iframeModalContainer.innerHTML = '';
+            }
+            
+            // イベントデリゲーションを使用して、複数の場所からのクリックを処理
+            document.body.addEventListener('click', (e) => {
+                // 先発情報の「拡大」ボタン
+                const expandButton = e.target.closest('.expand-iframe-btn');
+                if (expandButton) {
+                    const iframe = expandButton.closest('.departure-detail-embedded')?.querySelector('iframe');
+                    if (iframe) {
+                        openIframeModal(iframe.src);
+                    }
+                    return;
+                }
+                
+                // 「詳細」ボタン（どの場所にあっても対応）
+                const detailButton = e.target.closest('.detail-button');
+                if (detailButton && detailButton.dataset.url) {
+                    openIframeModal(detailButton.dataset.url);
+                    return;
+                }
+            });
+
+            closeIframeModalBtn.addEventListener('click', closeIframeModal);
+            iframeModalOverlay.addEventListener('click', (e) => {
+                if (e.target === iframeModalOverlay) closeIframeModal();
+            });
+        });
+    </script>
+</body>
+</html>
