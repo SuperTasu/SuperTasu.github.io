@@ -111,32 +111,6 @@
     #unlock-memo-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background-color: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
     .hidden { display: none !important; }
     #status-container, #bustarain-container { display: none; margin-top: 20px; }
-    .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
-    .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
-    .direction-controls { display: flex; gap: 8px; }
-    .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
-    body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
-    .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
-    .schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
-    #justDepartedSection { margin-bottom: 15px; }
-    .just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-    body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
-    .departures-container { display: grid; gap: 15px; }
-    .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-    .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-    .bus-card__main { display: flex; align-items: center; gap: 20px; }
-    .bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-    .bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-    .bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-    .route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
-    .itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
-    .bus-card__side { text-align: right; }
-    .bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
-    .detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
-    .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
-    .blink { animation: blink 1s infinite; }
-    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
     .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
     .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
@@ -259,34 +233,19 @@
         </div>
 
         <div id="train-content" class="sub-tab-content">
-            <div class="accordion-item"><div class="accordion-header" data-src="wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-            <div class="accordion-item"><div class="accordion-header" data-src="itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-            <div class="accordion-item"><div class="accordion-header" data-src="Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
 
         <div id="bus-content" class="sub-tab-content hidden">
-            <div class="accordion-item"><div class="accordion-header" data-src="imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-            <div class="accordion-item"><div class="accordion-header" data-src="yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-            <div class="accordion-item active"><div class="accordion-header">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content">
-                <div class="bus-display-board">
-                    <div class="bus-header">
-                        <div class="bus-stop-name">鷹取団地前</div>
-                        <div class="direction-controls">
-                            <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
-                            <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
-                        </div>
-                        <div class="schedule-type" id="scheduleType"></div>
-                    </div>
-                    <div id="justDepartedSection"></div>
-                    <div class="departures-container" id="upcomingDeparturesContainer"></div>
-                </div>
-            </div></div>
-            <div class="accordion-item"><div class="accordion-header" data-src="Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item active"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
     </div>
   </div>
-
-  <script src="bus-schedule.js"></script>
   
   <script>
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
@@ -352,24 +311,18 @@
     // ★★ 変更: アコーディオンのロジックを修正 ★★
     function initAccordions() {
         document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', (event) => {
+            header.addEventListener('click', () => {
                 const item = header.parentElement;
-                
+                const content = header.nextElementSibling;
+                const src = header.dataset.src;
+
                 // 既にアクティブなものをクリックした場合は閉じるだけ
                 if (item.classList.contains('active')) {
                     item.classList.remove('active');
                     return;
                 }
-
-                // 一旦すべてのアコーディオンを閉じる
-                header.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(otherItem => {
-                    otherItem.classList.remove('active');
-                });
                 
                 // クリックされたものを開く
-                const content = header.nextElementSibling;
-                const src = header.dataset.src;
-                
                 if (src && content.innerHTML.trim() === '') {
                     const iframe = document.createElement('iframe');
                     iframe.className = 'accordion-iframe';
@@ -395,7 +348,7 @@
       activateTab(savedTab);
       updateClockAndDate(); 
       resetCalc();
-      if (window.initBusSchedule) { window.initBusSchedule(); }
+      
       updateMemoView();
       lockBtn.addEventListener('click', lockMemo);
       unlockBtn.addEventListener('click', unlockMemo);
@@ -417,15 +370,7 @@
     setInterval(() => { 
         updateClockAndDate(); 
         calcTime();
-        if (window.updateBusCountdowns && document.getElementById('tab-bustarain').classList.contains('active')) {
-            window.updateBusCountdowns();
-        }
     }, 1000); 
-    setInterval(() => {
-        if (window.updateBusDisplay && document.getElementById('tab-bustarain').classList.contains('active')) {
-            window.updateBusDisplay();
-        }
-    }, 30000); 
     
     document.addEventListener('DOMContentLoaded', init);
   </script>
