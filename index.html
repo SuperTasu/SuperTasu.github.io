@@ -146,7 +146,6 @@
     .game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
     .iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
     .iframe-container iframe { width: 100%; height: 100%; border: none; }
-    
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--memo-border); padding-bottom: 10px; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
@@ -155,7 +154,7 @@
     .accordion-header .fas { transition: transform 0.3s ease; }
     .accordion-item.active .accordion-header .fas { transform: rotate(180deg); }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; }
-    .accordion-item.active .accordion-content { max-height: 1200px; /* 十分な高さを確保 */ padding: 15px 0; }
+    .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; }
     .placeholder-content { color: var(--text-color-secondary); padding: 0 15px; }
     .accordion-iframe { width: 100%; height: 800px; border: none; }
 
@@ -252,6 +251,7 @@
         </div>
     </div>
 
+    <!-- ★★ 変更: Bustarainタブのコンテナ ★★ -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
@@ -261,12 +261,12 @@
         <div id="train-content" class="sub-tab-content">
             <div class="accordion-item"><div class="accordion-header" data-src="wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item"><div class="accordion-header" data-src="itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-            <div class="accordion-item"><div class="accordion-header">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content placeholder-content">ここに山陽電車の情報を表示します。</div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
 
         <div id="bus-content" class="sub-tab-content hidden">
-            <div class="accordion-item"><div class="accordion-header">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content placeholder-content">ここに今出在家のバス時刻表を表示します。</div></div>
-            <div class="accordion-item"><div class="accordion-header">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content placeholder-content">ここに夢野町3丁目のバス時刻表を表示します。</div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item active"><div class="accordion-header">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content">
                 <div class="bus-display-board">
                     <div class="bus-header">
@@ -281,7 +281,7 @@
                     <div class="departures-container" id="upcomingDeparturesContainer"></div>
                 </div>
             </div></div>
-            <div class="accordion-item"><div class="accordion-header">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content placeholder-content">ここに板宿駅のバス時刻表を表示します。</div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
     </div>
   </div>
@@ -301,129 +301,3 @@
     function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
     
     function activateTab(tabId) {
-        document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
-        const activeTabElement = document.getElementById(`tab-${tabId}`);
-        if(activeTabElement) activeTabElement.classList.add('active');
-        
-        mainGrid.style.display = 'none';
-        statusContainer.style.display = 'none';
-        bustarainContainer.style.display = 'none';
-
-        if (tabId === 'status') {
-            statusContainer.style.display = 'flex';
-        } else if (tabId === 'bustarain') {
-            bustarainContainer.style.display = 'block';
-        } else {
-            mainGrid.style.display = 'grid';
-            filterIconsByCategory(tabId);
-        }
-        localStorage.setItem('siteActiveTab', tabId);
-    }
-
-    function filterIconsByCategory(t){document.querySelectorAll(".icon-item").forEach(e=>{"all"===t||e.dataset.category===t?e.style.display="block":e.style.display="none"})}
-    function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase(),e=document.querySelectorAll(".icon-item");if(t){activateTab('all')}else{const t=localStorage.getItem("siteActiveTab")||"all";return void activateTab(t)}e.forEach(e=>{e.dataset.searchText.toLowerCase().includes(t)?e.style.display="block":e.style.display="none"})}
-    
-    const TABS_ORDER=["all","google","sns","status", "bustarain"];
-    let touchStartX=0,touchStartY=0;
-    function handleTouchStart(t){touchStartX=t.changedTouches[0].screenX,touchStartY=t.changedTouches[0].screenY}
-    function handleTouchEnd(t){const e=t.changedTouches[0].screenX,n=t.changedTouches[0].screenY,o=e-touchStartX,a=n-touchStartY;if(Math.abs(o)>Math.abs(a)&&Math.abs(o)>50){const t=localStorage.getItem("siteActiveTab")||"all";let e=TABS_ORDER.indexOf(t);o<0?e=(e+1)%TABS_ORDER.length:e=(e-1+TABS_ORDER.length)%TABS_ORDER.length,activateTab(TABS_ORDER[e])}}
-    
-    function pad(n){return String(n).padStart(2,'0');}
-    function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
-    function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
-    
-    const memoUnlockedView = document.getElementById('memo-unlocked-view'), memoLockedView = document.getElementById('memo-locked-view'), lockBtn = document.getElementById('lock-memo-btn'), unlockBtn = document.getElementById('unlock-memo-btn'), memoList = document.getElementById('memo-list'), newItemInput = document.getElementById('memo-new-item-input'), clearCheckedBtn = document.getElementById('clear-checked-btn');
-    let isMemoLocked = localStorage.getItem('isMemoLocked') !== 'false';
-    const hashString = s => { let h = 0; for(let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0; return h; };
-    function updateMemoView() { if (isMemoLocked) { memoUnlockedView.classList.add('hidden'); memoLockedView.classList.remove('hidden'); } else { memoUnlockedView.classList.remove('hidden'); memoLockedView.classList.add('hidden'); renderMemoList(); } localStorage.setItem('isMemoLocked', isMemoLocked); }
-    function getMemoData() { try { return JSON.parse(localStorage.getItem('memoData')) || []; } catch (e) { return []; } }
-    function saveMemoData(data) { localStorage.setItem('memoData', JSON.stringify(data)); }
-    function renderMemoList() { memoList.innerHTML = ''; getMemoData().forEach((item, index) => { const li = document.createElement('li'); li.className = 'memo-item'; li.dataset.index = index; li.draggable = true; const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = item.completed; checkbox.onchange = () => { item.completed = checkbox.checked; saveAndRender(); }; const textInput = document.createElement('input'); textInput.type = 'text'; textInput.value = item.text; textInput.className = 'memo-item-text'; if (item.completed) textInput.classList.add('completed'); textInput.oninput = () => { item.text = textInput.value; saveMemoData(getMemoData()); }; textInput.onkeydown = (e) => { if (e.key === 'Enter') e.preventDefault(); }; li.appendChild(checkbox); li.appendChild(textInput); memoList.appendChild(li); }); }
-    function saveAndRender() { saveMemoData(getMemoData().map((item, i) => { const li = memoList.children[i]; return { text: li.querySelector('.memo-item-text').value, completed: li.querySelector('input[type="checkbox"]').checked }; })); renderMemoList(); }
-    newItemInput.onkeydown = (e) => { if (e.key === 'Enter' && newItemInput.value.trim() !== '') { const data = getMemoData(); data.push({ text: newItemInput.value.trim(), completed: false }); newItemInput.value = ''; saveMemoData(data); renderMemoList(); } };
-    clearCheckedBtn.onclick = () => { if (confirm('チェック済みの項目をすべて削除しますか？')) { saveMemoData(getMemoData().filter(item => !item.completed)); renderMemoList(); } };
-    let dragSrcEl = null;
-    memoList.addEventListener('dragstart', (e) => { dragSrcEl = e.target; e.target.classList.add('dragging'); });
-    memoList.addEventListener('dragover', (e) => { e.preventDefault(); const target = e.target.closest('.memo-item'); if (target && target !== dragSrcEl) { memoList.insertBefore(dragSrcEl, target.nextSibling || target); } });
-    memoList.addEventListener('dragend', (e) => { e.target.classList.remove('dragging'); saveAndRender(); });
-    function unlockMemo() { const storedHash = localStorage.getItem('memoPasswordHash'); if (!storedHash) { isMemoLocked = false; updateMemoView(); return; } const password = prompt('パスワードを入力:'); if (password !== null && hashString(password).toString() === storedHash) { isMemoLocked = false; updateMemoView(); } else if (password !== null) { alert('パスワードが違います。'); } }
-    function lockMemo() { const newPassword = prompt('新しいパスワードを設定 (空でパスワード解除):'); if (newPassword !== null) { newPassword ? localStorage.setItem('memoPasswordHash', hashString(newPassword)) : localStorage.removeItem('memoPasswordHash'); isMemoLocked = true; updateMemoView(); alert('メモをロックしました。'); } }
-    
-    function initAccordions() {
-        document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const item = header.parentElement;
-                const content = header.nextElementSibling;
-                const src = header.dataset.src;
-
-                // 既に読み込まれていれば開閉するだけ
-                if (content.innerHTML.trim() !== '' && !content.classList.contains('placeholder-content')) {
-                    item.classList.toggle('active');
-                    return;
-                }
-                
-                // src属性があればiframeを読み込む
-                if (src && content.innerHTML.trim() === '') {
-                    const iframe = document.createElement('iframe');
-                    iframe.className = 'accordion-iframe';
-                    iframe.src = src;
-                    content.appendChild(iframe);
-                }
-                
-                item.classList.toggle('active');
-            });
-        });
-    }
-    
-    function activateSubTab(targetId) {
-        document.querySelectorAll('.sub-tab-content').forEach(content => content.classList.add('hidden'));
-        document.getElementById(targetId).classList.remove('hidden');
-
-        document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.target === targetId);
-        });
-    }
-
-    function init() {
-      const savedTheme = localStorage.getItem('siteTheme') || 'light';
-      setTheme(savedTheme);
-      const savedTab = localStorage.getItem('siteActiveTab') || 'all';
-      activateTab(savedTab);
-      updateClockAndDate(); 
-      resetCalc();
-      if (window.initBusSchedule) { window.initBusSchedule(); }
-      updateMemoView();
-      lockBtn.addEventListener('click', lockMemo);
-      unlockBtn.addEventListener('click', unlockMemo);
-      document.getElementById('appSearchInput').addEventListener('input', filterContent);
-      [mainGrid, statusContainer, bustarainContainer].forEach(area => {
-        area.addEventListener('touchstart', handleTouchStart, {passive: true});
-        area.addEventListener('touchend', handleTouchEnd, {passive: true});
-      });
-      ['addHours', 'addMinutes', 'addSeconds'].forEach(id => { document.getElementById(id).addEventListener('input', calcTime); });
-      document.getElementById('resetCalcBtn').addEventListener('click', resetCalc);
-      
-      initAccordions();
-      document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => activateSubTab(btn.dataset.target));
-      });
-      activateSubTab('train-content'); // 初期表示
-    }
-    
-    setInterval(() => { 
-        updateClockAndDate(); 
-        calcTime();
-        if (window.updateBusCountdowns && document.getElementById('tab-bustarain').classList.contains('active')) {
-            window.updateBusCountdowns();
-        }
-    }, 1000); 
-    setInterval(() => {
-        if (window.updateBusDisplay && document.getElementById('tab-bustarain').classList.contains('active')) {
-            window.updateBusDisplay();
-        }
-    }, 30000); 
-    
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
-</html>
