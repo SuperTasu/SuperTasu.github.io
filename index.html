@@ -20,8 +20,6 @@
       --input-bg: #e9ecef;
       --memo-bg: rgba(255, 255, 255, 0.8);
       --memo-border: #dcdcdc;
-      --bus-board-bg: #e8f5e8;
-      --bus-card-bg: #fff;
     }
 
     body.dark-theme {
@@ -37,18 +35,25 @@
       --input-bg: #3a3a3a;
       --memo-bg: rgba(40, 40, 40, 0.8);
       --memo-border: #555;
-      --bus-board-bg: #2a3a2a;
-      --bus-card-bg: #3c4c3c;
     }
     
     body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 10px; box-sizing: border-box; }
     
-    .page-container { max-width: 1200px; margin: 0 auto; }
+    .page-container { max-width: 1400px; margin: 0 auto; }
+
+    /* ★★ 変更: ヘッダーエリアのレイアウト ★★ */
+    .header-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
     .main-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-areas: "apps memo"; gap: 20px; margin-top: 20px; }
     .apps-area { grid-area: apps; }
     .memo-area { grid-area: memo; }
     
-    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px; border: 1px solid var(--card-border-color); display: flex; flex-direction: column; align-items: center; gap: 15px; }
     .clock-content-wrapper { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-grow: 1; }
     .datetime-row { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; }
     #date, #clock, #countdown { color: var(--text-color-primary); font-weight: bold; }
@@ -56,7 +61,7 @@
     #clock { font-size: clamp(20px, 5vw, 24px); font-family: 'Courier New', Courier, monospace; }
     #countdown { color: #667eea; font-size: clamp(14px, 3.5vw, 16px); }
     .header-controls { display: flex; align-items: center; gap: 10px; position: relative; }
-    .theme-switcher { position: absolute; top: -15px; right: 35px; display: flex; gap: 5px; }
+    .theme-switcher { position: absolute; top: -15px; right: 50%; transform: translateX(50%); display: flex; gap: 5px; }
     .theme-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); }
     .control-icon { display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-color-secondary); font-size: 16px; text-decoration: none; }
     
@@ -67,7 +72,7 @@
     body.dark-theme #resultTime { background: rgba(255,255,255,0.1); }
     #resetCalcBtn { background: none; border: none; font-size: 14px; color: var(--text-color-secondary); cursor: pointer; padding: 5px; line-height: 1; }
     #resetCalcBtn:hover { color: #667eea; }
-    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
+    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
     .tab-menu { display: flex; align-items: center; overflow-x: auto; padding: 0 5px; scrollbar-width: none; -ms-overflow-style: none; }
     .tab-menu::-webkit-scrollbar { display: none; }
     .search-container { display: flex; align-items: center; padding: 0 10px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
@@ -77,17 +82,17 @@
     .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; }
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
     
-    /* ★★ 新規: サブフィルタータブ ★★ */
-    .sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; }
+    .sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; flex-wrap: wrap; }
     .sub-filter-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; }
     .sub-filter-btn.active { background: #667eea; color: white; }
 
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 12px; padding: 10px; }
-    .icon-item { text-align: center; width: auto; }
-    .icon-link { width: 55px; height: 55px; background-color: var(--icon-bg); border-radius: 20px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; }
-    .icon-link i { font-size: 24px; }
-    .icon-img { width: 28px; height: 28px; border-radius: 8px; object-fit: contain; }
-    .label-text { font-size: 11px; margin-top: 4px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; }
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; padding: 10px; }
+    .icon-item { text-align: center; width: auto; display: flex; flex-direction: column; align-items: center; }
+    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 20px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.2s; }
+    .icon-link:hover { transform: translateY(-3px); box-shadow: var(--icon-shadow); }
+    .icon-link i { font-size: 28px; }
+    .icon-img { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; }
+    .label-text { font-size: 12px; margin-top: 6px; color: var(--text-color-primary); line-height: 1.2; width: 100%; word-wrap: break-word; }
     #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
     #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; }
     body.dark-theme #search-wrapper::before { opacity: 0.2; }
@@ -106,45 +111,11 @@
     #unlock-memo-btn { padding: 10px 20px; font-size: 16px; font-weight: bold; background-color: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; }
     .hidden { display: none !important; }
     #status-container, #bustarain-container { display: none; margin-top: 20px; }
-    .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-    .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    .bus-stop-name { font-size: clamp(18px, 5vw, 22px); font-weight: bold; color: #009900; }
-    .direction-controls { display: flex; gap: 8px; }
-    .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 6px 10px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 8px; color: #333; }
-    .schedule-type { font-size: 13px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 4px 8px; border-radius: 8px; border: 2px solid #009900; }
-    #justDepartedSection { margin-bottom: 15px; }
-    .just-departed-info { font-size: 12px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-    .departures-container { display: grid; gap: 15px; }
-    .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-    .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-    .bus-card__main { display: flex; align-items: center; gap: 15px; }
-    .bus-card__time { font-size: clamp(28px, 8vw, 40px); font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-    .bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-    .bus-card__route { font-size: clamp(14px, 4vw, 16px); font-weight: bold; display: flex; align-items: center; gap: 8px; }
-    .route-number { padding: 1px 6px; font-size: 13px; }
-    .itayado-arrival { font-size: 12px; }
-    .bus-card__side { text-align: right; }
-    .bus-card__remaining { font-size: clamp(18px, 5vw, 24px); font-weight: bold; color: #009900; margin-bottom: 8px; }
-    .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-    .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-    .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
-    .iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
-    .iframe-container iframe { width: 100%; height: 100%; border: none; }
-    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--memo-border); padding-bottom: 10px; flex-wrap: wrap; }
-    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
-    .sub-tab-btn.active { background: #667eea; color: white; }
-    .accordion-item { border: 1px solid var(--memo-border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-    .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: clamp(14px, 4vw, 16px); }
-    .accordion-header .fas { transition: transform 0.3s ease; }
-    .accordion-item.active .accordion-header .fas { transform: rotate(180deg); }
-    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; }
-    .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; }
-    .placeholder-content { color: var(--text-color-secondary); padding: 0 15px; }
-    .accordion-iframe { width: 100%; height: 800px; border: none; }
-    .iframe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .iframe-grid iframe { height: 600px; }
-
-    @media (max-width: 900px) {
+    /* 省略: バス・電車・ステータス関連のスタイルは変更なし */
+    .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); } .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; } .bus-stop-name { font-size: clamp(18px, 5vw, 22px); font-weight: bold; color: #009900; } .direction-controls { display: flex; gap: 8px; } .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 6px 10px; font-size: 13px; font-weight: bold; cursor: pointer; border-radius: 8px; color: #333; } .schedule-type { font-size: 13px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 4px 8px; border-radius: 8px; border: 2px solid #009900; } #justDepartedSection { margin-bottom: 15px; } .just-departed-info { font-size: 12px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; } .departures-container { display: grid; gap: 15px; } .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; } .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; } .bus-card__main { display: flex; align-items: center; gap: 15px; } .bus-card__time { font-size: clamp(28px, 8vw, 40px); font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; } .bus-card__details { display: flex; flex-direction: column; gap: 4px; } .bus-card__route { font-size: clamp(14px, 4vw, 16px); font-weight: bold; display: flex; align-items: center; gap: 8px; } .route-number { padding: 1px 6px; font-size: 13px; } .itayado-arrival { font-size: 12px; } .bus-card__side { text-align: right; } .bus-card__remaining { font-size: clamp(18px, 5vw, 24px); font-weight: bold; color: #009900; margin-bottom: 8px; } .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; } .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); } .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; } .iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; } .iframe-container iframe { width: 100%; height: 100%; border: none; } .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--memo-border); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--memo-border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: clamp(14px, 4vw, 16px); } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .placeholder-content { color: var(--text-color-secondary); padding: 0 15px; } .accordion-iframe { width: 100%; height: 800px; border: none; } .iframe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; } .iframe-grid iframe { height: 600px; }
+    
+    @media (max-width: 1024px) {
+      .header-grid { grid-template-columns: 1fr; }
       .main-grid { grid-template-columns: 1fr; grid-template-areas: "apps" "memo"; }
       .memo-area { min-height: 250px; }
       .iframe-grid { grid-template-columns: 1fr; }
@@ -154,34 +125,34 @@
 <body>
   
   <div class="page-container">
-    <header class="header-area">
-      <div class="clock-area">
-        <div class="clock-content-wrapper">
-          <div class="datetime-row"> <div id="date"></div> <div id="clock"></div> <div id="countdown"></div> </div>
-          <div class="time-calculator-container">
-            <i class="fas fa-calculator"></i>
-            <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
-            <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
-            <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
-            <span id="resultTime"></span>
-            <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
+    <div class="header-grid">
+      <header class="header-area">
+        <div class="clock-area">
+          <div class="clock-content-wrapper">
+            <div class="datetime-row"> <div id="date"></div> <div id="clock"></div> <div id="countdown"></div> </div>
+            <div class="time-calculator-container">
+              <i class="fas fa-calculator"></i>
+              <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
+              <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
+              <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
+              <span id="resultTime"></span>
+              <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
+            </div>
+          </div>
+          <div class="header-controls">
+            <div class="theme-switcher"> <div class="theme-dot light" onclick="setTheme('light')"></div> <div class="theme-dot dark" onclick="setTheme('dark')"></div> </div>
+            <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon"> <i class="fas fa-cog"></i> </a>
+            <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon"> <i class="fas fa-route"></i> </a>
           </div>
         </div>
-        <div class="header-controls">
-          <div class="theme-switcher"> <div class="theme-dot light" onclick="setTheme('light')"></div> <div class="theme-dot dark" onclick="setTheme('dark')"></div> </div>
-          <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank"> <i class="fas fa-cog"></i> </a>
-          <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank"> <i class="fas fa-route"></i> </a>
+      </header>
+      <div class="tab-container">
+        <div class="tab-menu">
+          <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
+          <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
+          <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
+          <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
         </div>
-      </div>
-    </header>
-
-    <!-- ★★ 変更: タブメニュー ★★ -->
-    <div class="tab-container">
-      <div class="tab-menu">
-        <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
-        <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
-        <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
-        <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
       </div>
     </div>
 
@@ -248,13 +219,11 @@
             <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
             <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
         </div>
-
         <div id="train-content" class="sub-tab-content">
             <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
-
         <div id="bus-content" class="sub-tab-content hidden">
             <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
@@ -262,7 +231,6 @@
             <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
             <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         </div>
-        
         <div id="other-content" class="sub-tab-content hidden">
             <iframe class="accordion-iframe" src="https://www.noevir-stadium.jp/event/" style="height: 1000px;"></iframe>
         </div>
@@ -281,7 +249,6 @@
     function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
     function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
     
-    // ★★ 変更: タブとフィルターのロジック ★★
     function activateTab(tabId) {
         document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
         const activeTabElement = document.getElementById(`tab-${tabId}`);
@@ -297,24 +264,26 @@
             bustarainContainer.style.display = 'block';
         } else { // all-apps
             mainGrid.style.display = 'grid';
-            filterIconsByCategory('all'); // デフォルトはAll
+            filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
         }
         localStorage.setItem('siteActiveTab', tabId);
     }
+
     function filterIconsByCategory(category) {
         document.querySelectorAll(".sub-filter-btn").forEach(btn => {
             btn.classList.toggle('active', btn.dataset.category === category);
         });
         document.querySelectorAll(".icon-item").forEach(icon => {
             if (category === 'all' || icon.dataset.category === category) {
-                icon.style.display = 'block';
+                icon.style.display = 'flex';
             } else {
                 icon.style.display = 'none';
             }
         });
+        localStorage.setItem('siteActiveSubFilter', category);
     }
 
-    function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase(),e=document.querySelectorAll(".icon-item");if(t){activateTab('all-apps');filterIconsByCategory('all');}else{const t=localStorage.getItem("siteActiveTab")||"all-apps";return void activateTab(t)}e.forEach(e=>{e.dataset.searchText.toLowerCase().includes(t)?e.style.display="block":e.style.display="none"})}
+    function filterContent(){const t=document.getElementById("appSearchInput").value.toLowerCase();document.querySelectorAll(".icon-item").forEach(e=>{const n=e.dataset.searchText.toLowerCase().includes(t);e.style.display=n?"flex":"none"})}
     
     function pad(n){return String(n).padStart(2,'0');}
     function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
@@ -343,12 +312,14 @@
                 const item = header.parentElement;
                 const content = header.nextElementSibling;
                 const src = header.dataset.src;
-                
+
+                // 既にアクティブなものをクリックした場合は閉じるだけ
                 if (item.classList.contains('active')) {
                     item.classList.remove('active');
                     return;
                 }
                 
+                // クリックされたものを開く
                 if (src && content.innerHTML.trim() === '') {
                     const iframe = document.createElement('iframe');
                     iframe.className = 'accordion-iframe';
@@ -374,6 +345,7 @@
       activateTab(savedTab);
       updateClockAndDate(); 
       resetCalc();
+      
       updateMemoView();
       lockBtn.addEventListener('click', lockMemo);
       unlockBtn.addEventListener('click', unlockMemo);
@@ -393,7 +365,7 @@
       });
       
       // 全てのリンクを新しいタブで開くように設定
-      document.querySelectorAll('.icon-link, .control-icon, .game-button').forEach(link => {
+      document.querySelectorAll('a').forEach(link => {
           link.target = "_blank";
       });
     }
