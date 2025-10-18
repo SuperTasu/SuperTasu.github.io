@@ -159,6 +159,43 @@
     .icon-item.emphasized .icon-link { animation: pulse-animation 2s infinite; border: 2px solid #4285F4; }
     body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
     @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
+
+    /* ★★ 追加: スマートフォン向けレイアウト調整 ★★ */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+        -webkit-text-size-adjust: 100%;
+      }
+      .clock-area { padding: 10px 15px; }
+      .datetime-row { gap: 10px; justify-content: center; }
+      #date, #countdown { font-size: 14px; }
+      #clock { font-size: 20px; }
+      .time-calculator-container { gap: 4px; padding: 4px 8px; }
+      .time-calculator-container label { font-size: 12px; }
+      .time-calculator-container input[type="number"] { width: 30px; }
+      .tab-menu { flex-wrap: wrap; justify-content: center; }
+      .tab-item { padding: 10px 8px; font-size: 12px; flex-grow: 0; min-width: unset; }
+      .search-container { flex-basis: 100%; justify-content: center; margin-bottom: 0; }
+      #appSearchInput { width: 120px; }
+      .edit-controls-wrapper { flex-basis: 100%; justify-content: center; margin-left: 0; padding-right: 0; }
+      .edit-controls-wrapper button { padding: 8px 12px; font-size: 11px; }
+      .sub-filter-tabs { gap: 6px; }
+      .sub-filter-btn { padding: 6px 12px; font-size: 12px; }
+      .grid-container { gap: 8px; justify-content: space-around; }
+      .icon-item { width: 60px; }
+      .icon-link { width: 45px; height: 45px; border-radius: 14px; }
+      .icon-img { width: 22px; height: 22px; border-radius: 6px; }
+      .icon-link i { font-size: 20px; }
+      .label-text { font-size: 10px; line-height: 1.2; margin-top: 4px; }
+      .add-new-app-btn, .placeholder { width: 60px; height: 70px; border-radius: 14px; }
+      .add-new-app-btn i { font-size: 20px; }
+      .bus-stop-name { font-size: 18px; }
+      .bus-card__time { font-size: 28px; }
+      .bus-card__main { gap: 10px; }
+      .bus-card__route { font-size: 14px; }
+      .bus-card__remaining { font-size: 20px; }
+      .accordion-header { padding: 12px 15px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -286,7 +323,6 @@
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
     let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
 
-    // ★★ 変更: Google ChatのアイコンURLを更新 ★★
     const initialAppData = [
         {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
         {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
