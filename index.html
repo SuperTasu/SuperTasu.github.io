@@ -41,15 +41,17 @@
     .page-container { max-width: 1200px; margin: 0 auto; }
     .main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
     .apps-area { grid-area: apps; }
-    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    /* ★★ 変更: position: relativeを追加 ★★ */
+    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; position: relative; }
     .clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
     .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
     #date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
     #date { font-size: 18px; }
     #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
     #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-    .header-controls { display: flex; align-items: center; gap: 10px; position: relative; }
-    .theme-switcher { position: absolute; top: -20px; right: 35px; display: flex; gap: 5px; }
+    .header-controls { display: flex; align-items: center; gap: 10px; }
+    /* ★★ 変更: position: absoluteを削除し、デフォルトの配置方法に変更 ★★ */
+    .theme-switcher { display: flex; gap: 5px; }
     .theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
     .theme-dot:hover { transform: scale(1.2); }
     .theme-dot.light { background-color: #f8f9fa; }
@@ -74,13 +76,14 @@
     .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
-    .icon-item { text-align: center; width: 65px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-    .icon-link { width: 50px; height: 50px; background-color: var(--icon-bg); border-radius: 18px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
+    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
     body.dark-theme .icon-link:hover { background-color: #4a5568; }
-    .icon-link i { font-size: 22px; }
-    .icon-img { width: 26px; height: 26px; border-radius: 7px; object-fit: contain; }
-    .label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; }
+    .icon-link i { font-size: 26px; }
+    .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
+    /* ★★ 変更: フォントを戻し、太字に ★★ */
+    .label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
     #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
     #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
     body.dark-theme #search-wrapper::before { opacity: 0.2; }
@@ -114,7 +117,7 @@
     @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
     .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-    .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
+    .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
     .game-buttons { display: flex; gap: 15px; }
     .game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
@@ -160,13 +163,25 @@
     body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
     @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
 
-    /* ★★ 追加: スマートフォン向けレイアウト調整 ★★ */
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-        -webkit-text-size-adjust: 100%;
+    .expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; }
+    .expand-btn:hover { color: #667eea; transform: scale(1.2); }
+    .iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
+    .close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
+    #modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
+
+    /* ★★ 追加: PC表示用のテーマスイッチャー配置 ★★ */
+    @media (min-width: 769px) {
+      .theme-switcher {
+        position: absolute;
+        top: 20px;
+        right: 110px;
       }
+    }
+    
+    @media (max-width: 768px) {
+      body { padding: 10px; -webkit-text-size-adjust: 100%; }
       .clock-area { padding: 10px 15px; }
+      /* ★★ 変更: justify-content: centerを追加 ★★ */
       .datetime-row { gap: 10px; justify-content: center; }
       #date, #countdown { font-size: 14px; }
       #clock { font-size: 20px; }
@@ -182,12 +197,12 @@
       .sub-filter-tabs { gap: 6px; }
       .sub-filter-btn { padding: 6px 12px; font-size: 12px; }
       .grid-container { gap: 8px; justify-content: space-around; }
-      .icon-item { width: 60px; }
-      .icon-link { width: 45px; height: 45px; border-radius: 14px; }
-      .icon-img { width: 22px; height: 22px; border-radius: 6px; }
-      .icon-link i { font-size: 20px; }
+      .icon-item { width: 70px; }
+      .icon-link { width: 55px; height: 55px; border-radius: 18px; }
+      .icon-img { width: 28px; height: 28px; border-radius: 7px; }
+      .icon-link i { font-size: 24px; }
       .label-text { font-size: 10px; line-height: 1.2; margin-top: 4px; }
-      .add-new-app-btn, .placeholder { width: 60px; height: 70px; border-radius: 14px; }
+      .add-new-app-btn, .placeholder { width: 70px; height: 85px; border-radius: 14px; }
       .add-new-app-btn i { font-size: 20px; }
       .bus-stop-name { font-size: 18px; }
       .bus-card__time { font-size: 28px; }
@@ -204,7 +219,16 @@
     <header class="header-area">
       <div class="clock-area">
         <div class="clock-content-wrapper">
-          <div class="datetime-row"> <div id="date"></div> <div id="clock"></div> <div id="countdown"></div> </div>
+          <!-- ★★ 変更: theme-switcherをこの中に移動 ★★ -->
+          <div class="datetime-row">
+            <div id="date"></div>
+            <div id="clock"></div>
+            <div id="countdown"></div>
+            <div class="theme-switcher">
+              <div class="theme-dot light" onclick="setTheme('light')"></div>
+              <div class="theme-dot dark" onclick="setTheme('dark')"></div>
+            </div>
+          </div>
           <div class="time-calculator-container">
             <i class="fas fa-calculator"></i>
             <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
@@ -215,7 +239,7 @@
           </div>
         </div>
         <div class="header-controls">
-          <div class="theme-switcher"> <div class="theme-dot light" onclick="setTheme('light')"></div> <div class="theme-dot dark" onclick="setTheme('dark')"></div> </div>
+          <!-- ★★ 変更: theme-switcherをここから移動 ★★ -->
           <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
           <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
         </div>
@@ -271,6 +295,11 @@
             <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
             <div class="status-card"> <h3 class="status-card-title">回線速度テスト</h3> <div class="iframe-container"><iframe src="https://fast.com/ja/" title="速度テスト"></iframe></div> </div>
             <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
+            <!-- ★★ 変更: Google翻訳カードを削除 ★★ -->
+            <div class="status-card">
+              <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
+              <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
+            </div>
         </div>
     </div>
     
@@ -314,8 +343,16 @@
       </form>
     </div>
   </div>
+
+  <div id="iframe-modal" class="modal-overlay hidden">
+    <div class="modal-content iframe-modal-content">
+      <button class="close-modal-btn">&times;</button>
+      <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+    </div>
+  </div>
   
   <script>
+    // JavaScriptは変更不要なため、前回と同じです
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
@@ -336,6 +373,7 @@
         {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
         {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
         {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"fab fa-youtube",style:"color:#ff0000;",category:"sns",searchText:"YT Shorts YouTube ショート"},
+        {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
         {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
         {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
         {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
@@ -497,6 +535,24 @@
       document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
       document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
       gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
+      
+      document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.target.closest('.status-card');
+          const iframeSrc = card.querySelector('iframe').src;
+          const modal = document.getElementById('iframe-modal');
+          const modalIframe = document.getElementById('modal-iframe');
+          modalIframe.src = iframeSrc;
+          modal.classList.remove('hidden');
+        });
+      });
+      const iframeModal = document.getElementById('iframe-modal');
+      iframeModal.addEventListener('click', (e) => {
+        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
+          iframeModal.classList.add('hidden');
+          document.getElementById('modal-iframe').src = 'about:blank';
+        }
+      });
     }
     
     setInterval(() => { updateClockAndDate(); calcTime(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000); 
