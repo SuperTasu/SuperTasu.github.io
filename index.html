@@ -41,7 +41,6 @@
     .page-container { max-width: 1200px; margin: 0 auto; }
     .main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
     .apps-area { grid-area: apps; }
-    /* ★★ 変更: position: relativeを追加 ★★ */
     .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; position: relative; }
     .clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
     .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
@@ -50,7 +49,6 @@
     #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
     #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
     .header-controls { display: flex; align-items: center; gap: 10px; }
-    /* ★★ 変更: position: absoluteを削除し、デフォルトの配置方法に変更 ★★ */
     .theme-switcher { display: flex; gap: 5px; }
     .theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
     .theme-dot:hover { transform: scale(1.2); }
@@ -82,7 +80,6 @@
     body.dark-theme .icon-link:hover { background-color: #4a5568; }
     .icon-link i { font-size: 26px; }
     .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
-    /* ★★ 変更: フォントを戻し、太字に ★★ */
     .label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
     #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
     #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
@@ -169,7 +166,6 @@
     .close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
     #modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
 
-    /* ★★ 追加: PC表示用のテーマスイッチャー配置 ★★ */
     @media (min-width: 769px) {
       .theme-switcher {
         position: absolute;
@@ -181,7 +177,6 @@
     @media (max-width: 768px) {
       body { padding: 10px; -webkit-text-size-adjust: 100%; }
       .clock-area { padding: 10px 15px; }
-      /* ★★ 変更: justify-content: centerを追加 ★★ */
       .datetime-row { gap: 10px; justify-content: center; }
       #date, #countdown { font-size: 14px; }
       #clock { font-size: 20px; }
@@ -219,7 +214,6 @@
     <header class="header-area">
       <div class="clock-area">
         <div class="clock-content-wrapper">
-          <!-- ★★ 変更: theme-switcherをこの中に移動 ★★ -->
           <div class="datetime-row">
             <div id="date"></div>
             <div id="clock"></div>
@@ -239,7 +233,6 @@
           </div>
         </div>
         <div class="header-controls">
-          <!-- ★★ 変更: theme-switcherをここから移動 ★★ -->
           <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
           <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
         </div>
@@ -295,7 +288,6 @@
             <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
             <div class="status-card"> <h3 class="status-card-title">回線速度テスト</h3> <div class="iframe-container"><iframe src="https://fast.com/ja/" title="速度テスト"></iframe></div> </div>
             <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
-            <!-- ★★ 変更: Google翻訳カードを削除 ★★ -->
             <div class="status-card">
               <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
               <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
@@ -395,6 +387,8 @@
         {id:29,label:"講談社",url:"https://kmanga.kodansha.com/title/10008/episode/360423",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
         {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
         {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
+        // ★★ 追加: Amazonを追加 ★★
+        {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
         {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
         {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
     ];
@@ -419,7 +413,8 @@
                 <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
                 <div class="label-text">${app.label}</div>`;
             gridContainer.appendChild(item);
-            addLongPressListener(item);
+            // ★★ 変更: 長押しでの編集機能を削除 ★★
+            // addLongPressListener(item); 
         });
         if (isEditMode) { const btn = document.createElement('div'); btn.className = 'add-new-app-btn'; btn.innerHTML = `<i class="fas fa-plus"></i>`; btn.onclick = () => openModal(); gridContainer.appendChild(btn); }
         filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
