@@ -20,6 +20,8 @@
       --input-bg: #e9ecef;
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
+      --morning-bus-color: #33aaff;
+      --evening-bus-color: #ff6600;
     }
 
     body.dark-theme {
@@ -35,6 +37,8 @@
       --input-bg: #3a3a3a;
       --bus-board-bg: #2a3a2a;
       --bus-card-bg: #3c4c3c;
+      --morning-bus-color: #0077b3;
+      --evening-bus-color: #cc5500;
     }
     
     body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; }
@@ -63,16 +67,64 @@
     body.dark-theme #resultTime { background: rgba(255,255,255,0.1); }
     #resetCalcBtn { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; padding: 5px; line-height: 1; }
     #resetCalcBtn:hover { color: #667eea; }
-    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
-    .tab-menu { display: flex; align-items: center; }
-    .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
-    .search-container i { color: var(--text-color-secondary); }
+    
+    /* ***** タブデザインの修正 ***** */
+    .tab-container { 
+        background: var(--card-bg); 
+        box-shadow: var(--card-shadow); 
+        margin-top: 20px; 
+        border-radius: 20px; 
+        overflow: hidden; 
+        border: 1px solid var(--card-border-color);
+        padding: 5px; /* 全体にパディングを追加 */
+    }
+    .tab-menu { 
+        display: flex; 
+        align-items: center; 
+        flex-wrap: wrap; 
+    }
+    .search-container { 
+        display: flex; 
+        align-items: center; 
+        padding: 0 15px; 
+        margin: 4px; /* マージンを調整 */
+        background-color: var(--input-bg); 
+        border-radius: 12px; /* タブ項目と合わせた丸み */
+        border: none;
+    }
     #appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
     #appSearchInput:focus { width: 200px; }
-    .tab-item { flex-grow: 1; text-align: center; padding: 15px 20px; color: var(--text-color-secondary); text-decoration: none; font-weight: bold; font-size: 14px; position: relative; transition: all 0.3s ease; border-radius: 16px; margin: 6px; border-right: 1px solid rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; min-width: 100px; }
+    .tab-item { 
+        flex-grow: 1; 
+        text-align: center; 
+        padding: 15px 20px; 
+        color: var(--text-color-secondary); 
+        text-decoration: none; 
+        font-weight: bold; 
+        font-size: 14px; 
+        position: relative; 
+        transition: all 0.3s ease; 
+        border-radius: 12px; /* カード内の要素として丸みをつける */
+        margin: 4px; /* マージンを調整 */
+        cursor: pointer; 
+        white-space: nowrap; 
+        min-width: 100px;
+        background-color: transparent; /* 通常時は透明 */
+    }
     .tab-item:last-of-type { border-right: none; }
-    .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
-    .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
+    .tab-item:hover { 
+        background-color: var(--input-bg); /* ホバーで背景色をつける */
+        color: #667eea; 
+        transform: none; /* 浮き上がりを削除 */
+    }
+    .tab-item.active { 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        color: var(--tab-active-text); 
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5); /* アクティブ時のみ影を強調 */
+        transform: none; 
+    }
+    /* ***** /タブデザインの修正 ***** */
+    
     .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
     .icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
     .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -87,31 +139,52 @@
     .main-content{padding-top:10px}
     #status-container, #bustarain-container { display: none; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
     .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
-    .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
-    .direction-controls { display: flex; gap: 8px; }
-    .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
-    body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
-    .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
-    .schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
-    #justDepartedSection { margin-bottom: 15px; }
-    .just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-    body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
-    .departures-container { display: grid; gap: 15px; }
-    .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-    .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-    .bus-card__main { display: flex; align-items: center; gap: 20px; }
-    .bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-    .bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-    .bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-    .route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
-    .itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
-    .bus-card__side { text-align: right; }
-    .bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
-    .detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
+    .temporary-bus-schedule { 
+        margin-top: 20px; 
+        border-radius: 15px; 
+        overflow: hidden; 
+        box-shadow: var(--card-shadow); 
+        border: 1px solid var(--card-border-color);
+        margin-bottom: 20px;
+    }
+    .temporary-bus-schedule .accordion-header {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px; 
+        font-weight: bold; 
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    .temporary-bus-schedule .accordion-header .fas { 
+        transition: transform 0.3s ease; 
+    } 
+    .temporary-bus-schedule.active .accordion-header .fas { 
+        transform: rotate(180deg); 
+    } 
+    #morning-bus-schedule .accordion-header { 
+        background: linear-gradient(135deg, var(--morning-bus-color) 0%, #005a8f 100%); 
+        color: white; 
+    }
+    #evening-bus-schedule .accordion-header { 
+        background: linear-gradient(135deg, var(--evening-bus-color) 0%, #cc3300 100%); 
+        color: white; 
+    }
+    .temporary-bus-schedule .accordion-content-body { 
+        max-height: 0;
+        overflow: hidden; 
+        transition: max-height 0.4s ease-out; 
+        padding: 0 15px;
+        background: var(--bg-color); 
+    }
+    .temporary-bus-schedule.active .accordion-content-body {
+        max-height: 500px; 
+        padding: 15px;
+    }
+    .temporary-bus-schedule .iframe-container { height: 300px; }
+    .temporary-bus-schedule .iframe-container iframe { height: 100%; border: none; width: 100%; }
     .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
-    .blink { animation: blink 1s infinite; }
-    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
     .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
     .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -124,42 +197,17 @@
     .sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; flex-wrap: wrap; }
     .sub-filter-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; }
     .sub-filter-btn.active { background: #667eea; color: white; }
-    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .accordion-iframe { width: 100%; height: 800px; border: none; }
-    .edit-controls-wrapper { margin-left: auto; display: flex; gap: 10px; padding-right: 10px; }
-    .edit-controls-wrapper button { padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; }
-    #edit-apps-btn { background-color: transparent; border: 1px solid #667eea; color: #667eea; }
-    #edit-apps-btn:hover { background-color: #667eea; color: white; }
-    #edit-apps-btn.editing { background-color: #28a745; color: white; border-color: #28a745; }
-    #reset-apps-btn { background-color: #dc3545; color: white; border: 1px solid #dc3545; }
-    body.edit-mode .icon-link { cursor: grab; pointer-events: none; }
-    body.edit-mode .icon-link:active { cursor: grabbing; }
-    body.edit-mode .icon-item { animation: shake 0.5s infinite; }
-    @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-1deg); } 75% { transform: rotate(1deg); } }
-    .icon-controls { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); display: none; gap: 5px; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 10px; z-index: 10; }
-    body.edit-mode .icon-controls { display: flex; }
-    .icon-control-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 11px; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .icon-control-btn.delete { color: #dc3545; }
-    .icon-control-btn.edit { color: #0d6efd; }
-    .add-new-app-btn { display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed var(--text-color-secondary); border-radius: 18px; width: 65px; height: 80px; cursor: pointer; color: var(--text-color-secondary); transition: all 0.2s; }
-    .add-new-app-btn:hover { background: var(--input-bg); }
-    .add-new-app-btn i { font-size: 24px; margin-bottom: 8px; }
-    body.edit-mode .add-new-app-btn { display: flex; }
-    .icon-item.dragging { opacity: 0.4; animation: none; }
-    .placeholder { background: rgba(102, 126, 234, 0.2); border: 2px dashed #667eea; border-radius: 18px; width: 65px; height: 80px; box-sizing: border-box; }
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-    .modal-content { background: var(--bg-color); padding: 25px; border-radius: 15px; box-shadow: var(--card-shadow); width: 90%; max-width: 400px; }
-    .modal-content h3 { margin-top: 0; }
-    .modal-content form label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
-    .modal-content form input, .modal-content form select { width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--card-border-color); background: var(--input-bg); color: var(--text-color-primary); box-sizing: border-box; margin-bottom: 15px; }
-    .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .modal-buttons button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-    .modal-buttons .save-btn { background-color: #667eea; color: white; }
-    .modal-buttons .cancel-btn { background-color: var(--input-bg); color: var(--text-color-secondary); }
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } 
+    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } 
+    .sub-tab-btn.active { background: #667eea; color: white; } 
+    .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } 
+    .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } 
+    .accordion-header .fas { transition: transform 0.3s ease; } 
+    .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } 
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } 
+    .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } 
+    .accordion-iframe { width: 100%; height: 800px; border: none; }
     .hidden { display: none !important; }
-    .icon-item.emphasized .icon-link { animation: pulse-animation 2s infinite; border: 2px solid #4285F4; }
-    body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
-    @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
-
     .expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; }
     .expand-btn:hover { color: #667eea; transform: scale(1.2); }
     .iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
@@ -183,12 +231,21 @@
       .time-calculator-container { gap: 4px; padding: 4px 8px; }
       .time-calculator-container label { font-size: 12px; }
       .time-calculator-container input[type="number"] { width: 30px; }
+      
+      /* モバイルタブの微調整 */
+      .tab-container { padding: 5px; }
       .tab-menu { flex-wrap: wrap; justify-content: center; }
-      .tab-item { padding: 10px 8px; font-size: 12px; flex-grow: 0; min-width: unset; }
-      .search-container { flex-basis: 100%; justify-content: center; margin-bottom: 0; }
+      .tab-item { 
+          padding: 10px 12px; 
+          font-size: 12px;   
+          flex-grow: 1;      
+          min-width: unset;
+          margin: 4px 2px; 
+          border-right: none; 
+      }
+      .search-container { flex-basis: 100%; justify-content: center; margin: 4px 0; }
       #appSearchInput { width: 120px; }
-      .edit-controls-wrapper { flex-basis: 100%; justify-content: center; margin-left: 0; padding-right: 0; }
-      .edit-controls-wrapper button { padding: 8px 12px; font-size: 11px; }
+      
       .sub-filter-tabs { gap: 6px; }
       .sub-filter-btn { padding: 6px 12px; font-size: 12px; }
       .grid-container { gap: 8px; justify-content: space-around; }
@@ -197,14 +254,6 @@
       .icon-img { width: 28px; height: 28px; border-radius: 7px; }
       .icon-link i { font-size: 24px; }
       .label-text { font-size: 10px; line-height: 1.2; margin-top: 4px; }
-      .add-new-app-btn, .placeholder { width: 70px; height: 85px; border-radius: 14px; }
-      .add-new-app-btn i { font-size: 20px; }
-      .bus-stop-name { font-size: 18px; }
-      .bus-card__time { font-size: 28px; }
-      .bus-card__main { gap: 10px; }
-      .bus-card__route { font-size: 14px; }
-      .bus-card__remaining { font-size: 20px; }
-      .accordion-header { padding: 12px 15px; font-size: 14px; }
     }
   </style>
 </head>
@@ -233,6 +282,7 @@
           </div>
         </div>
         <div class="header-controls">
+          <a href="javascript:void(0);" class="control-icon" id="refresh-btn" title="ページを更新"> <i class="fas fa-redo"></i> </a>
           <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
           <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
         </div>
@@ -242,15 +292,39 @@
     <div class="tab-container">
       <div class="tab-menu">
         <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
+        <!-- タブの内容を元に戻す -->
         <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
         <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
         <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-        <div class="edit-controls-wrapper">
-            <button id="edit-apps-btn" title="アプリの追加・編集・並び替えを行います"><i class="fas fa-pencil-alt"></i> アプリを編集</button>
-            <button id="reset-apps-btn" class="hidden" title="アプリの配置や内容を初期状態に戻します"><i class="fas fa-undo"></i> 初期状態に戻す</button>
-        </div>
       </div>
     </div>
+
+    <!-- 一時表示バスエリア -->
+    <div id="temporary-bus-displays">
+        <!-- 夢野町3丁目 (モーニング) -->
+        <div id="morning-bus-schedule" class="temporary-bus-schedule hidden">
+            <div class="accordion-header" data-target="yumeno3">
+                夢野町3丁目 (平日 7:40-8:20) <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content-body">
+                <div class="iframe-container">
+                     <iframe id="yumeno3-iframe" src="about:blank" class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
+                </div>
+            </div>
+        </div>
+        <!-- 鷹取団地前 (イブニング) -->
+        <div id="evening-bus-schedule" class="temporary-bus-schedule hidden">
+            <div class="accordion-header" data-target="takatori">
+                鷹取団地前 (平日 15:00-20:00) <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content-body">
+                <div class="iframe-container">
+                     <iframe id="takatori-iframe" src="about:blank" class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /一時表示バスエリア -->
 
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
@@ -272,6 +346,7 @@
     </div>
 
     <div id="status-container">
+        <!-- 既存の鷹取団地前ボードはそのまま維持 -->
         <div class="bus-display-board">
             <div class="bus-header">
                 <div class="bus-stop-name">鷹取団地前</div>
@@ -318,24 +393,6 @@
         </div>
     </div>
 
-  <div id="app-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h3 id="modal-title">アプリを追加</h3>
-      <form id="app-form">
-        <input type="hidden" id="app-id">
-        <label for="app-label">ラベル名</label> <input type="text" id="app-label" required>
-        <label for="app-url">URL</label> <input type="url" id="app-url" required>
-        <label for="app-icon">アイコン (URL or FontAwesome)</label> <input type="text" id="app-icon" placeholder="例: https://a.com/i.png or fab fa-google">
-        <label for="app-category">カテゴリ</label>
-        <select id="app-category">
-          <option value="google">Google</option> <option value="sns">SNS</option> <option value="downloader">Downloader</option> <option value="other">Other</option>
-        </select>
-        <label for="app-search">検索キーワード</label> <input type="text" id="app-search">
-        <div class="modal-buttons"> <button type="button" class="cancel-btn">キャンセル</button> <button type="submit" class="save-btn">保存</button> </div>
-      </form>
-    </div>
-  </div>
-
   <div id="iframe-modal" class="modal-overlay hidden">
     <div class="modal-content iframe-modal-content">
       <button class="close-modal-btn">&times;</button>
@@ -344,14 +401,16 @@
   </div>
   
   <script>
-    // JavaScriptは変更不要なため、前回と同じです
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
     const gridContainer = document.getElementById('gridContainer');
+    
+    // スケジュールデータ（変更なし）
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
-    let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
-
+    
+    // アプリデータ（固定）
+    let appData = [];
     const initialAppData = [
         {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
         {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
@@ -385,18 +444,14 @@
         {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"fas fa-futbol",style:"color:#1e90ff;",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
         {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",category:"other",searchText:"MN4U ブルーロック 漫画"},
         {id:29,label:"マガポケ(ブルーロック公式)",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
-        {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
+        {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://www.mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
         {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
-        // ★★ 追加: Amazonを追加 ★★
         {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
         {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
         {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
     ];
-    
-    function loadAppData() { try { const d = localStorage.getItem('siteApps'); appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); } catch(e) { appData = JSON.parse(JSON.stringify(initialAppData)); } }
-    function saveAppData() { localStorage.setItem('siteApps', JSON.stringify(appData)); }
-    function resetAppData() { if (confirm("アプリの配置や内容を初期状態に戻します。よろしいですか？")) { localStorage.removeItem('siteApps'); location.reload(); } }
 
+    function loadAppData() { appData = JSON.parse(JSON.stringify(initialAppData)); }
     function renderIcons() {
         gridContainer.innerHTML = '';
         appData.forEach(app => {
@@ -404,133 +459,174 @@
             const item = document.createElement('div');
             item.className = `icon-item search-item ${app.emphasized ? 'emphasized' : ''}`;
             item.dataset.id = app.id; item.dataset.category = app.category; item.dataset.searchText = app.searchText;
-            item.draggable = isEditMode;
             item.innerHTML = `
-                <div class="icon-controls">
-                    <button class="icon-control-btn edit" title="編集"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="icon-control-btn delete" title="削除"><i class="fas fa-trash"></i></button>
-                </div>
                 <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
                 <div class="label-text">${app.label}</div>`;
             gridContainer.appendChild(item);
-            // ★★ 変更: 長押しでの編集機能を削除 ★★
-            // addLongPressListener(item); 
         });
-        if (isEditMode) { const btn = document.createElement('div'); btn.className = 'add-new-app-btn'; btn.innerHTML = `<i class="fas fa-plus"></i>`; btn.onclick = () => openModal(); gridContainer.appendChild(btn); }
         filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
         filterContent();
     }
     
-    function addLongPressListener(element) {
-        const start = (e) => { if (isEditMode) return; longPressTimer = setTimeout(() => { e.preventDefault(); if ('vibrate' in navigator) navigator.vibrate(50); toggleEditMode(true); }, 500); };
-        const cancel = () => clearTimeout(longPressTimer);
-        element.addEventListener("mousedown", start); element.addEventListener("touchstart", start, { passive: true });
-        element.addEventListener("mouseup", cancel); element.addEventListener("mouseleave", cancel);
-        element.addEventListener("touchend", cancel); element.addEventListener("touchmove", cancel, { passive: true });
-    }
-
-    function toggleEditMode(forceState) {
-        const newState = forceState !== undefined ? forceState : !isEditMode;
-        if (newState === isEditMode) return;
-        isEditMode = newState;
-        document.body.classList.toggle('edit-mode', isEditMode);
-        const editBtn = document.getElementById('edit-apps-btn');
-        const resetBtn = document.getElementById('reset-apps-btn');
-        editBtn.classList.toggle('editing', isEditMode);
-        if (isEditMode) {
-            editBtn.innerHTML = `<i class="fas fa-check"></i> 編集を完了`;
-            resetBtn.classList.remove('hidden');
-            if (document.getElementById('tab-status').classList.contains('active') || document.getElementById('tab-bustarain').classList.contains('active')) {
-                activateTab('all-apps');
-            }
-        } else {
-            editBtn.innerHTML = `<i class="fas fa-pencil-alt"></i> アプリを編集`;
-            resetBtn.classList.add('hidden');
-            saveAppData();
-        }
-        renderIcons();
-    }
-    
-    const modal = document.getElementById('app-modal');
-    function openModal(app = null) {
-        const form = document.getElementById('app-form');
-        form.reset();
-        document.getElementById('modal-title').textContent = app ? 'アプリを編集' : 'アプリを追加';
-        if (app) {
-            document.getElementById('app-id').value = app.id;
-            document.getElementById('app-label').value = app.label;
-            document.getElementById('app-url').value = app.url;
-            document.getElementById('app-icon').value = app.icon;
-            document.getElementById('app-category').value = app.category;
-            document.getElementById('app-search').value = app.searchText;
-        } else { document.getElementById('app-id').value = ''; }
-        modal.classList.remove('hidden');
-    }
-    function closeModal() { modal.classList.add('hidden'); }
-    function handleFormSubmit(e) {
-        e.preventDefault();
-        const id = document.getElementById('app-id').value;
-        const app = {
-            id: id ? parseInt(id) : Date.now(),
-            label: document.getElementById('app-label').value, url: document.getElementById('app-url').value,
-            icon: document.getElementById('app-icon').value, category: document.getElementById('app-category').value,
-            searchText: document.getElementById('app-search').value, style: document.getElementById('app-icon').value.includes('fa-') ? 'color:#000;' : ''
-        };
-        if (id) { const i = appData.findIndex(a => a.id === app.id); if (i > -1) appData[i] = app; } else { appData.push(app); }
-        renderIcons(); closeModal();
-    }
-    
-    gridContainer.addEventListener('dragstart', e => { if (e.target.classList.contains('icon-item')) { draggedItem = e.target; setTimeout(() => e.target.classList.add('dragging'), 0); } });
-    gridContainer.addEventListener('dragend', () => { if(draggedItem) { draggedItem.classList.remove('dragging'); draggedItem = null; const p = gridContainer.querySelector('.placeholder'); if (p) p.remove(); const newOrder = [...gridContainer.querySelectorAll('.icon-item')].map(i => appData.find(a => a.id === parseInt(i.dataset.id))).filter(Boolean); appData = newOrder; } });
-    gridContainer.addEventListener('dragover', e => { e.preventDefault(); const afterElement = [...gridContainer.querySelectorAll('.icon-item:not(.dragging)')].reduce((c, child) => { const box = child.getBoundingClientRect(); const offset = e.clientX - box.left - box.width / 2; return (offset < 0 && offset > c.offset) ? { offset, element: child } : c; }, { offset: Number.NEGATIVE_INFINITY }).element; const placeholder = gridContainer.querySelector('.placeholder') || document.createElement('div'); if (!placeholder.classList.contains('placeholder')) placeholder.className = 'placeholder'; if (afterElement == null) { gridContainer.appendChild(draggedItem); } else { gridContainer.insertBefore(draggedItem, afterElement); } if (draggedItem.nextSibling) { gridContainer.insertBefore(placeholder, draggedItem.nextSibling); } else { gridContainer.appendChild(placeholder); } });
-    
+    // 省略されたHelper関数 (前述のコードに含まれています)
     function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
     function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
     function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
     function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
     function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
-    
-    function activateTab(tabId) {
-        if (isEditMode && (tabId === 'status' || tabId === 'bustarain')) { alert('アプリ編集中は他のタブに移動できません。'); return; }
-        document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`)?.classList.add('active');
-        mainGrid.style.display = 'none'; statusContainer.style.display = 'none'; bustarainContainer.style.display = 'none';
-        if (tabId === 'status') { statusContainer.style.display = 'flex'; } 
-        else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; } 
-        else { mainGrid.style.display = 'grid'; }
-        localStorage.setItem('siteActiveTab', tabId);
-    }
+    function pad(n){return String(n).padStart(2,'0');}
+    function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
+    function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
+    if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
     function filterIconsByCategory(category) {
         document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
         localStorage.setItem('siteActiveSubFilter', category);
         filterContent();
     }
     function filterContent(){ const s = document.getElementById("appSearchInput").value.toLowerCase(), c = localStorage.getItem('siteActiveSubFilter') || 'all'; document.querySelectorAll(".icon-item").forEach(i => { const categoryMatch = (c === 'all' || i.dataset.category === c); const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; }); }
-    function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
+    function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content')?.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
     function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); document.getElementById(targetId)?.classList.remove('hidden'); document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); }
-    function pad(n){return String(n).padStart(2,'0');}
-    function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
-    function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
-    if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
+    
+    // --- メイン機能関数 ---
+
+    function activateTab(tabId) {
+        document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${tabId}`)?.classList.add('active');
+        mainGrid.style.display = 'none'; statusContainer.style.display = 'none'; bustarainContainer.style.display = 'none';
+        
+        updateTemporaryBusDisplays(new Date()); 
+
+        if (tabId === 'status') { statusContainer.style.display = 'flex'; } 
+        else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; } 
+        else { mainGrid.style.display = 'grid'; }
+        localStorage.setItem('siteActiveTab', tabId);
+    }
+    
+    // 平日判定
+    function isWeekday(date) {
+        const day = date.getDay(); // 0=日, 6=土
+        return day >= 1 && day <= 5;
+    }
+
+    // アコーディオンのトグル処理
+    function toggleTemporaryAccordion(busArea) {
+        const isActive = busArea.classList.toggle('active');
+        const contentBody = busArea.querySelector('.accordion-content-body');
+        const iframe = busArea.querySelector('iframe');
+        const src = iframe.dataset.src;
+        
+        if (isActive) {
+            // 展開時にiframeをロード
+            if (iframe.src === 'about:blank') {
+                iframe.src = src;
+            }
+            // 展開アニメーション開始
+            contentBody.style.maxHeight = contentBody.scrollHeight + "px";
+            // 展開後、念のためmaxHeightを大きく設定し直す（コンテンツの動的変化に対応）
+            setTimeout(() => {
+                if(busArea.classList.contains('active')) {
+                   contentBody.style.maxHeight = '500px'; 
+                }
+            }, 450); 
+            
+        } else {
+            contentBody.style.maxHeight = contentBody.scrollHeight + "px"; // 折りたたみアニメーションのため現在の高さを保持
+            setTimeout(() => {
+                contentBody.style.maxHeight = 0; // 0にセットして折りたたみ
+            }, 10);
+            
+            // 折りたたみ時にiframeをクリア（メモリ/リソース節約のため）
+            setTimeout(() => {
+                iframe.src = 'about:blank';
+            }, 450); 
+        }
+    }
+
+    // 夢野町3丁目バス (平日 7:40〜8:20) の表示制御
+    function updateMorningBusDisplay(now) {
+        const busArea = document.getElementById('morning-bus-schedule');
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const isTargetTime = (h === 7 && m >= 40) || (h === 8 && m <= 20);
+
+        if (isWeekday(now) && isTargetTime) {
+            busArea.classList.remove('hidden');
+        } else {
+            busArea.classList.add('hidden');
+            // 非表示範囲外になった場合、開いていたら閉じる
+            if (busArea.classList.contains('active')) {
+                busArea.classList.remove('active');
+                busArea.querySelector('.accordion-content-body').style.maxHeight = 0;
+                busArea.querySelector('iframe').src = 'about:blank';
+            }
+        }
+    }
+
+    // 鷹取団地前バス (平日 15:00〜20:00) の表示制御
+    function updateEveningBusDisplay(now) {
+        const busArea = document.getElementById('evening-bus-schedule');
+        const h = now.getHours();
+        const isTargetTime = h >= 15 && h < 20;
+
+        if (isWeekday(now) && isTargetTime) {
+            busArea.classList.remove('hidden');
+        } else {
+            busArea.classList.add('hidden');
+             // 非表示範囲外になった場合、開いていたら閉じる
+            if (busArea.classList.contains('active')) {
+                busArea.classList.remove('active');
+                busArea.querySelector('.accordion-content-body').style.maxHeight = 0;
+                busArea.querySelector('iframe').src = 'about:blank';
+            }
+        }
+    }
+    
+    function updateTemporaryBusDisplays(now) {
+        updateMorningBusDisplay(now);
+        updateEveningBusDisplay(now);
+    }
 
     function init() {
       setTheme(localStorage.getItem('siteTheme') || 'light');
-      updateClockAndDate(); resetCalc();
-      loadAppData(); renderIcons();
+      updateClockAndDate(); 
+      calcTime();
+      
+      const now = new Date();
+      updateTemporaryBusDisplays(now); 
+
+      loadAppData(); 
+      renderIcons();
       activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-      initAccordions(); activateSubTab('train-content');
+      initAccordions(); 
+      activateSubTab('train-content');
       window.initBusSchedule();
-      document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
+      
+      document.getElementById('appSearchInput').addEventListener('input', () => { 
+          if(document.getElementById("appSearchInput").value) { 
+              activateTab('all-apps'); 
+              filterIconsByCategory('all'); 
+          } 
+          filterContent(); 
+      });
+
+      document.getElementById('refresh-btn').addEventListener('click', () => {
+          location.reload();
+      });
+
+      // 一時表示バスのアコーディオンイベント設定
+      document.querySelectorAll('.temporary-bus-schedule .accordion-header').forEach(header => {
+          header.addEventListener('click', (e) => {
+              toggleTemporaryAccordion(header.closest('.temporary-bus-schedule'));
+          });
+      });
+
       ['addHours', 'addMinutes', 'addSeconds'].forEach(id => document.getElementById(id).addEventListener('input', calcTime));
       document.getElementById('resetCalcBtn').addEventListener('click', resetCalc);
-      document.getElementById('edit-apps-btn').addEventListener('click', () => toggleEditMode());
-      document.getElementById('reset-apps-btn').addEventListener('click', resetAppData);
-      modal.querySelector('.cancel-btn').addEventListener('click', closeModal);
-      document.getElementById('app-form').addEventListener('submit', handleFormSubmit);
+      
       document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
       document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
-      gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
       
+      // 拡大表示ボタンのイベント
       document.querySelectorAll('.expand-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           const card = e.target.closest('.status-card');
@@ -550,8 +646,25 @@
       });
     }
     
-    setInterval(() => { updateClockAndDate(); calcTime(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000); 
-    setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000); 
+    // 毎秒実行
+    setInterval(() => { 
+        const now = new Date();
+        updateClockAndDate(); 
+        calcTime(); 
+        if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) {
+            window.updateBusCountdowns(); 
+        }
+    }, 1000); 
+    
+    // モーニング・イブニングバス表示のチェックと、バス時刻表の更新（30秒ごと）
+    setInterval(() => { 
+        const now = new Date();
+        updateTemporaryBusDisplays(now);
+        if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) {
+            window.updateBusDisplay();
+        } 
+    }, 30000); 
+    
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
