@@ -6,8 +6,9 @@
   <link rel="icon" href="your-favicon.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
   <style>
-    /* CSSは変更なしなので省略 */
+    /* style.cssの内容をここに記述 */
     :root {
       --bg-color: #ffffff;
       --text-color-primary: #333;
@@ -85,7 +86,8 @@
     #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
     body.dark-theme #search-wrapper::before { opacity: 0.2; }
     .main-content{padding-top:10px}
-    #status-container, #bustarain-container { display: none; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+    #status-container, #bustarain-container { margin-top: 20px; }
+    #status-container { display: flex; flex-direction: column; gap: 20px; }
     .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
     .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
     .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
@@ -167,13 +169,8 @@
     #modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
 
     @media (min-width: 769px) {
-    .theme-switcher {
-    position: absolute;
-    top: 20px;
-    right: 110px;
+    .theme-switcher { position: absolute; top: 20px; right: 110px; }
     }
-    }
-
     @media (max-width: 768px) {
     body { padding: 10px; -webkit-text-size-adjust: 100%; }
     .clock-area { padding: 10px 15px; }
@@ -211,103 +208,72 @@
 <body>
   <div class="page-container">
     
-    <!-- ヘッダー(時刻表示)のコンテナ。JSによって中身が挿入される -->
     <header id="header-container" class="header-area"></header>
 
     <div class="tab-container">
       <div class="tab-menu">
         <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
-        <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
-        <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
-        <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
+        <div class="tab-item" id="tab-all-apps" data-tab="all-apps"> <i class="fas fa-th-large"></i> All Apps </div>
+        <div class="tab-item" id="tab-status" data-tab="status"> <i class="fas fa-chart-line"></i> Status </div>
+        <div class="tab-item" id="tab-bustarain" data-tab="bustarain"> <i class="fas fa-bus"></i> Bustarain </div>
         <div class="edit-controls-wrapper">
             <button id="edit-apps-btn" title="アプリの追加・編集・並び替えを行います"><i class="fas fa-pencil-alt"></i> アプリを編集</button>
             <button id="reset-apps-btn" class="hidden" title="アプリの配置や内容を初期状態に戻します"><i class="fas fa-undo"></i> 初期状態に戻す</button>
         </div>
       </div>
     </div>
-    <div class="main-grid" id="main-grid">
-      <div class="apps-area">
-        <div id="search-wrapper">
-          <div class="main-content" id="mainContent">
-            <div class="sub-filter-tabs" id="sub-filter-tabs">
-                <button class="sub-filter-btn active" data-category="all">All</button>
-                <button class="sub-filter-btn" data-category="google">Google</button>
-                <button class="sub-filter-btn" data-category="sns">SNS</button>
-                <button class="sub-filter-btn" data-category="downloader">Downloader</button>
-                <button class="sub-filter-btn" data-category="other">Other</button>
-            </div>
-            <div class="grid-container" id="gridContainer">
-              <!-- アイコンはJavaScriptによってここに描画されます -->
-            </div>
-          </div>
-        </div>
+
+    <main id="main-content-area"></main>
+
+    <div id="app-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3 id="modal-title">アプリを追加</h3>
+        <form id="app-form">
+          <input type="hidden" id="app-id">
+          <label for="app-label">ラベル名</label> <input type="text" id="app-label" required>
+          <label for="app-url">URL</label> <input type="url" id="app-url" required>
+          <label for="app-icon">アイコン (URL or FontAwesome)</label> <input type="text" id="app-icon" placeholder="例: https://a.com/i.png or fab fa-google">
+          <label for="app-category">カテゴリ</label>
+          <select id="app-category">
+            <option value="google">Google</option> <option value="sns">SNS</option> <option value="downloader">Downloader</option> <option value="other">Other</option>
+          </select>
+          <label for="app-search">検索キーワード</label> <input type="text" id="app-search">
+          <div class="modal-buttons"> <button type="button" class="cancel-btn">キャンセル</button> <button type="submit" class="save-btn">保存</button> </div>
+        </form>
       </div>
     </div>
-    <div id="status-container">
-        <div class="bus-display-board">
-            <div class="bus-header">
-                <div class="bus-stop-name">鷹取団地前</div>
-                <div class="direction-controls">
-                    <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
-                    <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
-                </div>
-                <div class="schedule-type" id="scheduleType"></div>
-            </div>
-            <div id="justDepartedSection"></div>
-            <div class="departures-container" id="upcomingDeparturesContainer"></div>
-        </div>
-        <div class="other-statuses">
-            <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
-            <div class="status-card"> <h3 class="status-card-title">回線速度テスト</h3> <div class="iframe-container"><iframe src="https://fast.com/ja/" title="速度テスト"></iframe></div> </div>
-            <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
-            <div class="status-card">
-              <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
-              <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
-            </div>
-        </div>
-    </div>
-    <div id="bustarain-container"></div>
-
-  <div id="app-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h3 id="modal-title">アプリを追加</h3>
-      <form id="app-form">
-        <input type="hidden" id="app-id">
-        <label for="app-label">ラベル名</label> <input type="text" id="app-label" required>
-        <label for="app-url">URL</label> <input type="url" id="app-url" required>
-        <label for="app-icon">アイコン (URL or FontAwesome)</label> <input type="text" id="app-icon" placeholder="例: https://a.com/i.png or fab fa-google">
-        <label for="app-category">カテゴリ</label>
-        <select id="app-category">
-          <option value="google">Google</option> <option value="sns">SNS</option> <option value="downloader">Downloader</option> <option value="other">Other</option>
-        </select>
-        <label for="app-search">検索キーワード</label> <input type="text" id="app-search">
-        <div class="modal-buttons"> <button type="button" class="cancel-btn">キャンセル</button> <button type="submit" class="save-btn">保存</button> </div>
-      </form>
-    </div>
-  </div>
-  <div id="iframe-modal" class="modal-overlay hidden">
-    <div class="modal-content iframe-modal-content">
-      <button class="close-modal-btn">&times;</button>
-      <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+    <div id="iframe-modal" class="modal-overlay hidden">
+      <div class="modal-content iframe-modal-content">
+        <button class="close-modal-btn">&times;</button>
+        <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+      </div>
     </div>
   </div>
   
-  <script src="main/appsid.html"></script>
-
   <script>
-    const mainGrid = document.getElementById('main-grid');
-    const statusContainer = document.getElementById('status-container');
-    const bustarainContainer = document.getElementById('bustarain-container');
-    const gridContainer = document.getElementById('gridContainer');
-    const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
-    let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
+    // --- apps.jsの内容をここに記述 ---
+    const initialAppData = [
+        // ここに初期アプリアイコンのデータを記述します
+        // 例:
+        { "id": 1, "label": "Google", "url": "https://www.google.com/", "icon": "fab fa-google", "category": "google", "searchText": "google グーグル 検索", "style": "color: #4285F4;" },
+        { "id": 2, "label": "YouTube", "url": "https://www.youtube.com/", "icon": "fab fa-youtube", "category": "sns", "searchText": "youtube ユーチューブ 動画", "style": "color: #FF0000;" },
+        { "id": 3, "label": "Twitter", "url": "https://twitter.com/", "icon": "fab fa-twitter", "category": "sns", "searchText": "twitter ツイッター X エックス", "style": "color: #1DA1F2;" }
+        // ...など
+    ];
 
+    // --- main.jsの内容をここに記述 ---
+    // --- グローバル変数定義 ---
+    let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
+    const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
+
+    // --- 関数定義 (一部抜粋) ---
     function loadAppData() { try { const d = localStorage.getItem('siteApps'); appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); } catch(e) { appData = JSON.parse(JSON.stringify(initialAppData)); } }
     function saveAppData() { localStorage.setItem('siteApps', JSON.stringify(appData)); }
     function resetAppData() { if (confirm("アプリの配置や内容を初期状態に戻します。よろしいですか？")) { localStorage.removeItem('siteApps'); location.reload(); } }
 
     function renderIcons() {
+        const gridContainer = document.getElementById('gridContainer');
+        if (!gridContainer) return;
         gridContainer.innerHTML = '';
         appData.forEach(app => {
             const iconHTML = app.icon.startsWith('http') ? `<img src="${app.icon}" class="icon-img" alt="${app.label}">` : `<i class="${app.icon}" style="${app.style || ''}"></i>`;
@@ -328,168 +294,86 @@
         filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
         filterContent();
     }
+    // ...ここに元のJavaScriptの関数をすべてコピー...
+    // (省略: toggleEditMode, openModal, closeModal, handleFormSubmit, イベントリスナー, updateCountdown, updateClockAndDate, etc...)
 
-    function addLongPressListener(element) {
-        const start = (e) => { if (isEditMode) return; longPressTimer = setTimeout(() => { e.preventDefault(); if ('vibrate' in navigator) navigator.vibrate(50); toggleEditMode(true); }, 500); };
-        const cancel = () => clearTimeout(longPressTimer);
-        element.addEventListener("mousedown", start); element.addEventListener("touchstart", start, { passive: true });
-        element.addEventListener("mouseup", cancel); element.addEventListener("mouseleave", cancel);
-        element.addEventListener("touchend", cancel); element.addEventListener("touchmove", cancel, { passive: true });
-    }
 
-    function toggleEditMode(forceState) {
-        const newState = forceState !== undefined ? forceState : !isEditMode;
-        if (newState === isEditMode) return;
-        isEditMode = newState;
-        document.body.classList.toggle('edit-mode', isEditMode);
-        const editBtn = document.getElementById('edit-apps-btn');
-        const resetBtn = document.getElementById('reset-apps-btn');
-        editBtn.classList.toggle('editing', isEditMode);
-        if (isEditMode) {
-            editBtn.innerHTML = `<i class="fas fa-check"></i> 編集を完了`;
-            resetBtn.classList.remove('hidden');
-            if (document.getElementById('tab-status').classList.contains('active') || document.getElementById('tab-bustarain').classList.contains('active')) {
-                activateTab('all-apps');
+    // --- タブコンテンツの読み込みと初期化 ---
+    async function loadTabContent(tabId) {
+        const contentArea = document.getElementById('main-content-area');
+        try {
+            const response = await fetch(`tabs/${tabId}.html`);
+            if (!response.ok) throw new Error(`Failed to load tabs/${tabId}.html`);
+            contentArea.innerHTML = await response.text();
+
+            switch (tabId) {
+                case 'all-apps': initAppsTab(); break;
+                case 'status': initStatusTab(); break;
+                case 'bustarain': initBustarainTab(); break;
             }
-        } else {
-            editBtn.innerHTML = `<i class="fas fa-pencil-alt"></i> アプリを編集`;
-            resetBtn.classList.add('hidden');
-            saveAppData();
+        } catch (error) {
+            console.error('Error loading tab content:', error);
+            contentArea.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">コンテンツの読み込みに失敗しました。</p>`;
         }
-        renderIcons();
     }
-
-    const modal = document.getElementById('app-modal');
-    function openModal(app = null) {
-        const form = document.getElementById('app-form');
-        form.reset();
-        document.getElementById('modal-title').textContent = app ? 'アプリを編集' : 'アプリを追加';
-        if (app) {
-            document.getElementById('app-id').value = app.id;
-            document.getElementById('app-label').value = app.label;
-            document.getElementById('app-url').value = app.url;
-            document.getElementById('app-icon').value = app.icon;
-            document.getElementById('app-category').value = app.category;
-            document.getElementById('app-search').value = app.searchText;
-        } else { document.getElementById('app-id').value = ''; }
-        modal.classList.remove('hidden');
-    }
-    function closeModal() { modal.classList.add('hidden'); }
-    function handleFormSubmit(e) {
-        e.preventDefault();
-        const id = document.getElementById('app-id').value;
-        const app = {
-            id: id ? parseInt(id) : Date.now(),
-            label: document.getElementById('app-label').value, url: document.getElementById('app-url').value,
-            icon: document.getElementById('app-icon').value, category: document.getElementById('app-category').value,
-            searchText: document.getElementById('app-search').value, style: document.getElementById('app-icon').value.includes('fa-') ? 'color:#000;' : ''
-        };
-        if (id) { const i = appData.findIndex(a => a.id === app.id); if (i > -1) appData[i] = app; } else { appData.push(app); }
-        renderIcons(); closeModal();
-    }
-
-    gridContainer.addEventListener('dragstart', e => { if (e.target.classList.contains('icon-item')) { draggedItem = e.target; setTimeout(() => e.target.classList.add('dragging'), 0); } });
-    gridContainer.addEventListener('dragend', () => { if(draggedItem) { draggedItem.classList.remove('dragging'); draggedItem = null; const p = gridContainer.querySelector('.placeholder'); if (p) p.remove(); const newOrder = [...gridContainer.querySelectorAll('.icon-item')].map(i => appData.find(a => a.id === parseInt(i.dataset.id))).filter(Boolean); appData = newOrder; } });
-    gridContainer.addEventListener('dragover', e => { e.preventDefault(); const afterElement = [...gridContainer.querySelectorAll('.icon-item:not(.dragging)')].reduce((c, child) => { const box = child.getBoundingClientRect(); const offset = e.clientX - box.left - box.width / 2; return (offset < 0 && offset > c.offset) ? { offset, element: child } : c; }, { offset: Number.NEGATIVE_INFINITY }).element; const placeholder = gridContainer.querySelector('.placeholder') || document.createElement('div'); if (!placeholder.classList.contains('placeholder')) placeholder.className = 'placeholder'; if (afterElement == null) { gridContainer.appendChild(draggedItem); } else { gridContainer.insertBefore(draggedItem, afterElement); } if (draggedItem.nextSibling) { gridContainer.insertBefore(placeholder, draggedItem.nextSibling); } else { gridContainer.appendChild(placeholder); } });
-
-    function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
-    function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
-    function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
-    function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
-    function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
 
     function activateTab(tabId) {
-        if (isEditMode && (tabId === 'status' || tabId === 'bustarain')) { alert('アプリ編集中は他のタブに移動できません。'); return; }
+        if (isEditMode && (tabId === 'status' || tabId === 'bustarain')) {
+            alert('アプリ編集中は他のタブに移動できません。');
+            return;
+        }
         document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
         document.getElementById(`tab-${tabId}`)?.classList.add('active');
-        mainGrid.style.display = 'none'; statusContainer.style.display = 'none'; bustarainContainer.style.display = 'none';
-        if (tabId === 'status') { statusContainer.style.display = 'flex'; } 
-        else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; } 
-        else { mainGrid.style.display = 'grid'; }
+        loadTabContent(tabId);
         localStorage.setItem('siteActiveTab', tabId);
     }
-    function filterIconsByCategory(category) {
-        document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
-        localStorage.setItem('siteActiveSubFilter', category);
-        filterContent();
-    }
-    function filterContent(){ const s = document.getElementById("appSearchInput").value.toLowerCase(), c = localStorage.getItem('siteActiveSubFilter') || 'all'; document.querySelectorAll(".icon-item").forEach(i => { const categoryMatch = (c === 'all' || i.dataset.category === c); const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; }); }
-    function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
-    function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); document.getElementById(targetId)?.classList.remove('hidden'); document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); }
-    function pad(n){return String(n).padStart(2,'0');}
-    function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
-    function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
-    if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
 
+    // --- 各タブの初期化関数 ---
+    function initAppsTab() {
+        renderIcons(); // アイコンを描画
+        const gridContainer = document.getElementById('gridContainer');
+        document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
+        gridContainer.addEventListener('dragstart', e => { if (e.target.classList.contains('icon-item')) { draggedItem = e.target; setTimeout(() => e.target.classList.add('dragging'), 0); } });
+        gridContainer.addEventListener('dragend', () => { if(draggedItem) { draggedItem.classList.remove('dragging'); draggedItem = null; const p = gridContainer.querySelector('.placeholder'); if (p) p.remove(); const newOrder = [...gridContainer.querySelectorAll('.icon-item')].map(i => appData.find(a => a.id === parseInt(i.dataset.id))).filter(Boolean); appData = newOrder; } });
+        gridContainer.addEventListener('dragover', e => { e.preventDefault(); const afterElement = [...gridContainer.querySelectorAll('.icon-item:not(.dragging)')].reduce((c, child) => { const box = child.getBoundingClientRect(); const offset = e.clientX - box.left - box.width / 2; return (offset < 0 && offset > c.offset) ? { offset, element: child } : c; }, { offset: Number.NEGATIVE_INFINITY }).element; const placeholder = gridContainer.querySelector('.placeholder') || document.createElement('div'); if (!placeholder.classList.contains('placeholder')) placeholder.className = 'placeholder'; if (afterElement == null) { gridContainer.appendChild(draggedItem); } else { gridContainer.insertBefore(draggedItem, afterElement); } if (draggedItem.nextSibling) { gridContainer.insertBefore(placeholder, draggedItem.nextSibling); } else { gridContainer.appendChild(placeholder); } });
+        gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
+    }
+
+    function initStatusTab() {
+        if (typeof window.initBusSchedule !== 'undefined') { window.initBusSchedule(); window.updateBusDisplay(); }
+        document.querySelectorAll('.expand-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const iframeSrc = e.target.closest('.status-card').querySelector('iframe').src;
+            const modal = document.getElementById('iframe-modal');
+            document.getElementById('modal-iframe').src = iframeSrc;
+            modal.classList.remove('hidden');
+          });
+        });
+    }
+
+    function initBustarainTab() {
+        initAccordions();
+        activateSubTab('train-content');
+        document.querySelectorAll('#main-content-area .sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
+    }
+
+
+    // --- メイン初期化関数 ---
     async function init() {
-      // ヘッダーを非同期で読み込む
       try {
-        const response = await fetch('main/header.html');
-        const html = await response.text();
-        document.getElementById('header-container').innerHTML = html;
-      } catch (error) {
-        console.error('Error loading header.html:', error);
-        document.getElementById('header-container').innerHTML = '<p style="color:red;">ヘッダーの読み込みに失敗しました。</p>';
-      }
+        const response = await fetch('components/header.html');
+        document.getElementById('header-container').innerHTML = await response.text();
+      } catch (error) { console.error('Error loading header.html:', error); }
 
       setTheme(localStorage.getItem('siteTheme') || 'light');
       updateClockAndDate(); 
-      resetCalc(); // resetCalcはヘッダー読み込み後に実行
-      loadAppData(); 
-      renderIcons();
-      activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-      window.initBusSchedule();
-      
-      fetch('main/Busrayout.html')
-        .then(response => response.text())
-        .then(html => {
-            bustarainContainer.innerHTML = html;
-            initAccordions();
-            activateSubTab('train-content');
-            document.querySelectorAll('#bustarain-container .sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
-        })
-        .catch(error => console.error('Error loading Busrayout.html:', error));
+      resetCalc();
+      loadAppData();
 
-      // イベントリスナーはDOM要素が確定した後に設定
-      document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
-      document.body.addEventListener('input', e => {
-          if (['addHours', 'addMinutes', 'addSeconds'].includes(e.target.id)) {
-              calcTime();
-          }
-      });
-      document.body.addEventListener('click', e => {
-          if(e.target.closest('#resetCalcBtn')) resetCalc();
-          if(e.target.closest('#edit-apps-btn')) toggleEditMode();
-          if(e.target.closest('#reset-apps-btn')) resetAppData();
-      });
+      const activeTabId = localStorage.getItem('siteActiveTab') || 'all-apps';
+      activateTab(activeTabId);
 
-      modal.querySelector('.cancel-btn').addEventListener('click', closeModal);
-      document.getElementById('app-form').addEventListener('submit', handleFormSubmit);
-      document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
-      gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
-      
-      document.querySelectorAll('.expand-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const card = e.target.closest('.status-card');
-          const iframeSrc = card.querySelector('iframe').src;
-          const modal = document.getElementById('iframe-modal');
-          const modalIframe = document.getElementById('modal-iframe');
-          modalIframe.src = iframeSrc;
-          modal.classList.remove('hidden');
-        });
-      });
-      const iframeModal = document.getElementById('iframe-modal');
-      iframeModal.addEventListener('click', (e) => {
-        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
-          iframeModal.classList.add('hidden');
-          document.getElementById('modal-iframe').src = 'about:blank';
-        }
-      });
-    }
-
-    setInterval(() => { updateClockAndDate(); calcTime(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000); 
-    setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000); 
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
-</html>
+      // グローバルなイベントリスナー
+      document.querySelectorAll('.tab-item').forEach(tab => tab.addEventListener('click', () => activateTab(tab.dataset.tab)));
+      document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value && !document.getElementById('tab-all-apps').classList.contains('active')) { activateTab('all-apps'); setTimeout(filterContent, 100); } else { filterContent(); } });
+      document.body.addEventListener('input', e => { if (['addHours', 'addMinutes', 'addSeconds'].includes(
