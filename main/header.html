@@ -1,25 +1,24 @@
 <div class="clock-area">
-  <div class="clock-content-wrapper">
-    <div class="datetime-row">
-      <div id="date"></div>
-      <div id="clock"></div>
-      <div id="countdown"></div>
-      <div class="theme-switcher">
-        <div class="theme-dot light" onclick="setTheme('light')"></div>
-        <div class="theme-dot dark" onclick="setTheme('dark')"></div>
-      </div>
+    <div class="clock-content-wrapper">
+        <div class="datetime-row">
+            <div id="date"></div>
+            <div id="clock"></div>
+        </div>
+        <div id="countdown"></div>
     </div>
-    <div class="time-calculator-container">
-      <i class="fas fa-calculator"></i>
-      <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
-      <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
-      <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
-      <span id="resultTime"></span>
-      <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
+    <div class="header-controls">
+        <div class="time-calculator-container">
+            <label><i class="fas fa-clock"></i></label>
+            <input type="number" id="addHours" value="0" min="0"> <label>h</label>
+            <input type="number" id="addMinutes" value="0" min="0" max="59"> <label>m</label>
+            <input type="number" id="addSeconds" value="0" min="0" max="59"> <label>s</label>
+            <span>▶</span>
+            <div id="resultTime">00:00:00</div>
+            <button id="resetCalcBtn" title="リセット"><i class="fas fa-undo"></i></button>
+        </div>
+        <div class="theme-switcher">
+            <div class="theme-dot light" onclick="setTheme('light')" title="ライトテーマ"></div>
+            <div class="theme-dot dark" onclick="setTheme('dark')" title="ダークテーマ"></div>
+        </div>
     </div>
-  </div>
-  <div class="header-controls">
-    <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
-    <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
-  </div>
 </div>
