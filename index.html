@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -7,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    /* CSSは変更なしなので省略 */
     :root {
       --bg-color: #ffffff;
       --text-color-primary: #333;
@@ -206,7 +208,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
 .accordion-header { padding: 12px 15px; font-size: 14px; }
 }
 </style>
-
 </head>
 <body>
   <div class="page-container">
@@ -291,28 +292,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
         </div>
     </div>
 </div>
-<div id="bustarain-container">
-    <div class="sub-tab-menu">
-        <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
-        <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
-        <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
-    </div>
-    <div id="train-content" class="sub-tab-content">
-        <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
-    <div id="bus-content" class="sub-tab-content hidden">
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
-    <div id="other-content" class="sub-tab-content hidden">
-        <iframe class="accordion-iframe" src="https://www.noevir-stadium.jp/event/" style="height: 1000px;"></iframe>
-    </div>
-</div>
+<div id="bustarain-container"></div>
+
   <div id="app-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <h3 id="modal-title">アプリを追加</h3>
@@ -336,54 +317,17 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
       <iframe id="modal-iframe" src="" frameborder="0"></iframe>
     </div>
   </div>
+  
+  <!-- ★★ 変更: appsid.htmlのパスを修正 ★★ -->
+  <script src="main/appsid.html"></script>
+
   <script>
-    // JavaScriptは変更不要なため、前回と同じです
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
     const gridContainer = document.getElementById('gridContainer');
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
     let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
-const initialAppData = [
-    {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
-    {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
-    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット", emphasized: true},
-    {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",category:"google",searchText:"Google Calendar カレンダー"},
-    {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
-    {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
-    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"fas fa-palette",style:"color:#4285f4;",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"fas fa-brain",style:"color:#4285f4;",category:"google",searchText:"Google AI Gemini"},
-    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://twitter.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
-    {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
-    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"fab fa-youtube",style:"color:#ff0000;",category:"sns",searchText:"YT Shorts YouTube ショート"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
-    {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
-    {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
-    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"fab fa-youtube",style:"color:#c4302b;",category:"downloader",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"fab fa-spotify",style:"color:#1DB954;",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"fas fa-music",style:"color:#1DB954;",category:"downloader",searchText:"Spotify mate ダウンロード"},
-    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
-    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"fas fa-desktop",style:"color:#4285f4;",category:"other",searchText:"Remote It リモート"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
-    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"fas fa-subway",style:"color:#0066cc;",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
-    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"fas fa-bus",category:"other",searchText:"BUSTARAIN バスタレイン"},
-    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"fas fa-question-circle",category:"other",searchText:"Answer I アンサー"},
-    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"fas fa-futbol",style:"color:#1e90ff;",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
-    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",category:"other",searchText:"MN4U ブルーロック 漫画"},
-    {id:29,label:"マガポケ(ブルーロック公式)",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
-    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
-    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
-    // ★★ 追加: Amazonを追加 ★★
-    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
-    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
-];
 
 function loadAppData() { try { const d = localStorage.getItem('siteApps'); appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); } catch(e) { appData = JSON.parse(JSON.stringify(initialAppData)); } }
 function saveAppData() { localStorage.setItem('siteApps', JSON.stringify(appData)); }
@@ -405,8 +349,6 @@ function renderIcons() {
             <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
             <div class="label-text">${app.label}</div>`;
         gridContainer.appendChild(item);
-        // ★★ 変更: 長押しでの編集機能を削除 ★★
-        // addLongPressListener(item); 
     });
     if (isEditMode) { const btn = document.createElement('div'); btn.className = 'add-new-app-btn'; btn.innerHTML = `<i class="fas fa-plus"></i>`; btn.onclick = () => openModal(); gridContainer.appendChild(btn); }
     filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
@@ -510,8 +452,19 @@ function init() {
   updateClockAndDate(); resetCalc();
   loadAppData(); renderIcons();
   activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-  initAccordions(); activateSubTab('train-content');
   window.initBusSchedule();
+  
+  // ★★ 変更: Busrayout.htmlのパスを修正 ★★
+  fetch('main/Busrayout.html')
+    .then(response => response.text())
+    .then(html => {
+        bustarainContainer.innerHTML = html;
+        initAccordions();
+        activateSubTab('train-content');
+        document.querySelectorAll('#bustarain-container .sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
+    })
+    .catch(error => console.error('Error loading Busrayout.html:', error));
+
   document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
   ['addHours', 'addMinutes', 'addSeconds'].forEach(id => document.getElementById(id).addEventListener('input', calcTime));
   document.getElementById('resetCalcBtn').addEventListener('click', resetCalc);
@@ -520,7 +473,6 @@ function init() {
   modal.querySelector('.cancel-btn').addEventListener('click', closeModal);
   document.getElementById('app-form').addEventListener('submit', handleFormSubmit);
   document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
-  document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
   gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
   
   document.querySelectorAll('.expand-btn').forEach(btn => {
