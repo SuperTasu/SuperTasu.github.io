@@ -1,0 +1,18 @@
+/* 元の<style>タグの中身をすべてここにコピー */
+:root {
+  --bg-color: #ffffff;
+  --text-color-primary: #333;
+  --text-color-secondary: #666;
+  --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  --card-border-color: rgba(0,0,0,0.05);
+  --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  --icon-bg: #fff;
+  --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  --tab-active-text: #ffffff;
+  --input-bg: #e9ecef;
+  --bus-board-bg: #e8f5e8;
+  --bus-card-bg: #fff;
+}
+body.dark-theme {
+/* ...以下、元のCSSをすべてここに貼り付けてください... */
+}
