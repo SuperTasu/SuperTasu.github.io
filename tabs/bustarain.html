@@ -1,0 +1,89 @@
+<div id="bustarain-container">
+
+  <!-- サブタブメニュー (電車/バス/その他など) -->
+  <div class="sub-tab-menu">
+    <button class="sub-tab-btn active" data-target="train-content">
+      <i class="fas fa-train"></i> 電車運行情報
+    </button>
+    <button class="sub-tab-btn" data-target="road-content">
+      <i class="fas fa-road"></i> 道路交通情報
+    </button>
+    <button class="sub-tab-btn" data-target="weather-content">
+      <i class="fas fa-cloud-sun"></i> 気象・災害情報
+    </button>
+  </div>
+
+  <!-- 電車運行情報コンテンツ (デフォルトで表示) -->
+  <div id="train-content" class="sub-tab-content">
+    
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.westjr.co.jp/traffic_info/">
+        <span>JR西日本 運行情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content">
+        <!-- iframeはクリック時にJSによって動的に生成されます -->
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.hankyu.co.jp/railinfo/">
+        <span>阪急電鉄 運行情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.hanshin.co.jp/railinfo/">
+        <span>阪神電車 運行情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.sanyo-railway.co.jp/railway/info/index.html">
+        <span>山陽電車 運行情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+    
+  </div>
+
+  <!-- 道路交通情報コンテンツ (隠れている状態) -->
+  <div id="road-content" class="sub-tab-content hidden">
+    
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.jartic.or.jp/">
+        <span>JARTIC 道路交通情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+
+  </div>
+
+  <!-- 気象・災害情報コンテンツ (隠れている状態) -->
+  <div id="weather-content" class="sub-tab-content hidden">
+
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.jma.go.jp/jma/index.html">
+        <span>気象庁</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" data-src="https://www.river.go.jp/">
+        <span>川の防災情報</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="accordion-content"></div>
+    </div>
+    
+  </div>
+
+</div>
