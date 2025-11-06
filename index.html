@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -51,7 +51,7 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 #date { font-size: 18px; }
 #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
 #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-.header-speed-test { width: 150px; height: 55px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
+.header-speed-test { width: 150px; height: 70px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .header-speed-test iframe { width: 300%; height: 300%; transform: scale(0.33); transform-origin: 0 0; border: none; }
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .theme-switcher { display: flex; gap: 5px; }
@@ -170,7 +170,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 80px; }
 .bus-card__route { font-size: 14px; }
 .bus-card__remaining { font-size: 20px; }
 .accordion-header { padding: 12px 15px; font-size: 14px; }
-.header-speed-test { width: 120px; height: 45px; }
+.header-speed-test { width: 120px; height: 55px; }
 }
 </style>
 
@@ -378,7 +378,12 @@ function filterIconsByCategory(category) {
 }
 function filterContent(){ const s = document.getElementById("appSearchInput").value.toLowerCase(), c = localStorage.getItem('siteActiveSubFilter') || 'all'; document.querySelectorAll(".icon-item").forEach(i => { const categoryMatch = (c === 'all' || i.dataset.category === c); const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; }); }
 function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
-function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); document.getElementById(targetId)?.classList.remove('hidden'); document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); }
+function activateSubTab(targetId) { 
+    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); 
+    document.getElementById(targetId)?.classList.remove('hidden'); 
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); 
+    localStorage.setItem('siteActiveSubTab', targetId); // サブタブの状態を保存
+}
 
 // ▼▼▼ Gemini API 関連の機能 ▼▼▼
 const aiSendBtn = document.getElementById('ai-send-btn');
@@ -387,19 +392,15 @@ const aiResultOverlay = document.getElementById('ai-result-overlay');
 const aiResultContent = document.getElementById('ai-result-content');
 
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-// ★★★ ここにあなたのGemini APIキーを入力してください ★★★
+// ★★★ Gemini APIキーが設定されました ★★★
+// ★★★【警告】このキーは絶対に公開しないでください ★★★
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+const GEMINI_API_KEY = "AIzaSyBBoPdvwcwMyTPl_RX5mOCO0tpfaSX0qAQ";
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 async function handleAiSubmit() {
     const inputText = aiInput.value.trim();
     if (!inputText) return;
-    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-        aiResultContent.textContent = "エラー: Gemini APIキーが設定されていません。";
-        aiResultOverlay.classList.remove('hidden');
-        return;
-    }
 
     // ローディング表示
     const originalBtnContent = aiSendBtn.innerHTML;
@@ -448,7 +449,8 @@ function init() {
   updateClockAndDate();
   loadAppData(); renderIcons();
   activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-  initAccordions(); activateSubTab('train-content');
+  initAccordions(); 
+  activateSubTab(localStorage.getItem('siteActiveSubTab') || 'train-content'); // 保存されたサブタブを読み込む
   window.initBusSchedule();
   document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
   document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
