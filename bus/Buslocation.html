@@ -1,129 +1,170 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>バス方面・系統選択</title>
-  <style>
-    body {font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; margin: 20px; background: #fff;}
-    select {font-size: 16px; padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; margin: 6px 8px 20px 0;}
-    .grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; margin-top: 20px;}
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 60px;
-      background: #15382f;
-      color: #fff;
-      font-weight: bold;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-    }
-    .btn:hover {transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15);}
-    iframe {width: 100%; height: 500px; border: none; margin-top: 20px;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バス路線案内</title>
+<style>
+  body {
+    background-color: #e6f5e6;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    transition: all 0.6s ease;
+  }
+
+  .container {
+    text-align: center;
+    transition: all 0.6s ease;
+  }
+
+  .moved {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
+
+  select, button {
+    padding: 10px 14px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #88bb88;
+    background-color: #f9fff9;
+    margin: 5px;
+    transition: all 0.3s ease;
+  }
+
+  select:focus, button:hover {
+    background-color: #d0f0d0;
+  }
+
+  button {
+    background-color: #c8eac8;
+    cursor: pointer;
+  }
+
+  iframe {
+    width: 100%;
+    height: calc(100vh - 120px);
+    border: none;
+    margin-top: 80px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.6s ease;
+  }
+</style>
 </head>
 <body>
-  <label for="stopSelect">バス停：</label>
-  <select id="stopSelect">
-    <option value="">-- 選択 --</option>
-    <option value="imadezaike">今出在家</option>
-    <option value="yumenomachi3">夢野町3丁目</option>
-    <option value="takatoridanchi">鷹取団地前（未設定）</option>
-    <option value="itayado">板宿（未設定）</option>
-  </select>
+  <div class="container" id="container">
+    <select id="stopSelect">
+      <option value="">バス停を選択</option>
+      <option value="今出在家">今出在家</option>
+      <option value="夢野町3丁目">夢野町3丁目</option>
+    </select>
 
-  <label for="directionSelect">方面：</label>
-  <select id="directionSelect" disabled>
-    <option value="">-- 選択 --</option>
-  </select>
+    <select id="directionSelect">
+      <option value="">方面を選択</option>
+    </select>
 
-  <label for="routeSelect">系統：</label>
-  <select id="routeSelect" disabled>
-    <option value="">-- 選択 --</option>
-  </select>
+    <select id="routeSelect">
+      <option value="">系統を選択</option>
+    </select>
 
-  <iframe id="resultFrame"></iframe>
+    <button id="showButton">表示</button>
+  </div>
 
-  <script>
-    const data = {
-      imadezaike: {
-        '新開地方面': {
-          '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004',
-          '9系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151'
-        },
-        '吉田町方面': {
-          '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003',
-          '9系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150'
-        }
-      },
-      yumenomachi3: {
-        '長田・板宿方面': {
-          '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0004',
-          '11系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0015',
-          '40系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0053',
-          '65系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0081',
-          '110系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0122',
-          '112系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0126'
-        },
-        '神戸駅方面': {
-          '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0003',
-          '11系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0016',
-          '40系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0054',
-          '65系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0082',
-          '110系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0123',
-          '112系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0127'
-        }
-      }
-    };
+  <iframe id="busFrame"></iframe>
 
-    const stopSelect = document.getElementById('stopSelect');
-    const directionSelect = document.getElementById('directionSelect');
-    const routeSelect = document.getElementById('routeSelect');
-    const resultFrame = document.getElementById('resultFrame');
+<script>
+const data = {
+  '今出在家': {
+    '新開地方面': {
+      '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004',
+      '9系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151'
+    },
+    '吉田町方面': {
+      '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003',
+      '9系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150'
+    }
+  },
+  '夢野町3丁目': {
+    '長田・板宿方面': {
+      '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0004',
+      '11系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0015',
+      '40系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0053',
+      '65系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0081',
+      '110系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0122',
+      '112系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0126'
+    },
+    '神戸駅方面': {
+      '3系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0003',
+      '11系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0016',
+      '40系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0053',
+      '65系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0082',
+      '110系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0123',
+      '112系統': 'https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0127'
+    }
+  }
+};
 
-    stopSelect.addEventListener('change', () => {
-      const stop = stopSelect.value;
-      directionSelect.innerHTML = '<option value="">-- 選択 --</option>';
-      routeSelect.innerHTML = '<option value="">-- 選択 --</option>';
-      routeSelect.disabled = true;
-      resultFrame.src = '';
-      if (!data[stop]) { directionSelect.disabled = true; return; }
-      directionSelect.disabled = false;
+const stopSelect = document.getElementById('stopSelect');
+const directionSelect = document.getElementById('directionSelect');
+const routeSelect = document.getElementById('routeSelect');
+const showButton = document.getElementById('showButton');
+const container = document.getElementById('container');
+const frame = document.getElementById('busFrame');
 
-      Object.keys(data[stop]).forEach(dir => {
-        const opt = document.createElement('option');
-        opt.value = dir;
-        opt.textContent = dir;
-        directionSelect.appendChild(opt);
-      });
+stopSelect.addEventListener('change', () => {
+  directionSelect.innerHTML = '<option value="">方面を選択</option>';
+  routeSelect.innerHTML = '<option value="">系統を選択</option>';
+  const stop = stopSelect.value;
+  if (stop && data[stop]) {
+    Object.keys(data[stop]).forEach(direction => {
+      const opt = document.createElement('option');
+      opt.value = direction;
+      opt.textContent = direction;
+      directionSelect.appendChild(opt);
     });
+  }
+});
 
-    directionSelect.addEventListener('change', () => {
-      const stop = stopSelect.value;
-      const direction = directionSelect.value;
-      routeSelect.innerHTML = '<option value="">-- 選択 --</option>';
-      resultFrame.src = '';
-      if (!stop || !direction || !data[stop][direction]) { routeSelect.disabled = true; return; }
-      routeSelect.disabled = false;
-
-      Object.keys(data[stop][direction]).forEach(route => {
-        const opt = document.createElement('option');
-        opt.value = route;
-        opt.textContent = route;
-        routeSelect.appendChild(opt);
-      });
+directionSelect.addEventListener('change', () => {
+  routeSelect.innerHTML = '<option value="">系統を選択</option>';
+  const stop = stopSelect.value;
+  const direction = directionSelect.value;
+  if (stop && direction && data[stop][direction]) {
+    Object.keys(data[stop][direction]).forEach(route => {
+      const opt = document.createElement('option');
+      opt.value = route;
+      opt.textContent = route;
+      routeSelect.appendChild(opt);
     });
+  }
+});
 
-    routeSelect.addEventListener('change', () => {
-      const stop = stopSelect.value;
-      const direction = directionSelect.value;
-      const route = routeSelect.value;
-      if (!stop || !direction || !route) return;
-      const url = data[stop][direction][route];
-      resultFrame.src = url;
-    });
-  </script>
+showButton.addEventListener('click', () => {
+  const stop = stopSelect.value;
+  const direction = directionSelect.value;
+  const route = routeSelect.value;
+
+  if (!stop || !direction || !route) {
+    alert('すべての項目を選択してください');
+    return;
+  }
+
+  const url = data[stop][direction][route];
+  if (url) {
+    container.classList.add('moved');
+    document.body.style.justifyContent = 'flex-start';
+    frame.src = url;
+  }
+});
+</script>
 </body>
 </html>
