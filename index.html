@@ -307,6 +307,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
         <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <!-- ★★ ここに追加しました ★★ -->
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/Buslocation.html">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
     </div>
     <div id="other-content" class="sub-tab-content hidden">
@@ -337,7 +339,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
     </div>
   </div>
   <script>
-    // JavaScriptは変更不要なため、前回と同じです
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
@@ -379,7 +380,6 @@ const initialAppData = [
     {id:29,label:"マガポケ(ブルーロック公式)",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
     {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
     {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
-    // ★★ 追加: Amazonを追加 ★★
     {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
     {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
     {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
@@ -405,8 +405,6 @@ function renderIcons() {
             <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
             <div class="label-text">${app.label}</div>`;
         gridContainer.appendChild(item);
-        // ★★ 変更: 長押しでの編集機能を削除 ★★
-        // addLongPressListener(item); 
     });
     if (isEditMode) { const btn = document.createElement('div'); btn.className = 'add-new-app-btn'; btn.innerHTML = `<i class="fas fa-plus"></i>`; btn.onclick = () => openModal(); gridContainer.appendChild(btn); }
     filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
@@ -499,7 +497,13 @@ function filterIconsByCategory(category) {
 }
 function filterContent(){ const s = document.getElementById("appSearchInput").value.toLowerCase(), c = localStorage.getItem('siteActiveSubFilter') || 'all'; document.querySelectorAll(".icon-item").forEach(i => { const categoryMatch = (c === 'all' || i.dataset.category === c); const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; }); }
 function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
-function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); document.getElementById(targetId)?.classList.remove('hidden'); document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); }
+// ★★ 変更: activateSubTab関数にlocalStorageへの保存処理を追加 ★★
+function activateSubTab(targetId) { 
+    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); 
+    document.getElementById(targetId)?.classList.remove('hidden'); 
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+    localStorage.setItem('siteActiveSubTab', targetId);
+}
 function pad(n){return String(n).padStart(2,'0');}
 function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
 function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
@@ -510,7 +514,11 @@ function init() {
   updateClockAndDate(); resetCalc();
   loadAppData(); renderIcons();
   activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-  initAccordions(); activateSubTab('train-content');
+  initAccordions();
+  // ★★ 変更: 保存されたサブタブを読み込んで表示 ★★
+  const savedSubTab = localStorage.getItem('siteActiveSubTab') || 'train-content';
+  activateSubTab(savedSubTab);
+  
   window.initBusSchedule();
   document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
   ['addHours', 'addMinutes', 'addSeconds'].forEach(id => document.getElementById(id).addEventListener('input', calcTime));
