@@ -65,6 +65,14 @@
             flex-wrap: wrap;
         }
 
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
         .time-info {
             display: flex;
             gap: 10px;
@@ -76,6 +84,11 @@
             .direction-controls {
                 justify-content: center;
                 order: 2;
+                width: 100%;
+            }
+            .header-controls {
+                order: 3;
+                width: 100%;
             }
             .time-info {
                 justify-content: center;
@@ -93,12 +106,6 @@
             border-radius: 5px;
         }
 
-        @media (max-width: 768px) {
-            .current-time {
-                font-size: 14px;
-            }
-        }
-
         .schedule-type {
             font-size: 14px;
             color: #009900;
@@ -108,20 +115,13 @@
             border-radius: 5px;
             border: 2px solid #009900;
         }
-
-        @media (max-width: 768px) {
-            .schedule-type {
-                font-size: 12px;
-            }
-        }
-
+        
         /* --- PC・スマホ レイアウト切り替え --- */
         .pc-container { display: none; }
         .mobile-container { display: block; }
 
         @media (min-width: 769px) {
             .mobile-container { display: none; }
-            
             .pc-container {
                 display: flex;
                 align-items: stretch;
@@ -145,17 +145,14 @@
                 display: flex;
                 flex-direction: column;
                 padding-left: 15px;
-                gap: 0; /* ★★★ 変更点: セクション間のギャップを削除 ★★★ */
+                gap: 0;
             }
             
             .column-title { display: none; }
             
             #pcDetailView { flex-grow: 1; display: flex; flex-direction: column; }
             
-            /* ★★★ 変更点: 先発情報セクションのスタイル調整 ★★★ */
-            .right-top-section {
-                padding-bottom: 15px; /* 下の一覧との間に少し余白を設ける */
-            }
+            .right-top-section { padding-bottom: 15px; }
             .right-bottom-section {
                 flex-grow: 1;
                 display: flex;
@@ -202,7 +199,7 @@
         
         #justDepartedSection { margin-bottom: 10px; }
 
-        .next-departure-content {
+        .mobile-container .next-departure-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -211,7 +208,7 @@
             padding: 12px;
             border: 2px solid #009900;
         }
-        @media (max-width: 768px) { .next-departure-content { flex-direction: column; gap: 10px; padding: 15px; } }
+        @media (max-width: 768px) { .mobile-container .next-departure-content { flex-direction: column; gap: 10px; padding: 15px; } }
 
         .next-departure-route { flex: 1; text-align: left; }
         @media (max-width: 768px) { .next-departure-route { text-align: center; width: 100%; } }
@@ -276,34 +273,23 @@
         }
 
         .departure-label { width: 60px; color: #333; flex-shrink: 0; }
-        @media (max-width: 768px) {
-            .departure-label { width: 100%; text-align: center; font-size: 12px; order: 1; }
-        }
+        @media (max-width: 768px) { .departure-label { width: 100%; text-align: center; font-size: 12px; order: 1; } }
 
         .departure-route {
             flex: 1; color: #0066cc; overflow: visible;
             white-space: normal; word-wrap: break-word; line-height: 1.2;
         }
-        @media (max-width: 768px) {
-            .departure-route { width: 100%; text-align: center; order: 2; font-size: 16px; white-space: normal; }
-        }
+        @media (max-width: 768px) { .departure-route { width: 100%; text-align: center; order: 2; font-size: 16px; white-space: normal; } }
 
         .route-number {
             display: inline-block; border: 2px solid #0066cc; padding: 2px 6px;
             margin-right: 8px; background-color: #fff; color: #0066cc;
             font-size: 14px; min-width: 25px; text-align: center;
         }
-        @media (max-width: 768px) {
-            .route-number { font-size: 16px; min-width: 30px; padding: 3px 8px; }
-        }
+        @media (max-width: 768px) { .route-number { font-size: 16px; min-width: 30px; padding: 3px 8px; } }
 
         .time-remaining-section { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
-        @media (max-width: 768px) {
-            .time-remaining-section {
-                flex-direction: column; order: 3; width: 100%; align-items: center;
-                gap: 8px; margin-top: 5px;
-            }
-        }
+        @media (max-width: 768px) { .time-remaining-section { flex-direction: column; order: 3; width: 100%; align-items: center; gap: 8px; margin-top: 5px; } }
 
         .departure-time { color: #cc0000; font-size: 18px; text-align: center; }
         @media (max-width: 768px) { .departure-time { font-size: 20px; font-weight: bold; } }
@@ -312,9 +298,7 @@
         @media (max-width: 768px) { .remaining-time { font-size: 18px; } }
 
         .side-info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex-shrink: 0; }
-        @media (max-width: 768px) {
-            .side-info { width: 100%; align-items: center; order: 4; gap: 8px; margin-top: 5px; }
-        }
+        @media (max-width: 768px) { .side-info { width: 100%; align-items: center; order: 4; gap: 8px; margin-top: 5px; } }
 
         .detail-button {
             background-color: #0066cc; color: white; border: none; padding: 3px 6px;
@@ -335,76 +319,43 @@
             font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 5px;
             transition: all 0.3s ease; white-space: normal; word-wrap: break-word; line-height: 1.2;
         }
-        @media (max-width: 768px) {
-            .direction-button { padding: 8px 12px; font-size: 13px; flex-grow: 1; text-align: center; }
-        }
+        @media (max-width: 768px) { .direction-button { padding: 8px 12px; font-size: 13px; flex-grow: 1; text-align: center; } }
         .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
         .direction-button:hover:not(.active) { background-color: #e0e0e0; }
         
-        /* ★★★ 変更点: 表示設定パネルのスタイル変更 ★★★ */
-        .operation-panel {
-            position: relative;
-            flex-grow: 1; /* PC版で中央に配置されるように */
-            max-width: 150px; /* PC版での幅を制限 */
-        }
+        .operation-panel { position: relative; }
         .operation-panel-header {
             display: flex; justify-content: center; align-items: center; cursor: pointer;
             user-select: none; padding: 6px 12px; border-radius: 5px; transition: background-color 0.2s;
-            border: 2px solid #0066cc;
-            background-color: #fff;
+            border: 2px solid #0066cc; background-color: #fff;
         }
         .operation-panel-header:hover { background-color: #e6f0ff; }
         .operation-panel-title { font-size: 14px; font-weight: bold; color: #0066cc; margin: 0 8px 0 0; }
         .collapse-icon { font-size: 12px; color: #0066cc; transition: transform 0.3s ease; }
         .collapse-icon.expanded { transform: rotate(180deg); }
         .operation-panel-content {
-            display: none; /* 初期状態では非表示 */
-            position: absolute;
-            top: 110%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 380px;
-            max-width: 90vw;
-            z-index: 100;
-            background-color: #f8f8ff;
-            border: 2px solid #0066cc;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: opacity 0.3s ease-out;
+            display: none; position: absolute; top: 110%; left: 50%;
+            transform: translateX(-50%); width: 380px; max-width: 90vw; z-index: 100;
+            background-color: #f8f8ff; border: 2px solid #0066cc; border-radius: 8px;
+            padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0; transition: opacity 0.3s ease-out;
         }
         .operation-panel-content.expanded { display: block; opacity: 1; }
         
         @media (max-width: 768px) {
-            .operation-panel {
-                order: 3;
-                width: 100%;
-                box-sizing: border-box;
-                max-width: none;
-            }
+            .operation-panel { width: 100%; }
             .operation-panel-header { padding: 10px; }
             .operation-panel-title { font-size: 18px; }
             .collapse-icon { font-size: 16px; }
             .operation-panel-content {
-                position: static;
-                transform: none;
-                width: auto;
-                max-height: 0;
+                position: static; transform: none; width: auto; max-height: 0;
                 padding: 0; margin: 0; border: none; box-shadow: none;
-                overflow: hidden;
-                transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+                overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
             }
-            .operation-panel-content.expanded {
-                max-height: 1000px;
-                padding: 15px 0 0 0;
-            }
+            .operation-panel-content.expanded { max-height: 1000px; padding: 15px 0 0 0; }
         }
 
-        .route-checkboxes {
-            display: grid; grid-template-columns: 1fr; gap: 8px;
-        }
-        @media (min-width: 769px) { .route-checkboxes { grid-template-columns: 1fr; } }
+        .route-checkboxes { display: grid; grid-template-columns: 1fr; gap: 8px; }
         @media (max-width: 768px) { .route-checkboxes { gap: 10px; } }
 
         .route-checkbox {
@@ -443,9 +394,7 @@
         @media (max-width: 768px) { .datetime-search { padding: 8px; margin-top: 10px; padding-top: 10px; } }
         .datetime-title { margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #333; }
         @media (max-width: 768px) { .datetime-title { font-size: 16px; margin-bottom: 10px; } }
-        .datetime-controls {
-            display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;
-        }
+        .datetime-controls { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
         @media (max-width: 768px) { .datetime-controls { flex-direction: column; gap: 10px; } }
         .datetime-input { padding: 4px 6px; font-size: 12px; border: 2px solid #ccc; border-radius: 4px; }
         @media (max-width: 768px) { .datetime-input { padding: 8px 12px; font-size: 16px; width: 200px; } }
@@ -456,8 +405,18 @@
         }
         .search-button { background-color: #009900; }
         .reset-button { background-color: #666; }
+        @media (max-width: 768px) { .search-button, .reset-button { padding: 10px 20px; font-size: 16px; margin: 5px; } }
+
+        /* ★★★ 変更点: 更新ボタンのスタイル ★★★ */
+        .header-icon-button {
+            background-color: #f0f0f0; border: 2px solid #333; width: 38px; height: 38px;
+            border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
+            padding: 0; flex-shrink: 0;
+        }
+        .header-icon-button:hover { background-color: #e0e0e0; transform: rotate(90deg); }
         @media (max-width: 768px) {
-            .search-button, .reset-button { padding: 10px 20px; font-size: 16px; margin: 5px; }
+            .header-icon-button { width: 44px; height: 44px; font-size: 22px; }
         }
 
         .departures-container { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd; }
@@ -468,7 +427,6 @@
         }
         .show-departures-btn:hover { background-color: #0052a3; }
 
-        /* --- モーダル共通スタイル --- */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;
@@ -477,7 +435,6 @@
         .close-modal { color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1; }
         .close-modal:hover, .close-modal:focus { color: #000; }
         
-        /* 出発一覧モーダル */
         .modal-content {
             background-color: #fff; padding: 25px; border-radius: 10px; width: 90%;
             max-width: 650px; max-height: 85vh; overflow-y: auto; position: relative;
@@ -490,7 +447,8 @@
         .modal-title { font-size: 20px; font-weight: bold; color: #333; }
         #modalDepartureList .departure-info { margin-bottom: 10px; padding: 12px; }
         
-        /* iframe拡大モーダル */
+        .iframe-modal-overlay { display: none; } /* iframeモーダルは共通なのでそのまま */
+        .iframe-modal-overlay.visible { display: flex; }
         .iframe-modal-content {
             background-color: #fff; padding: 10px; border-radius: 10px; width: 95%; height: 90vh;
             max-width: 1200px; overflow: hidden; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -513,27 +471,31 @@
                 <button id="yoshidacho-btn" class="direction-button active">板宿・新長田駅前・鷹取駅前方面</button>
             </div>
             
-            <div class="operation-panel" id="operationPanel">
-                <div class="operation-panel-header" id="operationPanelHeader">
-                    <div class="operation-panel-title">表示設定</div>
-                    <div class="collapse-icon" id="collapseIcon">▼</div>
-                </div>
-                <div class="operation-panel-content" id="operationPanelContent">
-                    <div class="route-checkboxes" id="routeCheckhouses"></div>
-                    <div class="filter-controls">
-                        <button id="selectAllBtn" class="filter-button">すべて選択</button>
-                        <button id="clearAllBtn" class="filter-button secondary">すべて解除</button>
+            <div class="header-controls">
+                <div class="operation-panel" id="operationPanel">
+                    <div class="operation-panel-header" id="operationPanelHeader">
+                        <div class="operation-panel-title">表示設定</div>
+                        <div class="collapse-icon" id="collapseIcon">▼</div>
                     </div>
-                    <div class="datetime-search">
-                        <div class="datetime-title">時刻指定検索</div>
-                        <div class="datetime-controls">
-                            <input type="date" id="searchDate" class="datetime-input">
-                            <input type="time" id="searchTime" class="datetime-input">
-                            <button id="searchBtn" class="search-button">検索</button>
-                            <button id="resetBtn" class="reset-button">現在時刻</button>
+                    <div class="operation-panel-content" id="operationPanelContent">
+                        <div class="route-checkboxes" id="routeCheckhouses"></div>
+                        <div class="filter-controls">
+                            <button id="selectAllBtn" class="filter-button">すべて選択</button>
+                            <button id="clearAllBtn" class="filter-button secondary">すべて解除</button>
+                        </div>
+                        <div class="datetime-search">
+                            <div class="datetime-title">時刻指定検索</div>
+                            <div class="datetime-controls">
+                                <input type="date" id="searchDate" class="datetime-input">
+                                <input type="time" id="searchTime" class="datetime-input">
+                                <button id="searchBtn" class="search-button">検索</button>
+                                <button id="resetBtn" class="reset-button">現在時刻</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- ★★★ 変更点: 更新ボタンを追加 ★★★ -->
+                <button id="refresh-btn" class="header-icon-button" title="更新">↻</button>
             </div>
 
             <div class="time-info">
@@ -545,17 +507,14 @@
         <!-- PC Layout -->
         <div class="pc-container">
             <div class="left-column">
-                <h3 class="column-title">バス詳細</h3>
                 <div id="pcDetailView"></div>
             </div>
             <div class="right-column">
                 <div class="right-top-section">
-                    <h3 class="column-title">先発情報 (鷹取団地前→)</h3>
                     <div id="pcNextDepartureInfo"></div>
                     <div id="pcJustDepartedInfo"></div>
                 </div>
                 <div class="right-bottom-section">
-                     <h3 class="column-title">出発予定一覧</h3>
                     <div id="pcDepartureList"></div>
                 </div>
             </div>
@@ -566,7 +525,7 @@
             <div class="next-departure" id="nextDepartureSection">
                 <div class="next-departure-title">鷹取団地前→</div>
                 <div id="justDepartedSection"></div>
-                <div id="nextDepartureContent"></div>
+                <div id="mobileNextDepartureContent"></div>
             </div>
             
             <div class="departures-container">
@@ -586,7 +545,7 @@
         </div>
     </div>
 
-    <div id="iframeModalOverlay" class="modal-overlay">
+    <div id="iframeModalOverlay" class="iframe-modal-overlay">
         <div class="iframe-modal-content">
             <span id="closeIframeModal" class="close-modal">&times;</span>
             <div id="iframeModalContainer"></div>
@@ -859,7 +818,7 @@
     }
 
     function updateNextDeparture(allDepartures) {
-        const mobileContent = document.getElementById('nextDepartureContent');
+        const mobileContent = document.getElementById('mobileNextDepartureContent');
         const pcDetailView = document.getElementById('pcDetailView');
         const pcNextInfo = document.getElementById('pcNextDepartureInfo');
         const now = getCurrentDateTime();
@@ -1018,7 +977,6 @@
         
         document.getElementById('operationPanelHeader').addEventListener('click', toggleOperationPanel);
         
-        // パネルの外側をクリックしたら閉じる処理
         document.addEventListener('click', function(event) {
             const operationPanel = document.getElementById('operationPanel');
             const content = document.getElementById('operationPanelContent');
@@ -1027,6 +985,10 @@
             }
         });
 
+        // ★★★ 変更点: 更新ボタンのイベントリスナーを追加 ★★★
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            updateDisplay();
+        });
 
         document.getElementById('selectAllBtn').addEventListener('click', () => {
             document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(cb => { cb.checked = true; selectedRoutes.add(cb.value); });
@@ -1077,7 +1039,6 @@
         };
         
         document.addEventListener('click', (e) => {
-            // 操作パネルを開くボタンは外側クリック判定から除外
             if (e.target.closest('#operationPanelHeader')) return;
 
             const expandButton = e.target.closest('.expand-iframe-btn');
