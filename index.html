@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -51,7 +51,7 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 #date { font-size: 18px; }
 #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
 #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-.header-speed-test { width: 150px; height: 70px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
+.header-speed-test { width: 150px; height: 100px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .header-speed-test iframe { width: 300%; height: 300%; transform: scale(0.33); transform-origin: 0 0; border: none; }
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .theme-switcher { display: flex; gap: 5px; }
@@ -170,7 +170,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 80px; }
 .bus-card__route { font-size: 14px; }
 .bus-card__remaining { font-size: 20px; }
 .accordion-header { padding: 12px 15px; font-size: 14px; }
-.header-speed-test { width: 120px; height: 55px; }
+.header-speed-test { width: 120px; height: 75px; }
 }
 </style>
 
@@ -260,7 +260,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 80px; }
         <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
     </div>
     <div id="bus-content" class="sub-tab-content hidden">
-        <div class="accordion-item"><div class="accordion-header" data-src="https://www.kobe-bus.jp/">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/Buslocation.html">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
         <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
@@ -393,7 +393,7 @@ const aiResultContent = document.getElementById('ai-result-content');
 
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 // ★★★ Gemini APIキーが設定されました ★★★
-// ★★★【警告】このキーは絶対に公開しないでください ★★★
+// ★★★【警告】このキーは絶対に外部に公開しないでください ★★★
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 const GEMINI_API_KEY = "AIzaSyBBoPdvwcwMyTPl_RX5mOCO0tpfaSX0qAQ";
 // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
@@ -419,18 +419,28 @@ async function handleAiSubmit() {
         
         if (!response.ok) {
             const errorData = await response.json();
+            console.error("API Error Response:", errorData); // デバッグ用に詳細出力
             throw new Error(errorData.error.message || `HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        const resultText = data.candidates[0].content.parts[0].text;
-        aiResultContent.textContent = resultText;
+        
+        // レスポンスの存在チェックを強化
+        const resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (resultText) {
+            aiResultContent.textContent = resultText;
+        } else {
+            console.error("Unexpected API response format:", data);
+            throw new Error("APIから有効な回答を取得できませんでした。レスポンスの形式が不正です。");
+        }
+        
         aiResultOverlay.classList.remove('hidden');
         aiInput.value = '';
 
     } catch (error) {
         console.error("Error calling Gemini API:", error);
-        aiResultContent.textContent = `エラーが発生しました: ${error.message}`;
+        aiResultContent.textContent = `エラーが発生しました: ${error.message}\n\nAPIキーが有効か、またはGoogle Cloud/AI StudioでAPIが有効になっているか確認してください。`;
         aiResultOverlay.classList.remove('hidden');
     } finally {
         // ローディング解除
