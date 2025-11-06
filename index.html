@@ -21,214 +21,146 @@
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
     }
-body.dark-theme {
---bg-color: #434343;
---text-color-primary: #f5f5f5;
---text-color-secondary: #aaa;
---card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
---card-border-color: rgba(255,255,255,0.1);
---card-shadow: 0 4px 16px rgba(0,0,0,0.4);
---icon-bg: #555;
---icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
---tab-active-text: #ffffff;
---input-bg: #3a3a3a;
---bus-board-bg: #2a3a2a;
---bus-card-bg: #3c4c3c;
-}
+    body.dark-theme {
+      --bg-color: #434343;
+      --text-color-primary: #f5f5f5;
+      --text-color-secondary: #aaa;
+      --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
+      --card-border-color: rgba(255,255,255,0.1);
+      --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      --icon-bg: #555;
+      --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      --tab-active-text: #ffffff;
+      --input-bg: #3a3a3a;
+      --bus-board-bg: #2a3a2a;
+      --bus-card-bg: #3c4c3c;
+    }
 
-body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; }
-.page-container { max-width: 1200px; margin: 0 auto; }
-.main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
-.apps-area { grid-area: apps; }
-.clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; position: relative; }
-.clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
-.datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
-#date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
-#date { font-size: 18px; }
-#clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
-#countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-.header-controls { display: flex; align-items: center; gap: 10px; }
-.theme-switcher { display: flex; gap: 5px; }
-.theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
-.theme-dot:hover { transform: scale(1.2); }
-.theme-dot.light { background-color: #f8f9fa; }
-.theme-dot.dark { background-color: #434343; }
-.control-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-color-secondary); font-size: 18px; text-decoration: none; transition: all 0.2s; }
-.control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
-.time-calculator-container { display: flex; align-items: center; gap: 8px; justify-content: center; background: var(--icon-bg); color: var(--text-color-primary); padding: 6px 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-wrap: wrap; width: fit-content; }
-.time-calculator-container label { font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
-.time-calculator-container input[type="number"] { width: 40px; padding: 4px; font-size: 14px; border-radius: 6px; border: 1px solid var(--card-border-color); background-color: var(--bg-color); color: var(--text-color-primary); text-align: center; }
-#resultTime { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 15px; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 6px; min-width: 110px; text-align: center; }
-body.dark-theme #resultTime { background: rgba(255,255,255,0.1); }
-#resetCalcBtn { background: none; border: none; font-size: 16px; color: var(--text-color-secondary); cursor: pointer; padding: 5px; line-height: 1; }
-#resetCalcBtn:hover { color: #667eea; }
-.tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
-.tab-menu { display: flex; align-items: center; }
-.search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
-.search-container i { color: var(--text-color-secondary); }
-#appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
-#appSearchInput:focus { width: 200px; }
-.tab-item { flex-grow: 1; text-align: center; padding: 15px 20px; color: var(--text-color-secondary); text-decoration: none; font-weight: bold; font-size: 14px; position: relative; transition: all 0.3s ease; border-radius: 16px; margin: 6px; border-right: 1px solid rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; min-width: 100px; }
-.tab-item:last-of-type { border-right: none; }
-.tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
-.tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
-.grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
-.icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-.icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-body.dark-theme .icon-link:hover { background-color: #4a5568; }
-.icon-link i { font-size: 26px; }
-.icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
-.label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
-#search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
-#search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
-body.dark-theme #search-wrapper::before { opacity: 0.2; }
-.main-content{padding-top:10px}
-#status-container, #bustarain-container { display: none; margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
-.bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
-.bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-.bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
-.direction-controls { display: flex; gap: 8px; }
-.direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
-body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
-.direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
-.schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
-#justDepartedSection { margin-bottom: 15px; }
-.just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
-.departures-container { display: grid; gap: 15px; }
-.bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-.bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-.bus-card__main { display: flex; align-items: center; gap: 20px; }
-.bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-.bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-.bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-.route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
-.itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
-.bus-card__side { text-align: right; }
-.bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
-.detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
-.no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
-.other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-.status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
-.game-buttons { display: flex; gap: 15px; }
-.game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
-.game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
-.iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
-.iframe-container iframe { width: 100%; height: 100%; border: none; }
-.sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; flex-wrap: wrap; }
-.sub-filter-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; }
-.sub-filter-btn.active { background: #667eea; color: white; }
-.sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .accordion-iframe { width: 100%; height: 800px; border: none; }
-.edit-controls-wrapper { margin-left: auto; display: flex; gap: 10px; padding-right: 10px; }
-.edit-controls-wrapper button { padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; }
-#edit-apps-btn { background-color: transparent; border: 1px solid #667eea; color: #667eea; }
-#edit-apps-btn:hover { background-color: #667eea; color: white; }
-#edit-apps-btn.editing { background-color: #28a745; color: white; border-color: #28a745; }
-#reset-apps-btn { background-color: #dc3545; color: white; border: 1px solid #dc3545; }
-body.edit-mode .icon-link { cursor: grab; pointer-events: none; }
-body.edit-mode .icon-link:active { cursor: grabbing; }
-body.edit-mode .icon-item { animation: shake 0.5s infinite; }
-@keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-1deg); } 75% { transform: rotate(1deg); } }
-.icon-controls { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); display: none; gap: 5px; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 10px; z-index: 10; }
-body.edit-mode .icon-controls { display: flex; }
-.icon-control-btn { background: white; border: none; width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 11px; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-.icon-control-btn.delete { color: #dc3545; }
-.icon-control-btn.edit { color: #0d6efd; }
-.add-new-app-btn { display: none; flex-direction: column; justify-content: center; align-items: center; border: 2px dashed var(--text-color-secondary); border-radius: 18px; width: 65px; height: 80px; cursor: pointer; color: var(--text-color-secondary); transition: all 0.2s; }
-.add-new-app-btn:hover { background: var(--input-bg); }
-.add-new-app-btn i { font-size: 24px; margin-bottom: 8px; }
-body.edit-mode .add-new-app-btn { display: flex; }
-.icon-item.dragging { opacity: 0.4; animation: none; }
-.placeholder { background: rgba(102, 126, 234, 0.2); border: 2px dashed #667eea; border-radius: 18px; width: 65px; height: 80px; box-sizing: border-box; }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-.modal-content { background: var(--bg-color); padding: 25px; border-radius: 15px; box-shadow: var(--card-shadow); width: 90%; max-width: 400px; }
-.modal-content h3 { margin-top: 0; }
-.modal-content form label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
-.modal-content form input, .modal-content form select { width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--card-border-color); background: var(--input-bg); color: var(--text-color-primary); box-sizing: border-box; margin-bottom: 15px; }
-.modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-.modal-buttons button { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-.modal-buttons .save-btn { background-color: #667eea; color: white; }
-.modal-buttons .cancel-btn { background-color: var(--input-bg); color: var(--text-color-secondary); }
-.hidden { display: none !important; }
-.icon-item.emphasized .icon-link { animation: pulse-animation 2s infinite; border: 2px solid #4285F4; }
-body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
-@keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
+    body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; }
+    .page-container { max-width: 1200px; margin: 0 auto; }
+    .main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
+    .apps-area { grid-area: apps; }
+    .clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; position: relative; }
+    .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 20px; flex-wrap: wrap; }
+    #date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
+    #date { font-size: 18px; }
+    #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
+    .header-controls { display: flex; align-items: center; gap: 10px; }
+    .theme-switcher { display: flex; gap: 5px; }
+    .theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
+    .theme-dot:hover { transform: scale(1.2); }
+    .theme-dot.light { background-color: #f8f9fa; }
+    .theme-dot.dark { background-color: #434343; }
+    .control-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-color-secondary); font-size: 18px; text-decoration: none; transition: all 0.2s; }
+    .control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
+    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
+    .tab-menu { display: flex; align-items: center; flex-wrap: wrap; }
+    .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
+    .search-container i { color: var(--text-color-secondary); }
+    #appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
+    #appSearchInput:focus { width: 200px; }
+    .tab-item { flex-grow: 1; text-align: center; padding: 15px 20px; color: var(--text-color-secondary); text-decoration: none; font-weight: bold; font-size: 14px; position: relative; transition: all 0.3s ease; border-radius: 16px; margin: 6px; cursor: pointer; white-space: nowrap; min-width: 100px; }
+    .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
+    .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
+    #status-container, #bustarain-container { display: none; margin-top: 20px; }
+    #status-container { display: flex; flex-direction: column; gap: 20px; }
+    .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
+    .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
+    .direction-controls { display: flex; gap: 8px; }
+    .direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
+    body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
+    .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
+    .schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
+    #justDepartedSection { margin-bottom: 15px; }
+    .just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
+    body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
+    .departures-container { display: grid; gap: 15px; }
+    .bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+    .bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
+    .bus-card__main { display: flex; align-items: center; gap: 20px; }
+    .bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
+    .bus-card__details { display: flex; flex-direction: column; gap: 4px; }
+    .bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    .route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
+    .itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
+    .bus-card__side { text-align: right; }
+    .bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
+    .detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
+    .no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
+    .blink { animation: blink 1s infinite; }
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
+    .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
+    .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    .game-buttons { display: flex; gap: 15px; }
+    .game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+    .game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
+    .iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
+    .iframe-container iframe { width: 100%; height: 100%; border: none; }
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; }
+    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .sub-tab-btn.active { background: #667eea; color: white; }
+    .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+    .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .accordion-header .fas { transition: transform 0.3s ease; }
+    .accordion-item.active .accordion-header .fas { transform: rotate(180deg); }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; }
+    .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; }
+    .accordion-iframe { width: 100%; height: 800px; border: none; }
+    .hidden { display: none !important; }
+    .expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; }
+    .expand-btn:hover { color: #667eea; transform: scale(1.2); }
+    .iframe-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+    .iframe-modal-content { background: var(--bg-color); padding: 15px; border-radius: 15px; box-shadow: var(--card-shadow); width: 90%; height: 90%; max-width: 1400px; display: flex; flex-direction: column; position: relative; }
+    .close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
+    #modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
+    
+    /* NEW: Speed test container styles */
+    .speed-test-container {
+      width: 180px;
+      height: 45px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border-color);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .speed-test-container iframe {
+      width: 200%;
+      height: 200%;
+      border: none;
+      transform: scale(0.5);
+      transform-origin: 0 0;
+      /* fast.com is not responsive, so this is a trick to scale it down */
+    }
 
-.expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; }
-.expand-btn:hover { color: #667eea; transform: scale(1.2); }
-.iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
-.close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
-#modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
-
-@media (min-width: 769px) {
-.theme-switcher {
-position: absolute;
-top: 20px;
-right: 110px;
-}
-}
-
-@media (max-width: 768px) {
-body { padding: 10px; -webkit-text-size-adjust: 100%; }
-.clock-area { padding: 10px 15px; }
-.datetime-row { gap: 10px; justify-content: center; }
-#date, #countdown { font-size: 14px; }
-#clock { font-size: 20px; }
-.time-calculator-container { gap: 4px; padding: 4px 8px; }
-.time-calculator-container label { font-size: 12px; }
-.time-calculator-container input[type="number"] { width: 30px; }
-.tab-menu { flex-wrap: wrap; justify-content: center; }
-.tab-item { padding: 10px 8px; font-size: 12px; flex-grow: 0; min-width: unset; }
-.search-container { flex-basis: 100%; justify-content: center; margin-bottom: 0; }
-#appSearchInput { width: 120px; }
-.edit-controls-wrapper { flex-basis: 100%; justify-content: center; margin-left: 0; padding-right: 0; }
-.edit-controls-wrapper button { padding: 8px 12px; font-size: 11px; }
-.sub-filter-tabs { gap: 6px; }
-.sub-filter-btn { padding: 6px 12px; font-size: 12px; }
-.grid-container { gap: 8px; justify-content: space-around; }
-.icon-item { width: 70px; }
-.icon-link { width: 55px; height: 55px; border-radius: 18px; }
-.icon-img { width: 28px; height: 28px; border-radius: 7px; }
-.icon-link i { font-size: 24px; }
-.label-text { font-size: 10px; line-height: 1.2; margin-top: 4px; }
-.add-new-app-btn, .placeholder { width: 70px; height: 85px; border-radius: 14px; }
-.add-new-app-btn i { font-size: 20px; }
-.bus-stop-name { font-size: 18px; }
-.bus-card__time { font-size: 28px; }
-.bus-card__main { gap: 10px; }
-.bus-card__route { font-size: 14px; }
-.bus-card__remaining { font-size: 20px; }
-.accordion-header { padding: 12px 15px; font-size: 14px; }
-}
-</style>
-
+    @media (max-width: 768px) {
+      body { padding: 10px; -webkit-text-size-adjust: 100%; }
+      .clock-area { padding: 10px 15px; }
+      .datetime-row { gap: 10px; justify-content: center; }
+      #date { font-size: 14px; }
+      #clock { font-size: 20px; }
+      .tab-menu { flex-wrap: wrap; justify-content: center; }
+      .tab-item { padding: 10px 8px; font-size: 12px; flex-grow: 0; min-width: unset; }
+      .bus-stop-name { font-size: 18px; }
+      .bus-card__time { font-size: 28px; }
+    }
+  </style>
 </head>
 <body>
   <div class="page-container">
     <header class="header-area">
       <div class="clock-area">
-        <div class="clock-content-wrapper">
-          <div class="datetime-row">
-            <div id="date"></div>
-            <div id="clock"></div>
-            <div id="countdown"></div>
-            <div class="theme-switcher">
-              <div class="theme-dot light" onclick="setTheme('light')"></div>
-              <div class="theme-dot dark" onclick="setTheme('dark')"></div>
-            </div>
+        <div class="datetime-row">
+          <div id="date"></div>
+          <div id="clock"></div>
+          <div class="speed-test-container">
+            <iframe src="https://fast.com/ja/" title="速度テスト"></iframe>
           </div>
-          <div class="time-calculator-container">
-            <i class="fas fa-calculator"></i>
-            <label>+ <input id="addHours" type="number" min="0" value="0"> H</label>
-            <label><input id="addMinutes" type="number" min="0" value="0"> M</label>
-            <label><input id="addSeconds" type="number" min="0" value="0"> S</label>
-            <span id="resultTime"></span>
-            <button id="resetCalcBtn" title="リセット"><i class="fas fa-history"></i></button>
+          <div class="theme-switcher">
+            <div class="theme-dot light" onclick="setTheme('light')"></div>
+            <div class="theme-dot dark" onclick="setTheme('dark')"></div>
           </div>
         </div>
         <div class="header-controls">
@@ -238,321 +170,153 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; }
       </div>
     </header>
 
-<div class="tab-container">
-  <div class="tab-menu">
-    <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
-    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
-    <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
-    <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-    <div class="edit-controls-wrapper">
-        <button id="edit-apps-btn" title="アプリの追加・編集・並び替えを行います"><i class="fas fa-pencil-alt"></i> アプリを編集</button>
-        <button id="reset-apps-btn" class="hidden" title="アプリの配置や内容を初期状態に戻します"><i class="fas fa-undo"></i> 初期状態に戻す</button>
-    </div>
-  </div>
-</div>
-<div class="main-grid" id="main-grid">
-  <div class="apps-area">
-    <div id="search-wrapper">
-      <div class="main-content" id="mainContent">
-        <div class="sub-filter-tabs" id="sub-filter-tabs">
-            <button class="sub-filter-btn active" data-category="all">All</button>
-            <button class="sub-filter-btn" data-category="google">Google</button>
-            <button class="sub-filter-btn" data-category="sns">SNS</button>
-            <button class="sub-filter-btn" data-category="downloader">Downloader</button>
-            <button class="sub-filter-btn" data-category="other">Other</button>
-        </div>
-        <div class="grid-container" id="gridContainer">
-          <!-- アイコンはJavaScriptによってここに描画されます -->
-        </div>
+    <div class="tab-container">
+      <div class="tab-menu">
+        <!-- Apps tab is now just a link to a separate page -->
+        <a href="./apps.html" class="tab-item"> <i class="fas fa-th-large"></i> All Apps </a>
+        <!-- Schedule tab is now just a link to a separate page -->
+        <a href="./schedule.html" class="tab-item"> <i class="fas fa-clock"></i> Schedule </a>
+        <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
+        <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
       </div>
     </div>
-  </div>
-</div>
-<div id="status-container">
-    <div class="bus-display-board">
-        <div class="bus-header">
-            <div class="bus-stop-name">鷹取団地前</div>
-            <div class="direction-controls">
-                <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
-                <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
+
+    <!-- The apps grid is removed -->
+    <div id="status-container">
+        <div class="bus-display-board">
+            <div class="bus-header">
+                <div class="bus-stop-name">鷹取団地前</div>
+                <div class="direction-controls">
+                    <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
+                    <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
+                </div>
+                <div class="schedule-type" id="scheduleType"></div>
             </div>
-            <div class="schedule-type" id="scheduleType"></div>
+            <div id="justDepartedSection"></div>
+            <div class="departures-container" id="upcomingDeparturesContainer"></div>
         </div>
-        <div id="justDepartedSection"></div>
-        <div class="departures-container" id="upcomingDeparturesContainer"></div>
-    </div>
-    <div class="other-statuses">
-        <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
-        <div class="status-card"> <h3 class="status-card-title">回線速度テスト</h3> <div class="iframe-container"><iframe src="https://fast.com/ja/" title="速度テスト"></iframe></div> </div>
-        <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
-        <div class="status-card">
-          <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
-          <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
+        <div class="other-statuses">
+            <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
+            <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
+            <div class="status-card">
+              <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
+              <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
+            </div>
         </div>
     </div>
-</div>
-<div id="bustarain-container">
-    <div class="sub-tab-menu">
-        <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
-        <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
-        <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
-    </div>
-    <div id="train-content" class="sub-tab-content">
-        <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
-    <div id="bus-content" class="sub-tab-content hidden">
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <!-- ★★ ここに追加しました ★★ -->
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/Buslocation.html">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
-    <div id="other-content" class="sub-tab-content hidden">
-        <iframe class="accordion-iframe" src="https://www.noevir-stadium.jp/event/" style="height: 1000px;"></iframe>
-    </div>
-</div>
-  <div id="app-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h3 id="modal-title">アプリを追加</h3>
-      <form id="app-form">
-        <input type="hidden" id="app-id">
-        <label for="app-label">ラベル名</label> <input type="text" id="app-label" required>
-        <label for="app-url">URL</label> <input type="url" id="app-url" required>
-        <label for="app-icon">アイコン (URL or FontAwesome)</label> <input type="text" id="app-icon" placeholder="例: https://a.com/i.png or fab fa-google">
-        <label for="app-category">カテゴリ</label>
-        <select id="app-category">
-          <option value="google">Google</option> <option value="sns">SNS</option> <option value="downloader">Downloader</option> <option value="other">Other</option>
-        </select>
-        <label for="app-search">検索キーワード</label> <input type="text" id="app-search">
-        <div class="modal-buttons"> <button type="button" class="cancel-btn">キャンセル</button> <button type="submit" class="save-btn">保存</button> </div>
-      </form>
+    <div id="bustarain-container">
+        <div class="sub-tab-menu">
+            <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
+            <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
+            <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
+        </div>
+        <div id="train-content" class="sub-tab-content">
+            <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        </div>
+        <div id="bus-content" class="sub-tab-content hidden">
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+            <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        </div>
+        <div id="other-content" class="sub-tab-content hidden">
+            <iframe class="accordion-iframe" src="https://www.noevir-stadium.jp/event/" style="height: 1000px;"></iframe>
+        </div>
     </div>
   </div>
-  <div id="iframe-modal" class="modal-overlay hidden">
+  
+  <div id="iframe-modal" class="modal-overlay iframe-modal-overlay hidden">
     <div class="modal-content iframe-modal-content">
       <button class="close-modal-btn">&times;</button>
       <iframe id="modal-iframe" src="" frameborder="0"></iframe>
     </div>
   </div>
+
   <script>
-    const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
-    const gridContainer = document.getElementById('gridContainer');
-    const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
-    let appData = [], isEditMode = false, draggedItem = null, longPressTimer;
-const initialAppData = [
-    {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
-    {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
-    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット", emphasized: true},
-    {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",category:"google",searchText:"Google Calendar カレンダー"},
-    {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
-    {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
-    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"fas fa-palette",style:"color:#4285f4;",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"fas fa-brain",style:"color:#4285f4;",category:"google",searchText:"Google AI Gemini"},
-    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://twitter.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
-    {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
-    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"fab fa-youtube",style:"color:#ff0000;",category:"sns",searchText:"YT Shorts YouTube ショート"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
-    {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
-    {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
-    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"fab fa-youtube",style:"color:#c4302b;",category:"downloader",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"fab fa-spotify",style:"color:#1DB954;",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"fas fa-music",style:"color:#1DB954;",category:"downloader",searchText:"Spotify mate ダウンロード"},
-    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
-    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"fas fa-desktop",style:"color:#4285f4;",category:"other",searchText:"Remote It リモート"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
-    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"fas fa-subway",style:"color:#0066cc;",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
-    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"fas fa-bus",category:"other",searchText:"BUSTARAIN バスタレイン"},
-    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"fas fa-question-circle",category:"other",searchText:"Answer I アンサー"},
-    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"fas fa-futbol",style:"color:#1e90ff;",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
-    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",category:"other",searchText:"MN4U ブルーロック 漫画"},
-    {id:29,label:"マガポケ(ブルーロック公式)",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
-    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
-    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
-    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
-    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
-];
 
-function loadAppData() { try { const d = localStorage.getItem('siteApps'); appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); } catch(e) { appData = JSON.parse(JSON.stringify(initialAppData)); } }
-function saveAppData() { localStorage.setItem('siteApps', JSON.stringify(appData)); }
-function resetAppData() { if (confirm("アプリの配置や内容を初期状態に戻します。よろしいですか？")) { localStorage.removeItem('siteApps'); location.reload(); } }
+    function updateClockAndDate() {
+      const t = new Date();
+      const e = String(t.getHours()).padStart(2, "0");
+      const n = String(t.getMinutes()).padStart(2, "0");
+      const o = String(t.getSeconds()).padStart(2, "0");
+      document.getElementById("clock").textContent = `${e}:${n}:${o}`;
+      const a = t.getFullYear();
+      const s = String(t.getMonth() + 1).padStart(2, "0");
+      const r = String(t.getDate()).padStart(2, "0");
+      const i = ["日", "月", "火", "水", "木", "金", "土"][t.getDay()];
+      document.getElementById("date").textContent = `${a}/${s}/${r}(${i})`;
+    }
 
-function renderIcons() {
-    gridContainer.innerHTML = '';
-    appData.forEach(app => {
-        const iconHTML = app.icon.startsWith('http') ? `<img src="${app.icon}" class="icon-img" alt="${app.label}">` : `<i class="${app.icon}" style="${app.style || ''}"></i>`;
-        const item = document.createElement('div');
-        item.className = `icon-item search-item ${app.emphasized ? 'emphasized' : ''}`;
-        item.dataset.id = app.id; item.dataset.category = app.category; item.dataset.searchText = app.searchText;
-        item.draggable = isEditMode;
-        item.innerHTML = `
-            <div class="icon-controls">
-                <button class="icon-control-btn edit" title="編集"><i class="fas fa-pencil-alt"></i></button>
-                <button class="icon-control-btn delete" title="削除"><i class="fas fa-trash"></i></button>
-            </div>
-            <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-            <div class="label-text">${app.label}</div>`;
-        gridContainer.appendChild(item);
-    });
-    if (isEditMode) { const btn = document.createElement('div'); btn.className = 'add-new-app-btn'; btn.innerHTML = `<i class="fas fa-plus"></i>`; btn.onclick = () => openModal(); gridContainer.appendChild(btn); }
-    filterIconsByCategory(localStorage.getItem('siteActiveSubFilter') || 'all');
-    filterContent();
-}
+    function setTheme(t) {
+      if (t === "dark") {
+        document.body.classList.add("dark-theme");
+        localStorage.setItem("siteTheme", "dark");
+      } else {
+        document.body.classList.remove("dark-theme");
+        localStorage.setItem("siteTheme", "light");
+      }
+    }
 
-function addLongPressListener(element) {
-    const start = (e) => { if (isEditMode) return; longPressTimer = setTimeout(() => { e.preventDefault(); if ('vibrate' in navigator) navigator.vibrate(50); toggleEditMode(true); }, 500); };
-    const cancel = () => clearTimeout(longPressTimer);
-    element.addEventListener("mousedown", start); element.addEventListener("touchstart", start, { passive: true });
-    element.addEventListener("mouseup", cancel); element.addEventListener("mouseleave", cancel);
-    element.addEventListener("touchend", cancel); element.addEventListener("touchmove", cancel, { passive: true });
-}
+    function activateTab(tabId) {
+      document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
+      const activeTab = document.getElementById(`tab-${tabId}`);
+      if(activeTab) activeTab.classList.add('active');
+      
+      statusContainer.style.display = 'none';
+      bustarainContainer.style.display = 'none';
 
-function toggleEditMode(forceState) {
-    const newState = forceState !== undefined ? forceState : !isEditMode;
-    if (newState === isEditMode) return;
-    isEditMode = newState;
-    document.body.classList.toggle('edit-mode', isEditMode);
-    const editBtn = document.getElementById('edit-apps-btn');
-    const resetBtn = document.getElementById('reset-apps-btn');
-    editBtn.classList.toggle('editing', isEditMode);
-    if (isEditMode) {
-        editBtn.innerHTML = `<i class="fas fa-check"></i> 編集を完了`;
-        resetBtn.classList.remove('hidden');
-        if (document.getElementById('tab-status').classList.contains('active') || document.getElementById('tab-bustarain').classList.contains('active')) {
-            activateTab('all-apps');
+      if (tabId === 'status') {
+        statusContainer.style.display = 'flex';
+      } else if (tabId === 'bustarain') {
+        bustarainContainer.style.display = 'block';
+      }
+      localStorage.setItem('siteActiveTab', tabId);
+    }
+    
+    function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
+    function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); document.getElementById(targetId)?.classList.remove('hidden'); document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); }
+    
+    // Mock functions for bus schedule
+    if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
+
+    function init() {
+      setTheme(localStorage.getItem('siteTheme') || 'light');
+      updateClockAndDate();
+      activateTab(localStorage.getItem('siteActiveTab') || 'status');
+      initAccordions();
+      activateSubTab('train-content');
+      window.initBusSchedule();
+
+      document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
+      
+      document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.target.closest('.status-card');
+          const iframeSrc = card.querySelector('iframe').src;
+          const modal = document.getElementById('iframe-modal');
+          const modalIframe = document.getElementById('modal-iframe');
+          modalIframe.src = iframeSrc;
+          modal.classList.remove('hidden');
+        });
+      });
+      
+      const iframeModal = document.getElementById('iframe-modal');
+      iframeModal.addEventListener('click', (e) => {
+        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
+          iframeModal.classList.add('hidden');
+          document.getElementById('modal-iframe').src = 'about:blank';
         }
-    } else {
-        editBtn.innerHTML = `<i class="fas fa-pencil-alt"></i> アプリを編集`;
-        resetBtn.classList.add('hidden');
-        saveAppData();
+      });
     }
-    renderIcons();
-}
 
-const modal = document.getElementById('app-modal');
-function openModal(app = null) {
-    const form = document.getElementById('app-form');
-    form.reset();
-    document.getElementById('modal-title').textContent = app ? 'アプリを編集' : 'アプリを追加';
-    if (app) {
-        document.getElementById('app-id').value = app.id;
-        document.getElementById('app-label').value = app.label;
-        document.getElementById('app-url').value = app.url;
-        document.getElementById('app-icon').value = app.icon;
-        document.getElementById('app-category').value = app.category;
-        document.getElementById('app-search').value = app.searchText;
-    } else { document.getElementById('app-id').value = ''; }
-    modal.classList.remove('hidden');
-}
-function closeModal() { modal.classList.add('hidden'); }
-function handleFormSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('app-id').value;
-    const app = {
-        id: id ? parseInt(id) : Date.now(),
-        label: document.getElementById('app-label').value, url: document.getElementById('app-url').value,
-        icon: document.getElementById('app-icon').value, category: document.getElementById('app-category').value,
-        searchText: document.getElementById('app-search').value, style: document.getElementById('app-icon').value.includes('fa-') ? 'color:#000;' : ''
-    };
-    if (id) { const i = appData.findIndex(a => a.id === app.id); if (i > -1) appData[i] = app; } else { appData.push(app); }
-    renderIcons(); closeModal();
-}
-
-gridContainer.addEventListener('dragstart', e => { if (e.target.classList.contains('icon-item')) { draggedItem = e.target; setTimeout(() => e.target.classList.add('dragging'), 0); } });
-gridContainer.addEventListener('dragend', () => { if(draggedItem) { draggedItem.classList.remove('dragging'); draggedItem = null; const p = gridContainer.querySelector('.placeholder'); if (p) p.remove(); const newOrder = [...gridContainer.querySelectorAll('.icon-item')].map(i => appData.find(a => a.id === parseInt(i.dataset.id))).filter(Boolean); appData = newOrder; } });
-gridContainer.addEventListener('dragover', e => { e.preventDefault(); const afterElement = [...gridContainer.querySelectorAll('.icon-item:not(.dragging)')].reduce((c, child) => { const box = child.getBoundingClientRect(); const offset = e.clientX - box.left - box.width / 2; return (offset < 0 && offset > c.offset) ? { offset, element: child } : c; }, { offset: Number.NEGATIVE_INFINITY }).element; const placeholder = gridContainer.querySelector('.placeholder') || document.createElement('div'); if (!placeholder.classList.contains('placeholder')) placeholder.className = 'placeholder'; if (afterElement == null) { gridContainer.appendChild(draggedItem); } else { gridContainer.insertBefore(draggedItem, afterElement); } if (draggedItem.nextSibling) { gridContainer.insertBefore(placeholder, draggedItem.nextSibling); } else { gridContainer.appendChild(placeholder); } });
-
-function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
-function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
-function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
-function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
-function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),localStorage.setItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),localStorage.setItem("siteTheme","light"))}
-
-function activateTab(tabId) {
-    if (isEditMode && (tabId === 'status' || tabId === 'bustarain')) { alert('アプリ編集中は他のタブに移動できません。'); return; }
-    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${tabId}`)?.classList.add('active');
-    mainGrid.style.display = 'none'; statusContainer.style.display = 'none'; bustarainContainer.style.display = 'none';
-    if (tabId === 'status') { statusContainer.style.display = 'flex'; } 
-    else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; } 
-    else { mainGrid.style.display = 'grid'; }
-    localStorage.setItem('siteActiveTab', tabId);
-}
-function filterIconsByCategory(category) {
-    document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
-    localStorage.setItem('siteActiveSubFilter', category);
-    filterContent();
-}
-function filterContent(){ const s = document.getElementById("appSearchInput").value.toLowerCase(), c = localStorage.getItem('siteActiveSubFilter') || 'all'; document.querySelectorAll(".icon-item").forEach(i => { const categoryMatch = (c === 'all' || i.dataset.category === c); const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; }); }
-function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
-// ★★ 変更: activateSubTab関数にlocalStorageへの保存処理を追加 ★★
-function activateSubTab(targetId) { 
-    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); 
-    document.getElementById(targetId)?.classList.remove('hidden'); 
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-    localStorage.setItem('siteActiveSubTab', targetId);
-}
-function pad(n){return String(n).padStart(2,'0');}
-function calcTime() { const now = new Date(); const addH = +document.getElementById('addHours').value || 0; const addM = +document.getElementById('addMinutes').value || 0; const addS = +document.getElementById('addSeconds').value || 0; const resultDate = new Date(now.getTime() + (addH * 3600 + addM * 60 + addS) * 1000); const h = pad(resultDate.getHours()), m = pad(resultDate.getMinutes()), s = pad(resultDate.getSeconds()); const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0); const startOfResultDay = new Date(resultDate); startOfResultDay.setHours(0, 0, 0, 0); const dayDiff = Math.round((startOfResultDay - startOfToday) / 86400000); let dayText = dayDiff > 0 ? ` (+${dayDiff}d)` : ''; document.getElementById('resultTime').textContent = `${h}:${m}:${s}${dayText}`; }
-function resetCalc() { document.getElementById('addHours').value = 0; document.getElementById('addMinutes').value = 0; document.getElementById('addSeconds').value = 0; calcTime(); }
-if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
-
-function init() {
-  setTheme(localStorage.getItem('siteTheme') || 'light');
-  updateClockAndDate(); resetCalc();
-  loadAppData(); renderIcons();
-  activateTab(localStorage.getItem('siteActiveTab') || 'all-apps');
-  initAccordions();
-  // ★★ 変更: 保存されたサブタブを読み込んで表示 ★★
-  const savedSubTab = localStorage.getItem('siteActiveSubTab') || 'train-content';
-  activateSubTab(savedSubTab);
-  
-  window.initBusSchedule();
-  document.getElementById('appSearchInput').addEventListener('input', () => { if(document.getElementById("appSearchInput").value) { activateTab('all-apps'); filterIconsByCategory('all'); } filterContent(); });
-  ['addHours', 'addMinutes', 'addSeconds'].forEach(id => document.getElementById(id).addEventListener('input', calcTime));
-  document.getElementById('resetCalcBtn').addEventListener('click', resetCalc);
-  document.getElementById('edit-apps-btn').addEventListener('click', () => toggleEditMode());
-  document.getElementById('reset-apps-btn').addEventListener('click', resetAppData);
-  modal.querySelector('.cancel-btn').addEventListener('click', closeModal);
-  document.getElementById('app-form').addEventListener('submit', handleFormSubmit);
-  document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', () => filterIconsByCategory(btn.dataset.category)));
-  document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', () => activateSubTab(btn.dataset.target)));
-  gridContainer.addEventListener('click', e => { if (!isEditMode) return; const editBtn = e.target.closest('.edit'), delBtn = e.target.closest('.delete'); if (editBtn) { const item = appData.find(a => a.id === parseInt(editBtn.closest('.icon-item').dataset.id)); if (item) openModal(item); } if (delBtn) { const itemEl = delBtn.closest('.icon-item'); const item = appData.find(a => a.id === parseInt(itemEl.dataset.id)); if (item && confirm(`「${item.label}」を削除しますか？`)) { appData = appData.filter(a => a.id !== item.id); renderIcons(); } } });
-  
-  document.querySelectorAll('.expand-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const card = e.target.closest('.status-card');
-      const iframeSrc = card.querySelector('iframe').src;
-      const modal = document.getElementById('iframe-modal');
-      const modalIframe = document.getElementById('modal-iframe');
-      modalIframe.src = iframeSrc;
-      modal.classList.remove('hidden');
-    });
-  });
-  const iframeModal = document.getElementById('iframe-modal');
-  iframeModal.addEventListener('click', (e) => {
-    if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
-      iframeModal.classList.add('hidden');
-      document.getElementById('modal-iframe').src = 'about:blank';
-    }
-  });
-}
-
-setInterval(() => { updateClockAndDate(); calcTime(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000); 
-setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000); 
-document.addEventListener('DOMContentLoaded', init);
+    setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status')?.classList.contains('active')) window.updateBusCountdowns(); }, 1000); 
+    setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status')?.classList.contains('active')) window.updateBusDisplay(); }, 30000); 
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
