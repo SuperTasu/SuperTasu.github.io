@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>設定</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <style>
+        /* 親ページから変数を継承するため、root変数を再定義 */
+        :root {
+          --text-color-primary: #333;
+          --text-color-secondary: #666;
+          --input-bg: #e9ecef;
+          --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          --save-toggle-color-on: #009900;
+          --save-toggle-color-off: #777;
+        }
+        body.dark-theme {
+            --text-color-primary: #f5f5f5;
+            --text-color-secondary: #aaa;
+            --input-bg: #3a3a3a;
+            --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
+            --save-toggle-color-on: #76ff03;
+            --save-toggle-color-off: #aaa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: transparent; /* 親iframeの背景を使うため透明に */
+            color: var(--text-color-primary);
+            padding: 0;
+            margin: 0;
+        }
+        .settings-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--text-color-secondary);
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .setting-description {
+            font-size: 12px;
+            color: var(--text-color-secondary);
+            margin-top: 5px;
+        }
+
+        /* トグルボタンのスタイル */
+        .toggle-icon-container {
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 50px; /* 親の control-icon とサイズを合わせる */
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 32px;
+            color: var(--save-toggle-color-off);
+            line-height: 1;
+            transition: all 0.3s;
+        }
+        .toggle-on .material-symbols-outlined {
+            color: var(--save-toggle-color-on);
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body>
+
+<ul class="settings-list">
+    <li class="setting-item">
+        <div>
+            <div class="setting-label">テーマ (ダーク/ライト) の状態を保存</div>
+            <div class="setting-description">ONの場合、次回アクセス時に最後に選択したテーマが適用されます。</div>
+        </div>
+        <div class="toggle-icon-container" id="toggle-theme" data-key="siteSaveTheme">
+            <span class="material-symbols-outlined">toggle_off</span>
+        </div>
+    </li>
+    <li class="setting-item">
+        <div>
+            <div class="setting-label">メインタブの選択状態を保存</div>
+            <div class="setting-description">ONの場合、次回アクセス時に最後に選択したタブ（All Apps, Statusなど）が適用されます。</div>
+        </div>
+        <div class="toggle-icon-container" id="toggle-main-tab" data-key="siteSaveMainTab">
+            <span class="material-symbols-outlined">toggle_off</span>
+        </div>
+    </li>
+    <li class="setting-item">
+        <div>
+            <div class="setting-label">サブフィルターの選択状態を保存</div>
+            <div class="setting-description">ONの場合、次回アクセス時に最後に選択したカテゴリー（Google, SNSなど）が適用されます。</div>
+        </div>
+        <div class="toggle-icon-container" id="toggle-sub-filter" data-key="siteSaveSubFilter">
+            <span class="material-symbols-outlined">toggle_off</span>
+        </div>
+    </li>
+</ul>
+
+<script>
+    // 親ウィンドウのテーマを継承
+    function syncTheme() {
+        if (window.parent.document.body.classList.contains('dark-theme')) {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    }
+
+    const SAVE_KEYS = {
+        THEME: 'siteSaveTheme',
+        MAIN_TAB: 'siteSaveMainTab',
+        SUB_FILTER: 'siteSaveSubFilter'
+    };
+
+    function loadSettings() {
+        Object.values(SAVE_KEYS).forEach(key => {
+            const element = document.querySelector(`[data-key="${key}"]`);
+            if (!element) return;
+            const state = localStorage.getItem(key);
+            // nullまたは'true'ならON、それ以外ならOFF (親の初期化ロジックに合わせる)
+            const isOn = (state === null || state === 'true'); 
+            updateToggle(element, isOn);
+        });
+    }
+
+    function updateToggle(element, isOn) {
+        const iconSpan = element.querySelector('.material-symbols-outlined');
+        element.classList.toggle('toggle-on', isOn);
+        iconSpan.textContent = isOn ? 'toggle_on' : 'toggle_off';
+    }
+
+    function handleToggleClick(event) {
+        const element = event.currentTarget.closest('.toggle-icon-container');
+        const key = element.dataset.key;
+        const currentIsOn = element.classList.contains('toggle-on');
+        const newIsOn = !currentIsOn;
+
+        // 状態をローカルストレージに保存
+        localStorage.setItem(key, newIsOn);
+        updateToggle(element, newIsOn);
+        
+        // 親ページに設定変更を通知し、即時反映させる
+        if (window.parent && window.parent.location) {
+            // 親ページの再初期化を促すためにリロード
+            window.parent.location.reload();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        syncTheme(); // テーマ同期
+        loadSettings();
+
+        document.querySelectorAll('.toggle-icon-container').forEach(toggle => {
+            toggle.addEventListener('click', handleToggleClick);
+        });
+    });
+
+    // 親テーマ変更の監視 (より頑健にするため)
+    new MutationObserver(syncTheme).observe(window.parent.document.body, { attributes: true, attributeFilter: ['class'] });
+
+</script>
+</body>
+</html>
