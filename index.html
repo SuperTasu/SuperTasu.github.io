@@ -60,8 +60,19 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 .theme-dot:hover { transform: scale(1.2); }
 .theme-dot.light { background-color: #f8f9fa; }
 .theme-dot.dark { background-color: #434343; }
-.control-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; color: var(--text-color-secondary); font-size: 18px; text-decoration: none; transition: all 0.2s; }
-.control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
+/* リフレッシュボタンを含めたコントロールアイコンのベース */
+.control-icon { 
+    display: flex; align-items: center; justify-content: center; 
+    width: 40px; height: 40px; 
+    background: rgba(0,0,0,0.05); border-radius: 50%; 
+    color: var(--text-color-secondary); font-size: 18px; 
+    text-decoration: none; transition: all 0.2s; cursor: pointer; 
+}
+.control-icon:hover { 
+    background: #667eea; 
+    color: white; 
+    transform: scale(1.1); 
+}
 .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .tab-menu { display: flex; align-items: center; }
 .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
@@ -85,7 +96,7 @@ body.dark-theme .icon-link:hover { background-color: #4a5568; }
 body.dark-theme #search-wrapper::before { opacity: 0.2; }
 .main-content{padding-top:10px}
 #status-container, #bustarain-container, #setting-container { display: none; margin-top: 20px; }
-#status-container { display: flex; flex-direction: column; gap: 20px; } /* statusはflexを維持 */
+#status-container { display: flex; flex-direction: column; gap: 20px; } 
 
 /* Settingコンテナのスタイル */
 #setting-container {
@@ -146,7 +157,7 @@ body.dark-theme #search-wrapper::before { opacity: 0.2; }
   line-height: 1;
   transition: all 0.3s;
 }
-/* バス・電車のCSSは省略せず記載 */
+
 .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
 .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
@@ -247,8 +258,11 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
           </div>
         </div>
         <div class="header-controls">
-          <a href="https://sites.google.com/view/foretsy/管理者ページ" class="control-icon" target="_blank" title="ADMIN"> <i class="fas fa-cog"></i> </a>
-          <a href="https://sites.google.com/view/foretsy/裂け目" class="control-icon" target="_blank" title="Portal"> <i class="fas fa-route"></i> </a>
+          <!-- ▼ リフレッシュボタンの追加 -->
+          <div class="control-icon" id="refresh-button" title="ページを再読み込み">
+             <i class="fas fa-sync-alt"></i> 
+          </div>
+          <!-- 歯車とポータルは削除済み -->
         </div>
       </div>
     </header>
@@ -258,8 +272,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
     <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-    <!-- Settingタブの追加 -->
-    <div class="tab-item" id="tab-setting" onclick="activateTab('setting')"> <i class="fas fa-sliders-h"></i> Setting </div>
+    <!-- Settingタブのアイコンを fas fa-cog に変更 -->
+    <div class="tab-item" id="tab-setting" onclick="activateTab('setting')"> <i class="fas fa-cog"></i> Setting </div>
   </div>
 </div>
 <div class="main-grid" id="main-grid">
@@ -375,6 +389,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     const bustarainContainer = document.getElementById('bustarain-container');
     const settingContainer = document.getElementById('setting-container'); 
     const gridContainer = document.getElementById('gridContainer');
+    const refreshButton = document.getElementById('refresh-button'); // リフレッシュボタン
+
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
     let appData = [];
 const initialAppData = [
@@ -519,7 +535,6 @@ function renderIcons() {
             <div class="label-text">${app.label}</div>`;
         gridContainer.appendChild(item);
     });
-    // 初期表示時、保存されたサブフィルターを適用 (getSavedItemを使用)
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
     filterContent();
 }
@@ -550,7 +565,10 @@ function activateTab(tabId) {
 
     if (tabId === 'status') { statusContainer.style.display = 'flex'; }
     else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; }
-    else if (tabId === 'setting') { settingContainer.style.display = 'block'; }
+    else if (tabId === 'setting') { 
+        settingContainer.style.display = 'block'; 
+        initSettingToggles();
+    }
     else { mainGrid.style.display = 'grid'; }
 
     saveItem('siteActiveTab', tabId);
@@ -563,7 +581,6 @@ function filterIconsByCategory(category) {
 
 function filterContent(){ 
     const s = document.getElementById("appSearchInput").value.toLowerCase(); 
-    // 検索時には、現在のフィルター状態ではなく、読み込まれた状態を適用
     const c = getSavedItem('siteActiveSubFilter') || 'all'; 
     document.querySelectorAll(".icon-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
@@ -599,12 +616,10 @@ setTheme(savedTheme || 'light');
 updateClockAndDate();
 loadAppData(); 
 renderIcons();
+// 保存されたタブ設定を適用。もし保存OFFの場合は'all-apps'にフォールバック
 activateTab(savedTab || 'all-apps');
 initAccordions();
 activateSubTab(savedSubTab || 'train-content');
-
-// 5. Settingトグルの初期化
-initSettingToggles();
 
 
 window.initBusSchedule();
@@ -641,6 +656,14 @@ iframeModal.classList.add('hidden');
 document.getElementById('modal-iframe').src = 'about:blank';
 }
 });
+
+// リフレッシュボタンに機能を追加 (設定維持のためにページ全体をリロード)
+refreshButton.addEventListener('click', () => {
+    // location.reload() を実行しても、init() でローカルストレージから状態が復元されるため、
+    // ユーザーは「設定が消えない」と感じる。
+    location.reload(); 
+});
+
 }
 
 setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
