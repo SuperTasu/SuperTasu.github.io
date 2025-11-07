@@ -8,40 +8,37 @@
   body {
     background-color: #e6f5e6;
     font-family: "Hiragino Kaku Gothic ProN", sans-serif;
-    text-align: center;
     margin: 0;
     padding: 0;
-    transition: all 0.6s ease;
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .selector-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffffc7;
-    padding: 20px 40px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: all 0.8s ease;
+    background: #ffffffd5;
+    padding: 15px;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
   }
 
-  .selector-container.top {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 800px;
-    z-index: 1000;
+  .selectors-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   select, button {
-    margin: 8px;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     border: 1px solid #8bc48b;
     font-size: 16px;
+    width: 180px;
   }
 
   button {
@@ -56,43 +53,60 @@
   }
 
   .info {
-    margin-top: 110px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     color: #2e5c2e;
-    transition: opacity 0.3s ease;
+    margin: 10px 0;
   }
 
   iframe {
+    flex: 1;
     width: 100%;
-    height: 80vh;
     border: none;
-    margin-top: 15px;
-    transition: opacity 0.3s ease;
+  }
+
+  @media (max-width: 600px) {
+    .selectors-row {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    select, button {
+      width: 90%;
+      font-size: 15px;
+    }
+
+    .info {
+      font-size: 16px;
+    }
   }
 </style>
 </head>
 <body>
 
-<div id="selectors" class="selector-container">
-  <select id="busStop">
-    <option value="">バス停を選択</option>
-    <option value="今出在家">今出在家</option>
-    <option value="夢野町3丁目">夢野町3丁目</option>
-  </select>
+<div class="selector-container">
+  <div class="selectors-row">
+    <select id="busStop">
+      <option value="">バス停</option>
+      <option value="今出在家">今出在家</option>
+      <option value="夢野町3丁目">夢野町3丁目</option>
+      <option value="宮川町9丁目">宮川町9丁目</option>
+    </select>
 
-  <select id="direction">
-    <option value="">方面を選択</option>
-  </select>
+    <select id="direction">
+      <option value="">方面</option>
+    </select>
 
-  <select id="line">
-    <option value="">系統を選択</option>
-  </select>
+    <select id="line">
+      <option value="">系統</option>
+    </select>
 
-  <button id="showBtn">表示</button>
+    <button id="showBtn">表示</button>
+  </div>
+
+  <div id="info" class="info"></div>
 </div>
 
-<div id="info" class="info"></div>
 <iframe id="resultFrame"></iframe>
 
 <script>
@@ -123,6 +137,20 @@ const data = {
       "110系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0123",
       "112系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0325&directionId=kobe0127"
     }
+  },
+  "宮川町9丁目": {
+    "板宿・JR鷹取駅方面": {
+      "11系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0015",
+      "13系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0017",
+      "110系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0122",
+      "112系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0126"
+    },
+    "長田・神戸駅方面": {
+      "11系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0015",
+      "13系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0017",
+      "110系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0123",
+      "112系統": "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0412&directionId=kobe0127"
+    }
   }
 };
 
@@ -132,11 +160,25 @@ const lineSelect = document.getElementById("line");
 const showBtn = document.getElementById("showBtn");
 const frame = document.getElementById("resultFrame");
 const info = document.getElementById("info");
-const selectors = document.getElementById("selectors");
 
-busStopSelect.addEventListener("change", () => {
-  directionSelect.innerHTML = '<option value="">方面を選択</option>';
-  lineSelect.innerHTML = '<option value="">系統を選択</option>';
+window.addEventListener("load", () => {
+  const saved = JSON.parse(localStorage.getItem("busSelection"));
+  if (saved) {
+    busStopSelect.value = saved.busStop;
+    updateDirections();
+    directionSelect.value = saved.direction;
+    updateLines();
+    lineSelect.value = saved.line;
+    if (saved.url) {
+      info.textContent = `🚌 ${saved.busStop} – ${saved.direction} – ${saved.line}`;
+      frame.src = saved.url;
+    }
+  }
+});
+
+function updateDirections() {
+  directionSelect.innerHTML = '<option value="">方面</option>';
+  lineSelect.innerHTML = '<option value="">系統</option>';
   const busStop = busStopSelect.value;
   if (busStop && data[busStop]) {
     Object.keys(data[busStop]).forEach(dir => {
@@ -146,10 +188,10 @@ busStopSelect.addEventListener("change", () => {
       directionSelect.appendChild(opt);
     });
   }
-});
+}
 
-directionSelect.addEventListener("change", () => {
-  lineSelect.innerHTML = '<option value="">系統を選択</option>';
+function updateLines() {
+  lineSelect.innerHTML = '<option value="">系統</option>';
   const busStop = busStopSelect.value;
   const direction = directionSelect.value;
   if (busStop && direction && data[busStop][direction]) {
@@ -160,7 +202,10 @@ directionSelect.addEventListener("change", () => {
       lineSelect.appendChild(opt);
     });
   }
-});
+}
+
+busStopSelect.addEventListener("change", updateDirections);
+directionSelect.addEventListener("change", updateLines);
 
 showBtn.addEventListener("click", () => {
   const busStop = busStopSelect.value;
@@ -169,13 +214,13 @@ showBtn.addEventListener("click", () => {
   if (busStop && direction && line) {
     const url = data[busStop][direction][line];
     info.textContent = `🚌 ${busStop} – ${direction} – ${line}`;
-    selectors.classList.add("top");
     frame.src = url;
-    frame.style.opacity = 1;
+    localStorage.setItem("busSelection", JSON.stringify({ busStop, direction, line, url }));
   } else {
     alert("バス停・方面・系統をすべて選択してください。");
   }
 });
 </script>
+
 </body>
 </html>
