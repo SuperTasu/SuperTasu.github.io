@@ -6,7 +6,6 @@
   <link rel="icon" href="your-favicon.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- ▼ Material Symbols Outlined の CSSリンク -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
   <style>
     :root {
@@ -60,7 +59,6 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 .theme-dot:hover { transform: scale(1.2); }
 .theme-dot.light { background-color: #f8f9fa; }
 .theme-dot.dark { background-color: #434343; }
-/* リフレッシュボタンを含めたコントロールアイコンのベース */
 .control-icon { 
     display: flex; align-items: center; justify-content: center; 
     width: 40px; height: 40px; 
@@ -81,11 +79,24 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
 .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
 .icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-.icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.icon-link { 
+    width: 60px; height: 60px; 
+    background-color: var(--icon-bg); border-radius: 22px; 
+    box-shadow: var(--icon-shadow); display: flex; 
+    align-items: center; justify-content: center; 
+    text-decoration: none; color: var(--text-color-primary); 
+    margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+}
 .icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
 body.dark-theme .icon-link:hover { background-color: #4a5568; }
 .icon-link i { font-size: 26px; }
 .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
+/* フォールバックアイコンのスタイル */
+.icon-link .fallback-icon {
+    font-size: 26px;
+    color: var(--text-color-secondary);
+}
+
 .label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
 #search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
 #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
@@ -388,6 +399,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
 
     const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
     let appData = [];
+// ▼ initialAppData の更新
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
@@ -395,45 +407,46 @@ const initialAppData = [
     {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",category:"google",searchText:"Google Calendar カレンダー"},
     {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
     {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
-    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"fas fa-palette",style:"color:#4285f4;",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"fas fa-brain",style:"color:#4285f4;",category:"google",searchText:"Google AI Gemini"},
-    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://twitter.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
+    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",category:"google",searchText:"Google Sites サイト作成"},
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"google",searchText:"Google AI Gemini"},
+    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
     {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
     {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"fab fa-youtube",style:"color:#ff0000;",category:"sns",searchText:"YT Shorts YouTube ショート"},
+    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YT Shorts YouTube ショート"},
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.com",category:"sns",searchText:"Twitch ツイッチ"},
+    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
-    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"fab fa-youtube",style:"color:#c4302b;",category:"downloader",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"fab fa-spotify",style:"color:#1DB954;",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"fas fa-music",style:"color:#1DB954;",category:"downloader",searchText:"Spotify mate ダウンロード"},
+    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",category:"downloader",searchText:"y2mate ダウンロード"},
+    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
+    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",category:"downloader",searchText:"Spotify mate ダウンロード"},
     {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
-    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"fas fa-desktop",style:"color:#4285f4;",category:"other",searchText:"Remote It リモート"},
+    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
     {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
-    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"fas fa-subway",style:"color:#0066cc;",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
+    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
     {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"fas fa-bus",category:"other",searchText:"BUSTARAIN バスタレイン"},
-    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"fas fa-question-circle",category:"other",searchText:"Answer I アンサー"},
-    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"fas fa-futbol",style:"color:#1e90ff;",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
+    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"BUSTARAIN バスタレイン"},
+    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"Answer I アンサー"},
+    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
     {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",category:"other",searchText:"MN4U ブルーロック 漫画"},
-    {id:29,label:"マガポケ(ブルーロック公式)",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
+    {id:29,label:"マガポケ",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
     {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
     {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
     {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
-    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"},
-    // ▼ 新規追加アプリ
+    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",category:"other",searchText:"ヤマト運輸 宅急便"},
+    {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",category:"other",searchText:"GitHub ギットハブ"},
+    // ▼ 新規追加アプリ（ファビコンURLに変更）
     {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"other",searchText:"SixTONES ジャニーズ"},
     {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"other",searchText:"ART-PUT アート"},
-    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp/5b61af9c-52aa-406e-8300-ed1f42855654/auth-ui/login",icon:"fas fa-star",style:"color:#1e90ff;",category:"other",searchText:"Family Club ファンクラブ"},
-    {id:41,label:"Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"fas fa-portrait",style:"color:#ff4500;",category:"other",searchText:"Hiromitsu Kitayama tobe"},
-    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"fas fa-users",style:"color:#4b0082;",category:"other",searchText:"Number i tobe"},
-    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"fas fa-cloud-showers-heavy",style:"color:#00bfff;",category:"other",searchText:"AMEFURASSHI"},
+    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"other",searchText:"Family Club ファンクラブ"},
+    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Hiromitsu Kitayama tobe"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Number i tobe"},
+    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
 ];
+
 
 // ▼ データ保存フラグのキー定義
 const SAVE_KEYS = {
@@ -524,16 +537,27 @@ function loadAppData() {
     } 
 }
 
+// ▼ renderIcons関数の修正
 function renderIcons() {
-    const renderIconHtml = (app) => app.icon.startsWith('http') ? `<img src="${app.icon}" class="icon-img" alt="${app.label}">` : `<i class="${app.icon}" style="${app.style || ''}"></i>`;
-
     gridContainer.innerHTML = '';
     appData.forEach(app => {
         const item = document.createElement('div');
         item.className = `icon-item search-item ${app.emphasized ? 'emphasized' : ''}`;
-        item.dataset.id = app.id; item.dataset.category = app.category; item.dataset.searchText = app.searchText;
+        item.dataset.id = app.id;
+        item.dataset.category = app.category;
+        item.dataset.searchText = app.searchText;
+        
+        let iconHTML;
+        if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
+            // URLベースのアイコン（ファビコンなど）
+            iconHTML = `<img src="${app.icon}" class="icon-img" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
+        } else {
+            // Font Awesomeなどのクラスベースのアイコン
+            iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
+        }
+
         item.innerHTML = `
-            <a href="${app.url}" class="icon-link" target="_blank">${renderIconHtml(app)}</a>
+            <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
             <div class="label-text">${app.label}</div>`;
         gridContainer.appendChild(item);
     });
@@ -622,9 +646,6 @@ activateTab(savedTab || 'all-apps');
 initAccordions();
 activateSubTab(savedSubTab || 'train-content');
 
-// 5. Settingトグルの初期化
-initSettingToggles();
-
 
 window.initBusSchedule();
 document.getElementById('appSearchInput').addEventListener('input', () => { 
@@ -663,8 +684,6 @@ document.getElementById('modal-iframe').src = 'about:blank';
 
 // リフレッシュボタンに機能を追加
 refreshButton.addEventListener('click', () => {
-    // location.reload() を実行しても、init() でローカルストレージから状態が復元されるため、
-    // ユーザーは「設定が消えない」と感じる。
     location.reload(); 
 });
 
