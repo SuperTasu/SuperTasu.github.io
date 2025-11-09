@@ -68,11 +68,7 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
     color: var(--text-color-secondary); font-size: 18px; 
     text-decoration: none; transition: all 0.2s; cursor: pointer; 
 }
-.control-icon:hover { 
-    background: #667eea; 
-    color: white; 
-    transform: scale(1.1); 
-}
+.control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
 .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .tab-menu { display: flex; align-items: center; }
 .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
@@ -262,7 +258,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
           <div class="control-icon" id="refresh-button" title="ページを再読み込み">
              <i class="fas fa-sync-alt"></i> 
           </div>
-          <!-- 歯車とポータルは削除済み -->
         </div>
       </div>
     </header>
@@ -408,7 +403,7 @@ const initialAppData = [
     {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"fab fa-youtube",style:"color:#ff0000;",category:"sns",searchText:"YT Shorts YouTube ショート"},
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
+    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.com",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
     {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"fab fa-youtube",style:"color:#c4302b;",category:"downloader",searchText:"y2mate ダウンロード"},
     {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"fab fa-spotify",style:"color:#1DB954;",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
@@ -430,7 +425,14 @@ const initialAppData = [
     {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
     {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
     {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"fas fa-truck",style:"color:#00a54f;",category:"other",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"}
+    {id:34,label:"GitHub",url:"https://github.com",icon:"fab fa-github",style:"color:#181717;",category:"other",searchText:"GitHub ギットハブ"},
+    // ▼ 新規追加アプリ
+    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"other",searchText:"SixTONES ジャニーズ"},
+    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"other",searchText:"ART-PUT アート"},
+    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp/5b61af9c-52aa-406e-8300-ed1f42855654/auth-ui/login",icon:"fas fa-star",style:"color:#1e90ff;",category:"other",searchText:"Family Club ファンクラブ"},
+    {id:41,label:"Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"fas fa-portrait",style:"color:#ff4500;",category:"other",searchText:"Hiromitsu Kitayama tobe"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"fas fa-users",style:"color:#4b0082;",category:"other",searchText:"Number i tobe"},
+    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"fas fa-cloud-showers-heavy",style:"color:#00bfff;",category:"other",searchText:"AMEFURASSHI"},
 ];
 
 // ▼ データ保存フラグのキー定義
@@ -616,10 +618,12 @@ setTheme(savedTheme || 'light');
 updateClockAndDate();
 loadAppData(); 
 renderIcons();
-// 保存されたタブ設定を適用。もし保存OFFの場合は'all-apps'にフォールバック
 activateTab(savedTab || 'all-apps');
 initAccordions();
 activateSubTab(savedSubTab || 'train-content');
+
+// 5. Settingトグルの初期化
+initSettingToggles();
 
 
 window.initBusSchedule();
@@ -657,7 +661,7 @@ document.getElementById('modal-iframe').src = 'about:blank';
 }
 });
 
-// リフレッシュボタンに機能を追加 (設定維持のためにページ全体をリロード)
+// リフレッシュボタンに機能を追加
 refreshButton.addEventListener('click', () => {
     // location.reload() を実行しても、init() でローカルストレージから状態が復元されるため、
     // ユーザーは「設定が消えない」と感じる。
