@@ -44,7 +44,16 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 .page-container { max-width: 1200px; margin: 0 auto; }
 .main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
 .apps-area { grid-area: apps; }
-.clock-area { background: var(--card-bg); box-shadow: var(--card-shadow); border-radius: 20px; padding: 15px 25px; border: 1px solid var(--card-border-color); display: flex; flex-direction: column; align-items: stretch; }
+.clock-area { 
+    background: var(--card-bg); 
+    box-shadow: var(--card-shadow); 
+    border-radius: 20px; 
+    padding: 15px 25px; 
+    border: 1px solid var(--card-border-color); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: stretch;
+}
 .clock-main-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
 .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 15px; flex-wrap: wrap; }
@@ -68,43 +77,89 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
     text-decoration: none; transition: all 0.2s; cursor: pointer; 
 }
 .control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
-/* Spotifyアコーディオンのスタイル */
-.spotify-accordion-header {
-    cursor: pointer;
-    padding: 10px 5px;
+
+/* ▼【変更】メディアプレーヤーの折りたたみ対応スタイル */
+.media-player-container {
     margin-top: 15px;
+    border-top: 1px solid var(--card-border-color);
+    padding-top: 10px;
+}
+.media-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+.media-tab-menu {
+    display: flex;
+    gap: 8px;
+}
+.media-tab-item {
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
     font-weight: bold;
     color: var(--text-color-secondary);
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
-    border-top: 1px solid var(--card-border-color);
-    transition: color 0.3s;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
 }
-.spotify-accordion-header i.fab {
-    color: #1DB954;
+.media-tab-item:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+    color: #667eea;
 }
-.spotify-accordion-header .fas {
-    transition: transform 0.3s ease;
-}
-.spotify-accordion-header:hover {
+.media-tab-item.active {
+    background-color: var(--input-bg);
     color: var(--text-color-primary);
+    border: 1px solid var(--card-border-color);
 }
-.spotify-accordion-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease-out;
+.spotify-icon { color: #1DB954; }
+.youtube-icon { color: #FF0000; }
+
+.media-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
-.spotify-accordion-content iframe {
-    width: 100%;
-    height: 352px; /* Spotify埋め込みの標準高さ */
-    border: none;
-    border-radius: 12px;
+.media-player-controls .expand-btn {
+    cursor: pointer;
+    color: var(--text-color-secondary);
+    font-size: 16px;
+    transition: color 0.2s, transform 0.2s;
+    padding: 5px;
 }
-.spotify-accordion.active .spotify-accordion-header .fas {
+.media-player-controls .expand-btn:hover {
+    color: #667eea;
+    transform: scale(1.2);
+}
+.collapse-icon {
+    transition: transform 0.3s ease;
+    color: var(--text-color-secondary);
+}
+.media-player-container.active .collapse-icon {
     transform: rotate(180deg);
 }
+.media-player-content {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease-out;
+}
+.media-player-container.active .media-player-content {
+    max-height: 362px;
+}
+.media-tab-content iframe {
+    width: 100%;
+    height: 352px;
+    border: none;
+}
+/* ▲【変更】メディアプレーヤーの折りたたみ対応スタイル */
 
 .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .tab-menu { display: flex; align-items: center; }
@@ -118,13 +173,13 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
 .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
 .icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-.icon-link { 
-    width: 60px; height: 60px; 
-    background-color: var(--icon-bg); border-radius: 22px; 
-    box-shadow: var(--icon-shadow); display: flex; 
-    align-items: center; justify-content: center; 
-    text-decoration: none; color: var(--text-color-primary); 
-    margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+.icon-link {
+width: 60px; height: 60px;
+background-color: var(--icon-bg); border-radius: 22px;
+box-shadow: var(--icon-shadow); display: flex;
+align-items: center; justify-content: center;
+text-decoration: none; color: var(--text-color-primary);
+margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
 body.dark-theme .icon-link:hover { background-color: #4a5568; }
@@ -132,8 +187,8 @@ body.dark-theme .icon-link:hover { background-color: #4a5568; }
 .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
 /* フォールバックアイコンのスタイル */
 .icon-link .fallback-icon {
-    font-size: 26px;
-    color: var(--text-color-secondary);
+font-size: 26px;
+color: var(--text-color-secondary);
 }
 
 .label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
@@ -142,66 +197,15 @@ body.dark-theme .icon-link:hover { background-color: #4a5568; }
 body.dark-theme #search-wrapper::before { opacity: 0.2; }
 .main-content{padding-top:10px}
 #status-container, #bustarain-container, #setting-container { display: none; margin-top: 20px; }
-#status-container { display: flex; flex-direction: column; gap: 20px; } 
+#status-container { display: flex; flex-direction: column; gap: 20px; }
 
 /* Settingコンテナのスタイル */
 #setting-container {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: var(--card-shadow);
-    min-height: 300px;
-}
-.settings-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid var(--card-border-color);
-}
-.setting-item:last-child {
-    border-bottom: none;
-}
-.setting-label {
-    font-size: 16px;
-    font-weight: bold;
-}
-.setting-description {
-    font-size: 12px;
-    color: var(--text-color-secondary);
-    margin-top: 5px;
-}
-.toggle-icon-container {
-    cursor: pointer;
-    transition: transform 0.2s;
-    width: 50px; 
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.toggle-icon-container:hover {
-    transform: scale(1.1);
-}
-.toggle-on .material-symbols-outlined {
-    color: var(--save-toggle-color-on);
-    font-variation-settings: 'FILL' 1;
-}
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24;
-  font-size: 32px; 
-  color: var(--save-toggle-color-off);
-  line-height: 1;
-  transition: all 0.3s;
+background: var(--card-bg);
+border-radius: 20px;
+padding: 20px;
+box-shadow: var(--card-shadow);
+min-height: 300px;
 }
 
 .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
@@ -233,6 +237,8 @@ body.dark-theme .just-departed-info { background-color: #555; color: #ddd; borde
 .other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
 .status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
+.expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; margin-left: auto; padding: 5px; }
+.expand-btn:hover { color: #667eea; transform: scale(1.2); }
 .game-buttons { display: flex; gap: 15px; }
 .game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
@@ -247,8 +253,7 @@ body.dark-theme .just-departed-info { background-color: #555; color: #ddd; borde
 .icon-item.emphasized .icon-link { animation: pulse-animation 2s infinite; border: 2px solid #4285F4; }
 body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
 @keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
-.expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; }
-.expand-btn:hover { color: #667eea; transform: scale(1.2); }
+
 .iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
 .close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
 #modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
@@ -259,28 +264,6 @@ body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
 @media (max-width: 768px) {
 body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
 .clock-area { padding: 10px 15px; }
-.datetime-row { gap: 10px; justify-content: center; }
-#date, #countdown { font-size: 14px; }
-#clock { font-size: 20px; }
-.tab-menu { flex-wrap: wrap; justify-content: center; }
-.tab-item { padding: 10px 8px; font-size: 12px; flex-grow: 0; min-width: unset; }
-.search-container { flex-basis: 100%; justify-content: center; margin-bottom: 0; }
-#appSearchInput { width: 120px; }
-.sub-filter-tabs { gap: 6px; }
-.sub-filter-btn { padding: 6px 12px; font-size: 12px; }
-.grid-container { gap: 8px; justify-content: space-around; }
-.icon-item { width: 70px; }
-.icon-link { width: 55px; height: 55px; border-radius: 18px; }
-.icon-img { width: 28px; height: 28px; border-radius: 7px; }
-.icon-link i { font-size: 24px; }
-.label-text { font-size: 10px; line-height: 1.2; margin-top: 4px; }
-.bus-stop-name { font-size: 18px; }
-.bus-card__time { font-size: 28px; }
-.bus-card__main { gap: 10px; }
-.bus-card__route { font-size: 14px; }
-.bus-card__remaining { font-size: 20px; }
-.accordion-header { padding: 12px 15px; font-size: 14px; }
-.header-speed-test { width: 120px; height: 75px; }
 }
 </style>
 
@@ -310,20 +293,37 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
               </div>
             </div>
         </div>
-        <!-- ▼ Spotifyアコーディオンを追加 -->
-        <div class="spotify-accordion">
-            <div class="spotify-accordion-header">
-                <i class="fab fa-spotify"></i>
-                <span>Spotify</span>
-                <i class="fas fa-chevron-down"></i>
+
+        <!-- ▼【変更】折りたたみ機能付きタブUI -->
+        <div class="media-player-container">
+            <div class="media-player-header">
+                <div class="media-tab-menu">
+                    <div class="media-tab-item active" data-target="spotify-content" data-iframe-src="Main/Spotify.html">
+                        <i class="fab fa-spotify spotify-icon"></i>
+                        <span>Spotify</span>
+                    </div>
+                    <div class="media-tab-item" data-target="youtube-content" data-iframe-src="Main/Youtube.html">
+                        <i class="fab fa-youtube youtube-icon"></i>
+                        <span>YouTube</span>
+                    </div>
+                </div>
+                <div class="media-player-controls">
+                    <i id="media-expand-btn" class="fas fa-expand expand-btn" title="拡大表示"></i>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
             </div>
-            <div class="spotify-accordion-content">
-                <iframe src="Spotify.html"></iframe>
+            <div class="media-player-content">
+                <div id="spotify-content" class="media-tab-content">
+                    <iframe src="Main/Spotify.html"></iframe>
+                </div>
+                <div id="youtube-content" class="media-tab-content hidden">
+                    <iframe src="Main/Youtube.html"></iframe>
+                </div>
             </div>
         </div>
-        <!-- ▲ Spotifyアコーディオンを追加 -->
-      </div>
-    </header>
+        <!-- ▲【変更】折りたたみ機能付きタブUI -->
+    </div>
+</header>
 <div class="tab-container">
   <div class="tab-menu">
     <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
@@ -351,7 +351,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     </div>
   </div>
 </div>
-
 <!-- ▼ Settingコンテンツの統合 -->
 <div id="setting-container">
     <h2>サイト状態の保存設定</h2>
@@ -386,7 +385,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     </ul>
 </div>
 <!-- ▲ Settingコンテンツの統合終わり -->
-
 <div id="status-container">
     <div class="bus-display-board">
         <div class="bus-header">
@@ -439,7 +437,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     </div>
   </div>
 </div> <!-- .page-container の終わり -->
-
 <script>
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
@@ -659,90 +656,132 @@ function activateSubTab(targetId) {
     saveItem('siteActiveSubTab', targetId);
 }
 
-// ▼ Spotifyアコーディオンの機能
-function initSpotifyAccordion() {
-    const accordion = document.querySelector('.spotify-accordion');
-    const header = accordion.querySelector('.spotify-accordion-header');
-    const content = accordion.querySelector('.spotify-accordion-content');
+// ▼【変更】メディアプレーヤーのタブ切り替えと折りたたみ機能
+function initMediaPlayer() {
+    const container = document.querySelector('.media-player-container');
+    const header = document.querySelector('.media-player-header');
+    const tabItems = document.querySelectorAll('.media-tab-item');
+    const contentItems = document.querySelectorAll('.media-tab-content');
+    const expandBtn = document.getElementById('media-expand-btn');
+
+    // --- 折りたたみ機能 ---
+    header.addEventListener('click', (event) => {
+        // タブや拡大ボタン自体をクリックした場合は、開閉動作をしない
+        if (event.target.closest('.media-tab-item') || event.target.closest('.expand-btn')) {
+            return;
+        }
+        container.classList.toggle('active');
+    });
+
+    // --- タブ切り替え機能 ---
+    const activeTab = document.querySelector('.media-tab-item.active');
+    if (activeTab) {
+        expandBtn.dataset.iframeSrc = activeTab.dataset.iframeSrc;
+    }
+
+    tabItems.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // もし折りたたまれていたら、タブクリックで開く
+            if (!container.classList.contains('active')) {
+                container.classList.add('active');
+            }
+            
+            tabItems.forEach(item => item.classList.remove('active'));
+            contentItems.forEach(content => content.classList.add('hidden'));
+
+            tab.classList.add('active');
+            
+            const targetContent = document.getElementById(tab.dataset.target);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            }
+            
+            expandBtn.dataset.iframeSrc = tab.dataset.iframeSrc;
+        });
+    });
+}
+
+// ▼ モーダル表示機能の汎用化
+function setupModal() {
+    const iframeModal = document.getElementById('iframe-modal');
+    const modalIframe = document.getElementById('modal-iframe');
+
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget;
+            let iframeSrc = '';
+
+            if (target.id === 'media-expand-btn') {
+                iframeSrc = target.dataset.iframeSrc;
+            } else {
+                const card = target.closest('.status-card');
+                if(card) {
+                  iframeSrc = card.querySelector('iframe').src;
+                }
+            }
+            
+            if (iframeSrc) {
+                modalIframe.src = iframeSrc;
+                iframeModal.classList.remove('hidden');
+            }
+        });
+    });
     
-    header.addEventListener('click', () => {
-        accordion.classList.toggle('active');
-        if (accordion.classList.contains('active')) {
-            content.style.maxHeight = content.scrollHeight + "px";
-        } else {
-            content.style.maxHeight = 0;
+    iframeModal.addEventListener('click', (e) => {
+        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
+            iframeModal.classList.add('hidden');
+            modalIframe.src = 'about:blank';
         }
     });
 }
 
+
 if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
 
 function init() {
-// 1. 保存設定をロード
-loadSaveSettings();
+    loadSaveSettings();
 
-// 2. 保存設定に応じて状態をロード
-const savedTheme = getSavedItem('siteTheme');
-const savedTab = getSavedItem('siteActiveTab');
-const savedSubTab = getSavedItem('siteActiveSubTab'); 
+    const savedTheme = getSavedItem('siteTheme');
+    const savedTab = getSavedItem('siteActiveTab');
+    const savedSubTab = getSavedItem('siteActiveSubTab'); 
 
-// 3. テーマを適用
-setTheme(savedTheme || 'light');
+    setTheme(savedTheme || 'light');
 
-// 4. その他の初期化
-updateClockAndDate();
-loadAppData(); 
-renderIcons();
-activateTab(savedTab || 'all-apps');
-initAccordions();
-activateSubTab(savedSubTab || 'train-content');
-initSpotifyAccordion(); // Spotifyアコーディオンを初期化
+    updateClockAndDate();
+    loadAppData(); 
+    renderIcons();
+    activateTab(savedTab || 'all-apps');
+    initAccordions();
+    activateSubTab(savedSubTab || 'train-content');
+    
+    // ▼【変更】新しいメディアプレーヤー機能を初期化
+    initMediaPlayer(); 
+    setupModal();
 
-window.initBusSchedule();
-document.getElementById('appSearchInput').addEventListener('input', () => { 
-    if(document.getElementById("appSearchInput").value) { 
-        activateTab('all-apps'); 
-        document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
-        document.querySelector(".sub-filter-btn[data-category='all']").classList.add('active');
-    }
-    filterContent(); 
-});
-document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
-    filterIconsByCategory(e.currentTarget.dataset.category);
-}));
-document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
-    activateSubTab(e.currentTarget.dataset.target);
-}));
+    window.initBusSchedule();
+    document.getElementById('appSearchInput').addEventListener('input', () => { 
+        if(document.getElementById("appSearchInput").value) { 
+            activateTab('all-apps'); 
+            document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
+            document.querySelector(".sub-filter-btn[data-category='all']").classList.add('active');
+        }
+        filterContent(); 
+    });
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        filterIconsByCategory(e.currentTarget.dataset.category);
+    }));
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        activateSubTab(e.currentTarget.dataset.target);
+    }));
 
-document.querySelectorAll('.expand-btn').forEach(btn => {
-btn.addEventListener('click', (e) => {
-const card = e.target.closest('.status-card');
-const iframeSrc = card.querySelector('iframe').src;
-const modal = document.getElementById('iframe-modal');
-const modalIframe = document.getElementById('modal-iframe');
-modalIframe.src = iframeSrc;
-modal.classList.remove('hidden');
-});
-});
-const iframeModal = document.getElementById('iframe-modal');
-iframeModal.addEventListener('click', (e) => {
-if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
-iframeModal.classList.add('hidden');
-document.getElementById('modal-iframe').src = 'about:blank';
-}
-});
-
-// リフレッシュボタンに機能を追加
-refreshButton.addEventListener('click', () => {
-    location.reload(); 
-});
-
+    refreshButton.addEventListener('click', () => {
+        location.reload(); 
+    });
 }
 
 setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
 setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000);
 document.addEventListener('DOMContentLoaded', init);
 </script>
-
 </body>
 </html>
