@@ -119,7 +119,6 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
     border: 1px solid var(--card-border-color);
 }
 .spotify-icon { color: #1DB954; }
-.youtube-icon { color: #FF0000; }
 
 .media-player-controls {
     display: flex;
@@ -196,17 +195,8 @@ color: var(--text-color-secondary);
 #search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
 body.dark-theme #search-wrapper::before { opacity: 0.2; }
 .main-content{padding-top:10px}
-#status-container, #bustarain-container, #setting-container { display: none; margin-top: 20px; }
+#status-container, #bustarain-container { display: none; margin-top: 20px; }
 #status-container { display: flex; flex-direction: column; gap: 20px; }
-
-/* Settingコンテナのスタイル */
-#setting-container {
-background: var(--card-bg);
-border-radius: 20px;
-padding: 20px;
-box-shadow: var(--card-shadow);
-min-height: 300px;
-}
 
 .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
 .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -302,10 +292,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
                         <i class="fab fa-spotify spotify-icon"></i>
                         <span>Spotify</span>
                     </div>
-                    <div class="media-tab-item" data-target="youtube-content" data-iframe-src="Main/Youtube.html">
-                        <i class="fab fa-youtube youtube-icon"></i>
-                        <span>YouTube</span>
-                    </div>
                 </div>
                 <div class="media-player-controls">
                     <i id="media-expand-btn" class="fas fa-expand expand-btn" title="拡大表示"></i>
@@ -315,9 +301,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
             <div class="media-player-content">
                 <div id="spotify-content" class="media-tab-content">
                     <iframe src="Main/Spotify.html"></iframe>
-                </div>
-                <div id="youtube-content" class="media-tab-content hidden">
-                    <iframe src="Main/Youtube.html"></iframe>
                 </div>
             </div>
         </div>
@@ -330,7 +313,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
     <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-    <div class="tab-item" id="tab-setting" onclick="activateTab('setting')"> <i class="fas fa-cog"></i> Setting </div>
   </div>
 </div>
 <div class="main-grid" id="main-grid">
@@ -351,40 +333,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     </div>
   </div>
 </div>
-<!-- ▼ Settingコンテンツの統合 -->
-<div id="setting-container">
-    <h2>サイト状態の保存設定</h2>
-    <ul class="settings-list">
-        <li class="setting-item">
-            <div>
-                <div class="setting-label">テーマ (ダーク/ライト) の状態を保存</div>
-                <div class="setting-description">ONの場合、次回アクセス時に最後に選択したテーマが適用されます。</div>
-            </div>
-            <div class="toggle-icon-container" data-key="siteSaveTheme">
-                <span class="material-symbols-outlined">toggle_off</span>
-            </div>
-        </li>
-        <li class="setting-item">
-            <div>
-                <div class="setting-label">メインタブの選択状態を保存</div>
-                <div class="setting-description">ONの場合、次回アクセス時に最後に選択したタブ（All Apps, Statusなど）が適用されます。</div>
-            </div>
-            <div class="toggle-icon-container" data-key="siteSaveMainTab">
-                <span class="material-symbols-outlined">toggle_off</span>
-            </div>
-        </li>
-        <li class="setting-item">
-            <div>
-                <div class="setting-label">サブフィルター/サブタブの選択状態を保存</div>
-                <div class="setting-description">ONの場合、次回アクセス時に最後に選択したカテゴリーやバス/電車のサブタブが適用されます。</div>
-            </div>
-            <div class="toggle-icon-container" data-key="siteSaveSubFilter">
-                <span class="material-symbols-outlined">toggle_off</span>
-            </div>
-        </li>
-    </ul>
-</div>
-<!-- ▲ Settingコンテンツの統合終わり -->
 <div id="status-container">
     <div class="bus-display-board">
         <div class="bus-header">
@@ -441,7 +389,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     const mainGrid = document.getElementById('main-grid');
     const statusContainer = document.getElementById('status-container');
     const bustarainContainer = document.getElementById('bustarain-container');
-    const settingContainer = document.getElementById('setting-container'); 
     const gridContainer = document.getElementById('gridContainer');
     const refreshButton = document.getElementById('refresh-button'); // リフレッシュボタン
 
@@ -535,34 +482,6 @@ function saveItem(key, value) {
     }
 }
 
-function updateToggleDisplay(element, isOn) {
-    const iconSpan = element.querySelector('.material-symbols-outlined');
-    element.classList.toggle('toggle-on', isOn);
-    iconSpan.textContent = isOn ? 'toggle_on' : 'toggle_off';
-}
-
-function handleSettingToggleClick(event) {
-    const element = event.currentTarget;
-    const key = element.dataset.key;
-    const currentIsOn = element.classList.contains('toggle-on');
-    const newIsOn = !currentIsOn;
-
-    localStorage.setItem(key, newIsOn);
-    updateToggleDisplay(element, newIsOn);
-
-    loadSaveSettings();
-}
-
-function initSettingToggles() {
-    document.querySelectorAll('#setting-container .toggle-icon-container').forEach(element => {
-        const key = element.dataset.key;
-        const state = localStorage.getItem(key);
-        const currentIsOn = (state === null || state === 'true'); 
-        updateToggleDisplay(element, currentIsOn);
-        element.addEventListener('click', handleSettingToggleClick);
-    });
-}
-
 function loadAppData() { 
     try { 
         const d = localStorage.getItem('siteApps'); 
@@ -619,14 +538,9 @@ function activateTab(tabId) {
     mainGrid.style.display = 'none'; 
     statusContainer.style.display = 'none'; 
     bustarainContainer.style.display = 'none'; 
-    settingContainer.style.display = 'none';
 
     if (tabId === 'status') { statusContainer.style.display = 'flex'; }
     else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; }
-    else if (tabId === 'setting') { 
-        settingContainer.style.display = 'block'; 
-        initSettingToggles();
-    }
     else { mainGrid.style.display = 'grid'; }
 
     saveItem('siteActiveTab', tabId);
