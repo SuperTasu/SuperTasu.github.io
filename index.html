@@ -198,6 +198,23 @@ body.dark-theme #search-wrapper::before { opacity: 0.2; }
 #status-container, #bustarain-container { display: none; margin-top: 20px; }
 #status-container { display: flex; flex-direction: column; gap: 20px; }
 
+/* ▼▼▼ 追加スタイル ▼▼▼ */
+.section-title {
+    font-size: 16px;
+    color: var(--text-color-secondary);
+    margin: 15px 10px 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--card-border-color);
+}
+#section-divider {
+    border: none;
+    height: 1px;
+    background-color: var(--card-border-color);
+    margin: 10px 0 20px;
+}
+/* ▲▲▲ 追加スタイル ▲▲▲ */
+
+
 .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
 .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
@@ -240,9 +257,6 @@ body.dark-theme .just-departed-info { background-color: #555; color: #ddd; borde
 .sub-filter-btn.active { background: #667eea; color: white; }
 .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .accordion-iframe { width: 100%; height: 800px; border: none; }
 .hidden { display: none !important; }
-.icon-item.emphasized .icon-link { animation: pulse-animation 2s infinite; border: 2px solid #4285F4; }
-body.dark-theme .icon-item.emphasized .icon-link { border-color: #8ab4f8; }
-@keyframes pulse-animation { 0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); } 100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); } }
 
 .iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
 .close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
@@ -319,15 +333,27 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
   <div class="apps-area">
     <div id="search-wrapper">
       <div class="main-content" id="mainContent">
-        <div class="sub-filter-tabs" id="sub-filter-tabs">
-            <button class="sub-filter-btn active" data-category="all">All</button>
-            <button class="sub-filter-btn" data-category="google">Google</button>
-            <button class="sub-filter-btn" data-category="sns">SNS</button>
-            <button class="sub-filter-btn" data-category="downloader">Downloader</button>
-            <button class="sub-filter-btn" data-category="other">Other</button>
+        <!-- ▼▼▼ 変更：最近使用したアプリセクション ▼▼▼ -->
+        <div id="recently-used-apps-container" class="hidden">
+            <h3 class="section-title">最近使用したアプリ</h3>
+            <div class="grid-container" id="recentlyUsedGridContainer">
+                <!-- 最近使用したアプリのアイコンがここに描画されます -->
+            </div>
         </div>
-        <div class="grid-container" id="gridContainer">
-          <!-- アイコンはJavaScriptによってここに描画されます -->
+        <hr id="section-divider" class="hidden">
+        <!-- ▲▲▲ 変更ここまで ▲▲▲ -->
+        <div id="all-apps-container">
+            <h3 class="section-title">すべてのアプリ</h3>
+            <div class="sub-filter-tabs" id="sub-filter-tabs">
+                <button class="sub-filter-btn active" data-category="all">All</button>
+                <button class="sub-filter-btn" data-category="google">Google</button>
+                <button class="sub-filter-btn" data-category="sns">SNS</button>
+                <button class="sub-filter-btn" data-category="downloader">Downloader</button>
+                <button class="sub-filter-btn" data-category="other">Other</button>
+            </div>
+            <div class="grid-container" id="gridContainer">
+              <!-- アイコンはJavaScriptによってここに描画されます -->
+            </div>
         </div>
       </div>
     </div>
@@ -440,30 +466,37 @@ const initialAppData = [
     {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
 ];
 
-// ▼▼▼ 追加機能：アプリアイコンのクリックカウントとソート ▼▼▼
-const APP_CLICK_COUNTS_KEY = 'siteAppClickCounts';
+// ▼▼▼ 追加機能：最近使用したアプリ ▼▼▼
+const RECENTLY_USED_APPS_KEY = 'siteRecentlyUsedApps';
+const MAX_RECENT_APPS = 5;
 
-function getClickCounts() {
+function getRecentlyUsedApps() {
     try {
-        const counts = localStorage.getItem(APP_CLICK_COUNTS_KEY);
-        return counts ? JSON.parse(counts) : {};
+        const recent = localStorage.getItem(RECENTLY_USED_APPS_KEY);
+        return recent ? JSON.parse(recent) : [];
     } catch (e) {
-        console.error("Failed to parse click counts from localStorage", e);
-        return {};
+        console.error("Failed to parse recently used apps from localStorage", e);
+        return [];
     }
 }
 
-function saveClickCounts(counts) {
-    localStorage.setItem(APP_CLICK_COUNTS_KEY, JSON.stringify(counts));
+function saveRecentlyUsedApps(recentApps) {
+    localStorage.setItem(RECENTLY_USED_APPS_KEY, JSON.stringify(recentApps));
 }
 
 function recordAppClick(appId) {
-    const counts = getClickCounts();
-    counts[appId] = (counts[appId] || 0) + 1;
-    saveClickCounts(counts);
+    let recentlyUsed = getRecentlyUsedApps();
+    // 既存のIDがあれば削除
+    recentlyUsed = recentlyUsed.filter(id => id !== appId);
+    // 先頭に追加
+    recentlyUsed.unshift(appId);
+    // 最大数を超えたら末尾を削除
+    if (recentlyUsed.length > MAX_RECENT_APPS) {
+        recentlyUsed.splice(MAX_RECENT_APPS);
+    }
+    saveRecentlyUsedApps(recentlyUsed);
 }
 // ▲▲▲ 追加機能ここまで ▲▲▲
-
 
 // ▼ データ保存フラグのキー定義
 const SAVE_KEYS = {
@@ -516,45 +549,75 @@ function loadAppData() {
     } 
 }
 
-function renderIcons() {
-    const clickCounts = getClickCounts();
+// ▼▼▼ 変更：アイコン描画関連の関数 ▼▼▼
 
-    // クリック数に基づいてappDataを降順にソート
-    appData.sort((a, b) => {
-        const countA = clickCounts[a.id] || 0;
-        const countB = clickCounts[b.id] || 0;
-        return countB - countA;
+// アプリのDOM要素を生成するヘルパー関数
+function createIconElement(app) {
+    const item = document.createElement('div');
+    item.className = `icon-item`;
+    item.dataset.id = app.id;
+    
+    let iconHTML;
+    if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
+        iconHTML = `<img src="${app.icon}" class="icon-img" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
+    } else {
+        iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
+    }
+
+    item.innerHTML = `
+        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
+        <div class="label-text">${app.label}</div>`;
+    
+    item.querySelector('.icon-link').addEventListener('click', () => {
+        recordAppClick(app.id);
     });
+    
+    return item;
+}
 
-    gridContainer.innerHTML = '';
+// すべてのアプリを描画する関数
+function renderAllIcons() {
+    const allAppsContainer = document.getElementById('gridContainer');
+    allAppsContainer.innerHTML = '';
     appData.forEach(app => {
-        const item = document.createElement('div');
-        item.className = `icon-item search-item ${app.emphasized ? 'emphasized' : ''}`;
-        item.dataset.id = app.id;
-        item.dataset.category = app.category;
-        item.dataset.searchText = app.searchText;
-        
-        let iconHTML;
-        if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
-            iconHTML = `<img src="${app.icon}" class="icon-img" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
-        } else {
-            iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
-        }
-
-        item.innerHTML = `
-            <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-            <div class="label-text">${app.label}</div>`;
-        
-        // クリックイベントをリッスンしてカウントを記録
-        item.querySelector('.icon-link').addEventListener('click', () => {
-            recordAppClick(app.id);
-        });
-
-        gridContainer.appendChild(item);
+        const iconElement = createIconElement(app);
+        // フィルター用の属性を追加
+        iconElement.classList.add('search-item');
+        iconElement.dataset.category = app.category;
+        iconElement.dataset.searchText = app.searchText;
+        allAppsContainer.appendChild(iconElement);
     });
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
-    filterContent();
 }
+
+// 最近使用したアプリを描画する関数
+function renderRecentlyUsedIcons() {
+    const recentContainer = document.getElementById('recentlyUsedGridContainer');
+    const recentSection = document.getElementById('recently-used-apps-container');
+    const divider = document.getElementById('section-divider');
+    recentContainer.innerHTML = '';
+
+    const recentlyUsedIds = getRecentlyUsedApps();
+
+    if (recentlyUsedIds.length === 0) {
+        recentSection.classList.add('hidden');
+        divider.classList.add('hidden');
+        return;
+    }
+
+    recentlyUsedIds.forEach(id => {
+        const app = appData.find(app => app.id === id);
+        if (app) {
+            const iconElement = createIconElement(app);
+            recentContainer.appendChild(iconElement);
+        }
+    });
+    
+    recentSection.classList.remove('hidden');
+    divider.classList.remove('hidden');
+}
+// ▲▲▲ 変更ここまで ▲▲▲
+
 
 function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
 function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
@@ -594,7 +657,8 @@ function filterIconsByCategory(category) {
 function filterContent(){ 
     const s = document.getElementById("appSearchInput").value.toLowerCase(); 
     const c = getSavedItem('siteActiveSubFilter') || 'all'; 
-    document.querySelectorAll(".icon-item").forEach(i => { 
+    // フィルター対象を#gridContainer内のアイコンに限定
+    document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
         const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
         i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; 
@@ -610,7 +674,6 @@ function activateSubTab(targetId) {
     saveItem('siteActiveSubTab', targetId);
 }
 
-// ▼【変更】メディアプレーヤーのタブ切り替えと折りたたみ機能
 function initMediaPlayer() {
     const container = document.querySelector('.media-player-container');
     const header = document.querySelector('.media-player-header');
@@ -618,16 +681,11 @@ function initMediaPlayer() {
     const contentItems = document.querySelectorAll('.media-tab-content');
     const expandBtn = document.getElementById('media-expand-btn');
 
-    // --- 折りたたみ機能 ---
     header.addEventListener('click', (event) => {
-        // タブや拡大ボタン自体をクリックした場合は、開閉動作をしない
-        if (event.target.closest('.media-tab-item') || event.target.closest('.expand-btn')) {
-            return;
-        }
+        if (event.target.closest('.media-tab-item') || event.target.closest('.expand-btn')) { return; }
         container.classList.toggle('active');
     });
 
-    // --- タブ切り替え機能 ---
     const activeTab = document.querySelector('.media-tab-item.active');
     if (activeTab) {
         expandBtn.dataset.iframeSrc = activeTab.dataset.iframeSrc;
@@ -635,27 +693,17 @@ function initMediaPlayer() {
 
     tabItems.forEach(tab => {
         tab.addEventListener('click', () => {
-            // もし折りたたまれていたら、タブクリックで開く
-            if (!container.classList.contains('active')) {
-                container.classList.add('active');
-            }
-            
+            if (!container.classList.contains('active')) { container.classList.add('active'); }
             tabItems.forEach(item => item.classList.remove('active'));
             contentItems.forEach(content => content.classList.add('hidden'));
-
             tab.classList.add('active');
-            
             const targetContent = document.getElementById(tab.dataset.target);
-            if (targetContent) {
-                targetContent.classList.remove('hidden');
-            }
-            
+            if (targetContent) { targetContent.classList.remove('hidden'); }
             expandBtn.dataset.iframeSrc = tab.dataset.iframeSrc;
         });
     });
 }
 
-// ▼ モーダル表示機能の汎用化
 function setupModal() {
     const iframeModal = document.getElementById('iframe-modal');
     const modalIframe = document.getElementById('modal-iframe');
@@ -664,16 +712,12 @@ function setupModal() {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget;
             let iframeSrc = '';
-
             if (target.id === 'media-expand-btn') {
                 iframeSrc = target.dataset.iframeSrc;
             } else {
                 const card = target.closest('.status-card');
-                if(card) {
-                  iframeSrc = card.querySelector('iframe').src;
-                }
+                if(card) { iframeSrc = card.querySelector('iframe').src; }
             }
-            
             if (iframeSrc) {
                 modalIframe.src = iframeSrc;
                 iframeModal.classList.remove('hidden');
@@ -703,12 +747,16 @@ function init() {
 
     updateClockAndDate();
     loadAppData(); 
-    renderIcons();
+    
+    // ▼▼▼ 変更：アイコン描画関数の呼び出し ▼▼▼
+    renderRecentlyUsedIcons();
+    renderAllIcons();
+    // ▲▲▲ 変更ここまで ▲▲▲
+
     activateTab(savedTab || 'all-apps');
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
     
-    // ▼【変更】新しいメディアプレーヤー機能を初期化
     initMediaPlayer(); 
     setupModal();
 
