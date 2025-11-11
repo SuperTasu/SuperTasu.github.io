@@ -117,28 +117,44 @@
       const data = JSON.parse(localStorage.getItem("spotifyPlayers") || "[]");
       playerList.innerHTML = "";
       data.forEach((url, index) => {
-        const embedUrl = url.replace("open.spotify.com/", "open.spotify.com/embed/");
-        const div = document.createElement("div");
-        div.className = "player";
-        div.innerHTML = `
-          <iframe src="${embedUrl}?utm_source=generator"
-            frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"></iframe>
-          <div class="actions">
-            <button class="edit-btn" onclick="editPlayer(${index})">✏️</button>
-            <button class="delete-btn" onclick="deletePlayer(${index})">🗑️</button>
-          </div>
-        `;
-        playerList.appendChild(div);
+        // ▼▼▼ 修正箇所 ▼▼▼
+        // 正規表現でURLからタイプ(track, album等)とIDを抽出
+        const match = url.match(/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/);
+
+        if (match && match[1] && match[2]) {
+          const type = match[1];
+          const id = match[2];
+          const embedUrl = `https://open.spotify.com/embed/${type}/${id}`;
+
+          const div = document.createElement("div");
+          div.className = "player";
+          div.innerHTML = `
+            <iframe src="${embedUrl}?utm_source=generator"
+              frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"></iframe>
+            <div class="actions">
+              <button class="edit-btn" onclick="editPlayer(${index})">✏️</button>
+              <button class="delete-btn" onclick="deletePlayer(${index})">🗑️</button>
+            </div>
+          `;
+          playerList.appendChild(div);
+        } else {
+          // 不正な形式のURLはコンソールに警告を出し、スキップします
+          console.warn(`Skipping invalid Spotify URL: ${url}`);
+        }
+        // ▲▲▲ 修正箇所 ▲▲▲
       });
     }
 
     function savePlayer() {
       const url = urlInput.value.trim();
-      if (!url.includes("open.spotify.com")) {
-        alert("SpotifyのURLを入力してください。");
+      // ▼▼▼ 修正箇所 ▼▼▼
+      // 保存時にもURLの形式をチェックするように強化
+      if (!url.includes("open.spotify.com") || !url.match(/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/)) {
+        alert("有効なSpotifyの共有URL（トラック、アルバム、プレイリストなど）を入力してください。");
         return;
       }
+      // ▲▲▲ 修正箇所 ▲▲▲
 
       const data = JSON.parse(localStorage.getItem("spotifyPlayers") || "[]");
       if (editIndex !== null) {
