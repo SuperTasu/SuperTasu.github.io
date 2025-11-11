@@ -397,7 +397,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
-    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット", emphasized: true},
+    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット"},
     {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",category:"google",searchText:"Google Calendar カレンダー"},
     {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
     {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
@@ -439,6 +439,31 @@ const initialAppData = [
     {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Number i tobe"},
     {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
 ];
+
+// ▼▼▼ 追加機能：アプリアイコンのクリックカウントとソート ▼▼▼
+const APP_CLICK_COUNTS_KEY = 'siteAppClickCounts';
+
+function getClickCounts() {
+    try {
+        const counts = localStorage.getItem(APP_CLICK_COUNTS_KEY);
+        return counts ? JSON.parse(counts) : {};
+    } catch (e) {
+        console.error("Failed to parse click counts from localStorage", e);
+        return {};
+    }
+}
+
+function saveClickCounts(counts) {
+    localStorage.setItem(APP_CLICK_COUNTS_KEY, JSON.stringify(counts));
+}
+
+function recordAppClick(appId) {
+    const counts = getClickCounts();
+    counts[appId] = (counts[appId] || 0) + 1;
+    saveClickCounts(counts);
+}
+// ▲▲▲ 追加機能ここまで ▲▲▲
+
 
 // ▼ データ保存フラグのキー定義
 const SAVE_KEYS = {
@@ -492,6 +517,15 @@ function loadAppData() {
 }
 
 function renderIcons() {
+    const clickCounts = getClickCounts();
+
+    // クリック数に基づいてappDataを降順にソート
+    appData.sort((a, b) => {
+        const countA = clickCounts[a.id] || 0;
+        const countB = clickCounts[b.id] || 0;
+        return countB - countA;
+    });
+
     gridContainer.innerHTML = '';
     appData.forEach(app => {
         const item = document.createElement('div');
@@ -510,6 +544,12 @@ function renderIcons() {
         item.innerHTML = `
             <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
             <div class="label-text">${app.label}</div>`;
+        
+        // クリックイベントをリッスンしてカウントを記録
+        item.querySelector('.icon-link').addEventListener('click', () => {
+            recordAppClick(app.id);
+        });
+
         gridContainer.appendChild(item);
     });
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
