@@ -7,270 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
-  <style>
-    :root {
-      --bg-color: #ffffff;
-      --text-color-primary: #333;
-      --text-color-secondary: #666;
-      --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      --card-border-color: rgba(0,0,0,0.05);
-      --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      --icon-bg: #fff;
-      --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      --tab-active-text: #ffffff;
-      --input-bg: #e9ecef;
-      --bus-board-bg: #e8f5e8;
-      --bus-card-bg: #fff;
-      --save-toggle-color-on: #009900;
-      --save-toggle-color-off: #777; 
-    }
-body.dark-theme {
---bg-color: #434343;
---text-color-primary: #f5f5f5;
---text-color-secondary: #aaa;
---card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
---card-border-color: rgba(255,255,255,0.1);
---card-shadow: 0 4px 16px rgba(0,0,0,0.4);
---icon-bg: #555;
---icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
---tab-active-text: #ffffff;
---input-bg: #3a3a3a;
---bus-board-bg: #2a3a2a;
---bus-card-bg: #3c4c3c;
---save-toggle-color-on: #76ff03;
---save-toggle-color-off: #aaa;
-}
-body { margin: 0; background-color: var(--bg-color); color: var(--text-color-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, color 0.3s; padding: 20px; box-sizing: border-box; padding-bottom: 20px; }
-.page-container { max-width: 1200px; margin: 0 auto; }
-.main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
-.apps-area { grid-area: apps; }
-.clock-area { 
-    background: var(--card-bg); 
-    box-shadow: var(--card-shadow); 
-    border-radius: 20px; 
-    padding: 15px 25px; 
-    border: 1px solid var(--card-border-color); 
-    display: flex; 
-    flex-direction: column; 
-    align-items: stretch;
-}
-.clock-main-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-.clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
-.datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 15px; flex-wrap: wrap; }
-#date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
-#date { font-size: 18px; }
-#clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
-#countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-.header-speed-test { width: 150px; height: 100px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
-.header-speed-test iframe { width: 300%; height: 300%; transform: scale(0.33); transform-origin: 0 0; border: none; }
-.header-controls { display: flex; align-items: center; gap: 10px; }
-.theme-switcher { display: flex; gap: 5px; }
-.theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
-.theme-dot:hover { transform: scale(1.2); }
-.theme-dot.light { background-color: #f8f9fa; }
-.theme-dot.dark { background-color: #434343; }
-.control-icon { 
-    display: flex; align-items: center; justify-content: center; 
-    width: 40px; height: 40px; 
-    background: rgba(0,0,0,0.05); border-radius: 50%; 
-    color: var(--text-color-secondary); font-size: 18px; 
-    text-decoration: none; transition: all 0.2s; cursor: pointer; 
-}
-.control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
-
-/* ▼【変更】メディアプレーヤーの折りたたみ対応スタイル */
-.media-player-container {
-    margin-top: 15px;
-    border-top: 1px solid var(--card-border-color);
-    padding-top: 10px;
-}
-.media-player-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    user-select: none;
-}
-.media-tab-menu {
-    display: flex;
-    gap: 8px;
-}
-.media-tab-item {
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--text-color-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-.media-tab-item:hover {
-    background-color: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-}
-.media-tab-item.active {
-    background-color: var(--input-bg);
-    color: var(--text-color-primary);
-    border: 1px solid var(--card-border-color);
-}
-.spotify-icon { color: #1DB954; }
-
-.media-player-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.media-player-controls .expand-btn {
-    cursor: pointer;
-    color: var(--text-color-secondary);
-    font-size: 16px;
-    transition: color 0.2s, transform 0.2s;
-    padding: 5px;
-}
-.media-player-controls .expand-btn:hover {
-    color: #667eea;
-    transform: scale(1.2);
-}
-.collapse-icon {
-    transition: transform 0.3s ease;
-    color: var(--text-color-secondary);
-}
-.media-player-container.active .collapse-icon {
-    transform: rotate(180deg);
-}
-.media-player-content {
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.4s ease-out;
-}
-.media-player-container.active .media-player-content {
-    max-height: 362px;
-}
-.media-tab-content iframe {
-    width: 100%;
-    height: 352px;
-    border: none;
-}
-/* ▲【変更】メディアプレーヤーの折りたたみ対応スタイル */
-
-.tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
-.tab-menu { display: flex; align-items: center; }
-.search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
-.search-container i { color: var(--text-color-secondary); }
-#appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
-#appSearchInput:focus { width: 200px; }
-.tab-item { flex-grow: 1; text-align: center; padding: 15px 20px; color: var(--text-color-secondary); text-decoration: none; font-weight: bold; font-size: 14px; position: relative; transition: all 0.3s ease; border-radius: 16px; margin: 6px; border-right: 1px solid rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; min-width: 100px; }
-.tab-item:last-of-type { border-right: none; }
-.tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
-.tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
-.grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
-.icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
-.icon-link {
-width: 60px; height: 60px;
-background-color: var(--icon-bg); border-radius: 22px;
-box-shadow: var(--icon-shadow); display: flex;
-align-items: center; justify-content: center;
-text-decoration: none; color: var(--text-color-primary);
-margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-body.dark-theme .icon-link:hover { background-color: #4a5568; }
-.icon-link i { font-size: 26px; }
-.icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
-/* フォールバックアイコンのスタイル */
-.icon-link .fallback-icon {
-font-size: 26px;
-color: var(--text-color-secondary);
-}
-
-.label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
-#search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
-#search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
-body.dark-theme #search-wrapper::before { opacity: 0.2; }
-.main-content{padding-top:10px}
-#status-container, #bustarain-container { display: none; margin-top: 20px; }
-#status-container { display: flex; flex-direction: column; gap: 20px; }
-
-/* ▼▼▼ 追加スタイル ▼▼▼ */
-.section-title {
-    font-size: 16px;
-    color: var(--text-color-secondary);
-    margin: 15px 10px 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--card-border-color);
-}
-#section-divider {
-    border: none;
-    height: 1px;
-    background-color: var(--card-border-color);
-    margin: 10px 0 20px;
-}
-/* ▲▲▲ 追加スタイル ▲▲▲ */
-
-
-.bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
-.bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-.bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
-.direction-controls { display: flex; gap: 8px; }
-.direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
-body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
-.direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
-.schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
-#justDepartedSection { margin-bottom: 15px; }
-.just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
-.departures-container { display: grid; gap: 15px; }
-.bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-.bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-.bus-card__main { display: flex; align-items: center; gap: 20px; }
-.bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-.bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-.bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-.route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
-.itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
-.bus-card__side { text-align: right; }
-.bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
-.detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
-.no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
-.other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-.status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
-.expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; margin-left: auto; padding: 5px; }
-.expand-btn:hover { color: #667eea; transform: scale(1.2); }
-.game-buttons { display: flex; gap: 15px; }
-.game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
-.game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
-.iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
-.iframe-container iframe { width: 100%; height: 100%; border: none; }
-.sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; flex-wrap: wrap; }
-.sub-filter-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; }
-.sub-filter-btn.active { background: #667eea; color: white; }
-.sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .accordion-iframe { width: 100%; height: 800px; border: none; }
-.hidden { display: none !important; }
-
-.iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
-.close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
-#modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-
-@media (min-width: 769px) { .theme-switcher { position: absolute; top: 20px; right: 110px; } }
-
-@media (max-width: 768px) {
-body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
-.clock-area { padding: 10px 15px; }
-}
-</style>
-
+  <!-- ▼▼▼ 変更：外部CSSファイルを読み込み ▼▼▼ -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="page-container">
@@ -283,7 +21,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
                 <div id="clock"></div>
                 <div id="countdown"></div>
                 <div class="header-speed-test">
-                    <iframe src="https://fast.com/ja/" title="速度テスト"></iframe>
+                    <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
+                    <iframe data-src="https://fast.com/ja/" title="速度テスト" loading="lazy"></iframe>
                 </div>
                 <div class="theme-switcher">
                   <div class="theme-dot light" onclick="setTheme('light')"></div>
@@ -298,7 +37,6 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
             </div>
         </div>
 
-        <!-- ▼【変更】折りたたみ機能付きタブUI -->
         <div class="media-player-container">
             <div class="media-player-header">
                 <div class="media-tab-menu">
@@ -314,11 +52,11 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
             </div>
             <div class="media-player-content">
                 <div id="spotify-content" class="media-tab-content">
-                    <iframe src="Main/Spotify.html"></iframe>
+                    <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
+                    <iframe data-src="Main/Spotify.html" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
-        <!-- ▲【変更】折りたたみ機能付きタブUI -->
     </div>
 </header>
 <div class="tab-container">
@@ -333,15 +71,11 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
   <div class="apps-area">
     <div id="search-wrapper">
       <div class="main-content" id="mainContent">
-        <!-- ▼▼▼ 変更：最近使用したアプリセクション ▼▼▼ -->
         <div id="recently-used-apps-container" class="hidden">
             <h3 class="section-title">最近使用したアプリ</h3>
-            <div class="grid-container" id="recentlyUsedGridContainer">
-                <!-- 最近使用したアプリのアイコンがここに描画されます -->
-            </div>
+            <div class="grid-container" id="recentlyUsedGridContainer"></div>
         </div>
         <hr id="section-divider" class="hidden">
-        <!-- ▲▲▲ 変更ここまで ▲▲▲ -->
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             <div class="sub-filter-tabs" id="sub-filter-tabs">
@@ -351,9 +85,7 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
                 <button class="sub-filter-btn" data-category="downloader">Downloader</button>
                 <button class="sub-filter-btn" data-category="other">Other</button>
             </div>
-            <div class="grid-container" id="gridContainer">
-              <!-- アイコンはJavaScriptによってここに描画されます -->
-            </div>
+            <div class="grid-container" id="gridContainer"></div>
         </div>
       </div>
     </div>
@@ -374,10 +106,14 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
     </div>
     <div class="other-statuses">
         <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
-        <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> <div class="iframe-container"><iframe src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報"></iframe></div> </div>
+        <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> 
+          <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
+          <div class="iframe-container"><iframe data-src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報" loading="lazy"></iframe></div> 
+        </div>
         <div class="status-card">
           <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
-          <div class="iframe-container"><iframe src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント"></iframe></div>
+          <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
+          <div class="iframe-container"><iframe data-src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント" loading="lazy"></iframe></div>
         </div>
     </div>
 </div>
@@ -401,7 +137,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
         <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
     </div>
     <div id="other-content" class="sub-tab-content hidden">
-        <iframe class="accordion-iframe" src="https://www.noevir-stadium.jp/event/" style="height: 1000px;"></iframe>
+        <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
+        <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
     </div>
 </div>
   <div id="iframe-modal" class="modal-overlay hidden">
@@ -410,380 +147,8 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
       <iframe id="modal-iframe" src="" frameborder="0"></iframe>
     </div>
   </div>
-</div> <!-- .page-container の終わり -->
-<script>
-    const mainGrid = document.getElementById('main-grid');
-    const statusContainer = document.getElementById('status-container');
-    const bustarainContainer = document.getElementById('bustarain-container');
-    const gridContainer = document.getElementById('gridContainer');
-    const refreshButton = document.getElementById('refresh-button'); // リフレッシュボタン
-
-    const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
-    let appData = [];
-const initialAppData = [
-    {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
-    {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
-    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット"},
-    {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",category:"google",searchText:"Google Calendar カレンダー"},
-    {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
-    {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
-    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"google",searchText:"Google AI Gemini"},
-    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
-    {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
-    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YT Shorts YouTube ショート"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
-    {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
-    {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
-    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",category:"downloader",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",category:"downloader",searchText:"Spotify mate ダウンロード"},
-    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
-    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
-    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
-    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"BUSTARAIN バスタレイン"},
-    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"Answer I アンサー"},
-    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
-    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",category:"other",searchText:"MN4U ブルーロック 漫画"},
-    {id:29,label:"マガポケ",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",category:"other",searchText:"講談社 ブルーロック 漫画"},
-    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",category:"other",searchText:"メルカリ フリマ"},
-    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo!フリマ ヤフー"},
-    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
-    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",category:"other",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",category:"other",searchText:"GitHub ギットハブ"},
-    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"other",searchText:"SixTONES ジャニーズ"},
-    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"other",searchText:"ART-PUT アート"},
-    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"other",searchText:"Family Club ファンクラブ"},
-    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Hiromitsu Kitayama tobe"},
-    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Number i tobe"},
-    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
-];
-
-// ▼▼▼ 追加機能：最近使用したアプリ ▼▼▼
-const RECENTLY_USED_APPS_KEY = 'siteRecentlyUsedApps';
-const MAX_RECENT_APPS = 5;
-
-function getRecentlyUsedApps() {
-    try {
-        const recent = localStorage.getItem(RECENTLY_USED_APPS_KEY);
-        return recent ? JSON.parse(recent) : [];
-    } catch (e) {
-        console.error("Failed to parse recently used apps from localStorage", e);
-        return [];
-    }
-}
-
-function saveRecentlyUsedApps(recentApps) {
-    localStorage.setItem(RECENTLY_USED_APPS_KEY, JSON.stringify(recentApps));
-}
-
-function recordAppClick(appId) {
-    let recentlyUsed = getRecentlyUsedApps();
-    // 既存のIDがあれば削除
-    recentlyUsed = recentlyUsed.filter(id => id !== appId);
-    // 先頭に追加
-    recentlyUsed.unshift(appId);
-    // 最大数を超えたら末尾を削除
-    if (recentlyUsed.length > MAX_RECENT_APPS) {
-        recentlyUsed.splice(MAX_RECENT_APPS);
-    }
-    saveRecentlyUsedApps(recentlyUsed);
-}
-// ▲▲▲ 追加機能ここまで ▲▲▲
-
-// ▼ データ保存フラグのキー定義
-const SAVE_KEYS = {
-    THEME: 'siteSaveTheme',
-    MAIN_TAB: 'siteSaveMainTab',
-    SUB_FILTER: 'siteSaveSubFilter'
-};
-let saveSettings = {};
-
-function loadSaveSettings() {
-    saveSettings = {
-        theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
-        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) === 'true',
-        subFilter: localStorage.getItem(SAVE_KEYS.SUB_FILTER) === 'true'
-    };
-    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = true;
-    if (localStorage.getItem(SAVE_KEYS.MAIN_TAB) === null) saveSettings.mainTab = true;
-    if (localStorage.getItem(SAVE_KEYS.SUB_FILTER) === null) saveSettings.subFilter = true;
-}
-
-function getSavedItem(key) {
-    let saveSettingFlag = false;
-    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
-    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
-    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
-
-    if (saveSettingFlag) {
-        return localStorage.getItem(key);
-    }
-    return null; 
-}
-
-function saveItem(key, value) {
-    let saveSettingFlag = false;
-    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
-    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
-    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
-
-    if (saveSettingFlag) {
-        localStorage.setItem(key, value);
-    }
-}
-
-function loadAppData() { 
-    try { 
-        const d = localStorage.getItem('siteApps'); 
-        appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); 
-    } catch(e) { 
-        appData = JSON.parse(JSON.stringify(initialAppData)); 
-    } 
-}
-
-// ▼▼▼ 変更：アイコン描画関連の関数 ▼▼▼
-
-// アプリのDOM要素を生成するヘルパー関数
-function createIconElement(app) {
-    const item = document.createElement('div');
-    item.className = `icon-item`;
-    item.dataset.id = app.id;
-    
-    let iconHTML;
-    if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
-        iconHTML = `<img src="${app.icon}" class="icon-img" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
-    } else {
-        iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
-    }
-
-    item.innerHTML = `
-        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-        <div class="label-text">${app.label}</div>`;
-    
-    item.querySelector('.icon-link').addEventListener('click', () => {
-        recordAppClick(app.id);
-    });
-    
-    return item;
-}
-
-// すべてのアプリを描画する関数
-function renderAllIcons() {
-    const allAppsContainer = document.getElementById('gridContainer');
-    allAppsContainer.innerHTML = '';
-    appData.forEach(app => {
-        const iconElement = createIconElement(app);
-        // フィルター用の属性を追加
-        iconElement.classList.add('search-item');
-        iconElement.dataset.category = app.category;
-        iconElement.dataset.searchText = app.searchText;
-        allAppsContainer.appendChild(iconElement);
-    });
-    filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
-}
-
-// 最近使用したアプリを描画する関数
-function renderRecentlyUsedIcons() {
-    const recentContainer = document.getElementById('recentlyUsedGridContainer');
-    const recentSection = document.getElementById('recently-used-apps-container');
-    const divider = document.getElementById('section-divider');
-    recentContainer.innerHTML = '';
-
-    const recentlyUsedIds = getRecentlyUsedApps();
-
-    if (recentlyUsedIds.length === 0) {
-        recentSection.classList.add('hidden');
-        divider.classList.add('hidden');
-        return;
-    }
-
-    recentlyUsedIds.forEach(id => {
-        const app = appData.find(app => app.id === id);
-        if (app) {
-            const iconElement = createIconElement(app);
-            recentContainer.appendChild(iconElement);
-        }
-    });
-    
-    recentSection.classList.remove('hidden');
-    divider.classList.remove('hidden');
-}
-// ▲▲▲ 変更ここまで ▲▲▲
-
-
-function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
-function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
-function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
-function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
-
-function setTheme(t){
-    if ("dark"===t) {
-        document.body.classList.add("dark-theme");
-        saveItem('siteTheme', 'dark');
-    } else {
-        document.body.classList.remove("dark-theme");
-        saveItem('siteTheme', 'light');
-    }
-}
-
-function activateTab(tabId) {
-    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${tabId}`)?.classList.add('active');
-
-    mainGrid.style.display = 'none'; 
-    statusContainer.style.display = 'none'; 
-    bustarainContainer.style.display = 'none'; 
-
-    if (tabId === 'status') { statusContainer.style.display = 'flex'; }
-    else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; }
-    else { mainGrid.style.display = 'grid'; }
-
-    saveItem('siteActiveTab', tabId);
-}
-function filterIconsByCategory(category) {
-    document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
-    saveItem('siteActiveSubFilter', category);
-    filterContent();
-}
-
-function filterContent(){ 
-    const s = document.getElementById("appSearchInput").value.toLowerCase(); 
-    const c = getSavedItem('siteActiveSubFilter') || 'all'; 
-    // フィルター対象を#gridContainer内のアイコンに限定
-    document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
-        const categoryMatch = (c === 'all' || i.dataset.category === c); 
-        const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
-        i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; 
-    }); 
-}
-
-function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.src = src; content.appendChild(iframe); } } })); }
-
-function activateSubTab(targetId) {
-    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById(targetId)?.classList.remove('hidden');
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-    saveItem('siteActiveSubTab', targetId);
-}
-
-function initMediaPlayer() {
-    const container = document.querySelector('.media-player-container');
-    const header = document.querySelector('.media-player-header');
-    const tabItems = document.querySelectorAll('.media-tab-item');
-    const contentItems = document.querySelectorAll('.media-tab-content');
-    const expandBtn = document.getElementById('media-expand-btn');
-
-    header.addEventListener('click', (event) => {
-        if (event.target.closest('.media-tab-item') || event.target.closest('.expand-btn')) { return; }
-        container.classList.toggle('active');
-    });
-
-    const activeTab = document.querySelector('.media-tab-item.active');
-    if (activeTab) {
-        expandBtn.dataset.iframeSrc = activeTab.dataset.iframeSrc;
-    }
-
-    tabItems.forEach(tab => {
-        tab.addEventListener('click', () => {
-            if (!container.classList.contains('active')) { container.classList.add('active'); }
-            tabItems.forEach(item => item.classList.remove('active'));
-            contentItems.forEach(content => content.classList.add('hidden'));
-            tab.classList.add('active');
-            const targetContent = document.getElementById(tab.dataset.target);
-            if (targetContent) { targetContent.classList.remove('hidden'); }
-            expandBtn.dataset.iframeSrc = tab.dataset.iframeSrc;
-        });
-    });
-}
-
-function setupModal() {
-    const iframeModal = document.getElementById('iframe-modal');
-    const modalIframe = document.getElementById('modal-iframe');
-
-    document.querySelectorAll('.expand-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = e.currentTarget;
-            let iframeSrc = '';
-            if (target.id === 'media-expand-btn') {
-                iframeSrc = target.dataset.iframeSrc;
-            } else {
-                const card = target.closest('.status-card');
-                if(card) { iframeSrc = card.querySelector('iframe').src; }
-            }
-            if (iframeSrc) {
-                modalIframe.src = iframeSrc;
-                iframeModal.classList.remove('hidden');
-            }
-        });
-    });
-    
-    iframeModal.addEventListener('click', (e) => {
-        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
-            iframeModal.classList.add('hidden');
-            modalIframe.src = 'about:blank';
-        }
-    });
-}
-
-
-if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
-
-function init() {
-    loadSaveSettings();
-
-    const savedTheme = getSavedItem('siteTheme');
-    const savedTab = getSavedItem('siteActiveTab');
-    const savedSubTab = getSavedItem('siteActiveSubTab'); 
-
-    setTheme(savedTheme || 'light');
-
-    updateClockAndDate();
-    loadAppData(); 
-    
-    // ▼▼▼ 変更：アイコン描画関数の呼び出し ▼▼▼
-    renderRecentlyUsedIcons();
-    renderAllIcons();
-    // ▲▲▲ 変更ここまで ▲▲▲
-
-    activateTab(savedTab || 'all-apps');
-    initAccordions();
-    activateSubTab(savedSubTab || 'train-content');
-    
-    initMediaPlayer(); 
-    setupModal();
-
-    window.initBusSchedule();
-    document.getElementById('appSearchInput').addEventListener('input', () => { 
-        if(document.getElementById("appSearchInput").value) { 
-            activateTab('all-apps'); 
-            document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
-            document.querySelector(".sub-filter-btn[data-category='all']").classList.add('active');
-        }
-        filterContent(); 
-    });
-    document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
-        filterIconsByCategory(e.currentTarget.dataset.category);
-    }));
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
-        activateSubTab(e.currentTarget.dataset.target);
-    }));
-
-    refreshButton.addEventListener('click', () => {
-        location.reload(); 
-    });
-}
-
-setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
-setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000);
-document.addEventListener('DOMContentLoaded', init);
-</script>
+</div>
+<!-- ▼▼▼ 変更：外部JSファイルを読み込み ▼▼▼ -->
+<script src="script.js" defer></script>
 </body>
 </html>
