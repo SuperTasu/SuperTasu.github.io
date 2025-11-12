@@ -51,8 +51,39 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
 #date { font-size: 18px; }
 #clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
 #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
-.header-speed-test { width: 150px; height: 100px; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border-color); }
-.header-speed-test iframe { width: 300%; height: 300%; transform: scale(0.33); transform-origin: 0 0; border: none; }
+
+/* ▼▼▼ 追加：オフライン表示用のスタイル ▼▼▼ */
+#offline-status {
+    color: red;
+    font-weight: bold;
+    display: none; /* JSで制御 */
+}
+
+/* ▼▼▼ 変更：速度テストエリアのスタイルを新しいレイアウトに対応 ▼▼▼ */
+.header-speed-test {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* iframeとボタンの間隔 */
+}
+.header-speed-test iframe {
+    width: 130px;
+    height: 40px;
+    border: 1px solid var(--card-border-color);
+    border-radius: 5px;
+    overflow: hidden;
+}
+#speed-test-refresh-button {
+    font-size: 1.1em;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s, color 0.2s;
+}
+#speed-test-refresh-button:hover {
+    transform: scale(1.1) rotate(90deg);
+    color: #667eea;
+}
+
 .header-controls { display: flex; align-items: center; gap: 10px; }
 .theme-switcher { display: flex; gap: 5px; }
 .theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
@@ -67,94 +98,34 @@ body { margin: 0; background-color: var(--bg-color); color: var(--text-color-pri
     text-decoration: none; transition: all 0.2s; cursor: pointer; 
 }
 .control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
-.media-player-container {
-    margin-top: 15px;
-    border-top: 1px solid var(--card-border-color);
-    padding-top: 10px;
-}
-.media-player-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    user-select: none;
-}
-.media-tab-menu {
-    display: flex;
-    gap: 8px;
-}
-.media-tab-item {
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--text-color-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-.media-tab-item:hover {
-    background-color: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-}
-.media-tab-item.active {
-    background-color: var(--input-bg);
-    color: var(--text-color-primary);
-    border: 1px solid var(--card-border-color);
-}
-.spotify-icon { color: #1DB954; }
-.media-player-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.media-player-controls .expand-btn {
-    cursor: pointer;
-    color: var(--text-color-secondary);
-    font-size: 16px;
-    transition: color 0.2s, transform 0.2s;
-    padding: 5px;
-}
-.media-player-controls .expand-btn:hover {
-    color: #667eea;
-    transform: scale(1.2);
-}
-.collapse-icon {
-    transition: transform 0.3s ease;
-    color: var(--text-color-secondary);
-}
-.media-player-container.active .collapse-icon {
-    transform: rotate(180deg);
-}
-.media-player-content {
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.4s ease-out;
-}
-.media-player-container.active .media-player-content {
-    max-height: 362px;
-}
-.media-tab-content iframe {
-    width: 100%;
-    height: 352px;
-    border: none;
-}
+
+/* ▼▼▼ 削除：media-player関連のCSSは不要なので削除しました ▼▼▼ */
+
 .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
 .tab-menu { display: flex; align-items: center; }
 .search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
 .search-container i { color: var(--text-color-secondary); }
 #appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
 #appSearchInput:focus { width: 200px; }
-.tab-item { flex-grow: 1; text-align: center; padding: 15px 20px; color: var(--text-color-secondary); text-decoration: none; font-weight: bold; font-size: 14px; position: relative; transition: all 0.3s ease; border-radius: 16px; margin: 6px; border-right: 1px solid rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; min-width: 100px; }
+
+/* ▼▼▼ 変更：Discordタブ(aタグ)に対応するためスタイルを調整 ▼▼▼ */
+.tab-item {
+    flex-grow: 1; text-align: center; padding: 15px 20px;
+    color: var(--text-color-secondary); text-decoration: none;
+    font-weight: bold; font-size: 14px; position: relative;
+    transition: all 0.3s ease; border-radius: 16px;
+    margin: 6px; border-right: 1px solid rgba(0,0,0,0.1);
+    cursor: pointer; white-space: nowrap; min-width: 100px;
+    /* アイコンとテキストを中央揃えにするための追加 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
 .tab-item:last-of-type { border-right: none; }
 .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
 .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
+
 .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
 .icon-item { text-align: center; width: 75px; margin: 0; position: relative; transition: transform 0.2s ease-out; user-select: none; -webkit-user-select: none; }
 .icon-link {
@@ -187,12 +158,9 @@ body.dark-theme #search-wrapper::before { opacity: 0.2; }
     padding-bottom: 5px;
     border-bottom: 1px solid var(--card-border-color);
 }
-#section-divider {
-    border: none;
-    height: 1px;
-    background-color: var(--card-border-color);
-    margin: 10px 0 20px;
-}
+/* ▼▼▼ 削除：最近使用したアプリの区切り線は不要なので削除 ▼▼▼ */
+/* #section-divider { ... } */
+
 .bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
 .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
