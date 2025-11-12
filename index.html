@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>サイト集</title>
+  <!-- ▼▼▼ 変更：タイトルを変更 ▼▼▼ -->
+  <title>ZeroHper</title>
   <link rel="icon" href="your-favicon.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
-  <!-- ▼▼▼ 変更：外部CSSファイルを読み込み ▼▼▼ -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,9 +20,14 @@
                 <div id="date"></div>
                 <div id="clock"></div>
                 <div id="countdown"></div>
+                <!-- ▼▼▼ 追加：オフライン状態を表示する要素 ▼▼▼ -->
+                <div id="offline-status"></div>
+                <!-- ▼▼▼ 変更：速度テストとリフレッシュボタンをグループ化 ▼▼▼ -->
                 <div class="header-speed-test">
-                    <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
                     <iframe data-src="https://fast.com/ja/" title="速度テスト" loading="lazy"></iframe>
+                    <div class="control-icon" id="speed-test-refresh-button" title="速度テストを再実行">
+                       <i class="fas fa-redo"></i> 
+                    </div>
                 </div>
                 <div class="theme-switcher">
                   <div class="theme-dot light" onclick="setTheme('light')"></div>
@@ -31,18 +36,11 @@
               </div>
             </div>
             <div class="header-controls">
-              <!-- ▼▼▼ 追加：速度テストのリフレッシュボタン ▼▼▼ -->
-              <div class="control-icon" id="speed-test-refresh-button" title="速度テストを再読み込み">
-                 <i class="fas fa-network-wired"></i> 
-              </div>
               <div class="control-icon" id="refresh-button" title="ページを再読み込み">
                  <i class="fas fa-sync-alt"></i> 
               </div>
             </div>
         </div>
-
-        <!-- ▼▼▼ 削除：Spotifyのメディアプレイヤー全体を削除しました ▼▼▼ -->
-        
     </div>
 </header>
 <div class="tab-container">
@@ -51,17 +49,15 @@
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
     <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
+    <!-- ▼▼▼ 追加：Discordへのリンクタブ ▼▼▼ -->
+    <a href="https://discord.com/channels/@me" class="tab-item" target="_blank"><i class="fab fa-discord"></i> Discord</a>
   </div>
 </div>
 <div class="main-grid" id="main-grid">
   <div class="apps-area">
     <div id="search-wrapper">
       <div class="main-content" id="mainContent">
-        <div id="recently-used-apps-container" class="hidden">
-            <h3 class="section-title">最近使用したアプリ</h3>
-            <div class="grid-container" id="recentlyUsedGridContainer"></div>
-        </div>
-        <hr id="section-divider" class="hidden">
+        <!-- ▼▼▼ 削除：「最近使用したアプリ」のセクション全体を削除しました ▼▼▼ -->
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             <div class="sub-filter-tabs" id="sub-filter-tabs">
@@ -93,12 +89,10 @@
     <div class="other-statuses">
         <div class="status-card"> <h3 class="status-card-title">Game Status</h3> <div class="game-buttons"> <a href="https://apexlegendsstatus.com/current-map" class="game-button apex" target="_blank"> <i class="fas fa-crosshairs"></i> Apex Legends </a> <a href="https://www.splatoon3-schedule.net" class="game-button splatoon" target="_blank"> <i class="fas fa-paint-brush"></i> Splatoon 3 </a> </div> </div>
         <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> 
-          <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
           <div class="iframe-container"><iframe data-src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報" loading="lazy"></iframe></div> 
         </div>
         <div class="status-card">
           <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
-          <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
           <div class="iframe-container"><iframe data-src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント" loading="lazy"></iframe></div>
         </div>
     </div>
@@ -123,7 +117,6 @@
         <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
     </div>
     <div id="other-content" class="sub-tab-content hidden">
-        <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
         <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
     </div>
 </div>
@@ -134,7 +127,6 @@
     </div>
   </div>
 </div>
-<!-- ▼▼▼ 変更：外部JSファイルを読み込み ▼▼▼ -->
 <script src="script.js" defer></script>
 </body>
 </html>
