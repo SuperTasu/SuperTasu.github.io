@@ -129,6 +129,7 @@
                 border: 3px solid #2e8b57;
                 border-radius: 10px;
                 padding: 15px;
+                min-height: 400px;
             }
             .left-column {
                 flex: 1;
@@ -138,6 +139,8 @@
                 padding-right: 15px;
                 border-right: 2px solid #90ee90;
                 box-sizing: border-box;
+                position: relative;
+                overflow: hidden;
             }
             .right-column {
                 flex: 2;
@@ -148,9 +151,59 @@
                 gap: 0;
             }
             
-            .column-title { display: none; }
-            
-            #pcDetailView { flex-grow: 1; display: flex; flex-direction: column; }
+            /* ★★★ 変更点: 先発バス詳細(背景)とオーバーレイ詳細のスタイルを定義 ★★★ */
+            #pcFirstDepartureDetail {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                background-color: #e9ecef;
+            }
+            #pcOverlayDetail {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 90%;
+                max-height: 450px;
+                background-color: #fff;
+                border: 2px solid #cc0000;
+                border-radius: 10px 10px 0 0;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+                transform: translateY(100%);
+                transition: transform 0.4s ease-in-out;
+                display: flex;
+                flex-direction: column;
+                z-index: 20;
+            }
+            #pcOverlayDetail.is-visible {
+                transform: translateY(0);
+            }
+            .detail-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                text-align: center;
+                color: #888;
+                font-size: 16px;
+                padding: 20px;
+                box-sizing: border-box;
+                line-height: 1.6;
+            }
+            .close-detail-panel {
+                position: absolute; top: 5px; left: 5px; z-index: 30;
+                background-color: rgba(204, 0, 0, 0.8); color: white;
+                border: 1px solid white; border-radius: 50%; width: 30px; height: 30px;
+                font-size: 20px; cursor: pointer; display: flex;
+                justify-content: center; align-items: center; line-height: 1;
+                transition: background-color 0.2s;
+            }
+            .close-detail-panel:hover { background-color: rgba(153, 0, 0, 1); }
+
             
             .right-top-section { padding-bottom: 15px; }
             .right-bottom-section {
@@ -237,11 +290,15 @@
         .just-departed-info .detail-button { flex-shrink: 0; padding: 2px 8px; font-size: 11px; }
 
         .departure-detail-embedded {
-            position: relative; margin-top: 0; border: 2px solid #0066cc;
+            position: relative; margin-top: 0; border: none;
             border-radius: 8px; overflow: hidden; background-color: #fff;
             flex-grow: 1; display: flex; flex-direction: column;
         }
-        .mobile-container .departure-detail-embedded { margin-top: 10px; }
+        /* ★★★ 変更点: 先発詳細の枠線を追加 ★★★ */
+        #pcFirstDepartureDetail .departure-detail-embedded {
+            border: 2px solid #0066cc;
+        }
+        .mobile-container .departure-detail-embedded { margin-top: 10px; border: 2px solid #0066cc;}
 
         .departure-detail-embedded iframe {
             display: block; border: none; width: 100%;
@@ -307,6 +364,10 @@
         }
         @media (max-width: 768px) { .detail-button { padding: 5px 10px; font-size: 14px; margin: 2px; } }
         .detail-button:hover { background-color: #0052a3; }
+        
+        #pcNextDepartureInfo .detail-button {
+             margin-left: 15px; padding: 5px 12px; font-size: 14px;
+        }
 
         .itayado-arrival { color: #cc6600; font-size: 12px; font-weight: bold; }
         @media (max-width: 768px) { .itayado-arrival { font-size: 14px; } }
@@ -407,7 +468,6 @@
         .reset-button { background-color: #666; }
         @media (max-width: 768px) { .search-button, .reset-button { padding: 10px 20px; font-size: 16px; margin: 5px; } }
 
-        /* ★★★ 変更点: 更新ボタンのスタイル ★★★ */
         .header-icon-button {
             background-color: #f0f0f0; border: 2px solid #333; width: 38px; height: 38px;
             border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
@@ -447,7 +507,7 @@
         .modal-title { font-size: 20px; font-weight: bold; color: #333; }
         #modalDepartureList .departure-info { margin-bottom: 10px; padding: 12px; }
         
-        .iframe-modal-overlay { display: none; } /* iframeモーダルは共通なのでそのまま */
+        .iframe-modal-overlay { display: none; }
         .iframe-modal-overlay.visible { display: flex; }
         .iframe-modal-content {
             background-color: #fff; padding: 10px; border-radius: 10px; width: 95%; height: 90vh;
@@ -494,7 +554,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- ★★★ 変更点: 更新ボタンを追加 ★★★ -->
                 <button id="refresh-btn" class="header-icon-button" title="更新">↻</button>
             </div>
 
@@ -507,7 +566,9 @@
         <!-- PC Layout -->
         <div class="pc-container">
             <div class="left-column">
-                <div id="pcDetailView"></div>
+                <!-- ★★★ 変更点: HTML構造を変更。先発用とオーバーレイ用に分離 ★★★ -->
+                <div id="pcFirstDepartureDetail"></div>
+                <div id="pcOverlayDetail"></div>
             </div>
             <div class="right-column">
                 <div class="right-top-section">
@@ -554,7 +615,7 @@
 
 
 <script>
-    // 時刻表データ（統合版）
+    // 時刻表データ（省略）
     const timetables = {
         shinkaichi: {
             route11: {
@@ -669,10 +730,11 @@
             }
         }
     };
-
+    
     let currentDirection = 'yoshidacho';
     let customDateTime = null;
     let selectedRoutes = new Set();
+    let hidePanelTimeoutId = null;
 
     function getCurrentDateTime() {
         return customDateTime || new Date();
@@ -817,12 +879,15 @@
         pcSection.innerHTML = htmlContent;
     }
 
+    // ★★★ 変更点: updateNextDepartureのロジックを更新 ★★★
     function updateNextDeparture(allDepartures) {
         const mobileContent = document.getElementById('mobileNextDepartureContent');
-        const pcDetailView = document.getElementById('pcDetailView');
         const pcNextInfo = document.getElementById('pcNextDepartureInfo');
+        const pcFirstDetailContainer = document.getElementById('pcFirstDepartureDetail');
         const now = getCurrentDateTime();
-        
+
+        hidePcOverlayPanel(); // 更新時にオーバーレイは必ず隠す
+
         const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
         
         if (upcomingDepartures.length === 0) {
@@ -830,14 +895,13 @@
             const noServiceHtml = `<div class="no-next-departure">${message}</div>`;
             mobileContent.innerHTML = noServiceHtml;
             pcNextInfo.innerHTML = noServiceHtml;
-            pcDetailView.innerHTML = `<div class="no-next-departure" style="display:flex; align-items:center; justify-content:center; height:100%; text-align:center; padding: 20px; box-sizing: border-box;">運行状況を<br>表示するバスが<br>ありません</div>`;
+            pcFirstDetailContainer.innerHTML = `<div class="detail-placeholder">運行予定のバスはありません</div>`;
             return;
         }
         
         const nextDeparture = upcomingDepartures[0];
         const depTime = nextDeparture.date;
         const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
-        
         const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
         const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
         
@@ -847,8 +911,28 @@
             const arrivalTimeStr = `${String(arrivalTime.getHours()).padStart(2, '0')}:${String(arrivalTime.getMinutes()).padStart(2, '0')}`;
             arrivalTimeInfo = `<div class="itayado-arrival">板宿 ${arrivalTimeStr} 着</div>`;
         }
-        
-        const nextDepartureInfoHtml = `
+
+        const pcNextDepartureInfoHtml = `
+            <div class="next-departure-content">
+                <div class="next-departure-route">
+                    <span class="route-number">${nextDeparture.number}</span>${nextDeparture.name}
+                    ${arrivalTimeInfo}
+                </div>
+                <div class="next-departure-time">
+                    <div class="next-departure-clock">${timeStr}</div>
+                    <div class="next-departure-remaining">(${remainingText})</div>
+                </div>
+            </div>`;
+
+        let mobileDetailContentHtml = '';
+        if (nextDeparture.detailUrl) {
+            mobileDetailContentHtml = `
+                <div class="departure-detail-embedded">
+                    <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                    <iframe src="${nextDeparture.detailUrl}" width="100%" frameborder="0"></iframe>
+                </div>`;
+        }
+        const mobileNextDepartureInfoHtml = `
             <div class="next-departure-content">
                 <div class="next-departure-route">
                     <span class="route-number">${nextDeparture.number}</span>${nextDeparture.name}
@@ -860,18 +944,15 @@
                 </div>
             </div>`;
         
-        let detailContentHtml = '';
+        mobileContent.innerHTML = mobileNextDepartureInfoHtml + mobileDetailContentHtml;
+        pcNextInfo.innerHTML = pcNextDepartureInfoHtml;
+
+        // PC版の先発詳細（背景）を更新
         if (nextDeparture.detailUrl) {
-            detailContentHtml = `
-                <div class="departure-detail-embedded">
-                    <button class="expand-iframe-btn" title="拡大表示">↗</button>
-                    <iframe src="${nextDeparture.detailUrl}" width="100%" frameborder="0"></iframe>
-                </div>`;
+            pcFirstDetailContainer.innerHTML = createDetailHtml(nextDeparture.detailUrl, false);
+        } else {
+            pcFirstDetailContainer.innerHTML = `<div class="detail-placeholder">先発バスの詳細情報はありません</div>`;
         }
-        
-        mobileContent.innerHTML = nextDepartureInfoHtml + detailContentHtml;
-        pcNextInfo.innerHTML = nextDepartureInfoHtml;
-        pcDetailView.innerHTML = detailContentHtml;
     }
 
     function createDepartureElement(departure, index, now) {
@@ -964,6 +1045,45 @@
         document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
     }
 
+    // ★★★ 変更点: 新しいヘルパー関数とパネル操作関数 ★★★
+    function createDetailHtml(url, isOverlay) {
+        const closeButton = isOverlay ? `<button class="close-detail-panel" title="閉じる">&times;</button>` : '';
+        return `
+            ${closeButton}
+            <div class="departure-detail-embedded">
+                <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                <iframe src="${url}" width="100%" frameborder="0"></iframe>
+            </div>
+        `;
+    }
+
+    function showPcOverlayPanel(url) {
+        if (hidePanelTimeoutId) {
+            clearTimeout(hidePanelTimeoutId);
+            hidePanelTimeoutId = null;
+        }
+        const overlayView = document.getElementById('pcOverlayDetail');
+        overlayView.innerHTML = createDetailHtml(url, true);
+        overlayView.classList.add('is-visible');
+    }
+
+    function hidePcOverlayPanel() {
+        if (hidePanelTimeoutId) {
+            clearTimeout(hidePanelTimeoutId);
+        }
+        const overlayView = document.getElementById('pcOverlayDetail');
+        if (overlayView.classList.contains('is-visible')) {
+            overlayView.classList.remove('is-visible');
+            hidePanelTimeoutId = setTimeout(() => {
+                if (!overlayView.classList.contains('is-visible')) {
+                    overlayView.innerHTML = '';
+                }
+                hidePanelTimeoutId = null;
+            }, 400); 
+        }
+    }
+
+
     document.addEventListener('DOMContentLoaded', function() {
         initializeDateTimeInputs();
         createRouteCheckboxes();
@@ -985,7 +1105,6 @@
             }
         });
 
-        // ★★★ 変更点: 更新ボタンのイベントリスナーを追加 ★★★
         document.getElementById('refresh-btn').addEventListener('click', () => {
             updateDisplay();
         });
@@ -1038,21 +1157,38 @@
             iframeModalOverlay.classList.add('visible');
         };
         
+        // ★★★ 変更点: クリックイベントのハンドリングを更新 ★★★
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#operationPanelHeader')) return;
+            // オーバーレイパネルの閉じるボタン
+            const closePanelBtn = e.target.closest('.close-detail-panel');
+            if (closePanelBtn) {
+                hidePcOverlayPanel();
+                return;
+            }
 
+            // 拡大ボタン
             const expandButton = e.target.closest('.expand-iframe-btn');
             if (expandButton) {
                 const iframe = expandButton.closest('.departure-detail-embedded').querySelector('iframe');
                 if (iframe) openIframeModal(iframe.src);
                 return;
             }
+
+            // 詳細ボタン
             const detailButton = e.target.closest('.detail-button');
             if (detailButton && detailButton.dataset.url) {
-                openIframeModal(detailButton.dataset.url);
+                const url = detailButton.dataset.url;
+                if (window.innerWidth >= 769) {
+                    // PC表示: オーバーレイパネルを表示
+                    showPcOverlayPanel(url);
+                } else {
+                    // モバイル表示: 全画面モーダル
+                    openIframeModal(url);
+                }
                 return;
             }
         });
+        
         document.getElementById('closeIframeModal').addEventListener('click', closeIframeModal);
         iframeModalOverlay.addEventListener('click', e => { if (e.target === iframeModalOverlay) closeIframeModal(); });
     });
