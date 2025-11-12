@@ -31,32 +31,18 @@
               </div>
             </div>
             <div class="header-controls">
+              <!-- ▼▼▼ 追加：速度テストのリフレッシュボタン ▼▼▼ -->
+              <div class="control-icon" id="speed-test-refresh-button" title="速度テストを再読み込み">
+                 <i class="fas fa-network-wired"></i> 
+              </div>
               <div class="control-icon" id="refresh-button" title="ページを再読み込み">
                  <i class="fas fa-sync-alt"></i> 
               </div>
             </div>
         </div>
 
-        <div class="media-player-container">
-            <div class="media-player-header">
-                <div class="media-tab-menu">
-                    <div class="media-tab-item active" data-target="spotify-content" data-iframe-src="Main/Spotify.html">
-                        <i class="fab fa-spotify spotify-icon"></i>
-                        <span>Spotify</span>
-                    </div>
-                </div>
-                <div class="media-player-controls">
-                    <i id="media-expand-btn" class="fas fa-expand expand-btn" title="拡大表示"></i>
-                    <i class="fas fa-chevron-down collapse-icon"></i>
-                </div>
-            </div>
-            <div class="media-player-content">
-                <div id="spotify-content" class="media-tab-content">
-                    <!-- ▼▼▼ 変更：iframeを遅延読み込みに対応 ▼▼▼ -->
-                    <iframe data-src="Main/Spotify.html" loading="lazy"></iframe>
-                </div>
-            </div>
-        </div>
+        <!-- ▼▼▼ 削除：Spotifyのメディアプレイヤー全体を削除しました ▼▼▼ -->
+        
     </div>
 </header>
 <div class="tab-container">
