@@ -6,7 +6,6 @@ const refreshButton = document.getElementById('refresh-button');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：Spotify関連のアプリを削除 ▼▼▼
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
@@ -25,9 +24,12 @@ const initialAppData = [
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
     {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",category:"downloader",searchText:"y2mate ダウンロード"},
+    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
+    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",category:"downloader",searchText:"Spotify mate ダウンロード"},
     {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
     {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
+    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
@@ -50,32 +52,8 @@ const initialAppData = [
     {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
 ];
 
-const RECENTLY_USED_APPS_KEY = 'siteRecentlyUsedApps';
-const MAX_RECENT_APPS = 5;
+// ▼▼▼ 削除：「最近使用したアプリ」関連の定数と関数をすべて削除 ▼▼▼
 
-function getRecentlyUsedApps() {
-    try {
-        const recent = localStorage.getItem(RECENTLY_USED_APPS_KEY);
-        return recent ? JSON.parse(recent) : [];
-    } catch (e) {
-        console.error("Failed to parse recently used apps from localStorage", e);
-        return [];
-    }
-}
-
-function saveRecentlyUsedApps(recentApps) {
-    localStorage.setItem(RECENTLY_USED_APPS_KEY, JSON.stringify(recentApps));
-}
-
-function recordAppClick(appId) {
-    let recentlyUsed = getRecentlyUsedApps();
-    recentlyUsed = recentlyUsed.filter(id => id !== appId);
-    recentlyUsed.unshift(appId);
-    if (recentlyUsed.length > MAX_RECENT_APPS) {
-        recentlyUsed.splice(MAX_RECENT_APPS);
-    }
-    saveRecentlyUsedApps(recentlyUsed);
-}
 const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
     MAIN_TAB: 'siteSaveMainTab',
@@ -142,9 +120,7 @@ function createIconElement(app) {
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
         <div class="label-text">${app.label}</div>`;
     
-    item.querySelector('.icon-link').addEventListener('click', () => {
-        recordAppClick(app.id);
-    });
+    // ▼▼▼ 削除：クリック履歴を保存するイベントリスナーを削除 ▼▼▼
     
     return item;
 }
@@ -162,32 +138,7 @@ function renderAllIcons() {
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
 }
 
-function renderRecentlyUsedIcons() {
-    const recentContainer = document.getElementById('recentlyUsedGridContainer');
-    const recentSection = document.getElementById('recently-used-apps-container');
-    const divider = document.getElementById('section-divider');
-    recentContainer.innerHTML = '';
-
-    const recentlyUsedIds = getRecentlyUsedApps();
-
-    if (recentlyUsedIds.length === 0) {
-        recentSection.classList.add('hidden');
-        divider.classList.add('hidden');
-        return;
-    }
-
-    recentlyUsedIds.forEach(id => {
-        const app = appData.find(app => app.id === id);
-        if (app) {
-            const iconElement = createIconElement(app);
-            recentContainer.appendChild(iconElement);
-        }
-    });
-    
-    recentSection.classList.remove('hidden');
-    divider.classList.remove('hidden');
-}
-
+// ▼▼▼ 削除：renderRecentlyUsedIcons() 関数を削除 ▼▼▼
 
 function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
 function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
@@ -268,8 +219,6 @@ function activateSubTab(targetId) {
     saveItem('siteActiveSubTab', targetId);
 }
 
-// ▼▼▼ 削除：initMediaPlayer() 関数を削除しました ▼▼▼
-
 function setupModal() {
     const iframeModal = document.getElementById('iframe-modal');
     const modalIframe = document.getElementById('modal-iframe');
@@ -279,7 +228,6 @@ function setupModal() {
             const target = e.currentTarget;
             let iframeSrc = '';
             
-            // ▼▼▼ 変更：メディアプレイヤーが削除されたため、関連するロジックを削除 ▼▼▼
             const card = target.closest('.status-card');
             const iframe = card ? card.querySelector('iframe') : null;
             if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
@@ -321,6 +269,18 @@ function lazyLoadIframes() {
     }
 }
 
+// ▼▼▼ 追加：オンライン状態をチェックして表示を更新する関数 ▼▼▼
+function updateOnlineStatus() {
+    const offlineStatusElement = document.getElementById('offline-status');
+    if (navigator.onLine) {
+        offlineStatusElement.textContent = '';
+        offlineStatusElement.style.display = 'none';
+    } else {
+        offlineStatusElement.textContent = 'オフライン';
+        offlineStatusElement.style.display = 'block';
+    }
+}
+
 if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
 
 function init() {
@@ -334,18 +294,23 @@ function init() {
     updateClockAndDate();
     loadAppData(); 
     
-    renderRecentlyUsedIcons();
+    // ▼▼▼ 削除：renderRecentlyUsedIcons() の呼び出しを削除 ▼▼▼
     renderAllIcons();
 
     activateTab(savedTab || 'all-apps');
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
     
-    // ▼▼▼ 削除：initMediaPlayer() の呼び出しを削除しました ▼▼▼
     setupModal();
     lazyLoadIframes();
 
     window.initBusSchedule();
+    
+    // ▼▼▼ 追加：オンライン/オフラインイベントのリスナーを設定 ▼▼▼
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
     document.getElementById('appSearchInput').addEventListener('input', () => { 
         if(document.getElementById("appSearchInput").value) { 
             activateTab('all-apps'); 
@@ -365,14 +330,11 @@ function init() {
         location.reload(); 
     });
 
-    // ▼▼▼ 追加：速度テストのリフレッシュボタンの機能 ▼▼▼
     const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
     if (speedTestRefreshButton) {
         speedTestRefreshButton.addEventListener('click', () => {
             const speedTestIframe = document.querySelector('.header-speed-test iframe');
-            if (speedTestIframe) {
-                // iframeのsrcを再設定することでリロードします。
-                // fast.comのURLは固定なので、直接指定するのが確実です。
+            if (speedTestIframe && navigator.onLine) { // オンラインの場合のみリロード
                 speedTestIframe.src = 'https://fast.com/ja/';
             }
         });
