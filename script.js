@@ -6,6 +6,7 @@ const refreshButton = document.getElementById('refresh-button');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
+// ▼▼▼ 変更：Spotify関連のアプリを削除 ▼▼▼
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
@@ -24,12 +25,9 @@ const initialAppData = [
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
     {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",category:"downloader",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",category:"downloader",searchText:"Spotify mate ダウンロード"},
     {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
     {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
@@ -270,49 +268,7 @@ function activateSubTab(targetId) {
     saveItem('siteActiveSubTab', targetId);
 }
 
-function initMediaPlayer() {
-    const container = document.querySelector('.media-player-container');
-    const header = document.querySelector('.media-player-header');
-    const tabItems = document.querySelectorAll('.media-tab-item');
-    const expandBtn = document.getElementById('media-expand-btn');
-
-    const loadIframe = (contentContainer) => {
-        const iframe = contentContainer.querySelector('iframe[data-src]');
-        if (iframe) {
-            iframe.src = iframe.dataset.src;
-            iframe.removeAttribute('data-src');
-        }
-    };
-    
-    header.addEventListener('click', (event) => {
-        if (event.target.closest('.media-tab-item') || event.target.closest('.expand-btn')) { return; }
-        container.classList.toggle('active');
-        if (container.classList.contains('active')) {
-            const activeContent = container.querySelector('.media-tab-content:not(.hidden)');
-            if (activeContent) loadIframe(activeContent);
-        }
-    });
-
-    const activeTab = document.querySelector('.media-tab-item.active');
-    if (activeTab) {
-        expandBtn.dataset.iframeSrc = activeTab.dataset.iframeSrc;
-    }
-
-    tabItems.forEach(tab => {
-        tab.addEventListener('click', () => {
-            if (!container.classList.contains('active')) { container.classList.add('active'); }
-            tabItems.forEach(item => item.classList.remove('active'));
-            document.querySelectorAll('.media-tab-content').forEach(content => content.classList.add('hidden'));
-            tab.classList.add('active');
-            const targetContent = document.getElementById(tab.dataset.target);
-            if (targetContent) { 
-                targetContent.classList.remove('hidden');
-                loadIframe(targetContent);
-            }
-            expandBtn.dataset.iframeSrc = tab.dataset.iframeSrc;
-        });
-    });
-}
+// ▼▼▼ 削除：initMediaPlayer() 関数を削除しました ▼▼▼
 
 function setupModal() {
     const iframeModal = document.getElementById('iframe-modal');
@@ -322,14 +278,12 @@ function setupModal() {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget;
             let iframeSrc = '';
-            if (target.id === 'media-expand-btn') {
-                const activeTab = document.querySelector('.media-tab-item.active');
-                if (activeTab) iframeSrc = activeTab.dataset.iframeSrc;
-            } else {
-                const card = target.closest('.status-card');
-                const iframe = card ? card.querySelector('iframe') : null;
-                if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
-            }
+            
+            // ▼▼▼ 変更：メディアプレイヤーが削除されたため、関連するロジックを削除 ▼▼▼
+            const card = target.closest('.status-card');
+            const iframe = card ? card.querySelector('iframe') : null;
+            if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
+            
             if (iframeSrc) {
                 modalIframe.src = iframeSrc;
                 iframeModal.classList.remove('hidden');
@@ -387,7 +341,7 @@ function init() {
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
     
-    initMediaPlayer(); 
+    // ▼▼▼ 削除：initMediaPlayer() の呼び出しを削除しました ▼▼▼
     setupModal();
     lazyLoadIframes();
 
@@ -410,6 +364,19 @@ function init() {
     refreshButton.addEventListener('click', () => {
         location.reload(); 
     });
+
+    // ▼▼▼ 追加：速度テストのリフレッシュボタンの機能 ▼▼▼
+    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
+    if (speedTestRefreshButton) {
+        speedTestRefreshButton.addEventListener('click', () => {
+            const speedTestIframe = document.querySelector('.header-speed-test iframe');
+            if (speedTestIframe) {
+                // iframeのsrcを再設定することでリロードします。
+                // fast.comのURLは固定なので、直接指定するのが確実です。
+                speedTestIframe.src = 'https://fast.com/ja/';
+            }
+        });
+    }
 }
 
 setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
