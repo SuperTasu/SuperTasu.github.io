@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <!-- ▼▼▼ 変更：タイトルを「Link First」に変更 ▼▼▼ -->
   <title>Link First</title>
-  <!-- ▼▼▼ 変更：ファビコンを新しいロゴ画像に設定 ▼▼▼ -->
-  <link rel="icon" href="logo.png" type="image/png">
+  <!-- ▼▼▼ 変更：推奨されるファビコン設定に更新 ▼▼▼ -->
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
@@ -48,7 +48,6 @@
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
     <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
-    <!-- ▼▼▼ 変更：Discordタブの幅を狭くするためインラインスタイルを追加 ▼▼▼ -->
     <a href="https://discord.com/channels/@me" class="tab-item" target="_blank" title="Discord" style="padding-left: 16px; padding-right: 16px; min-width: 0;"><i class="fab fa-discord"></i></a>
   </div>
 </div>
@@ -56,7 +55,6 @@
   <div class="apps-area">
     <div id="search-wrapper">
       <div class="main-content" id="mainContent">
-        <!-- ▼▼▼ 復活：「最近使用したアプリ」セクション ▼▼▼ -->
         <div id="recently-used-apps-container" class="hidden">
             <h3 class="section-title">最近使用したアプリ</h3>
             <div class="grid-container" id="recentlyUsedGridContainer"></div>
@@ -65,7 +63,6 @@
         
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            <!-- ▼▼▼ 変更：FavoriteとAIのサブタブを追加 ▼▼▼ -->
             <div class="sub-filter-tabs" id="sub-filter-tabs">
                 <button class="sub-filter-btn active" data-category="all">All</button>
                 <button class="sub-filter-btn" data-category="favorite">Favorite</button>
