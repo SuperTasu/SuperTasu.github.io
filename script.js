@@ -6,7 +6,6 @@ const refreshButton = document.getElementById('refresh-button');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：FavoriteとAIカテゴリに対応 ▼▼▼
 const initialAppData = [
     // --- Favorite Category ---
     {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",category:"favorite",searchText:"Family Club ファンクラブ"},
@@ -90,7 +89,6 @@ const initialAppData = [
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",category:"other",searchText:"Benesse ベネッセ"},
 ];
 
-// ▼▼▼ 復活：「最近使用したアプリ」関連の定数と関数 ▼▼▼
 const RECENTLY_USED_APPS_KEY = 'siteRecentlyUsedApps';
 const MAX_RECENT_APPS = 5;
 
@@ -116,7 +114,7 @@ function recordAppClick(appId) {
         recentlyUsed.splice(MAX_RECENT_APPS);
     }
     saveRecentlyUsedApps(recentlyUsed);
-    renderRecentlyUsedIcons(); // クリック後すぐに表示を更新
+    renderRecentlyUsedIcons();
 }
 
 const SAVE_KEYS = { THEME: 'siteSaveTheme', MAIN_TAB: 'siteSaveMainTab', SUB_FILTER: 'siteSaveSubFilter' };
@@ -144,7 +142,6 @@ function createIconElement(app) {
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
         <div class="label-text">${app.label}</div>`;
     
-    // ▼▼▼ 復活：クリック履歴を保存するイベントリスナー ▼▼▼
     item.querySelector('.icon-link').addEventListener('click', () => {
         recordAppClick(app.id);
     });
@@ -152,7 +149,6 @@ function createIconElement(app) {
     return item;
 }
 
-// ▼▼▼ 復活：renderRecentlyUsedIcons() 関数 ▼▼▼
 function renderRecentlyUsedIcons() {
     const recentContainer = document.getElementById('recentlyUsedGridContainer');
     const recentSection = document.getElementById('recently-used-apps-container');
@@ -192,14 +188,13 @@ function filterIconsByCategory(category) {
     filterContent();
 }
 
-// ▼▼▼ 修正：Gameカテゴリ切り替えバグを修正し、ロジックを改善 ▼▼▼
+// ▼▼▼ 修正：Gameタブから切り替える際のバグを修正 ▼▼▼
 function filterContent() {
     const searchInput = document.getElementById("appSearchInput").value.toLowerCase();
     const activeCategory = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
 
-    gridContainer.innerHTML = ''; // 毎回コンテナをクリア
+    gridContainer.innerHTML = '';
 
-    // Gameカテゴリで検索していない場合のみ、グループ表示
     if (activeCategory === 'game' && searchInput === '') {
         gridContainer.className = 'grid-container-grouped'; 
 
@@ -226,8 +221,9 @@ function filterContent() {
                 gridContainer.appendChild(groupWrapper);
             }
         });
-    } else { // 通常のフィルタリング表示
-        gridContainer.className = 'grid-container'; // 通常表示用のクラスに必ず戻す
+    } else {
+        // 重要：他のカテゴリに切り替えた際に、必ず通常のクラス名に戻す
+        gridContainer.className = 'grid-container';
 
         const filteredApps = appData.filter(app => {
             const categoryMatch = (activeCategory === 'all' || app.category === activeCategory);
@@ -248,7 +244,6 @@ function lazyLoadIframes(){const e=document.querySelectorAll("iframe[data-src]")
 function updateOnlineStatus(){const e=document.getElementById("offline-status");navigator.onLine?(e.textContent="",e.style.display="none"):(e.textContent="オフライン",e.style.display="block")}
 "undefined"==typeof window.initBusSchedule&&(window.initBusSchedule=()=>console.log("Bus schedule script not loaded."),window.updateBusCountdowns=()=>{},window.updateBusDisplay=()=>{});
 
-// ▼▼▼ 変更：init関数の処理順を最適化 ▼▼▼
 function init(){
     loadSaveSettings();
     const savedTheme = getSavedItem('siteTheme');
@@ -279,8 +274,9 @@ function init(){
         if (document.getElementById("appSearchInput").value) {
             activateTab('all-apps');
             filterIconsByCategory('all');
+        } else {
+            filterContent();
         }
-        filterContent();
     });
     document.querySelectorAll('.sub-filter-btn').forEach(btn=>btn.addEventListener("click", (e) => filterIconsByCategory(e.currentTarget.dataset.category)));
     document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener("click", (e) => activateSubTab(e.currentTarget.dataset.target)));
