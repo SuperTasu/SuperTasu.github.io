@@ -96,10 +96,7 @@ function getRecentlyUsedApps() {
     try {
         const recent = localStorage.getItem(RECENTLY_USED_APPS_KEY);
         return recent ? JSON.parse(recent) : [];
-    } catch (e) {
-        console.error("Failed to parse recently used apps from localStorage", e);
-        return [];
-    }
+    } catch (e) { console.error("Failed to parse recently used apps from localStorage", e); return []; }
 }
 
 function saveRecentlyUsedApps(recentApps) {
@@ -119,16 +116,51 @@ function recordAppClick(appId) {
 
 const SAVE_KEYS = { THEME: 'siteSaveTheme', MAIN_TAB: 'siteSaveMainTab', SUB_FILTER: 'siteSaveSubFilter' };
 let saveSettings = {};
-function loadSaveSettings(){saveSettings={theme:localStorage.getItem(SAVE_KEYS.THEME)==='true',mainTab:localStorage.getItem(SAVE_KEYS.MAIN_TAB)==='true',subFilter:localStorage.getItem(SAVE_KEYS.SUB_FILTER)==='true'};if(localStorage.getItem(SAVE_KEYS.THEME)===null)saveSettings.theme=true;if(localStorage.getItem(SAVE_KEYS.MAIN_TAB)===null)saveSettings.mainTab=true;if(localStorage.getItem(SAVE_KEYS.SUB_FILTER)===null)saveSettings.subFilter=true}
-function getSavedItem(e){let t=false;return"siteTheme"===e?t=saveSettings.theme:"siteActiveTab"===e?t=saveSettings.mainTab:("siteActiveSubFilter"===e||"siteActiveSubTab"===e)&&(t=saveSettings.subFilter),t?localStorage.getItem(e):null}
-function saveItem(e,t){let a=false;"siteTheme"===e?a=saveSettings.theme:"siteActiveTab"===e?a=saveSettings.mainTab:("siteActiveSubFilter"===e||"siteActiveSubTab"===e)&&(a=saveSettings.subFilter),a&&localStorage.setItem(e,t)}
-function loadAppData(){try{const e=localStorage.getItem("siteApps");appData=e?JSON.parse(e):JSON.parse(JSON.stringify(initialAppData))}catch(e){appData=JSON.parse(JSON.stringify(initialAppData))}}
+
+function loadSaveSettings() {
+    saveSettings = {
+        theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
+        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) === 'true',
+        subFilter: localStorage.getItem(SAVE_KEYS.SUB_FILTER) === 'true'
+    };
+    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = true;
+    if (localStorage.getItem(SAVE_KEYS.MAIN_TAB) === null) saveSettings.mainTab = true;
+    if (localStorage.getItem(SAVE_KEYS.SUB_FILTER) === null) saveSettings.subFilter = true;
+}
+
+function getSavedItem(key) {
+    let saveSettingFlag = false;
+    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
+    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
+    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+
+    if (saveSettingFlag) { return localStorage.getItem(key); }
+    return null;
+}
+
+function saveItem(key, value) {
+    let saveSettingFlag = false;
+    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
+    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
+    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+
+    if (saveSettingFlag) { localStorage.setItem(key, value); }
+}
+
+function loadAppData() {
+    try {
+        const d = localStorage.getItem('siteApps');
+        appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData));
+    } catch (e) {
+        appData = JSON.parse(JSON.stringify(initialAppData));
+    }
+}
 
 function createIconElement(app) {
     const item = document.createElement('div');
     item.className = 'icon-item';
     item.dataset.id = app.id;
-    
+
     let iconHTML;
     try {
         const hostname = new URL(app.url).hostname;
@@ -138,14 +170,10 @@ function createIconElement(app) {
         iconHTML = `<i class="fas fa-globe fallback-icon"></i>`;
     }
 
-    item.innerHTML = `
-        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-        <div class="label-text">${app.label}</div>`;
-    
+    item.innerHTML = `<a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a><div class="label-text">${app.label}</div>`;
     item.querySelector('.icon-link').addEventListener('click', () => {
         recordAppClick(app.id);
     });
-
     return item;
 }
 
@@ -156,7 +184,6 @@ function renderRecentlyUsedIcons() {
     recentContainer.innerHTML = '';
 
     const recentlyUsedIds = getRecentlyUsedApps();
-
     if (recentlyUsedIds.length === 0) {
         recentSection.classList.add('hidden');
         divider.classList.add('hidden');
@@ -166,21 +193,19 @@ function renderRecentlyUsedIcons() {
     recentlyUsedIds.forEach(id => {
         const app = appData.find(app => app.id === id);
         if (app) {
-            const iconElement = createIconElement(app);
-            recentContainer.appendChild(iconElement);
+            recentContainer.appendChild(createIconElement(app));
         }
     });
-    
     recentSection.classList.remove('hidden');
     divider.classList.remove('hidden');
 }
 
-function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
-function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
-function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
-function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
-function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),saveItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),saveItem("siteTheme","light"))}
-function activateTab(e){document.querySelectorAll(".tab-item").forEach(e=>e.classList.remove("active")),document.getElementById(`tab-${e}`)?.classList.add("active"),mainGrid.style.display="none",statusContainer.style.display="none",bustarainContainer.style.display="none","status"===e?statusContainer.style.display="flex":"bustarain"===e?bustarainContainer.style.display="block":mainGrid.style.display="grid",saveItem("siteActiveTab",e)}
+function parseTimeToDate(t) { const [e, n] = t.split(":").map(Number), o = new Date; return o.setHours(e, n, 0, 0), o }
+function getCurrentPeriod(t) { for (const e of schedule) { const n = parseTimeToDate(e.start), o = parseTimeToDate(e.end); if (t >= n && t < o) return { ...e, startTime: n, endTime: o } } return null }
+function updateCountdown(t) { const e = getCurrentPeriod(t), n = document.getElementById("countdown"); if (e) { const o = e.endTime - t, a = e.endTime - e.startTime, s = a - o, r = Math.floor(s / a * 100), i = Math.floor(o / 1e3), l = String(Math.floor(i / 3600)).padStart(2, "0"), c = String(Math.floor(i % 3600 / 60)).padStart(2, "0"), d = String(i % 60).padStart(2, "0"); n.textContent = `${e.name} 残り: ${l}:${c}:${d} (${r}%)`, document.title = `${e.name} Left: ${l}:${c}:${d}` } else n.textContent = "現在は授業時間外です", document.title = "授業時間外" }
+function updateClockAndDate() { const t = new Date, e = String(t.getHours()).padStart(2, "0"), n = String(t.getMinutes()).padStart(2, "0"), o = String(t.getSeconds()).padStart(2, "0"); document.getElementById("clock").textContent = `${e}:${n}:${o}`; const a = t.getFullYear(), s = String(t.getMonth() + 1).padStart(2, "0"), r = String(t.getDate()).padStart(2, "0"), i = ["日", "月", "火", "水", "木", "金", "土"][t.getDay()]; document.getElementById("date").textContent = `${a}/${s}/${r}(${i})`, updateCountdown(t) }
+function setTheme(t) { if ("dark" === t) { document.body.classList.add("dark-theme"); saveItem('siteTheme', 'dark'); } else { document.body.classList.remove("dark-theme"); saveItem('siteTheme', 'light'); } }
+function activateTab(tabId) { document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active')); document.getElementById(`tab-${tabId}`)?.classList.add('active'); mainGrid.style.display = 'none'; statusContainer.style.display = 'none'; bustarainContainer.style.display = 'none'; if (tabId === 'status') { statusContainer.style.display = 'flex'; } else if (tabId === 'bustarain') { bustarainContainer.style.display = 'block'; } else { mainGrid.style.display = 'grid'; } saveItem('siteActiveTab', tabId); }
 
 function filterIconsByCategory(category) {
     document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
@@ -188,15 +213,16 @@ function filterIconsByCategory(category) {
     filterContent();
 }
 
-// ▼▼▼ 修正：Gameタブから切り替える際のバグを修正 ▼▼▼
+// ▼▼▼ 修正：サブタブ切り替えのバグを修正した最終版 ▼▼▼
 function filterContent() {
     const searchInput = document.getElementById("appSearchInput").value.toLowerCase();
     const activeCategory = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
 
-    gridContainer.innerHTML = '';
+    gridContainer.innerHTML = ''; // コンテナをクリア
+    gridContainer.className = 'grid-container'; // ★重要：最初に必ず標準のクラス名に戻す
 
     if (activeCategory === 'game' && searchInput === '') {
-        gridContainer.className = 'grid-container-grouped'; 
+        gridContainer.className = 'grid-container-grouped'; // Gameカテゴリの場合のみ、クラス名を変更
 
         const gameApps = appData.filter(app => app.category === 'game');
         const groupedGames = gameApps.reduce((acc, app) => {
@@ -222,9 +248,6 @@ function filterContent() {
             }
         });
     } else {
-        // 重要：他のカテゴリに切り替えた際に、必ず通常のクラス名に戻す
-        gridContainer.className = 'grid-container';
-
         const filteredApps = appData.filter(app => {
             const categoryMatch = (activeCategory === 'all' || app.category === activeCategory);
             const searchMatch = searchInput === '' || app.searchText.toLowerCase().includes(searchInput) || app.label.toLowerCase().includes(searchInput);
@@ -237,62 +260,35 @@ function filterContent() {
     }
 }
 
-function initAccordions(){document.querySelectorAll(".accordion-header").forEach(e=>e.addEventListener("click",()=>{const t=e.parentElement,a=t.classList.contains("active");e.closest(".sub-tab-content").querySelectorAll(".accordion-item").forEach(e=>e.classList.remove("active")),a||(t.classList.add("active"),(()=>{const t=e.nextElementSibling,a=e.dataset.src;if(a&&""===t.innerHTML.trim()){const e=document.createElement("iframe");e.className="accordion-iframe",e.loading="lazy",e.src=a,t.appendChild(e)}})())}))}
-function activateSubTab(e){document.querySelectorAll(".sub-tab-content").forEach(e=>e.classList.add("hidden"));const t=document.getElementById(e);t&&(t.classList.remove("hidden"),(()=>{const e=t.querySelector("iframe[data-src]");e&&(e.src=e.dataset.src,e.removeAttribute("data-src"))})()),document.querySelectorAll(".sub-tab-btn").forEach(t=>t.classList.toggle("active",t.dataset.target===e)),saveItem("siteActiveSubTab",e)}
-function setupModal(){const e=document.getElementById("iframe-modal"),t=document.getElementById("modal-iframe");document.querySelectorAll(".expand-btn").forEach(a=>a.addEventListener("click",n=>{const o=n.currentTarget;let i="";const l=o.closest(".status-card"),r=l?l.querySelector("iframe"):null;r&&(i=r.src||r.dataset.src),i&&(t.src=i,e.classList.remove("hidden"))})),e.addEventListener("click",a=>{a.target!==e&&!a.target.closest(".close-modal-btn")||(e.classList.add("hidden"),t.src="about:blank")})}
-function lazyLoadIframes(){const e=document.querySelectorAll("iframe[data-src]");"IntersectionObserver"in window?new IntersectionObserver((e,t)=>{e.forEach(e=>{if(e.isIntersecting){const a=e.target;a.src=a.dataset.src,a.removeAttribute("data-src"),t.unobserve(a)}})}).forEach(t=>t.observe(e)):e.forEach(e=>{e.src=e.dataset.src,e.removeAttribute("data-src")})}
-function updateOnlineStatus(){const e=document.getElementById("offline-status");navigator.onLine?(e.textContent="",e.style.display="none"):(e.textContent="オフライン",e.style.display="block")}
-"undefined"==typeof window.initBusSchedule&&(window.initBusSchedule=()=>console.log("Bus schedule script not loaded."),window.updateBusCountdowns=()=>{},window.updateBusDisplay=()=>{});
+function initAccordions() { document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { const item = h.parentElement; const wasActive = item.classList.contains('active'); h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); if (!wasActive) { item.classList.add('active'); const content = h.nextElementSibling, src = h.dataset.src; if (src && content.innerHTML.trim() === '') { const iframe = document.createElement('iframe'); iframe.className = 'accordion-iframe'; iframe.loading = 'lazy'; iframe.src = src; content.appendChild(iframe); } } })); }
+function activateSubTab(targetId) { document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden')); const targetContent = document.getElementById(targetId); if(targetContent) { targetContent.classList.remove('hidden'); const iframe = targetContent.querySelector('iframe[data-src]'); if (iframe) { iframe.src = iframe.dataset.src; iframe.removeAttribute('data-src'); } } document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId)); saveItem('siteActiveSubTab', targetId); }
+function setupModal() { const iframeModal = document.getElementById('iframe-modal'); const modalIframe = document.getElementById('modal-iframe'); document.querySelectorAll('.expand-btn').forEach(btn => { btn.addEventListener('click', (e) => { const target = e.currentTarget; let iframeSrc = ''; const card = target.closest('.status-card'); const iframe = card ? card.querySelector('iframe') : null; if (iframe) iframeSrc = iframe.src || iframe.dataset.src; if (iframeSrc) { modalIframe.src = iframeSrc; iframeModal.classList.remove('hidden'); } }); }); iframeModal.addEventListener('click', (e) => { if (e.target === iframeModal || e.target.closest('.close-modal-btn')) { iframeModal.classList.add('hidden'); modalIframe.src = 'about:blank'; } }); }
+function lazyLoadIframes() { const lazyIframes = document.querySelectorAll('iframe[data-src]'); if ("IntersectionObserver" in window) { const observer = new IntersectionObserver((entries, observer) => { entries.forEach(entry => { if (entry.isIntersecting) { const iframe = entry.target; iframe.src = iframe.dataset.src; iframe.removeAttribute('data-src'); observer.unobserve(iframe); } }); }); lazyIframes.forEach(iframe => observer.observe(iframe)); } else { lazyIframes.forEach(iframe => { iframe.src = iframe.dataset.src; iframe.removeAttribute('data-src'); }); } }
+function updateOnlineStatus() { const offlineStatusElement = document.getElementById('offline-status'); if (navigator.onLine) { offlineStatusElement.textContent = ''; offlineStatusElement.style.display = 'none'; } else { offlineStatusElement.textContent = 'オフライン'; offlineStatusElement.style.display = 'block'; } }
+if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
 
-function init(){
+function init() {
     loadSaveSettings();
     const savedTheme = getSavedItem('siteTheme');
     const savedTab = getSavedItem('siteActiveTab');
     const savedSubFilter = getSavedItem('siteActiveSubFilter');
-    const savedSubTab = getSavedItem('siteActiveSubTab'); 
+    const savedSubTab = getSavedItem('siteActiveSubTab');
 
     setTheme(savedTheme || 'light');
     updateClockAndDate();
-    loadAppData(); 
-    
+    loadAppData();
+
     renderRecentlyUsedIcons();
     activateTab(savedTab || 'all-apps');
     filterIconsByCategory(savedSubFilter || 'all');
 
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
-    
+
     setupModal();
     lazyLoadIframes();
 
     window.initBusSchedule();
     updateOnlineStatus();
     window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
-    document.getElementById('appSearchInput').addEventListener("input", () => {
-        if (document.getElementById("appSearchInput").value) {
-            activateTab('all-apps');
-            filterIconsByCategory('all');
-        } else {
-            filterContent();
-        }
-    });
-    document.querySelectorAll('.sub-filter-btn').forEach(btn=>btn.addEventListener("click", (e) => filterIconsByCategory(e.currentTarget.dataset.category)));
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener("click", (e) => activateSubTab(e.currentTarget.dataset.target)));
-    refreshButton.addEventListener("click",()=>location.reload());
-
-    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
-    if (speedTestRefreshButton) {
-        speedTestRefreshButton.addEventListener('click', () => {
-            const speedTestIframe = document.querySelector('.header-speed-test iframe');
-            if (speedTestIframe && navigator.onLine) {
-                speedTestIframe.src = 'https://fast.com/ja/';
-            }
-        });
-    }
-}
-
-setInterval(()=>{updateClockAndDate(),window.updateBusCountdowns&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusCountdowns()},1e3);
-setInterval(()=>{window.updateBusDisplay&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusDisplay()},3e4);
-document.addEventListener("DOMContentLoaded",init);
+    window.addEventListener('offline', updateOnlineS
