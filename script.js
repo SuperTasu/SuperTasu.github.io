@@ -4,7 +4,6 @@ const bustarainContainer = document.getElementById('bustarain-container');
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 
-// ▼▼▼ 追加：最近使用したアプリ用の要素を取得 ▼▼▼
 const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
 const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
 const sectionDivider = document.getElementById('section-divider');
@@ -12,7 +11,7 @@ const sectionDivider = document.getElementById('section-divider');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：指定されたアプリのカテゴリを "favorite" と "ai" に更新 ▼▼▼
+// ▼▼▼ 変更：指定されたアプリのカテゴリを "sns" に更新 ▼▼▼
 const initialAppData = [
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
@@ -47,6 +46,9 @@ const initialAppData = [
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
+    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"sns",searchText:"Abema アベマ"}, // other -> sns
+    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"sns",searchText:"Spotify スポティファイ"}, // other -> sns
+    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"sns",searchText:"U-NEXT ユーネクスト"}, // other -> sns
     
     // --- Game Category ---
     {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",category:"game",searchText:"Apex Legends Status"},
@@ -69,9 +71,6 @@ const initialAppData = [
     {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
     {id:48,label:"知恵袋",url:"https://chiebukuro.yahoo.co.jp/notification",icon:"https://s.yimg.jp/c/icon/s/bsc/2.0/favicon.ico",category:"other",searchText:"Yahoo 知恵袋"},
     {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
     {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",category:"other",searchText:"Deepl 翻訳"},
@@ -101,9 +100,9 @@ const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
     MAIN_TAB: 'siteSaveMainTab',
     SUB_FILTER: 'siteSaveSubFilter',
-    RECENTLY_USED: 'siteRecentlyUsed' // ▼▼▼ 追加 ▼▼▼
+    RECENTLY_USED: 'siteRecentlyUsed'
 };
-const MAX_RECENTLY_USED = 12; // ▼▼▼ 追加：最近使用したアプリの最大数 ▼▼▼
+const MAX_RECENTLY_USED = 12;
 let saveSettings = {};
 
 function loadSaveSettings() {
@@ -122,7 +121,7 @@ function getSavedItem(key) {
     if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
     else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
     else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
-    else if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key); // ▼▼▼ 変更：最近使用したアプリは設定フラグに関わらず取得 ▼▼▼
+    else if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key);
 
     if (saveSettingFlag) {
         return localStorage.getItem(key);
@@ -135,7 +134,7 @@ function saveItem(key, value) {
     if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
     else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
     else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
-    else if (key === SAVE_KEYS.RECENTLY_USED) { // ▼▼▼ 変更：最近使用したアプリは設定フラグに関わらず保存 ▼▼▼
+    else if (key === SAVE_KEYS.RECENTLY_USED) {
         localStorage.setItem(key, value);
         return;
     }
@@ -154,7 +153,6 @@ function loadAppData() {
     } 
 }
 
-// ▼▼▼ 追加：「最近使用したアプリ」関連の関数群 ▼▼▼
 function getRecentlyUsed() {
     const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
     return data ? JSON.parse(data) : [];
@@ -162,11 +160,8 @@ function getRecentlyUsed() {
 
 function addRecentlyUsed(appId) {
     let recentlyUsed = getRecentlyUsed();
-    // 既に存在する場合は削除して先頭に移動
     recentlyUsed = recentlyUsed.filter(id => id !== appId);
-    // 先頭に追加
     recentlyUsed.unshift(appId);
-    // 最大数を超えたら末尾を削除
     if (recentlyUsed.length > MAX_RECENTLY_USED) {
         recentlyUsed.pop();
     }
@@ -215,13 +210,13 @@ function createIconElement(app) {
 }
 
 function renderAllIcons() {
-    gridContainer.innerHTML = ''; // id="gridContainer" を使用
+    gridContainer.innerHTML = '';
     appData.forEach(app => {
         const iconElement = createIconElement(app);
         iconElement.classList.add('search-item');
         iconElement.dataset.category = app.category;
         iconElement.dataset.searchText = app.searchText;
-        gridContainer.appendChild(iconElement); // id="gridContainer" に追加
+        gridContainer.appendChild(iconElement);
     });
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
 }
@@ -267,7 +262,7 @@ function filterContent(){
     document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
         const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
-        i.style.display = (categoryMatch && searchMatch) ? 'grid' : 'none'; // 'block'から'grid'に変更
+        i.style.display = (categoryMatch && searchMatch) ? 'grid' : 'none';
     }); 
 }
 
@@ -380,7 +375,7 @@ function init() {
     loadAppData(); 
     
     renderAllIcons();
-    renderRecentlyUsed(); // ▼▼▼ 追加 ▼▼▼
+    renderRecentlyUsed();
 
     activateTab(savedTab || 'all-apps');
     initAccordions();
@@ -426,14 +421,13 @@ function init() {
         });
     }
     
-    // ▼▼▼ 追加：アイコンクリックで最近使用したアプリを更新するためのイベントリスナー ▼▼▼
     document.getElementById('mainContent').addEventListener('click', (e) => {
         const iconLink = e.target.closest('.icon-link');
         if (iconLink) {
             const iconItem = iconLink.closest('.icon-item');
             if (iconItem && iconItem.dataset.id) {
                 addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
-                renderRecentlyUsed(); // クリック後すぐに再描画
+                renderRecentlyUsed();
             }
         }
     });
