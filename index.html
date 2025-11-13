@@ -45,9 +45,10 @@
     <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-    <!-- ▼▼▼ 変更：Answer Iタブを追加 ▼▼▼ -->
-    <div class="tab-item" id="tab-answer-i" onclick="activateTab('answer-i')"> <i class="fas fa-robot"></i> Answer I </div>
-    <a href="https://discord.com/channels/@me" class="tab-item" target="_blank"><i class="fab fa-discord"></i> Discord</a>
+    <!-- ▼▼▼ 変更：Answer Iタブを外部リンクに変更 ▼▼▼ -->
+    <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
+    <!-- ▼▼▼ 変更：Discordタブをアイコンのみに変更 ▼▼▼ -->
+    <a href="https://discord.com/channels/@me" class="tab-item" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
   </div>
 </div>
 <div class="main-grid" id="main-grid">
@@ -80,7 +81,6 @@
     </div>
   </div>
 </div>
-<!-- ▼▼▼ 削除：Statusコンテナを削除しました ▼▼▼ -->
 <div id="bustarain-container">
     <div class="sub-tab-menu">
         <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
@@ -103,12 +103,6 @@
     <div id="other-content" class="sub-tab-content hidden">
         <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
     </div>
-</div>
-<!-- ▼▼▼ 追加：Answer Iタブのコンテンツエリア ▼▼▼ -->
-<div id="answer-i-container" style="display: none;">
-  <!-- ここにAnswer Iタブのコンテンツを記述します -->
-  <h2>Answer I</h2>
-  <p>コンテンツは準備中です。</p>
 </div>
   <div id="iframe-modal" class="modal-overlay hidden">
     <div class="modal-content iframe-modal-content">
