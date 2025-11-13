@@ -87,11 +87,6 @@ const initialAppData = [
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",category:"other",searchText:"Benesse ベネッセ"},
 ];
 
-// ▼▼▼ 追加：最近使用したアプリ関連の定数 ▼▼▼
-const RECENTLY_USED_KEY = 'siteRecentlyUsedApps';
-const MAX_RECENT_APPS = 8;
-
-
 const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
     MAIN_TAB: 'siteSaveMainTab',
@@ -133,21 +128,6 @@ function saveItem(key, value) {
     }
 }
 
-// ▼▼▼ 追加：initialAppDataのカテゴリを動的に変更する関数 ▼▼▼
-function updateInitialAppDataCategories() {
-    const categoryUpdates = {
-        favorite: [40, 38, 39, 42, 41], // Family club, SixTONES, ART-PUT, Number i, H. Kitayama
-        ai: [22, 24, 23]             // ChatGPT, Claude AI, Google AI
-    };
-    initialAppData.forEach(app => {
-        if (categoryUpdates.favorite.includes(app.id)) {
-            app.category = 'favorite';
-        } else if (categoryUpdates.ai.includes(app.id)) {
-            app.category = 'ai';
-        }
-    });
-}
-
 function loadAppData() { 
     try { 
         const d = localStorage.getItem('siteApps'); 
@@ -155,28 +135,6 @@ function loadAppData() {
     } catch(e) { 
         appData = JSON.parse(JSON.stringify(initialAppData)); 
     } 
-}
-
-// ▼▼▼ 追加：最近使用したアプリ関連のヘルパー関数群 ▼▼▼
-function getRecentlyUsedAppIds() {
-    try {
-        const stored = localStorage.getItem(RECENTLY_USED_KEY);
-        return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-        console.error("Failed to parse recently used apps:", e);
-        return [];
-    }
-}
-
-function addRecentlyUsedApp(appId) {
-    if (typeof appId !== 'number') return;
-    let ids = getRecentlyUsedAppIds();
-    ids = ids.filter(id => id !== appId); // 既存のアイテムを削除
-    ids.unshift(appId); // 先頭に追加
-    if (ids.length > MAX_RECENT_APPS) {
-        ids.pop(); // 最大数を超えたら末尾を削除
-    }
-    localStorage.setItem(RECENTLY_USED_KEY, JSON.stringify(ids));
 }
 
 function createIconElement(app) {
@@ -240,46 +198,21 @@ function activateTab(tabId) {
 
     saveItem('siteActiveTab', tabId);
 }
-
 function filterIconsByCategory(category) {
     document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
     saveItem('siteActiveSubFilter', category);
     filterContent();
 }
 
-// ▼▼▼ 変更：最近使用したアプリの表示ロジックを追加してフィルター機能を更新 ▼▼▼
-function filterContent() {
-    const s = document.getElementById("appSearchInput").value.toLowerCase();
+function filterContent(){ 
+    const s = document.getElementById("appSearchInput").value.toLowerCase(); 
     const c = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
-    const container = document.getElementById('gridContainer');
-    const items = Array.from(container.querySelectorAll(".search-item"));
-
-    if (c === 'recent') {
-        const recentIds = getRecentlyUsedAppIds();
-        const recentIdSet = new Set(recentIds);
-
-        items.forEach(i => {
-            const itemId = parseInt(i.dataset.id, 10);
-            const isRecent = recentIdSet.has(itemId);
-            const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s);
-            i.style.display = (isRecent && searchMatch) ? 'block' : 'none';
-        });
-
-        // 最近使った順にDOMを並び替え
-        const sortedRecentItems = recentIds
-            .map(id => container.querySelector(`.search-item[data-id='${id}']`))
-            .filter(Boolean); // nullを除外
-        sortedRecentItems.forEach(item => container.appendChild(item));
-
-    } else {
-        items.forEach(i => {
-            const categoryMatch = (c === 'all' || i.dataset.category === c);
-            const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s);
-            i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none';
-        });
-    }
+    document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
+        const categoryMatch = (c === 'all' || i.dataset.category === c); 
+        const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
+        i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; 
+    }); 
 }
-
 
 function initAccordions() { 
     document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { 
@@ -379,9 +312,6 @@ function updateOnlineStatus() {
 if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
 
 function init() {
-    // ▼▼▼ 追加：アプリデータのカテゴリを初期化 ▼▼▼
-    updateInitialAppDataCategories();
-
     loadSaveSettings();
 
     const savedTheme = getSavedItem('siteTheme');
@@ -394,18 +324,6 @@ function init() {
     
     renderAllIcons();
 
-    // ▼▼▼ 追加：「Recent」フィルタボタンを動的に生成 ▼▼▼
-    const subFilterContainer = document.querySelector('.sub-filter');
-    if (subFilterContainer && !subFilterContainer.querySelector('[data-category="recent"]')) {
-        const recentButton = document.createElement('button');
-        recentButton.className = 'sub-filter-btn';
-        recentButton.dataset.category = 'recent';
-        recentButton.textContent = 'Recent';
-        // 「All」ボタンの直後に挿入
-        subFilterContainer.insertBefore(recentButton, subFilterContainer.children[1]);
-    }
-
-
     activateTab(savedTab || 'all-apps');
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
@@ -417,4 +335,40 @@ function init() {
     
     updateOnlineStatus();
     window.addEventListener('online', updateOnlineStatus);
-    window.
+    window.addEventListener('offline', updateOnlineStatus);
+
+    document.getElementById('appSearchInput').addEventListener('input', () => { 
+        if(document.getElementById("appSearchInput").value) { 
+            activateTab('all-apps');
+            document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
+            const allButton = document.querySelector(".sub-filter-btn[data-category='all']");
+            if (allButton) allButton.classList.add('active');
+            saveItem('siteActiveSubFilter', 'all');
+        }
+        filterContent(); 
+    });
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        filterIconsByCategory(e.currentTarget.dataset.category);
+    }));
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        activateSubTab(e.currentTarget.dataset.target);
+    }));
+
+    refreshButton.addEventListener('click', () => {
+        location.reload(); 
+    });
+
+    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
+    if (speedTestRefreshButton) {
+        speedTestRefreshButton.addEventListener('click', () => {
+            const speedTestIframe = document.querySelector('.header-speed-test iframe');
+            if (speedTestIframe && navigator.onLine) {
+                speedTestIframe.src = 'https://fast.com/ja/';
+            }
+        });
+    }
+}
+
+setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
+setInterval(() => { if (window.updateBusDisplay && document.getElementById('tab-status').classList.contains('active')) window.updateBusDisplay(); }, 30000);
+document.addEventListener('DOMContentLoaded', init);
