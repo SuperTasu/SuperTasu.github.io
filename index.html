@@ -43,9 +43,10 @@
 <div class="tab-container">
   <div class="tab-menu">
     <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
-    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> All Apps </div>
-    <div class="tab-item" id="tab-status" onclick="activateTab('status')"> <i class="fas fa-chart-line"></i> Status </div>
+    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
+    <!-- ▼▼▼ 変更：Answer Iタブを追加 ▼▼▼ -->
+    <div class="tab-item" id="tab-answer-i" onclick="activateTab('answer-i')"> <i class="fas fa-robot"></i> Answer I </div>
     <a href="https://discord.com/channels/@me" class="tab-item" target="_blank"><i class="fab fa-discord"></i> Discord</a>
   </div>
 </div>
@@ -54,11 +55,11 @@
     <div id="search-wrapper">
       <div class="main-content" id="mainContent">
         <!-- ▼▼▼ 復活：「最近使用したアプリ」セクション ▼▼▼ -->
-        <div id="recently-used-apps-container" class="">
+        <div id="recently-used-apps-container" class="hidden">
             <h3 class="section-title">最近使用したアプリ</h3>
             <div class="grid-container" id="recentlyUsedGridContainer"></div>
         </div>
-        <hr id="section-divider" class="">
+        <hr id="section-divider" class="hidden">
         
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
@@ -79,30 +80,8 @@
     </div>
   </div>
 </div>
-<div id="status-container" class="hidden">
-    <div class="bus-display-board">
-        <div class="bus-header">
-            <div class="bus-stop-name">鷹取団地前</div>
-            <div class="direction-controls">
-                <button id="shinkaichi-btn" class="direction-button">神戸駅前方面</button>
-                <button id="yoshidacho-btn" class="direction-button active">板宿方面</button>
-            </div>
-            <div class="schedule-type" id="scheduleType"></div>
-        </div>
-        <div id="justDepartedSection"></div>
-        <div class="departures-container" id="upcomingDeparturesContainer"></div>
-    </div>
-    <div class="other-statuses">
-        <div class="status-card"> <h3 class="status-card-title">兵庫県警報・注意報</h3> 
-          <div class="iframe-container"><iframe data-src="https://weathernews.jp/onebox/warn/hyogo/2810000/" title="ウェザーニュース警報・注意報" loading="lazy"></iframe></div> 
-        </div>
-        <div class="status-card">
-          <h3 class="status-card-title"><span>文字数カウント</span> <i class="fas fa-expand expand-btn" title="拡大表示"></i></h3>
-          <div class="iframe-container"><iframe data-src="https://sundryst.com/convenienttool/strcount.html" title="文字数カウント" loading="lazy"></iframe></div>
-        </div>
-    </div>
-</div>
-<div id="bustarain-container" class="hidden">
+<!-- ▼▼▼ 削除：Statusコンテナを削除しました ▼▼▼ -->
+<div id="bustarain-container">
     <div class="sub-tab-menu">
         <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
         <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
@@ -124,6 +103,12 @@
     <div id="other-content" class="sub-tab-content hidden">
         <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
     </div>
+</div>
+<!-- ▼▼▼ 追加：Answer Iタブのコンテンツエリア ▼▼▼ -->
+<div id="answer-i-container" style="display: none;">
+  <!-- ここにAnswer Iタブのコンテンツを記述します -->
+  <h2>Answer I</h2>
+  <p>コンテンツは準備中です。</p>
 </div>
   <div id="iframe-modal" class="modal-overlay hidden">
     <div class="modal-content iframe-modal-content">
