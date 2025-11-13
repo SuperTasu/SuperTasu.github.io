@@ -6,8 +6,20 @@ const refreshButton = document.getElementById('refresh-button');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：アプリアイコンの指定を削除し、GameカテゴリにgameTitleプロパティを追加 ▼▼▼
+// ▼▼▼ 変更：FavoriteとAIカテゴリに対応 ▼▼▼
 const initialAppData = [
+    // --- Favorite Category ---
+    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",category:"favorite",searchText:"Family Club ファンクラブ"},
+    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",category:"favorite",searchText:"SixTONES ジャニーズ"},
+    {id:39,label:"ART-PUT",url:"https://art-put.com",category:"favorite",searchText:"ART-PUT アート"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",category:"favorite",searchText:"Number i tobe"},
+    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",category:"favorite",searchText:"Hiromitsu Kitayama tobe"},
+
+    // --- AI Category ---
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",category:"ai",searchText:"ChatGPT AI"},
+    {id:24,label:"Claude AI",url:"https://claude.ai",category:"ai",searchText:"Claude AI クロード"},
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",category:"ai",searchText:"Google AI Gemini"},
+    
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",category:"google",searchText:"Gmail Google Mail メール"},
@@ -16,7 +28,6 @@ const initialAppData = [
     {id:4,label:"Photos",url:"https://photos.google.com",category:"google",searchText:"Google Photos フォト 写真"},
     {id:5,label:"Drive",url:"https://drive.google.com",category:"google",searchText:"Google Drive ドライブ"},
     {id:33,label:"Google Sites",url:"https://sites.google.com/new",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",category:"google",searchText:"Google AI Gemini"},
     {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",category:"google",searchText:"Google Documents ドキュメント"},
     {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",category:"google",searchText:"Google Analytics アナリティクス"},
     {id:46,label:"App Script",url:"https://script.google.com/home",category:"google",searchText:"Google App Script GAS"},
@@ -57,8 +68,6 @@ const initialAppData = [
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",category:"other",searchText:"GigaFile ギガファイル便"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",category:"other",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",category:"other",searchText:"Claude AI クロード"},
     {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",category:"other",searchText:"Deepl 翻訳"},
     {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",category:"other",searchText:"BUSTARAIN バスタレイン"},
     {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",category:"other",searchText:"Answer I アンサー"},
@@ -81,6 +90,35 @@ const initialAppData = [
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",category:"other",searchText:"Benesse ベネッセ"},
 ];
 
+// ▼▼▼ 復活：「最近使用したアプリ」関連の定数と関数 ▼▼▼
+const RECENTLY_USED_APPS_KEY = 'siteRecentlyUsedApps';
+const MAX_RECENT_APPS = 5;
+
+function getRecentlyUsedApps() {
+    try {
+        const recent = localStorage.getItem(RECENTLY_USED_APPS_KEY);
+        return recent ? JSON.parse(recent) : [];
+    } catch (e) {
+        console.error("Failed to parse recently used apps from localStorage", e);
+        return [];
+    }
+}
+
+function saveRecentlyUsedApps(recentApps) {
+    localStorage.setItem(RECENTLY_USED_APPS_KEY, JSON.stringify(recentApps));
+}
+
+function recordAppClick(appId) {
+    let recentlyUsed = getRecentlyUsedApps();
+    recentlyUsed = recentlyUsed.filter(id => id !== appId);
+    recentlyUsed.unshift(appId);
+    if (recentlyUsed.length > MAX_RECENT_APPS) {
+        recentlyUsed.splice(MAX_RECENT_APPS);
+    }
+    saveRecentlyUsedApps(recentlyUsed);
+    renderRecentlyUsedIcons(); // クリック後すぐに表示を更新
+}
+
 const SAVE_KEYS = { THEME: 'siteSaveTheme', MAIN_TAB: 'siteSaveMainTab', SUB_FILTER: 'siteSaveSubFilter' };
 let saveSettings = {};
 function loadSaveSettings(){saveSettings={theme:localStorage.getItem(SAVE_KEYS.THEME)==='true',mainTab:localStorage.getItem(SAVE_KEYS.MAIN_TAB)==='true',subFilter:localStorage.getItem(SAVE_KEYS.SUB_FILTER)==='true'};if(localStorage.getItem(SAVE_KEYS.THEME)===null)saveSettings.theme=true;if(localStorage.getItem(SAVE_KEYS.MAIN_TAB)===null)saveSettings.mainTab=true;if(localStorage.getItem(SAVE_KEYS.SUB_FILTER)===null)saveSettings.subFilter=true}
@@ -88,7 +126,6 @@ function getSavedItem(e){let t=false;return"siteTheme"===e?t=saveSettings.theme:
 function saveItem(e,t){let a=false;"siteTheme"===e?a=saveSettings.theme:"siteActiveTab"===e?a=saveSettings.mainTab:("siteActiveSubFilter"===e||"siteActiveSubTab"===e)&&(a=saveSettings.subFilter),a&&localStorage.setItem(e,t)}
 function loadAppData(){try{const e=localStorage.getItem("siteApps");appData=e?JSON.parse(e):JSON.parse(JSON.stringify(initialAppData))}catch(e){appData=JSON.parse(JSON.stringify(initialAppData))}}
 
-// ▼▼▼ 変更：アイコンをURLから自動取得するロジックに変更 ▼▼▼
 function createIconElement(app) {
     const item = document.createElement('div');
     item.className = 'icon-item';
@@ -106,7 +143,40 @@ function createIconElement(app) {
     item.innerHTML = `
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
         <div class="label-text">${app.label}</div>`;
+    
+    // ▼▼▼ 復活：クリック履歴を保存するイベントリスナー ▼▼▼
+    item.querySelector('.icon-link').addEventListener('click', () => {
+        recordAppClick(app.id);
+    });
+
     return item;
+}
+
+// ▼▼▼ 復活：renderRecentlyUsedIcons() 関数 ▼▼▼
+function renderRecentlyUsedIcons() {
+    const recentContainer = document.getElementById('recentlyUsedGridContainer');
+    const recentSection = document.getElementById('recently-used-apps-container');
+    const divider = document.getElementById('section-divider');
+    recentContainer.innerHTML = '';
+
+    const recentlyUsedIds = getRecentlyUsedApps();
+
+    if (recentlyUsedIds.length === 0) {
+        recentSection.classList.add('hidden');
+        divider.classList.add('hidden');
+        return;
+    }
+
+    recentlyUsedIds.forEach(id => {
+        const app = appData.find(app => app.id === id);
+        if (app) {
+            const iconElement = createIconElement(app);
+            recentContainer.appendChild(iconElement);
+        }
+    });
+    
+    recentSection.classList.remove('hidden');
+    divider.classList.remove('hidden');
 }
 
 function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
@@ -116,24 +186,22 @@ function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2
 function setTheme(t){"dark"===t?(document.body.classList.add("dark-theme"),saveItem("siteTheme","dark")):(document.body.classList.remove("dark-theme"),saveItem("siteTheme","light"))}
 function activateTab(e){document.querySelectorAll(".tab-item").forEach(e=>e.classList.remove("active")),document.getElementById(`tab-${e}`)?.classList.add("active"),mainGrid.style.display="none",statusContainer.style.display="none",bustarainContainer.style.display="none","status"===e?statusContainer.style.display="flex":"bustarain"===e?bustarainContainer.style.display="block":mainGrid.style.display="grid",saveItem("siteActiveTab",e)}
 
-// ▼▼▼ 変更：フィルタリング処理を呼び出すだけのシンプルな関数に ▼▼▼
 function filterIconsByCategory(category) {
     document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
     saveItem('siteActiveSubFilter', category);
     filterContent();
 }
 
-// ▼▼▼ 変更：Gameカテゴリのグループ表示と通常表示を切り替えるロジックを追加 ▼▼▼
+// ▼▼▼ 修正：Gameカテゴリ切り替えバグを修正し、ロジックを改善 ▼▼▼
 function filterContent() {
-    const gridContainer = document.getElementById('gridContainer');
     const searchInput = document.getElementById("appSearchInput").value.toLowerCase();
     const activeCategory = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
 
     gridContainer.innerHTML = ''; // 毎回コンテナをクリア
 
-    // Gameカテゴリかつ検索していない場合のみ、グループ表示
+    // Gameカテゴリで検索していない場合のみ、グループ表示
     if (activeCategory === 'game' && searchInput === '') {
-        gridContainer.className = 'grid-container-grouped'; // グループ表示用のクラス
+        gridContainer.className = 'grid-container-grouped'; 
 
         const gameApps = appData.filter(app => app.category === 'game');
         const groupedGames = gameApps.reduce((acc, app) => {
@@ -144,16 +212,13 @@ function filterContent() {
         }, {});
         
         const displayOrder = ['MK8DX', 'Splatoon3', 'MKWD', 'Apex Legends'];
-        // 順序を維持しつつ、リストにないものも末尾に追加する
         const sortedGroupKeys = [...new Set([...displayOrder, ...Object.keys(groupedGames)])];
 
         sortedGroupKeys.forEach(title => {
             if (groupedGames[title]) {
                 const groupWrapper = document.createElement('div');
                 groupWrapper.className = 'game-group';
-                groupWrapper.innerHTML = `
-                    <h4 class="game-group-title">${title}</h4>
-                    <div class="game-group-icons"></div>`;
+                groupWrapper.innerHTML = `<h4 class="game-group-title">${title}</h4><div class="game-group-icons"></div>`;
                 const iconsContainer = groupWrapper.querySelector('.game-group-icons');
                 groupedGames[title].forEach(app => {
                     iconsContainer.appendChild(createIconElement(app));
@@ -161,9 +226,8 @@ function filterContent() {
                 gridContainer.appendChild(groupWrapper);
             }
         });
-
     } else { // 通常のフィルタリング表示
-        gridContainer.className = 'grid-container'; // 通常表示用のクラス
+        gridContainer.className = 'grid-container'; // 通常表示用のクラスに必ず戻す
 
         const filteredApps = appData.filter(app => {
             const categoryMatch = (activeCategory === 'all' || app.category === activeCategory);
@@ -183,5 +247,56 @@ function setupModal(){const e=document.getElementById("iframe-modal"),t=document
 function lazyLoadIframes(){const e=document.querySelectorAll("iframe[data-src]");"IntersectionObserver"in window?new IntersectionObserver((e,t)=>{e.forEach(e=>{if(e.isIntersecting){const a=e.target;a.src=a.dataset.src,a.removeAttribute("data-src"),t.unobserve(a)}})}).forEach(t=>t.observe(e)):e.forEach(e=>{e.src=e.dataset.src,e.removeAttribute("data-src")})}
 function updateOnlineStatus(){const e=document.getElementById("offline-status");navigator.onLine?(e.textContent="",e.style.display="none"):(e.textContent="オフライン",e.style.display="block")}
 "undefined"==typeof window.initBusSchedule&&(window.initBusSchedule=()=>console.log("Bus schedule script not loaded."),window.updateBusCountdowns=()=>{},window.updateBusDisplay=()=>{});
-function init(){loadSaveSettings();const e=getSavedItem("siteTheme"),t=getSavedItem("siteActiveTab"),a=getSavedItem("siteActiveSubTab");setTheme(e||"light"),updateClockAndDate(),loadAppData(),filterContent(),activateTab(t||"all-apps"),filterIconsByCategory(getSavedItem("siteActiveSubFilter")||"all"),initAccordions(),activateSubTab(a||"train-content"),setupModal(),lazyLoadIframes(),window.initBusSchedule(),updateOnlineStatus(),window.addEventListener("online",updateOnlineStatus),window.addEventListener("offline",updateOnlineStatus),document.getElementById("appSearchInput").addEventListener("input",()=>{document.getElementById("appSearchInput").value&&(activateTab("all-apps"),document.querySelectorAll(".sub-filter-btn").forEach(e=>e.classList.remove("active")),document.querySelector(".sub-filter-btn[data-category='all']").classList.add("active"),saveItem("siteActiveSubFilter","all")),filterContent()}),document.querySelectorAll(".sub-filter-btn").forEach(e=>e.addEventListener("click",e=>{filterIconsByCategory(e.currentTarget.dataset.category)})),document.querySelectorAll(".sub-tab-btn").forEach(e=>e.addEventListener("click",e=>{activateSubTab(e.currentTarget.dataset.target)})),refreshButton.addEventListener("click",()=>{location.reload()});const n=document.getElementById("speed-test-refresh-button");n&&n.addEventListener("click",()=>{const e=document.querySelector(".header-speed-test iframe");e&&navigator.onLine&&(e.src="https://fast.com/ja/")})}
-setInterval(()=>{updateClockAndDate(),window.updateBusCountdowns&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusCountdowns()},1e3),setInterval(()=>{window.updateBusDisplay&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusDisplay()},3e4),document.addEventListener("DOMContentLoaded",init);
+
+// ▼▼▼ 変更：init関数の処理順を最適化 ▼▼▼
+function init(){
+    loadSaveSettings();
+    const savedTheme = getSavedItem('siteTheme');
+    const savedTab = getSavedItem('siteActiveTab');
+    const savedSubFilter = getSavedItem('siteActiveSubFilter');
+    const savedSubTab = getSavedItem('siteActiveSubTab'); 
+
+    setTheme(savedTheme || 'light');
+    updateClockAndDate();
+    loadAppData(); 
+    
+    renderRecentlyUsedIcons();
+    activateTab(savedTab || 'all-apps');
+    filterIconsByCategory(savedSubFilter || 'all');
+
+    initAccordions();
+    activateSubTab(savedSubTab || 'train-content');
+    
+    setupModal();
+    lazyLoadIframes();
+
+    window.initBusSchedule();
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    document.getElementById('appSearchInput').addEventListener("input", () => {
+        if (document.getElementById("appSearchInput").value) {
+            activateTab('all-apps');
+            filterIconsByCategory('all');
+        }
+        filterContent();
+    });
+    document.querySelectorAll('.sub-filter-btn').forEach(btn=>btn.addEventListener("click", (e) => filterIconsByCategory(e.currentTarget.dataset.category)));
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener("click", (e) => activateSubTab(e.currentTarget.dataset.target)));
+    refreshButton.addEventListener("click",()=>location.reload());
+
+    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
+    if (speedTestRefreshButton) {
+        speedTestRefreshButton.addEventListener('click', () => {
+            const speedTestIframe = document.querySelector('.header-speed-test iframe');
+            if (speedTestIframe && navigator.onLine) {
+                speedTestIframe.src = 'https://fast.com/ja/';
+            }
+        });
+    }
+}
+
+setInterval(()=>{updateClockAndDate(),window.updateBusCountdowns&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusCountdowns()},1e3);
+setInterval(()=>{window.updateBusDisplay&&document.getElementById("tab-status").classList.contains("active")&&window.updateBusDisplay()},3e4);
+document.addEventListener("DOMContentLoaded",init);
