@@ -6,7 +6,9 @@ const refreshButton = document.getElementById('refresh-button');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
+// ▼▼▼ 変更：アプリデータを大幅に更新 ▼▼▼
 const initialAppData = [
+    // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",category:"google",searchText:"Gmail Google Mail メール"},
     {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",category:"google",searchText:"Google Chat チャット"},
@@ -15,25 +17,49 @@ const initialAppData = [
     {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
     {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",category:"google",searchText:"Google Sites サイト作成"},
     {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"google",searchText:"Google AI Gemini"},
+    {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",icon:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico",category:"google",searchText:"Google Documents ドキュメント"},
+    {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",icon:"https://www.google.com/analytics/favicon.ico",category:"google",searchText:"Google Analytics アナリティクス"},
+    {id:46,label:"App Script",url:"https://script.google.com/home",icon:"https://ssl.gstatic.com/script/images/favicon.png",category:"google",searchText:"Google App Script GAS"},
+    {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",category:"google",searchText:"Google Translate 翻訳"},
+    
+    // --- SNS Category ---
     {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
     {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",category:"sns",searchText:"Instagram インスタグラム"},
     {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YouTube ユーチューブ"},
     {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",category:"sns",searchText:"YT Shorts YouTube ショート"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
+    
+    // --- Game Category ---
+    {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",category:"game",searchText:"Apex Legends Status"},
+    {id:58,label:"Splatoon Map",url:"https://www.splatoon3-schedule.net",icon:"https://www.splatoon3-schedule.net/favicon.ico",category:"game",searchText:"Splatoon 3 スプラトゥーン マップ"},
+    {id:59,label:"Splatoon Note",url:"https://support.nintendo.com/jp/switch/software_support/av5ja/1010.html",icon:"https://support.nintendo.com/favicon.ico",category:"game",searchText:"Splatoon 3 パッチノート"},
+    {id:60,label:"MKBuilder",url:"https://mk8dxbuilder.com",icon:"https://mk8dxbuilder.com/favicon.ico",category:"game",searchText:"MK8DX Builder マリオカート"},
+    {id:61,label:"MK Lounge",url:"https://lounge.mkcentral.com/mk8dx",icon:"https://lounge.mkcentral.com/favicon.ico",category:"game",searchText:"MK8DX Lounge Status"},
+    {id:62,label:"MK Blog",url:"https://japan-mk.blog.jp",icon:"https://japan-mk.blog.jp/favicon.ico",category:"game",searchText:"MK Blog マリオカート"},
+    {id:63,label:"MK Central",url:"https://mkcentral.com/en-us",icon:"https://mkcentral.com/favicon.ico",category:"game",searchText:"MK Central"},
+    {id:64,label:"MK Overlay",url:"https://statsoverlay.prismillon.com/",icon:"https://statsoverlay.prismillon.com/assets/icon.png",category:"game",searchText:"MK8DX Overlay"},
+    {id:65,label:"MK8DX Note",url:"https://support-jp.nintendo.com/app/answers/detail/a_id/34464",icon:"https://support.nintendo.com/favicon.ico",category:"game",searchText:"MK8DX パッチノート"},
+    {id:66,label:"MKWD Note",url:"https://support.nintendo.com/jp/switch2/software_support/aaaaa/index.html",icon:"https://support.nintendo.com/favicon.ico",category:"game",searchText:"MKWD パッチノート"},
+
+    // --- Downloader Category ---
     {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",category:"downloader",searchText:"y2mate ダウンロード"},
     {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",category:"downloader",searchText:"Spotify Downloader ダウンロード"},
     {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",category:"downloader",searchText:"Spotify mate ダウンロード"},
+    
+    // --- Other Category ---
     {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",category:"other",searchText:"Yahoo! ヤフー"},
+    {id:48,label:"知恵袋",url:"https://chiebukuro.yahoo.co.jp/notification",icon:"https://s.yimg.jp/c/icon/s/bsc/2.0/favicon.ico",category:"other",searchText:"Yahoo 知恵袋"},
     {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",category:"other",searchText:"Remote It リモート"},
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"other",searchText:"Abema アベマ"},
     {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"other",searchText:"Spotify スポティファイ"},
+    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
     {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
+    {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",category:"other",searchText:"Deepl 翻訳"},
     {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"BUSTARAIN バスタレイン"},
     {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"Answer I アンサー"},
     {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",category:"other",searchText:"Rawkuro ブルーロック 漫画"},
@@ -50,9 +76,16 @@ const initialAppData = [
     {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Hiromitsu Kitayama tobe"},
     {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Number i tobe"},
     {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
+    {id:50,label:"画像圧縮",url:"https://www.iloveimg.com/ja/compress-image",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",category:"other",searchText:"iloveimg compress"},
+    {id:51,label:"PDF圧縮",url:"https://www.ilovepdf.com/ja/compress_pdf",icon:"https://www.ilovepdf.com/img/favicons/favicon-32x32.png",category:"other",searchText:"ilovepdf compress"},
+    {id:52,label:"enHack",url:"https://enhack.app/app/#!/index/you/home/",icon:"https://enhack.app/favicon.ico",category:"other",searchText:"enHack"},
+    {id:53,label:"Scribd",url:"https://www.scribd.com",icon:"https://www.scribd.com/favicon.ico",category:"other",searchText:"Scribd"},
+    {id:54,label:"背景透過",url:"https://www.iloveimg.com/ja/remove-background",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",category:"other",searchText:"iloveimg remove background"},
+    {id:55,label:"便利ツール",url:"https://jp.piliapp.com",icon:"https://jp.piliapp.com/favicon.ico",category:"other",searchText:"piliapp 工具"},
+    {id:56,label:"QR作成",url:"https://qr.quel.jp/url.php",icon:"https://qr.quel.jp/favicon.ico",category:"other",searchText:"QRコード作成 quel"},
+    {id:67,label:"方眼ノート",url:"https://houganshi.net/note.php",icon:"https://houganshi.net/favicon.ico",category:"other",searchText:"ノート作成 houganshi"},
+    {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",category:"other",searchText:"Benesse ベネッセ"},
 ];
-
-// ▼▼▼ 削除：「最近使用したアプリ」関連の定数と関数をすべて削除 ▼▼▼
 
 const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
@@ -120,8 +153,6 @@ function createIconElement(app) {
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
         <div class="label-text">${app.label}</div>`;
     
-    // ▼▼▼ 削除：クリック履歴を保存するイベントリスナーを削除 ▼▼▼
-    
     return item;
 }
 
@@ -137,8 +168,6 @@ function renderAllIcons() {
     });
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
 }
-
-// ▼▼▼ 削除：renderRecentlyUsedIcons() 関数を削除 ▼▼▼
 
 function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
 function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
@@ -177,7 +206,7 @@ function filterIconsByCategory(category) {
 
 function filterContent(){ 
     const s = document.getElementById("appSearchInput").value.toLowerCase(); 
-    const c = getSavedItem('siteActiveSubFilter') || 'all'; 
+    const c = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
     document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
         const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
@@ -269,7 +298,6 @@ function lazyLoadIframes() {
     }
 }
 
-// ▼▼▼ 追加：オンライン状態をチェックして表示を更新する関数 ▼▼▼
 function updateOnlineStatus() {
     const offlineStatusElement = document.getElementById('offline-status');
     if (navigator.onLine) {
@@ -294,7 +322,6 @@ function init() {
     updateClockAndDate();
     loadAppData(); 
     
-    // ▼▼▼ 削除：renderRecentlyUsedIcons() の呼び出しを削除 ▼▼▼
     renderAllIcons();
 
     activateTab(savedTab || 'all-apps');
@@ -306,16 +333,17 @@ function init() {
 
     window.initBusSchedule();
     
-    // ▼▼▼ 追加：オンライン/オフラインイベントのリスナーを設定 ▼▼▼
     updateOnlineStatus();
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
     document.getElementById('appSearchInput').addEventListener('input', () => { 
         if(document.getElementById("appSearchInput").value) { 
-            activateTab('all-apps'); 
+            activateTab('all-apps');
             document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
-            document.querySelector(".sub-filter-btn[data-category='all']").classList.add('active');
+            const allButton = document.querySelector(".sub-filter-btn[data-category='all']");
+            if (allButton) allButton.classList.add('active');
+            saveItem('siteActiveSubFilter', 'all');
         }
         filterContent(); 
     });
@@ -334,7 +362,7 @@ function init() {
     if (speedTestRefreshButton) {
         speedTestRefreshButton.addEventListener('click', () => {
             const speedTestIframe = document.querySelector('.header-speed-test iframe');
-            if (speedTestIframe && navigator.onLine) { // オンラインの場合のみリロード
+            if (speedTestIframe && navigator.onLine) {
                 speedTestIframe.src = 'https://fast.com/ja/';
             }
         });
