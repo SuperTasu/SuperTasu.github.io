@@ -11,7 +11,8 @@ const sectionDivider = document.getElementById('section-divider');
 
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：指定されたアプリのカテゴリを "sns" に更新 ▼▼▼
+
+// ▼▼▼ 変更：元々のiconプロパティは残しつつ、APIで上書きするため、この時点では元のままです ▼▼▼
 const initialAppData = [
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
@@ -46,9 +47,9 @@ const initialAppData = [
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",category:"sns",searchText:"TikTok ティックトック"},
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",category:"sns",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",category:"sns",searchText:"Discord ディスコード"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"sns",searchText:"Abema アベマ"}, // other -> sns
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"sns",searchText:"Spotify スポティファイ"}, // other -> sns
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"sns",searchText:"U-NEXT ユーネクスト"}, // other -> sns
+    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"sns",searchText:"Abema アベマ"},
+    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"sns",searchText:"Spotify スポティファイ"},
+    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"sns",searchText:"U-NEXT ユーネクスト"},
     
     // --- Game Category ---
     {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",category:"game",searchText:"Apex Legends Status"},
@@ -95,6 +96,17 @@ const initialAppData = [
     {id:67,label:"方眼ノート",url:"https://houganshi.net/note.php",icon:"https://houganshi.net/favicon.ico",category:"other",searchText:"ノート作成 houganshi"},
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",category:"other",searchText:"Benesse ベネッセ"},
 ];
+
+// ▼▼▼ 追加：Google Favicon APIを使用してアイコンURLを動的に生成 ▼▼▼
+const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
+initialAppData.forEach(app => {
+    // iconプロパティがhttpから始まるURLである場合のみ、APIのURLに置き換える
+    // FontAwesomeのクラス名（'fas fa-...'など）は対象外とする
+    if (app.icon && app.icon.startsWith('http')) {
+        app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
+    }
+});
+// ▲▲▲ 追加ここまで ▲▲▲
 
 const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
