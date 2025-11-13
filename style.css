@@ -213,34 +213,3 @@ body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
 .clock-area { padding: 10px 15px; }
 }
 
-/* style.css に追記 */
-
-/* Game Category Grouping Styles */
-.grid-container-grouped {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 10px;
-}
-.game-group {
-    border: 1px solid var(--card-border-color);
-    border-radius: 15px;
-    padding: 15px;
-    background: rgba(0,0,0,0.02);
-}
-body.dark-theme .game-group {
-    background: rgba(255,255,255,0.03);
-}
-.game-group-title {
-    margin: 0 0 15px 5px;
-    font-size: 16px;
-    color: var(--text-color-secondary);
-    border-bottom: 1px solid var(--card-border-color);
-    padding-bottom: 8px;
-}
-.game-group-icons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: flex-start;
-}
