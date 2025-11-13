@@ -4,9 +4,15 @@ const bustarainContainer = document.getElementById('bustarain-container');
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 
+// ▼▼▼ 追加：最近使用したアプリ用の要素を取得 ▼▼▼
+const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
+const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
+const sectionDivider = document.getElementById('section-divider');
+
+
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
-// ▼▼▼ 変更：アプリデータを大幅に更新 ▼▼▼
+// ▼▼▼ 変更：指定されたアプリのカテゴリを "favorite" と "ai" に更新 ▼▼▼
 const initialAppData = [
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
@@ -16,11 +22,22 @@ const initialAppData = [
     {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",category:"google",searchText:"Google Photos フォト 写真"},
     {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",category:"google",searchText:"Google Drive ドライブ"},
     {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",category:"google",searchText:"Google Sites サイト作成"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"google",searchText:"Google AI Gemini"},
     {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",icon:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico",category:"google",searchText:"Google Documents ドキュメント"},
     {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",icon:"https://www.google.com/analytics/favicon.ico",category:"google",searchText:"Google Analytics アナリティクス"},
     {id:46,label:"App Script",url:"https://script.google.com/home",icon:"https://ssl.gstatic.com/script/images/favicon.png",category:"google",searchText:"Google App Script GAS"},
     {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",category:"google",searchText:"Google Translate 翻訳"},
+    
+    // --- Favorite Category ---
+    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"favorite",searchText:"Family Club ファンクラブ"},
+    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"favorite",searchText:"SixTONES ジャニーズ"},
+    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"favorite",searchText:"ART-PUT アート"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"favorite",searchText:"Number i tobe"},
+    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",category:"favorite",searchText:"Hiromitsu Kitayama tobe"},
+
+    // --- Artificial intelligence (AI) Category ---
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"ai",searchText:"ChatGPT AI"},
+    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"ai",searchText:"Claude AI クロード"},
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"ai",searchText:"Google AI Gemini"},
     
     // --- SNS Category ---
     {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
@@ -57,8 +74,6 @@ const initialAppData = [
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"other",searchText:"U-NEXT ユーネクスト"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",category:"other",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",category:"other",searchText:"GigaFile ギガファイル便"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"other",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"other",searchText:"Claude AI クロード"},
     {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",category:"other",searchText:"Deepl 翻訳"},
     {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"BUSTARAIN バスタレイン"},
     {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",category:"other",searchText:"Answer I アンサー"},
@@ -70,11 +85,6 @@ const initialAppData = [
     {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",category:"other",searchText:"Amazon アマゾン"},
     {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",category:"other",searchText:"ヤマト運輸 宅急便"},
     {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",category:"other",searchText:"GitHub ギットハブ"},
-    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"other",searchText:"SixTONES ジャニーズ"},
-    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"other",searchText:"ART-PUT アート"},
-    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"other",searchText:"Family Club ファンクラブ"},
-    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Hiromitsu Kitayama tobe"},
-    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"other",searchText:"Number i tobe"},
     {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",category:"other",searchText:"AMEFURASSHI"},
     {id:50,label:"画像圧縮",url:"https://www.iloveimg.com/ja/compress-image",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",category:"other",searchText:"iloveimg compress"},
     {id:51,label:"PDF圧縮",url:"https://www.ilovepdf.com/ja/compress_pdf",icon:"https://www.ilovepdf.com/img/favicons/favicon-32x32.png",category:"other",searchText:"ilovepdf compress"},
@@ -90,8 +100,10 @@ const initialAppData = [
 const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
     MAIN_TAB: 'siteSaveMainTab',
-    SUB_FILTER: 'siteSaveSubFilter'
+    SUB_FILTER: 'siteSaveSubFilter',
+    RECENTLY_USED: 'siteRecentlyUsed' // ▼▼▼ 追加 ▼▼▼
 };
+const MAX_RECENTLY_USED = 12; // ▼▼▼ 追加：最近使用したアプリの最大数 ▼▼▼
 let saveSettings = {};
 
 function loadSaveSettings() {
@@ -110,6 +122,7 @@ function getSavedItem(key) {
     if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
     else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
     else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+    else if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key); // ▼▼▼ 変更：最近使用したアプリは設定フラグに関わらず取得 ▼▼▼
 
     if (saveSettingFlag) {
         return localStorage.getItem(key);
@@ -122,6 +135,10 @@ function saveItem(key, value) {
     if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
     else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
     else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+    else if (key === SAVE_KEYS.RECENTLY_USED) { // ▼▼▼ 変更：最近使用したアプリは設定フラグに関わらず保存 ▼▼▼
+        localStorage.setItem(key, value);
+        return;
+    }
 
     if (saveSettingFlag) {
         localStorage.setItem(key, value);
@@ -135,6 +152,47 @@ function loadAppData() {
     } catch(e) { 
         appData = JSON.parse(JSON.stringify(initialAppData)); 
     } 
+}
+
+// ▼▼▼ 追加：「最近使用したアプリ」関連の関数群 ▼▼▼
+function getRecentlyUsed() {
+    const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
+    return data ? JSON.parse(data) : [];
+}
+
+function addRecentlyUsed(appId) {
+    let recentlyUsed = getRecentlyUsed();
+    // 既に存在する場合は削除して先頭に移動
+    recentlyUsed = recentlyUsed.filter(id => id !== appId);
+    // 先頭に追加
+    recentlyUsed.unshift(appId);
+    // 最大数を超えたら末尾を削除
+    if (recentlyUsed.length > MAX_RECENTLY_USED) {
+        recentlyUsed.pop();
+    }
+    saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
+}
+
+function renderRecentlyUsed() {
+    const recentlyUsedIds = getRecentlyUsed();
+    recentlyUsedGridContainer.innerHTML = '';
+
+    if (recentlyUsedIds.length === 0) {
+        recentlyUsedContainer.classList.add('hidden');
+        sectionDivider.classList.add('hidden');
+        return;
+    }
+
+    recentlyUsedContainer.classList.remove('hidden');
+    sectionDivider.classList.remove('hidden');
+    
+    recentlyUsedIds.forEach(id => {
+        const app = appData.find(a => a.id === id);
+        if (app) {
+            const iconElement = createIconElement(app);
+            recentlyUsedGridContainer.appendChild(iconElement);
+        }
+    });
 }
 
 function createIconElement(app) {
@@ -157,14 +215,13 @@ function createIconElement(app) {
 }
 
 function renderAllIcons() {
-    const allAppsContainer = document.getElementById('gridContainer');
-    allAppsContainer.innerHTML = '';
+    gridContainer.innerHTML = ''; // id="gridContainer" を使用
     appData.forEach(app => {
         const iconElement = createIconElement(app);
         iconElement.classList.add('search-item');
         iconElement.dataset.category = app.category;
         iconElement.dataset.searchText = app.searchText;
-        allAppsContainer.appendChild(iconElement);
+        gridContainer.appendChild(iconElement); // id="gridContainer" に追加
     });
     filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
 }
@@ -210,7 +267,7 @@ function filterContent(){
     document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
         const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
-        i.style.display = (categoryMatch && searchMatch) ? 'block' : 'none'; 
+        i.style.display = (categoryMatch && searchMatch) ? 'grid' : 'none'; // 'block'から'grid'に変更
     }); 
 }
 
@@ -323,6 +380,7 @@ function init() {
     loadAppData(); 
     
     renderAllIcons();
+    renderRecentlyUsed(); // ▼▼▼ 追加 ▼▼▼
 
     activateTab(savedTab || 'all-apps');
     initAccordions();
@@ -367,6 +425,18 @@ function init() {
             }
         });
     }
+    
+    // ▼▼▼ 追加：アイコンクリックで最近使用したアプリを更新するためのイベントリスナー ▼▼▼
+    document.getElementById('mainContent').addEventListener('click', (e) => {
+        const iconLink = e.target.closest('.icon-link');
+        if (iconLink) {
+            const iconItem = iconLink.closest('.icon-item');
+            if (iconItem && iconItem.dataset.id) {
+                addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
+                renderRecentlyUsed(); // クリック後すぐに再描画
+            }
+        }
+    });
 }
 
 setInterval(() => { updateClockAndDate(); if (window.updateBusCountdowns && document.getElementById('tab-status').classList.contains('active')) window.updateBusCountdowns(); }, 1000);
