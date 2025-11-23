@@ -10,86 +10,91 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
   <link rel="stylesheet" href="style.css">
   
-  <!-- ▼▼▼ 追加・修正したスタイル ▼▼▼ -->
   <style>
-    /* アプリの文字を太文字にする */
-    .label-text {
-        font-weight: 700 !important;
-    }
+    /* --- 既存のスタイル --- */
+    .label-text { font-weight: 700 !important; }
+    .hidden { display: none !important; }
 
-    /* 検索コンテナのスタイル強化 */
+    /* 検索コンテナの基本スタイル */
     .search-container {
         position: relative;
         display: flex;
         align-items: center;
-        background: #fff; /* 背景色を明示 */
+        background: #fff;
         border-radius: 20px;
         padding: 5px 10px;
         border: 1px solid #ccc;
-        flex-grow: 1; /* 可能な限り広げる */
-        max-width: 400px; /* PCでの最大幅 */
+        flex-grow: 1;
+        max-width: 400px;
+        transition: background 0.3s, border-color 0.3s; /* 色変化を滑らかに */
     }
-
-    .search-container i.fa-search {
-        color: #888;
-        margin-right: 8px;
-    }
-
-    /* 入力欄のスタイル */
+    .search-container i.fa-search { color: #888; margin-right: 8px; }
     #appSearchInput {
         border: none;
         outline: none;
         width: 100%;
-        font-size: 16px; /* スマホでズームされないサイズ */
+        font-size: 16px;
         background: transparent;
-        padding-right: 30px; /* ×ボタンのスペース */
+        padding-right: 30px;
         height: 30px;
+        color: #333; /* ライトモードの文字色 */
     }
-
-    /* ×ボタン（クリアボタン）のスタイル */
     #clearSearchBtn {
         position: absolute;
         right: 10px;
         color: #999;
         cursor: pointer;
         font-size: 16px;
-        padding: 5px; /* タップ領域を広げる */
+        padding: 5px;
         z-index: 2;
     }
-    
-    #clearSearchBtn:hover {
-        color: #333;
+    #clearSearchBtn:hover { color: #333; }
+
+    /* ▼▼▼ 追加：検索ボックスのダークモード対応 ▼▼▼ */
+    body.dark-theme .search-container {
+        background: #333; /* 暗い背景 */
+        border-color: #555;
+    }
+    body.dark-theme #appSearchInput {
+        color: #eee; /* 白っぽい文字 */
+    }
+    body.dark-theme .search-container i.fa-search,
+    body.dark-theme #clearSearchBtn {
+        color: #aaa; /* アイコンも少し明るく */
+    }
+    body.dark-theme #clearSearchBtn:hover {
+        color: #fff;
+    }
+    /* プレースホルダーの色も調整 */
+    body.dark-theme #appSearchInput::placeholder {
+        color: #777;
     }
 
-    /* Hiddenクラス（既存のCSSにあると想定、なければここで定義） */
-    .hidden {
-        display: none !important;
+    /* ▼▼▼ 追加：カレンダー表示用のスタイル ▼▼▼ */
+    #calendar-container {
+        width: 100%;
+        display: none; /* JSで制御 */
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        background: transparent;
+    }
+    /* iframeがスマホからはみ出さないように調整 */
+    #calendar-container iframe {
+        max-width: 100%; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        background: #fff; /* カレンダーの読み込み中の背景 */
     }
 
-    /* ▼▼▼ スマホ向け最適化 (レスポンシブ) ▼▼▼ */
+    /* スマホ向け最適化 */
     @media (max-width: 768px) {
-        .tab-menu {
-            flex-wrap: wrap; /* 折り返しを許可 */
-            gap: 10px;
-            padding: 10px;
-        }
-
-        /* スマホでは検索バーを最上段に100%幅で表示 */
-        .search-container {
-            order: -1; /* 順番を最初にする */
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 5px;
-            height: 44px; /* タップしやすい高さ */
-        }
-
-        /* タブアイテムの調整 */
-        .tab-item {
-            flex-grow: 1;
-            text-align: center;
-            justify-content: center;
-            font-size: 14px;
-            padding: 10px 5px;
+        .tab-menu { flex-wrap: wrap; gap: 10px; padding: 10px; }
+        .search-container { order: -1; width: 100%; max-width: 100%; margin-bottom: 5px; height: 44px; }
+        .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; }
+        
+        #calendar-container {
+            padding: 5px; /* スマホでは余白を減らす */
         }
     }
   </style>
@@ -127,7 +132,6 @@
 </header>
 <div class="tab-container">
   <div class="tab-menu">
-    <!-- ▼▼▼ 変更：クリアボタンを追加 ▼▼▼ -->
     <div class="search-container"> 
         <i class="fas fa-search"></i> 
         <input type="text" id="appSearchInput" placeholder="検索..."> 
@@ -135,11 +139,16 @@
     </div>
     
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
+    <!-- ▼▼▼ 追加：Calendarタブ ▼▼▼ -->
+    <div class="tab-item" id="tab-calendar" onclick="activateTab('calendar')"> <i class="far fa-calendar-alt"></i> Calendar </div>
+    
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
     <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
     <a href="https://discord.com/channels/@me" class="tab-item" target="_blank" title="Discord" style="padding-left: 16px; padding-right: 16px; min-width: 0;"><i class="fab fa-discord"></i></a>
   </div>
 </div>
+
+<!-- Main Apps Grid -->
 <div class="main-grid" id="main-grid">
   <div class="apps-area">
     <div id="search-wrapper">
@@ -149,7 +158,6 @@
             <div class="grid-container" id="recentlyUsedGridContainer"></div>
         </div>
         <hr id="section-divider" class="hidden">
-        
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             <div class="sub-filter-tabs" id="sub-filter-tabs">
@@ -168,6 +176,13 @@
     </div>
   </div>
 </div>
+
+<!-- ▼▼▼ 追加：Calendar Container ▼▼▼ -->
+<div id="calendar-container">
+    <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FTokyo&showTitle=0&src=dGFnZnlrQGdtYWlsLmNvbQ&src=bW9yaS55dXV0bzAxMzBAZ21haWwuY29t&src=amEuamFwYW5lc2UjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23039be5&color=%239e69af&color=%230b8043" style="border-width:0" width="1000" height="600" frameborder="0" scrolling="no"></iframe>
+</div>
+
+<!-- Bustarain Container -->
 <div id="bustarain-container">
     <div class="sub-tab-menu">
         <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
