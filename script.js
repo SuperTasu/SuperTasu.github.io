@@ -1,5 +1,8 @@
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
+// ▼▼▼ 追加：カレンダーコンテナの取得 ▼▼▼
+const calendarContainer = document.getElementById('calendar-container');
+
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 
@@ -181,7 +184,6 @@ function addRecentlyUsed(appId) {
         recentlyUsed.pop();
     }
     saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
-    // ▼▼▼ 変更：ここでの renderRecentlyUsed() 呼び出しを削除 (遅延更新のため) ▼▼▼
 }
 
 function renderRecentlyUsed() {
@@ -220,7 +222,7 @@ function createIconElement(app) {
 
     item.innerHTML = `
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-        <div class="label-text">${app.label}</div>`; // CSSで font-weight: bold にしています
+        <div class="label-text">${app.label}</div>`; 
     
     return item;
 }
@@ -252,21 +254,26 @@ function setTheme(t){
     }
 }
 
+// ▼▼▼ 変更：Calendarタブの切り替え処理を追加 ▼▼▼
 function activateTab(tabId) {
     document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${tabId}`)?.classList.add('active');
 
     mainGrid.style.display = 'none'; 
     bustarainContainer.style.display = 'none'; 
+    calendarContainer.style.display = 'none'; // カレンダーも非表示にする
 
     if (tabId === 'bustarain') { 
         bustarainContainer.style.display = 'block'; 
+    } else if (tabId === 'calendar') {
+        calendarContainer.style.display = 'flex'; // カレンダーを表示
     } else { 
         mainGrid.style.display = 'grid'; 
     }
 
     saveItem('siteActiveTab', tabId);
 }
+
 function filterIconsByCategory(category) {
     document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
     saveItem('siteActiveSubFilter', category);
@@ -277,7 +284,6 @@ function filterContent(){
     const input = document.getElementById("appSearchInput");
     const s = input.value.toLowerCase(); 
     
-    // ▼▼▼ 変更：入力がある場合、×ボタンを表示 ▼▼▼
     const clearBtn = document.getElementById('clearSearchBtn');
     if (s.length > 0) {
         clearBtn.classList.remove('hidden');
@@ -429,12 +435,11 @@ function init() {
         filterContent(); 
     });
 
-    // ▼▼▼ 変更：クリアボタンの処理 ▼▼▼
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
             filterContent();
-            searchInput.focus(); // 入力を続けやすくする
+            searchInput.focus(); 
         });
     }
 
@@ -465,15 +470,13 @@ function init() {
             const iconItem = iconLink.closest('.icon-item');
             if (iconItem && iconItem.dataset.id) {
                 addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
-                // renderRecentlyUsed(); // ← ここでの即時更新を削除
             }
         }
     });
 
-    // ▼▼▼ 変更：最近使用したアプリを30秒ごとに更新するタイマー ▼▼▼
     setInterval(() => {
         renderRecentlyUsed();
-    }, 30000); // 30000ms = 30秒
+    }, 30000); 
 }
 
 setInterval(() => { updateClockAndDate(); }, 1000);
