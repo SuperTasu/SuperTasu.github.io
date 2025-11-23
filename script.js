@@ -1,3 +1,18 @@
+　const mainGrid = document.getElementById('main-grid');
+// const statusContainer = document.getElementById('status-container'); // 削除
+const bustarainContainer = document.getElementById('bustarain-container');
+const gridContainer = document.getElementById('gridContainer');
+const refreshButton = document.getElementById('refresh-button');
+
+const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
+const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
+const sectionDivider = document.getElementById('section-divider');
+
+
+const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
+let appData = [];
+
+// ▼▼▼ 変更：Statusタブにあったコンテンツをアプリとして追加 ▼▼▼
 const initialAppData = [
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
@@ -22,11 +37,11 @@ const initialAppData = [
     // --- Artificial intelligence (AI) Category ---
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"ai",searchText:"ChatGPT AI"},
     {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"ai",searchText:"Claude AI クロード"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"ai",searchText:"Google AI Gemini Studio"},
-    // 追加: AI関連
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"ai",searchText:"Google AI Studio Gemini"},
+    // 追加したAIツール
     {id:75,label:"Perplexity",url:"https://www.perplexity.ai",icon:"https://www.perplexity.ai/favicon.ico",category:"ai",searchText:"Perplexity AI パープレキシティ"},
-    {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069954c85030e2800d9.png",category:"ai",searchText:"Gemini ジェミニ Google"},
-    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",category:"ai",searchText:"Copilot コパイロット Microsoft"},
+    {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030da8.png",category:"ai",searchText:"Google Gemini ジェミニ"},
+    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",category:"ai",searchText:"Microsoft Copilot コパイロット Bing"},
     
     // --- SNS Category ---
     {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",category:"sns",searchText:"X Twitter ツイッター"},
@@ -39,8 +54,8 @@ const initialAppData = [
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"sns",searchText:"Abema アベマ"},
     {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"sns",searchText:"Spotify スポティファイ"},
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"sns",searchText:"U-NEXT ユーネクスト"},
-    // 追加: Pinterest
-    {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",category:"sns",searchText:"Pinterest ピンタレスト"},
+    // 追加したSNS
+    {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",category:"sns",searchText:"Pinterest ピンタレスト 画像"},
     
     // --- Game Category ---
     {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",category:"game",searchText:"Apex Legends Status"},
@@ -88,8 +103,360 @@ const initialAppData = [
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",category:"other",searchText:"Benesse ベネッセ"},
     {id:69, label:"兵庫県警報・注意報", url:"https://weathernews.jp/onebox/warn/hyogo/2810000/", icon:"https://weathernews.jp/favicon.ico", category:"other", searchText:"警報 注意報 天気 兵庫 weathernews"},
     {id:70, label:"文字数カウント", url:"https://sundryst.com/convenienttool/strcount.html", icon:"https://sundryst.com/favicon.ico", category:"other", searchText:"文字数 カウント tool"},
-    // 追加: その他
-    {id:72, label:"UKARO", url:"https://www.ucaro.net", icon:"https://www.ucaro.net/favicon.ico", category:"other", searchText:"UKARO ウカロ 受験"},
-    {id:73, label:"Wordpress", url:"https://wordpress.com/home/answeri.wordpress.com", icon:"https://s1.wp.com/i/favicon.ico", category:"other", searchText:"WordPress ワードプレス ブログ"},
-    {id:74, label:"受かる英語", url:"https://ukaru-eigo.com", icon:"https://ukaru-eigo.com/favicon.ico", category:"other", searchText:"受かる英語 勉強"},
+    // 追加したOtherツール
+    {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",category:"other",searchText:"UKARO ウカロ 受験 大学"},
+    {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",category:"other",searchText:"Wordpress ワードプレス ブログ answeri"},
+    {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",category:"other",searchText:"受かる英語 英語学習"},
 ];
+
+const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
+initialAppData.forEach(app => {
+    if (app.icon && app.icon.startsWith('http')) {
+        app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
+    }
+});
+
+const SAVE_KEYS = {
+    THEME: 'siteSaveTheme',
+    MAIN_TAB: 'siteSaveMainTab',
+    SUB_FILTER: 'siteSaveSubFilter',
+    RECENTLY_USED: 'siteRecentlyUsed'
+};
+const MAX_RECENTLY_USED = 12;
+let saveSettings = {};
+
+function loadSaveSettings() {
+    saveSettings = {
+        theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
+        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) === 'true',
+        subFilter: localStorage.getItem(SAVE_KEYS.SUB_FILTER) === 'true'
+    };
+    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = true;
+    if (localStorage.getItem(SAVE_KEYS.MAIN_TAB) === null) saveSettings.mainTab = true;
+    if (localStorage.getItem(SAVE_KEYS.SUB_FILTER) === null) saveSettings.subFilter = true;
+}
+
+function getSavedItem(key) {
+    let saveSettingFlag = false;
+    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
+    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
+    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+    else if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key);
+
+    if (saveSettingFlag) {
+        return localStorage.getItem(key);
+    }
+    return null; 
+}
+
+function saveItem(key, value) {
+    let saveSettingFlag = false;
+    if (key === 'siteTheme') saveSettingFlag = saveSettings.theme;
+    else if (key === 'siteActiveTab') saveSettingFlag = saveSettings.mainTab;
+    else if (key === 'siteActiveSubFilter' || key === 'siteActiveSubTab') saveSettingFlag = saveSettings.subFilter;
+    else if (key === SAVE_KEYS.RECENTLY_USED) {
+        localStorage.setItem(key, value);
+        return;
+    }
+
+    if (saveSettingFlag) {
+        localStorage.setItem(key, value);
+    }
+}
+
+function loadAppData() { 
+    try { 
+        const d = localStorage.getItem('siteApps'); 
+        appData = d ? JSON.parse(d) : JSON.parse(JSON.stringify(initialAppData)); 
+    } catch(e) { 
+        appData = JSON.parse(JSON.stringify(initialAppData)); 
+    } 
+}
+
+function getRecentlyUsed() {
+    const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
+    return data ? JSON.parse(data) : [];
+}
+
+function addRecentlyUsed(appId) {
+    let recentlyUsed = getRecentlyUsed();
+    recentlyUsed = recentlyUsed.filter(id => id !== appId);
+    recentlyUsed.unshift(appId);
+    if (recentlyUsed.length > MAX_RECENTLY_USED) {
+        recentlyUsed.pop();
+    }
+    saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
+}
+
+function renderRecentlyUsed() {
+    const recentlyUsedIds = getRecentlyUsed();
+    recentlyUsedGridContainer.innerHTML = '';
+
+    if (recentlyUsedIds.length === 0) {
+        recentlyUsedContainer.classList.add('hidden');
+        sectionDivider.classList.add('hidden');
+        return;
+    }
+
+    recentlyUsedContainer.classList.remove('hidden');
+    sectionDivider.classList.remove('hidden');
+    
+    recentlyUsedIds.forEach(id => {
+        const app = appData.find(a => a.id === id);
+        if (app) {
+            const iconElement = createIconElement(app);
+            recentlyUsedGridContainer.appendChild(iconElement);
+        }
+    });
+}
+
+function createIconElement(app) {
+    const item = document.createElement('div');
+    item.className = `icon-item`;
+    item.dataset.id = app.id;
+    
+    let iconHTML;
+    if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
+        iconHTML = `<img src="${app.icon}" class="icon-img" loading="lazy" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
+    } else {
+        iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
+    }
+
+    item.innerHTML = `
+        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
+        <div class="label-text">${app.label}</div>`;
+    
+    return item;
+}
+
+function renderAllIcons() {
+    gridContainer.innerHTML = '';
+    appData.forEach(app => {
+        const iconElement = createIconElement(app);
+        iconElement.classList.add('search-item');
+        iconElement.dataset.category = app.category;
+        iconElement.dataset.searchText = app.searchText;
+        gridContainer.appendChild(iconElement);
+    });
+    filterIconsByCategory(getSavedItem('siteActiveSubFilter') || 'all');
+}
+
+function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
+function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
+function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
+function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
+
+function setTheme(t){
+    if ("dark"===t) {
+        document.body.classList.add("dark-theme");
+        saveItem('siteTheme', 'dark');
+    } else {
+        document.body.classList.remove("dark-theme");
+        saveItem('siteTheme', 'light');
+    }
+}
+
+// ▼▼▼ 変更：Statusタブの処理を削除 ▼▼▼
+function activateTab(tabId) {
+    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`)?.classList.add('active');
+
+    mainGrid.style.display = 'none'; 
+    bustarainContainer.style.display = 'none'; 
+
+    if (tabId === 'bustarain') { 
+        bustarainContainer.style.display = 'block'; 
+    } else { 
+        mainGrid.style.display = 'grid'; 
+    }
+
+    saveItem('siteActiveTab', tabId);
+}
+function filterIconsByCategory(category) {
+    document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.toggle('active', btn.dataset.category === category));
+    saveItem('siteActiveSubFilter', category);
+    filterContent();
+}
+
+function filterContent(){ 
+    const s = document.getElementById("appSearchInput").value.toLowerCase(); 
+    const c = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
+    document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
+        const categoryMatch = (c === 'all' || i.dataset.category === c); 
+        const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
+        i.style.display = (categoryMatch && searchMatch) ? 'grid' : 'none';
+    }); 
+}
+
+function initAccordions() { 
+    document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { 
+        const item = h.parentElement; 
+        const wasActive = item.classList.contains('active'); 
+        h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); 
+        if (!wasActive) { 
+            item.classList.add('active'); 
+            const content = h.nextElementSibling, src = h.dataset.src; 
+            if (src && content.innerHTML.trim() === '') { 
+                const iframe = document.createElement('iframe'); 
+                iframe.className = 'accordion-iframe'; 
+                iframe.loading = 'lazy';
+                iframe.src = src; 
+                content.appendChild(iframe); 
+            } 
+        } 
+    })); 
+}
+
+function activateSubTab(targetId) {
+    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
+    const targetContent = document.getElementById(targetId);
+    if(targetContent) {
+        targetContent.classList.remove('hidden');
+        const iframe = targetContent.querySelector('iframe[data-src]');
+        if (iframe) {
+            iframe.src = iframe.dataset.src;
+            iframe.removeAttribute('data-src');
+        }
+    }
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
+    saveItem('siteActiveSubTab', targetId);
+}
+
+function setupModal() {
+    const iframeModal = document.getElementById('iframe-modal');
+    const modalIframe = document.getElementById('modal-iframe');
+
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const target = e.currentTarget;
+            let iframeSrc = '';
+            
+            // Statusタブがなくなったため、この機能は現状使われないがコードは残しておく
+            const card = target.closest('.status-card');
+            const iframe = card ? card.querySelector('iframe') : null;
+            if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
+            
+            if (iframeSrc) {
+                modalIframe.src = iframeSrc;
+                iframeModal.classList.remove('hidden');
+            }
+        });
+    });
+    
+    iframeModal.addEventListener('click', (e) => {
+        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
+            iframeModal.classList.add('hidden');
+            modalIframe.src = 'about:blank';
+        }
+    });
+}
+
+function lazyLoadIframes() {
+    const lazyIframes = document.querySelectorAll('iframe[data-src]');
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const iframe = entry.target;
+                    iframe.src = iframe.dataset.src;
+                    iframe.removeAttribute('data-src');
+                    observer.unobserve(iframe);
+                }
+            });
+        });
+        lazyIframes.forEach(iframe => observer.observe(iframe));
+    } else {
+        lazyIframes.forEach(iframe => {
+            iframe.src = iframe.dataset.src;
+            iframe.removeAttribute('data-src');
+        });
+    }
+}
+
+function updateOnlineStatus() {
+    const offlineStatusElement = document.getElementById('offline-status');
+    if (navigator.onLine) {
+        offlineStatusElement.textContent = '';
+        offlineStatusElement.style.display = 'none';
+    } else {
+        offlineStatusElement.textContent = 'オフライン';
+        offlineStatusElement.style.display = 'block';
+    }
+}
+
+if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
+
+function init() {
+    loadSaveSettings();
+
+    const savedTheme = getSavedItem('siteTheme');
+    const savedTab = getSavedItem('siteActiveTab');
+    const savedSubTab = getSavedItem('siteActiveSubTab'); 
+
+    setTheme(savedTheme || 'light');
+    updateClockAndDate();
+    loadAppData(); 
+    
+    renderAllIcons();
+    renderRecentlyUsed();
+
+    activateTab(savedTab || 'all-apps');
+    initAccordions();
+    activateSubTab(savedSubTab || 'train-content');
+    
+    setupModal();
+    lazyLoadIframes();
+
+    window.initBusSchedule();
+    
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    document.getElementById('appSearchInput').addEventListener('input', () => { 
+        if(document.getElementById("appSearchInput").value) { 
+            activateTab('all-apps');
+            document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
+            const allButton = document.querySelector(".sub-filter-btn[data-category='all']");
+            if (allButton) allButton.classList.add('active');
+            saveItem('siteActiveSubFilter', 'all');
+        }
+        filterContent(); 
+    });
+    document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        filterIconsByCategory(e.currentTarget.dataset.category);
+    }));
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        activateSubTab(e.currentTarget.dataset.target);
+    }));
+
+    refreshButton.addEventListener('click', () => {
+        location.reload(); 
+    });
+
+    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
+    if (speedTestRefreshButton) {
+        speedTestRefreshButton.addEventListener('click', () => {
+            const speedTestIframe = document.querySelector('.header-speed-test iframe');
+            if (speedTestIframe && navigator.onLine) {
+                speedTestIframe.src = 'https://fast.com/ja/';
+            }
+        });
+    }
+    
+    document.getElementById('mainContent').addEventListener('click', (e) => {
+        const iconLink = e.target.closest('.icon-link');
+        if (iconLink) {
+            const iconItem = iconLink.closest('.icon-item');
+            if (iconItem && iconItem.dataset.id) {
+                addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
+                renderRecentlyUsed();
+            }
+        }
+    });
+}
+
+// ▼▼▼ 変更：Statusタブがなくなったため、バスのリアルタイム更新処理を削除 ▼▼▼
+setInterval(() => { updateClockAndDate(); }, 1000);
+// setInterval(() => { if (window.updateBusDisplay) window.updateBusDisplay(); }, 30000); // こちらも不要であれば削除
+document.addEventListener('DOMContentLoaded', init);
