@@ -3,13 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <title>Link First</title>
-  <!-- ▼▼▼ 変更：推奨されるファビコン設定に更新 ▼▼▼ -->
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
   <link rel="stylesheet" href="style.css">
+  
+  <!-- ▼▼▼ 追加・修正したスタイル ▼▼▼ -->
+  <style>
+    /* アプリの文字を太文字にする */
+    .label-text {
+        font-weight: 700 !important;
+    }
+
+    /* 検索コンテナのスタイル強化 */
+    .search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff; /* 背景色を明示 */
+        border-radius: 20px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        flex-grow: 1; /* 可能な限り広げる */
+        max-width: 400px; /* PCでの最大幅 */
+    }
+
+    .search-container i.fa-search {
+        color: #888;
+        margin-right: 8px;
+    }
+
+    /* 入力欄のスタイル */
+    #appSearchInput {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 16px; /* スマホでズームされないサイズ */
+        background: transparent;
+        padding-right: 30px; /* ×ボタンのスペース */
+        height: 30px;
+    }
+
+    /* ×ボタン（クリアボタン）のスタイル */
+    #clearSearchBtn {
+        position: absolute;
+        right: 10px;
+        color: #999;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 5px; /* タップ領域を広げる */
+        z-index: 2;
+    }
+    
+    #clearSearchBtn:hover {
+        color: #333;
+    }
+
+    /* Hiddenクラス（既存のCSSにあると想定、なければここで定義） */
+    .hidden {
+        display: none !important;
+    }
+
+    /* ▼▼▼ スマホ向け最適化 (レスポンシブ) ▼▼▼ */
+    @media (max-width: 768px) {
+        .tab-menu {
+            flex-wrap: wrap; /* 折り返しを許可 */
+            gap: 10px;
+            padding: 10px;
+        }
+
+        /* スマホでは検索バーを最上段に100%幅で表示 */
+        .search-container {
+            order: -1; /* 順番を最初にする */
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 5px;
+            height: 44px; /* タップしやすい高さ */
+        }
+
+        /* タブアイテムの調整 */
+        .tab-item {
+            flex-grow: 1;
+            text-align: center;
+            justify-content: center;
+            font-size: 14px;
+            padding: 10px 5px;
+        }
+    }
+  </style>
 </head>
 <body>
   <div class="page-container">
@@ -44,7 +127,13 @@
 </header>
 <div class="tab-container">
   <div class="tab-menu">
-    <div class="search-container"> <i class="fas fa-search"></i> <input type="text" id="appSearchInput" placeholder="検索..."> </div>
+    <!-- ▼▼▼ 変更：クリアボタンを追加 ▼▼▼ -->
+    <div class="search-container"> 
+        <i class="fas fa-search"></i> 
+        <input type="text" id="appSearchInput" placeholder="検索..."> 
+        <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+    </div>
+    
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
     <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
