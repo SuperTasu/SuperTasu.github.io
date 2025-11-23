@@ -1,5 +1,4 @@
-　const mainGrid = document.getElementById('main-grid');
-// const statusContainer = document.getElementById('status-container'); // 削除
+const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
@@ -12,7 +11,6 @@ const sectionDivider = document.getElementById('section-divider');
 const schedule=[{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 let appData = [];
 
-// ▼▼▼ 変更：Statusタブにあったコンテンツをアプリとして追加 ▼▼▼
 const initialAppData = [
     // --- Google Category ---
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",category:"google",searchText:"Google グーグル"},
@@ -38,7 +36,6 @@ const initialAppData = [
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",category:"ai",searchText:"ChatGPT AI"},
     {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",category:"ai",searchText:"Claude AI クロード"},
     {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",category:"ai",searchText:"Google AI Studio Gemini"},
-    // 追加したAIツール
     {id:75,label:"Perplexity",url:"https://www.perplexity.ai",icon:"https://www.perplexity.ai/favicon.ico",category:"ai",searchText:"Perplexity AI パープレキシティ"},
     {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030da8.png",category:"ai",searchText:"Google Gemini ジェミニ"},
     {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",category:"ai",searchText:"Microsoft Copilot コパイロット Bing"},
@@ -54,7 +51,6 @@ const initialAppData = [
     {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",category:"sns",searchText:"Abema アベマ"},
     {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",category:"sns",searchText:"Spotify スポティファイ"},
     {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",category:"sns",searchText:"U-NEXT ユーネクスト"},
-    // 追加したSNS
     {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",category:"sns",searchText:"Pinterest ピンタレスト 画像"},
     
     // --- Game Category ---
@@ -103,7 +99,6 @@ const initialAppData = [
     {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",category:"other",searchText:"Benesse ベネッセ"},
     {id:69, label:"兵庫県警報・注意報", url:"https://weathernews.jp/onebox/warn/hyogo/2810000/", icon:"https://weathernews.jp/favicon.ico", category:"other", searchText:"警報 注意報 天気 兵庫 weathernews"},
     {id:70, label:"文字数カウント", url:"https://sundryst.com/convenienttool/strcount.html", icon:"https://sundryst.com/favicon.ico", category:"other", searchText:"文字数 カウント tool"},
-    // 追加したOtherツール
     {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",category:"other",searchText:"UKARO ウカロ 受験 大学"},
     {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",category:"other",searchText:"Wordpress ワードプレス ブログ answeri"},
     {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",category:"other",searchText:"受かる英語 英語学習"},
@@ -186,6 +181,7 @@ function addRecentlyUsed(appId) {
         recentlyUsed.pop();
     }
     saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
+    // ▼▼▼ 変更：ここでの renderRecentlyUsed() 呼び出しを削除 (遅延更新のため) ▼▼▼
 }
 
 function renderRecentlyUsed() {
@@ -224,7 +220,7 @@ function createIconElement(app) {
 
     item.innerHTML = `
         <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-        <div class="label-text">${app.label}</div>`;
+        <div class="label-text">${app.label}</div>`; // CSSで font-weight: bold にしています
     
     return item;
 }
@@ -256,7 +252,6 @@ function setTheme(t){
     }
 }
 
-// ▼▼▼ 変更：Statusタブの処理を削除 ▼▼▼
 function activateTab(tabId) {
     document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${tabId}`)?.classList.add('active');
@@ -279,7 +274,17 @@ function filterIconsByCategory(category) {
 }
 
 function filterContent(){ 
-    const s = document.getElementById("appSearchInput").value.toLowerCase(); 
+    const input = document.getElementById("appSearchInput");
+    const s = input.value.toLowerCase(); 
+    
+    // ▼▼▼ 変更：入力がある場合、×ボタンを表示 ▼▼▼
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (s.length > 0) {
+        clearBtn.classList.remove('hidden');
+    } else {
+        clearBtn.classList.add('hidden');
+    }
+
     const c = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
     document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
         const categoryMatch = (c === 'all' || i.dataset.category === c); 
@@ -330,12 +335,9 @@ function setupModal() {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget;
             let iframeSrc = '';
-            
-            // Statusタブがなくなったため、この機能は現状使われないがコードは残しておく
             const card = target.closest('.status-card');
             const iframe = card ? card.querySelector('iframe') : null;
             if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
-            
             if (iframeSrc) {
                 modalIframe.src = iframeSrc;
                 iframeModal.classList.remove('hidden');
@@ -413,8 +415,11 @@ function init() {
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-    document.getElementById('appSearchInput').addEventListener('input', () => { 
-        if(document.getElementById("appSearchInput").value) { 
+    const searchInput = document.getElementById('appSearchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    searchInput.addEventListener('input', () => { 
+        if(searchInput.value) { 
             activateTab('all-apps');
             document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
             const allButton = document.querySelector(".sub-filter-btn[data-category='all']");
@@ -423,6 +428,16 @@ function init() {
         }
         filterContent(); 
     });
+
+    // ▼▼▼ 変更：クリアボタンの処理 ▼▼▼
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            filterContent();
+            searchInput.focus(); // 入力を続けやすくする
+        });
+    }
+
     document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
         filterIconsByCategory(e.currentTarget.dataset.category);
     }));
@@ -450,13 +465,16 @@ function init() {
             const iconItem = iconLink.closest('.icon-item');
             if (iconItem && iconItem.dataset.id) {
                 addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
-                renderRecentlyUsed();
+                // renderRecentlyUsed(); // ← ここでの即時更新を削除
             }
         }
     });
+
+    // ▼▼▼ 変更：最近使用したアプリを30秒ごとに更新するタイマー ▼▼▼
+    setInterval(() => {
+        renderRecentlyUsed();
+    }, 30000); // 30000ms = 30秒
 }
 
-// ▼▼▼ 変更：Statusタブがなくなったため、バスのリアルタイム更新処理を削除 ▼▼▼
 setInterval(() => { updateClockAndDate(); }, 1000);
-// setInterval(() => { if (window.updateBusDisplay) window.updateBusDisplay(); }, 30000); // こちらも不要であれば削除
 document.addEventListener('DOMContentLoaded', init);
