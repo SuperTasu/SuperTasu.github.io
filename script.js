@@ -1,8 +1,5 @@
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
-// ▼▼▼ 追加：カレンダーコンテナの取得 ▼▼▼
-const calendarContainer = document.getElementById('calendar-container');
-
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 
@@ -105,6 +102,8 @@ const initialAppData = [
     {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",category:"other",searchText:"UKARO ウカロ 受験 大学"},
     {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",category:"other",searchText:"Wordpress ワードプレス ブログ answeri"},
     {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",category:"other",searchText:"受かる英語 英語学習"},
+    // 追加: 背景透過2 (remove.bg)
+    {id:78,label:"背景透過2",url:"https://www.remove.bg/ja",icon:"https://www.remove.bg/favicon.ico",category:"other",searchText:"remove.bg 背景透過 removebg"},
 ];
 
 const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
@@ -254,19 +253,16 @@ function setTheme(t){
     }
 }
 
-// ▼▼▼ 変更：Calendarタブの切り替え処理を追加 ▼▼▼
+// カレンダー処理を削除し、タブ切り替えをシンプルに戻しました
 function activateTab(tabId) {
     document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${tabId}`)?.classList.add('active');
 
     mainGrid.style.display = 'none'; 
     bustarainContainer.style.display = 'none'; 
-    calendarContainer.style.display = 'none'; // カレンダーも非表示にする
 
     if (tabId === 'bustarain') { 
         bustarainContainer.style.display = 'block'; 
-    } else if (tabId === 'calendar') {
-        calendarContainer.style.display = 'flex'; // カレンダーを表示
     } else { 
         mainGrid.style.display = 'grid'; 
     }
@@ -285,10 +281,20 @@ function filterContent(){
     const s = input.value.toLowerCase(); 
     
     const clearBtn = document.getElementById('clearSearchBtn');
+    
+    // ▼▼▼ 変更：検索文字があるときは「最近使用したアプリ」を隠す ▼▼▼
     if (s.length > 0) {
         clearBtn.classList.remove('hidden');
+        recentlyUsedContainer.classList.add('hidden');
+        sectionDivider.classList.add('hidden');
     } else {
         clearBtn.classList.add('hidden');
+        // 検索文字がない場合、最近使用したアプリがあれば表示する
+        const recentlyUsedIds = getRecentlyUsed();
+        if (recentlyUsedIds.length > 0) {
+            recentlyUsedContainer.classList.remove('hidden');
+            sectionDivider.classList.remove('hidden');
+        }
     }
 
     const c = document.querySelector('.sub-filter-btn.active')?.dataset.category || 'all';
