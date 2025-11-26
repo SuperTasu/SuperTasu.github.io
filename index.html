@@ -15,7 +15,7 @@
     .label-text { font-weight: 700 !important; }
     .hidden { display: none !important; }
 
-    /* 検索コンテナの基本スタイル */
+    /* 検索コンテナ */
     .search-container {
         position: relative;
         display: flex;
@@ -51,29 +51,122 @@
     #clearSearchBtn:hover { color: #333; }
 
     /* ダークモード対応 */
-    body.dark-theme .search-container {
-        background: #333;
-        border-color: #555;
-    }
-    body.dark-theme #appSearchInput {
-        color: #eee;
-    }
+    body.dark-theme .search-container { background: #333; border-color: #555; }
+    body.dark-theme #appSearchInput { color: #eee; }
     body.dark-theme .search-container i.fa-search,
-    body.dark-theme #clearSearchBtn {
-        color: #aaa;
-    }
-    body.dark-theme #clearSearchBtn:hover {
-        color: #fff;
-    }
-    body.dark-theme #appSearchInput::placeholder {
-        color: #777;
-    }
+    body.dark-theme #clearSearchBtn { color: #aaa; }
+    body.dark-theme #clearSearchBtn:hover { color: #fff; }
+    body.dark-theme #appSearchInput::placeholder { color: #777; }
 
     /* スマホ向け最適化 */
     @media (max-width: 768px) {
         .tab-menu { flex-wrap: wrap; gap: 10px; padding: 10px; }
         .search-container { order: -1; width: 100%; max-width: 100%; margin-bottom: 5px; height: 44px; }
         .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; }
+    }
+
+    /* ▼▼▼ 追加：ヘッダーのランク表示用スタイル ▼▼▼ */
+    #header-danger-rank {
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: #333; /* デフォルト背景 */
+        border: 1px solid #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+    }
+    /* ヘッダー用ランクカラー定義 */
+    .header-rank-SSR { color: #FFD700; border-color: #FFD700; text-shadow: 0 0 5px #FFD700; animation: glow-text 1.5s infinite alternate; }
+    .header-rank-S { color: #ff2a2a; border-color: #ff2a2a; text-shadow: 0 0 5px #ff0000; }
+    .header-rank-A { color: #ff9900; border-color: #ff9900; }
+    .header-rank-C { color: #3399ff; border-color: #3399ff; }
+
+    @keyframes glow-text {
+        from { text-shadow: 0 0 5px #FFD700; }
+        to { text-shadow: 0 0 15px #FFD700, 0 0 5px #ff00de; }
+    }
+
+    /* ▼▼▼ 追加：Damageタブ内のスタイル（提供されたコードを移植・調整） ▼▼▼ */
+    #damage-container {
+        display: none; /* JSで制御 */
+        width: 100%;
+        justify-content: center;
+        align-items: flex-start; /* 上寄せ */
+        padding-top: 20px;
+        min-height: 80vh;
+    }
+    .damage-wrapper {
+        background-color: #2d2d2d;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid #444;
+        color: #e0e0e0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+    .damage-wrapper h1 { margin: 0 0 20px; font-size: 1.4rem; color: #bbb; }
+    .damage-info-box {
+        background: #3a3a3a;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .damage-numbers {
+        font-size: 1.3rem;
+        letter-spacing: 2px;
+        margin-top: 5px;
+        font-family: monospace;
+        color: #fff;
+    }
+    .damage-rank-area {
+        padding: 25px;
+        border-radius: 12px;
+        background: #222;
+        border: 2px solid #444;
+        transition: all 0.3s ease;
+    }
+    .damage-rank-label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .damage-rank-value {
+        font-size: 5rem;
+        font-weight: 800;
+        margin: 5px 0;
+        line-height: 1;
+    }
+    .damage-rank-desc { font-size: 0.9rem; color: #aaa; }
+
+    /* Damageタブ内ランク別スタイル */
+    .rank-SSR {
+        border-color: #FFD700;
+        background: linear-gradient(135deg, #222 0%, #332a00 100%);
+        color: #FFD700;
+        text-shadow: 0 0 15px #FFD700, 0 0 30px #ff00de;
+        animation: glow 1.5s ease-in-out infinite alternate;
+    }
+    .rank-S {
+        border-color: #ff2a2a;
+        background: linear-gradient(135deg, #222 0%, #330000 100%);
+        color: #ff2a2a;
+        text-shadow: 0 0 15px #ff0000;
+    }
+    .rank-A {
+        border-color: #ff9900;
+        color: #ff9900;
+        text-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+    }
+    .rank-C {
+        border-color: #3399ff;
+        color: #3399ff;
+    }
+    @keyframes glow {
+        from { box-shadow: 0 0 5px #FFD700; transform: scale(1); }
+        to { box-shadow: 0 0 20px #FFD700, 0 0 10px #ff00de; transform: scale(1.02); }
     }
   </style>
 </head>
@@ -84,6 +177,9 @@
         <div class="clock-main-row">
             <div class="clock-content-wrapper">
               <div class="datetime-row">
+                <!-- ▼▼▼ 追加：危険度ランク表示（時計の左） ▼▼▼ -->
+                <div id="header-danger-rank"></div>
+                
                 <div id="date"></div>
                 <div id="clock"></div>
                 <div id="countdown"></div>
@@ -117,7 +213,9 @@
     </div>
     
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
-    <!-- カレンダータブを削除しました -->
+    <!-- ▼▼▼ 追加：Damageタブ ▼▼▼ -->
+    <div class="tab-item" id="tab-damage" onclick="activateTab('damage')"> <i class="fas fa-exclamation-triangle"></i> Damage </div>
+    
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
     <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
     <a href="https://discord.com/channels/@me" class="tab-item" target="_blank" title="Discord" style="padding-left: 16px; padding-right: 16px; min-width: 0;"><i class="fab fa-discord"></i></a>
@@ -153,7 +251,26 @@
   </div>
 </div>
 
-<!-- カレンダーコンテナを削除しました -->
+<!-- ▼▼▼ 追加：Damage Container (提供コードの埋め込み) ▼▼▼ -->
+<div id="damage-container">
+    <div class="damage-wrapper">
+        <h1>本日の危険度</h1>
+        
+        <div class="damage-info-box">
+            <div style="font-size:0.9rem; color:#888;">今日の日付</div>
+            <div style="font-size:1.5rem; font-weight:bold;" id="damage-date-disp"></div>
+            <hr style="border-color:#555; margin:10px 0; opacity:0.5;">
+            <div style="font-size:0.9rem; color:#888;">計算数値 (+0, +10, +20)</div>
+            <div class="damage-numbers" id="damage-calc-disp"></div>
+        </div>
+
+        <div id="damage-rank-box" class="damage-rank-area">
+            <div class="damage-rank-label">Danger Level</div>
+            <div id="damage-rank-result" class="damage-rank-value"></div>
+            <div id="damage-rank-desc" class="damage-rank-desc"></div>
+        </div>
+    </div>
+</div>
 
 <!-- Bustarain Container -->
 <div id="bustarain-container">
