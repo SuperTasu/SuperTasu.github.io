@@ -1,23 +1,23 @@
 // --- DOM要素の取得 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
-const optionContainer = document.getElementById('option-container');
-const fyContainer = document.getElementById('fy-container');
-const fyContentArea = document.getElementById('fy-content-area');
+const optionContainer = document.getElementById('option-container'); // HTMLに合わせて追加
+const fyContainer = document.getElementById('fy-container'); // 追加: FYコンテナ
+const fyContentArea = document.getElementById('fy-content-area'); // 追加: FYコンテンツエリア
 
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
 const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
 const sectionDivider = document.getElementById('section-divider');
-const searchInput = document.getElementById('appSearchInput');
-const clearSearchBtn = document.getElementById('clearSearchBtn');
+const searchInput = document.getElementById('appSearchInput'); // 検索用に追加
+const clearSearchBtn = document.getElementById('clearSearchBtn'); // 検索クリア用
 
 // --- データ定義 ---
 const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
-// Apps データ (完全リスト)
 let appData = [];
+
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
@@ -102,19 +102,6 @@ const initialAppData = [
     {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",searchText:"imguma アッシュクマ 画像圧縮"},
 ];
 
-// Bustarain データ (IDは1000番台で管理して重複回避)
-const bustarainData = [
-    { id: 1001, category: 'train', label: "和田岬", src: "train/wadmisaki-train.html", icon: "fas fa-train" },
-    { id: 1002, category: 'train', label: "帰）板宿新長田経由海岸線", src: "train/itayado-train.html", icon: "fas fa-subway" },
-    { id: 1003, category: 'train', label: "板宿駅（山陽電車）", src: "train/Itayado-sannyou.html", icon: "fas fa-train" },
-    { id: 1004, category: 'bus', label: "バスロケーション", src: "bus/Buslocation.html", icon: "fas fa-map-marked-alt" },
-    { id: 1005, category: 'bus', label: "行き・帰り（今出在家 ⇔ 鷹取団地）", src: "bus/iki-kaeri.html", icon: "fas fa-exchange-alt" },
-    { id: 1006, category: 'bus', label: "今出在家", src: "bus/imadezaike.html", icon: "fas fa-bus" },
-    { id: 1007, category: 'bus', label: "夢野町3丁目", src: "bus/yumeno3.html", icon: "fas fa-bus" },
-    { id: 1008, category: 'bus', label: "高取団地前", src: "bus/takatoridantimae.html", icon: "fas fa-bus" },
-    { id: 1009, category: 'bus', label: "板宿駅", src: "bus/Itayado-bus.html", icon: "fas fa-bus" }
-];
-
 const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
 initialAppData.forEach(app => {
     if (app.icon && (app.icon.startsWith('http') && !app.icon.includes(GOOGLE_FAVICON_API_BASE))) {
@@ -131,9 +118,9 @@ const SAVE_KEYS = {
 const MAX_RECENTLY_USED = 12;
 let saveSettings = {};
 let favoriteIds = [];
-let currentActiveTab = 'all-apps';
+let currentActiveTab = 'all-apps'; // 現在のタブを追跡
 
-// --- CSS注入（お気に入りボタン位置修正） ---
+// --- CSS注入 ---
 const styleElement = document.createElement('style');
 styleElement.innerHTML = `
     .icon-item {
@@ -141,8 +128,8 @@ styleElement.innerHTML = `
     }
     .favorite-btn {
         position: absolute;
-        top: 5px; /* 右上に変更 */
-        right: 5px; /* 右上に変更 */
+        bottom: 5px;
+        right: 5px;
         cursor: pointer;
         color: #ccc;
         font-size: 14px;
@@ -162,38 +149,48 @@ styleElement.innerHTML = `
 document.head.appendChild(styleElement);
 
 
-// --- 初期化・ロード関連 ---
+// --- 設定ロード ---
 function loadSaveSettings() {
     saveSettings = {
         theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
-        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) || 'all-apps',
+        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) || 'all-apps', // デフォルトをall-appsに
     };
     if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = false;
     
-    // お気に入り読み込み
+    // 古い形式(boolean)からの移行対応
+    if (saveSettings.mainTab === 'true') saveSettings.mainTab = 'all-apps';
+    if (saveSettings.mainTab === 'false') saveSettings.mainTab = 'all-apps';
+
     const favData = localStorage.getItem(SAVE_KEYS.FAVORITES);
     favoriteIds = favData ? JSON.parse(favData) : [];
 }
 
-function saveItem(key, value) {
-    localStorage.setItem(key, value);
+function getSavedItem(key) {
+    if (key === 'siteTheme') return saveSettings.theme;
+    if (key === 'siteActiveTab') return saveSettings.mainTab;
+    if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key);
+    return null; 
 }
 
+function saveItem(key, value) {
+    if (key === 'siteTheme') localStorage.setItem(key, value);
+    else if (key === 'siteActiveTab') localStorage.setItem(key, value);
+    else if (key === SAVE_KEYS.RECENTLY_USED) localStorage.setItem(key, value);
+    else if (key === SAVE_KEYS.FAVORITES) localStorage.setItem(key, value);
+    else if (key === SAVE_KEYS.MAIN_TAB) localStorage.setItem(key, value);
+}
+
+// --- アプリデータ準備 ---
 function loadAppData() { 
-    // Appデータの復元とお気に入り反映
     try { 
         appData = JSON.parse(JSON.stringify(initialAppData));
+        // お気に入り状態を反映
         appData.forEach(app => {
             app.isFavorite = favoriteIds.includes(app.id);
         });
     } catch(e) { 
         appData = JSON.parse(JSON.stringify(initialAppData)); 
     } 
-    
-    // Bustarainデータにもお気に入り反映
-    bustarainData.forEach(item => {
-        item.isFavorite = favoriteIds.includes(item.id);
-    });
 }
 
 // --- タブ切り替え ---
@@ -201,67 +198,65 @@ function activateTab(tabName) {
     currentActiveTab = tabName;
     saveItem(SAVE_KEYS.MAIN_TAB, tabName);
 
+    // 全てのコンテンツを非表示
     mainGrid.style.display = 'none';
     bustarainContainer.style.display = 'none';
     optionContainer.style.display = 'none';
     fyContainer.style.display = 'none';
 
+    // タブメニューの見た目更新（任意：CSSで.activeクラスなどを定義して色を変える場合に使用）
+    document.querySelectorAll('.tab-item').forEach(item => {
+        // ここでクラス操作などを追加可能
+    });
+
+    // 選択されたタブを表示
     if (tabName === 'all-apps') {
         mainGrid.style.display = 'block';
+        // 全アプリ表示時は再描画して最新のスター状態を反映
         renderAllIcons();
     } else if (tabName === 'bustarain') {
         bustarainContainer.style.display = 'block';
-        // Bustarainの表示を更新（スターの状態反映のため）
-        renderBustarainContent();
     } else if (tabName === 'option') {
         optionContainer.style.display = 'block';
     } else if (tabName === 'fy') {
         fyContainer.style.display = 'block';
-        renderFavoritesTab();
+        renderFavoritesTab(); // FYタブ表示時に中身を描画
     }
     
+    // 検索ボックスの中身をクリアまたは再適用（必要に応じて）
     filterContent();
 }
 
-// --- お気に入り切り替え処理 (共通) ---
-function toggleFavorite(e, id) {
-    if(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
+// --- お気に入り機能 ---
+function toggleFavorite(e, appId) {
+    e.preventDefault();
+    e.stopPropagation();
 
-    if (favoriteIds.includes(id)) {
-        favoriteIds = favoriteIds.filter(fid => fid !== id);
+    if (favoriteIds.includes(appId)) {
+        favoriteIds = favoriteIds.filter(id => id !== appId);
     } else {
-        favoriteIds.push(id);
+        favoriteIds.push(appId);
     }
     saveItem(SAVE_KEYS.FAVORITES, JSON.stringify(favoriteIds));
 
-    // メモリ上のデータ更新
-    const app = appData.find(a => a.id === id);
-    if (app) app.isFavorite = favoriteIds.includes(id);
-    
-    const bus = bustarainData.find(b => b.id === id);
-    if (bus) bus.isFavorite = favoriteIds.includes(id);
+    // appData更新
+    const app = appData.find(a => a.id === appId);
+    if (app) {
+        app.isFavorite = favoriteIds.includes(appId);
+    }
 
-    // 画面更新
+    // 現在の表示タブに合わせて再描画
     if (currentActiveTab === 'fy') {
-        renderFavoritesTab();
+        renderFavoritesTab(); // リストから即座に削除
     } else if (currentActiveTab === 'all-apps') {
-        renderAllIcons();
-    } else if (currentActiveTab === 'bustarain') {
-        // Bustarainタブの場合はスターの色を変えるだけにする（再描画だとアコーディオンが閉じてしまうため）
-        const btn = document.querySelector(`.accordion-star[data-id="${id}"]`);
-        if(btn) {
-            if(favoriteIds.includes(id)) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
+        renderAllIcons(); // スターの色を更新
+        renderRecentlyUsed(); // 最近使用した項目にも反映(必要なら)
     }
 }
 
-// --- Apps機能 (メイングリッド) ---
+// --- 最近使用したアプリ ---
 function getRecentlyUsed() {
-    const data = localStorage.getItem(SAVE_KEYS.RECENTLY_USED);
+    const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
     return data ? JSON.parse(data) : [];
 }
 
@@ -269,7 +264,9 @@ function addRecentlyUsed(appId) {
     let recentlyUsed = getRecentlyUsed();
     recentlyUsed = recentlyUsed.filter(id => id !== appId);
     recentlyUsed.unshift(appId);
-    if (recentlyUsed.length > MAX_RECENTLY_USED) recentlyUsed.pop();
+    if (recentlyUsed.length > MAX_RECENTLY_USED) {
+        recentlyUsed.pop();
+    }
     saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
     renderRecentlyUsed();
 }
@@ -290,16 +287,20 @@ function renderRecentlyUsed() {
     recentlyUsedIds.forEach(id => {
         const app = appData.find(a => a.id === id);
         if (app) {
-            const iconElement = createIconElement(app, false); 
-            iconElement.querySelector('a').addEventListener('click', () => addRecentlyUsed(app.id));
+            const iconElement = createIconElement(app, false); // ここではスター非表示
+            // 最近使用した項目のクリックイベント
+            iconElement.querySelector('a').addEventListener('click', () => {
+                addRecentlyUsed(app.id);
+            });
             recentlyUsedGridContainer.appendChild(iconElement);
         }
     });
 }
 
+// --- アイコン要素作成 ---
 function createIconElement(app, showStar = true) {
     const item = document.createElement('div');
-    item.className = `icon-item search-item`;
+    item.className = `icon-item search-item`; // search-itemクラスを追加して検索対象にする
     item.dataset.id = app.id;
     item.dataset.searchText = app.searchText;
     
@@ -316,29 +317,24 @@ function createIconElement(app, showStar = true) {
         starHTML = `<i class="${starClass}" onclick="toggleFavorite(event, ${app.id})"></i>`;
     }
 
-    // Bustarainアイテムの場合のクリック動作（モーダルを開く）
-    // IDが1000以上ならBustarainとみなす
-    let linkHTML = '';
-    if (app.id >= 1000) {
-        linkHTML = `<a href="#" class="icon-link" onclick="openModal('${app.src}'); return false;">${iconHTML}</a>`;
-    } else {
-        linkHTML = `<a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>`;
-    }
-
     item.innerHTML = `
-        ${linkHTML}
+        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
         ${starHTML}
         <div class="label-text">${app.label}</div>`; 
     
-    if (app.id < 1000) {
-        item.querySelector('a').addEventListener('click', () => addRecentlyUsed(app.id));
-    }
+    // リンククリック時に「最近使用」に追加
+    item.querySelector('a').addEventListener('click', () => {
+        addRecentlyUsed(app.id);
+    });
 
     return item;
 }
 
+// --- メイングランド描画 ---
 function renderAllIcons() {
     gridContainer.innerHTML = '';
+    
+    // お気に入りが先頭に来るようにソート
     const sortedApps = [...appData].sort((a, b) => {
         if (a.isFavorite === b.isFavorite) return 0;
         return a.isFavorite ? -1 : 1;
@@ -348,92 +344,28 @@ function renderAllIcons() {
         const iconElement = createIconElement(app, true);
         gridContainer.appendChild(iconElement);
     });
-    filterContent();
-}
-
-// --- Bustarain機能 ---
-function renderBustarainContent() {
-    const trainContainer = document.getElementById('train-content');
-    const busContainer = document.getElementById('bus-content');
     
-    // 内容を一旦クリア（重複防止）
-    trainContainer.innerHTML = '';
-    busContainer.innerHTML = '';
-
-    bustarainData.forEach(item => {
-        const starClass = item.isFavorite ? 'active' : '';
-        const html = `
-            <div class="accordion-item search-item" data-search-text="${item.label}">
-                <div class="accordion-header" data-src="${item.src}">
-                    ${item.label}
-                    <i class="fas fa-star accordion-star ${starClass}" data-id="${item.id}" onclick="toggleFavorite(event, ${item.id})"></i>
-                    <i class="fas fa-chevron-down" style="margin-left:10px;"></i>
-                </div>
-                <div class="accordion-content"></div>
-            </div>
-        `;
-
-        if (item.category === 'train') trainContainer.insertAdjacentHTML('beforeend', html);
-        else if (item.category === 'bus') busContainer.insertAdjacentHTML('beforeend', html);
-    });
-
-    // アコーディオンのイベント再設定
-    attachAccordionEvents();
+    filterContent(); // 描画後に検索フィルタ適用
 }
 
-function attachAccordionEvents() {
-    document.querySelectorAll('.accordion-header').forEach(header => {
-        // 重複登録防止のため一度クローン
-        const newHeader = header.cloneNode(true);
-        header.parentNode.replaceChild(newHeader, header);
-        
-        newHeader.addEventListener('click', function(e) {
-            // スターボタンクリック時はアコーディオンを開閉しない
-            if(e.target.classList.contains('accordion-star')) return;
-
-            const content = this.nextElementSibling;
-            const src = this.getAttribute('data-src');
-            
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-                setTimeout(() => { content.innerHTML = ''; }, 200);
-            } else {
-                content.innerHTML = `<iframe src="${src}" frameborder="0" style="width:100%; height:500px;"></iframe>`;
-                content.style.maxHeight = "500px";
-            }
-        });
-    });
-}
-
-function openModal(src) {
-    const modal = document.getElementById('iframe-modal');
-    const iframe = document.getElementById('modal-iframe');
-    iframe.src = src;
-    modal.classList.remove('hidden');
-}
-
-// --- FYタブ描画 ---
+// --- FYタブ描画 (新規追加) ---
 function renderFavoritesTab() {
     fyContentArea.innerHTML = '';
     
-    // AppsとBustarain両方からお気に入りを抽出
-    const favApps = appData.filter(a => a.isFavorite);
-    const favBus = bustarainData.filter(b => b.isFavorite);
+    const favorites = appData.filter(app => app.isFavorite);
     
-    const allFavs = [...favApps, ...favBus];
-
-    if (allFavs.length === 0) {
-        fyContentArea.innerHTML = '<p style="text-align:center; width:100%; color:#888;">お気に入りは登録されていません。</p>';
+    if (favorites.length === 0) {
+        fyContentArea.innerHTML = '<p style="text-align:center; width:100%; color:#888;">お気に入りは登録されていません。<br>Appsタブで☆マークを押すと追加されます。</p>';
         return;
     }
 
-    allFavs.forEach(item => {
-        // 共通のcreateIconElementを使用。Bustarain(ID>=1000)はモーダルが開くリンクになる
-        const iconElement = createIconElement(item, true);
+    favorites.forEach(app => {
+        // FYタブ内でも検索できるように search-item クラス付きで作成
+        const iconElement = createIconElement(app, true);
         fyContentArea.appendChild(iconElement);
     });
 
-    filterContent();
+    filterContent(); // 描画後に検索フィルタ適用
 }
 
 // --- 検索機能 ---
@@ -441,28 +373,25 @@ function filterContent() {
     const searchText = searchInput.value.toLowerCase();
     const clearBtn = document.getElementById('clearSearchBtn');
     
-    clearBtn.classList.toggle('hidden', searchText.length === 0);
+    if (searchText.length > 0) {
+        clearBtn.classList.remove('hidden');
+    } else {
+        clearBtn.classList.add('hidden');
+    }
 
+    // 現在表示されているコンテナ内のアイテムを対象にする
     let targetContainer;
     if (currentActiveTab === 'all-apps') targetContainer = gridContainer;
     else if (currentActiveTab === 'fy') targetContainer = fyContentArea;
-    else if (currentActiveTab === 'bustarain') {
-        // Bustarainは複数のコンテナがある
-        const visibleSubTab = document.querySelector('.sub-tab-content:not(.hidden)');
-        if(visibleSubTab) targetContainer = visibleSubTab;
-        else return;
-    } else return;
+    else return; // 他のタブでは検索しない
 
     const items = targetContainer.querySelectorAll('.search-item');
+    
     items.forEach(item => {
-        // data-search-text または label-text または accordion-headerのテキスト
-        let text = item.dataset.searchText ? item.dataset.searchText.toLowerCase() : '';
-        if(!text) {
-             const label = item.querySelector('.label-text') || item.querySelector('.accordion-header');
-             if(label) text = label.innerText.toLowerCase();
-        }
+        const text = item.dataset.searchText ? item.dataset.searchText.toLowerCase() : '';
+        const label = item.querySelector('.label-text').innerText.toLowerCase();
         
-        if (text.includes(searchText)) {
+        if (text.includes(searchText) || label.includes(searchText)) {
             item.style.display = '';
         } else {
             item.style.display = 'none';
@@ -470,11 +399,12 @@ function filterContent() {
     });
 }
 
-// --- 時計 ---
+// --- 時計関連 ---
 function parseTimeToDate(timeStr) {
     const today = new Date();
     const [hours, minutes] = timeStr.split(':').map(Number);
-    return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+    return date;
 }
 
 function updateClock() {
@@ -482,14 +412,13 @@ function updateClock() {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const dayName = days[now.getDay()];
     
-    // 日付に年を追加
-    const dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} (${dayName})`;
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} (${dayName})`;
     const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     
     document.getElementById('date').textContent = dateStr;
     document.getElementById('clock').textContent = timeStr;
 
-    // カウントダウン
+    // カウントダウンロジック
     let nextEvent = null;
     for (let item of schedule) {
         const startTime = parseTimeToDate(item.start);
@@ -516,21 +445,44 @@ function updateClock() {
     }
 }
 
-// --- Bustarainタブ切り替え初期化 ---
-function initBustarainTabs() {
+// --- Bustarain関連 ---
+function initBustarain() {
     const btns = document.querySelectorAll('.sub-tab-btn');
     btns.forEach(btn => {
         btn.addEventListener('click', () => {
+            // アクティブクラス切り替え
             btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
+            // コンテンツ表示切り替え
             const targetId = btn.getAttribute('data-target');
             document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
             document.getElementById(targetId).classList.remove('hidden');
         });
     });
+
+    // アコーディオン
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const src = this.getAttribute('data-src');
+            
+            // 開閉トグル
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                content.innerHTML = ''; // 閉じる時は中身を消して軽量化
+            } else {
+                // 他を閉じる（任意）
+                // document.querySelectorAll('.accordion-content').forEach(c => {c.style.maxHeight = null; c.innerHTML='';});
+                
+                content.innerHTML = `<iframe src="${src}" frameborder="0" style="width:100%; height:500px;"></iframe>`;
+                content.style.maxHeight = "500px"; // iframeの高さに合わせる
+            }
+        });
+    });
 }
 
+// --- テーマ切り替え ---
 function setTheme(mode) {
     if (mode === 'dark') {
         document.body.classList.add('dark-theme');
@@ -541,32 +493,28 @@ function setTheme(mode) {
     }
 }
 
-// --- メイン処理開始 ---
+// --- 初期化 ---
 window.onload = function() {
     loadSaveSettings();
     loadAppData();
 
-    if (saveSettings.theme) document.body.classList.add('dark-theme');
+    // テーマ適用
+    if (saveSettings.theme) {
+        document.body.classList.add('dark-theme');
+    }
 
-    // 初期化
-    initBustarainTabs();
-    // Bustarainの中身も生成しておく（FYタブで使う可能性があるため）
-    renderBustarainContent(); 
-    
+    // 初期タブ表示
     activateTab(saveSettings.mainTab);
+    
     renderRecentlyUsed();
+    if (saveSettings.mainTab === 'all-apps') {
+        renderAllIcons();
+    } else if (saveSettings.mainTab === 'fy') {
+        renderFavoritesTab();
+    }
 
     // イベントリスナー
     refreshButton.addEventListener('click', () => location.reload());
-    document.getElementById('speed-test-refresh-button').addEventListener('click', () => {
-        document.getElementById('speed-frame').src = document.getElementById('speed-frame').src;
-    });
-
-    // モーダル閉じる
-    document.querySelector('.close-modal-btn').addEventListener('click', () => {
-        document.getElementById('iframe-modal').classList.add('hidden');
-        document.getElementById('modal-iframe').src = '';
-    });
     
     searchInput.addEventListener('input', filterContent);
     clearSearchBtn.addEventListener('click', () => {
@@ -574,9 +522,13 @@ window.onload = function() {
         filterContent();
     });
 
+    initBustarain();
+    
+    // 時計開始
     updateClock();
     setInterval(updateClock, 1000);
     
+    // ネットワーク状態
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus();
@@ -585,6 +537,7 @@ window.onload = function() {
 function updateOnlineStatus() {
     const statusEl = document.getElementById('offline-status');
     if (navigator.onLine) {
+        statusEl.textContent = '';
         statusEl.style.display = 'none';
     } else {
         statusEl.textContent = 'オフライン';
