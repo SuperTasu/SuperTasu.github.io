@@ -1,4 +1,4 @@
-// --- DOM要素の取得 ---
+// --- DOM要素 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
 const optionContainer = document.getElementById('option-container');
@@ -13,7 +13,7 @@ const dateElement = document.getElementById('date');
 const clockElement = document.getElementById('clock');
 const countdownElement = document.getElementById('countdown');
 
-// --- データ定義 ---
+// --- データ ---
 const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
 const initialAppData = [
@@ -33,6 +33,7 @@ const initialAppData = [
 ];
 
 const FAV_KEY = 'myLinkAppFavorites';
+const BG_KEY = 'myLinkAppBg'; // 背景保存キー
 let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
 
 // --- 初期化 ---
@@ -40,22 +41,21 @@ window.onload = function() {
     updateClock();
     setInterval(updateClock, 1000);
     
-    // テーマ設定読み込み
+    // テーマ設定
     const savedTheme = localStorage.getItem('theme');
     if(savedTheme) setTheme(savedTheme);
 
-    // Optionタブのコンテンツ初期化 (Option/main.jsの関数)
+    // 背景設定
+    loadBackground();
+
+    // Option初期化
     if (typeof initOptionTabContent === 'function') {
         initOptionTabContent();
     }
 
-    // Appsグリッド描画
     renderGrid(initialAppData);
-
-    // Bustarain初期化
     initBustarain();
 
-    // 検索イベント
     searchInput.addEventListener('input', handleSearch);
     clearSearchBtn.addEventListener('click', () => {
         searchInput.value = '';
@@ -63,12 +63,45 @@ window.onload = function() {
     });
 };
 
-// --- 時計機能 (年/月/日 明朝体表示) ---
+// --- 背景画像管理 ---
+function saveBackground(urlData) {
+    try {
+        localStorage.setItem(BG_KEY, urlData);
+        applyBackground(urlData);
+        alert('背景を設定しました。');
+    } catch (e) {
+        console.error(e);
+        alert('保存に失敗しました（データ量が大きすぎる可能性があります）。');
+    }
+}
+
+function loadBackground() {
+    const savedBg = localStorage.getItem(BG_KEY);
+    if (savedBg) {
+        applyBackground(savedBg);
+    }
+}
+
+function applyBackground(urlData) {
+    if (urlData && urlData !== 'none') {
+        // CSS変数を更新
+        document.body.style.setProperty('--custom-bg-image', `url('${urlData}')`);
+    } else {
+        document.body.style.setProperty('--custom-bg-image', 'none');
+    }
+}
+
+function resetBackground() {
+    localStorage.removeItem(BG_KEY);
+    applyBackground('none');
+    alert('背景をリセットしました。');
+}
+
+// --- 時計 (サイズ統一済み) ---
 function updateClock() {
     const now = new Date();
     const days = ['日', '月', '火', '水', '木', '金', '土'];
     
-    // YYYY/MM/DD
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
     const date = now.getDate();
@@ -77,7 +110,6 @@ function updateClock() {
     dateElement.textContent = `${year}/${month}/${date} (${day})`;
     clockElement.textContent = now.toTimeString().split(' ')[0];
 
-    // スケジュールカウントダウン
     const nowMin = now.getHours() * 60 + now.getMinutes();
     let msg = "本日の予定は終了";
     
@@ -98,7 +130,7 @@ function updateClock() {
     countdownElement.textContent = msg;
 }
 
-// --- Apps グリッド描画 ---
+// --- 共通ロジック ---
 function renderGrid(data) {
     gridContainer.innerHTML = '';
     data.forEach(app => {
@@ -125,7 +157,6 @@ function createIconItem(app) {
     const star = document.createElement('i');
     const isFav = favorites.includes(app.id);
     star.className = isFav ? 'fas fa-star fav-btn active' : 'far fa-star fav-btn';
-    star.title = isFav ? '削除' : '追加';
     
     star.onclick = (e) => {
         e.preventDefault(); 
@@ -181,18 +212,14 @@ function toggleFavorite(id) {
 
 function renderFavoritesPage() {
     fyContentArea.innerHTML = '';
-    
     if (favorites.length === 0) {
         fyContentArea.innerHTML = '<p style="width:100%; text-align:center; color:#888;">お気に入りはまだ登録されていません。</p>';
         return;
     }
-
     favorites.forEach(favId => {
         if (typeof favId === 'number') {
             const app = initialAppData.find(a => a.id === favId);
-            if(app) {
-                fyContentArea.appendChild(createIconItem(app));
-            }
+            if(app) fyContentArea.appendChild(createIconItem(app));
         } else {
             const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
             if(el) {
@@ -209,21 +236,13 @@ function renderFavoritesPage() {
                     activateTab('bustarain');
                     const parentTabId = el.parentElement.id;
                     switchSubTab(parentTabId);
-                    
-                    if(!el.classList.contains('active')) {
-                        toggleAccordion(el.querySelector('.accordion-header'));
-                    }
-                    setTimeout(() => {
-                        el.scrollIntoView({behavior: 'smooth', block: 'center'});
-                    }, 100);
+                    if(!el.classList.contains('active')) toggleAccordion(el.querySelector('.accordion-header'));
+                    setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
                 };
 
                 const star = document.createElement('i');
                 star.className = 'fas fa-star fav-btn active';
-                star.onclick = (e) => {
-                    e.stopPropagation();
-                    toggleFavorite(favId);
-                };
+                star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
 
                 const label = document.createElement('div');
                 label.className = 'label-text';
@@ -267,12 +286,9 @@ function activateTab(tabName) {
 function switchSubTab(targetId) {
     document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(targetId).classList.remove('hidden');
-
     document.querySelectorAll('.sub-tab-btn').forEach(btn => {
         btn.classList.remove('active');
-        if(btn.getAttribute('onclick').includes(targetId)) {
-            btn.classList.add('active');
-        }
+        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
     });
 }
 
@@ -280,20 +296,15 @@ function toggleAccordion(header) {
     const item = header.parentElement;
     const content = item.querySelector('.accordion-content');
     const iframe = content.querySelector('iframe');
-
     item.classList.toggle('active');
-
     if (item.classList.contains('active')) {
-        if (iframe && !iframe.src && iframe.dataset.src) {
-            iframe.src = iframe.dataset.src;
-        }
+        if (iframe && !iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src;
     }
 }
 
 function handleSearch() {
     const query = searchInput.value.toLowerCase();
     clearSearchBtn.classList.toggle('hidden', query.length === 0);
-
     const filtered = initialAppData.filter(app => {
         return (app.label && app.label.toLowerCase().includes(query)) ||
                (app.searchText && app.searchText.toLowerCase().includes(query));
