@@ -135,6 +135,14 @@
         border-radius: 8px;
         transition: border-color 0.2s, background-color 0.2s;
     }
+    
+    /* ▼▼▼ 追加：フルサイズ表示用のスロットスタイル ▼▼▼ */
+    .grid-slot.full-width {
+        grid-column: 1 / -1; /* 全列使用 */
+        aspect-ratio: auto;  /* 縦横比固定解除 */
+        padding: 5px;
+        min-height: 200px;
+    }
 
     .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
     .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
@@ -143,6 +151,9 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
+    /* フルサイズのアイテムは揺らさない */
+    .edit-mode .grid-slot.full-width .takatori-display-board { pointer-events: none; opacity: 0.7; }
+
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
     .edit-mode .icon-link { pointer-events: none; }
     .edit-mode .fav-btn { display: none; }
@@ -371,6 +382,7 @@
 </div>
 
 <!-- JS読み込み -->
+<script src="Option/takatori.js"></script>
 <script src="Option/main.js"></script>
 <script src="script.js"></script>
 </body>
