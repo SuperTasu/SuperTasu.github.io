@@ -1,122 +1,251 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Apps & Tools</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Link First</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+  <link rel="stylesheet" href="style.css">
+   
+  <style>
+    /* --- 既存のスタイル --- */
+    .label-text { font-weight: 700 !important; }
+    .hidden { display: none !important; }
+
+    /* 検索コンテナのラッパー（検索バーを中央寄せ・独立させるため） */
+    .search-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 10px 15px 0 15px; /* 上左右に余白 */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 検索コンテナ */
+    .search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 20px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        width: 100%;
+        
+        /* 検索バーの幅広設定（前回の変更を維持） */
+        max-width: 800px; 
+        
+        transition: background 0.3s, border-color 0.3s;
+        height: 40px;
+    }
+    .search-container i.fa-search { color: #888; margin-right: 8px; }
+    #appSearchInput {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 16px;
+        background: transparent;
+        padding-right: 30px;
+        height: 30px;
+        color: #333;
+    }
+    #clearSearchBtn {
+        position: absolute;
+        right: 10px;
+        color: #999;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 5px;
+        z-index: 2;
+    }
+    #clearSearchBtn:hover { color: #333; }
+
+    /* タブメニューの調整（中央揃え） */
+    .tab-menu {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .tab-item {
+        /* 必要に応じてスタイル調整 */
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: background 0.2s;
+    }
+    .tab-item:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+
+    /* ダークモード対応 */
+    body.dark-theme .search-container { background: #333; border-color: #555; }
+    body.dark-theme #appSearchInput { color: #eee; }
+    body.dark-theme .search-container i.fa-search,
+    body.dark-theme #clearSearchBtn { color: #aaa; }
+    body.dark-theme #clearSearchBtn:hover { color: #fff; }
+    body.dark-theme #appSearchInput::placeholder { color: #777; }
+    body.dark-theme .tab-item:hover { background-color: rgba(255,255,255,0.1); }
+
+    /* スマホ向け最適化 */
+    @media (max-width: 768px) {
+        .search-wrapper { padding: 10px; }
+        .tab-menu { gap: 10px; }
+        .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; max-width: 100px; }
+    }
+
+    /* Bustarain関連のスタイルは維持 */
+    #bustarain-container { display: none; } /* 初期状態は非表示、JSで制御 */
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+    .sub-tab-btn { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; cursor: pointer; }
+    .sub-tab-btn.active { background: #007bff; color: white; }
+    body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
+    body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
+
+    /* Optionコンテナ用（必要に応じて追加） */
+    #option-container {
+        display: none; /* 初期状態は非表示 */
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .option-card {
+        background: rgba(255,255,255,0.8);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    body.dark-theme .option-card {
+        background: rgba(50,50,50,0.8);
+        color: #eee;
+    }
+
+  </style>
 </head>
-<body class="dark-theme">
-    <div id="container">
-        <header id="mainHeader">
-            <div class="header-top-bar">
+<body>
+  <div class="page-container">
+    <header class="header-area">
+      <div class="clock-area">
+        <div class="clock-main-row">
+            <div class="clock-content-wrapper">
+              <div class="datetime-row">
                 <div id="date"></div>
                 <div id="clock"></div>
-            </div>
-            <div id="countdown" class="countdown-bar"></div>
-            <div id="offline-status" class="offline-status hidden">オフライン</div>
-
-            <div class="search-and-tabs">
-                <div class="search-bar">
-                    <input type="text" id="appSearchInput" placeholder="アプリを検索...">
-                    <button id="clearSearchBtn" class="hidden"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="header-tabs">
-                    <div class="tab-item active" id="tab-favorites" onclick="activateTab('favorites')">
-                        FY⭐︎
-                    </div>
-                    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')">
-                        Apps & Tools
-                    </div>
-                    <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')">
-                        Bustarain
+                <div id="countdown"></div>
+                <div id="offline-status"></div>
+                <div class="header-speed-test">
+                    <iframe data-src="https://fast.com/ja/" title="速度テスト" loading="lazy"></iframe>
+                    <div class="control-icon" id="speed-test-refresh-button" title="速度テストを再実行">
+                        <i class="fas fa-redo"></i> 
                     </div>
                 </div>
-            </div>
-        </header>
-
-        <main id="mainContent">
-            <div id="main-grid" class="content-grid">
-                
-                <h3 id="recently-used-apps-container" class="section-title hidden">最近使ったアプリ</h3>
-                <div id="recentlyUsedGridContainer" class="icon-grid">
-                    </div>
-
-                <div id="section-divider" class="section-divider hidden"></div>
-
-                <h3 class="section-title">全てのアプリ</h3>
-                <div id="gridContainer" class="icon-grid">
-                    </div>
-            </div>
-
-            <div id="bustarain-container" class="hidden">
-                <div class="bustarain-content-wrap">
-                    
-                    <div class="sub-tab-menu">
-                        <button class="sub-tab-btn active" data-target="train-content">電車・バス運行状況</button>
-                        <button class="sub-tab-btn" data-target="weather-content">天気・警報</button>
-                        <button class="sub-tab-btn" data-target="other-content">その他</button>
-                    </div>
-
-                    <div id="train-content" class="sub-tab-content">
-                        <div class="accordion-item active">
-                            <h4 class="accordion-header" data-src="https://kobebus.jp/route/search.php">神戸市バス運行情報</h4>
-                            <div class="accordion-content">
-                                </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" data-src="https://trafficinfo.westjr.co.jp/kinki.html">JR西日本 運行情報</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" data-src="https://www.hankyu.co.jp/utility/traffic/">阪急電車 運行情報</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" data-src="https://www.hankyu.co.jp/rail/traffic/">阪神電車 運行情報</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" data-src="https://www.sanyo-railway.co.jp/traffic/index.html">山陽電車 運行情報</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                    </div>
-
-                    <div id="weather-content" class="sub-tab-content hidden">
-                        <div class="accordion-item active">
-                            <h4 class="accordion-header" data-src="https://tenki.jp/radar/6/30/28100/10-minutes.html">神戸市の雨雲レーダー</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" data-src="https://weathernews.jp/onebox/warn/hyogo/2810000/">神戸市 警報・注意報</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                    </div>
-
-                    <div id="other-content" class="sub-tab-content hidden">
-                        <div class="accordion-item active">
-                            <h4 class="accordion-header" data-src="https://fast.com/ja/">ネット回線速度テスト (Fast.com)</h4>
-                            <div class="accordion-content"></div>
-                        </div>
-                    </div>
-
-                    <div class="setting-buttons">
-                        <button id="refresh-button" class="action-btn"><i class="fas fa-sync-alt"></i> 再読み込み</button>
-                    </div>
-
+                <div class="theme-switcher">
+                  <div class="theme-dot light" onclick="setTheme('light')"></div>
+                  <div class="theme-dot dark" onclick="setTheme('dark')"></div>
                 </div>
+              </div>
             </div>
-        </main>
-
-        <div id="iframe-modal" class="modal hidden">
-            <div class="modal-content">
-                <button class="close-modal-btn"><i class="fas fa-times"></i> 閉じる</button>
-                <iframe id="modal-iframe" class="modal-iframe" src="about:blank" frameborder="0"></iframe>
+            <div class="header-controls">
+              <div class="control-icon" id="refresh-button" title="ページを再読み込み">
+                 <i class="fas fa-sync-alt"></i> 
+              </div>
             </div>
         </div>
     </div>
+</header>
+
+<div class="tab-container">
+  <div class="search-wrapper">
+      <div class="search-container"> 
+          <i class="fas fa-search"></i> 
+          <input type="text" id="appSearchInput" placeholder="検索..."> 
+          <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+      </div>
+  </div>
+   
+  <div class="tab-menu">
+    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
+        <i class="fas fa-th-large"></i> Apps 
+    </div>
     
-    <script src="script.js"></script>
+    <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
+        <i class="fas fa-bus"></i> Bustarain 
+    </div>
+
+    <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
+        <i class="fas fa-cog"></i> Option 
+    </div>
+  </div>
+</div>
+
+<div class="main-grid" id="main-grid">
+  <div class="apps-area">
+    <div id="search-wrapper-content">
+      <div class="main-content" id="mainContent">
+        <div id="recently-used-apps-container" class="hidden">
+            <h3 class="section-title">最近使用したアプリ</h3>
+            <div class="grid-container" id="recentlyUsedGridContainer"></div>
+        </div>
+        <hr id="section-divider" class="hidden">
+        <div id="all-apps-container">
+            <h3 class="section-title">すべてのアプリ</h3>
+            
+            <div class="grid-container" id="gridContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="bustarain-container">
+    <div class="sub-tab-menu">
+        <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
+        <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
+        <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
+    </div>
+    <div id="train-content" class="sub-tab-content">
+        <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+    </div>
+    <div id="bus-content" class="sub-tab-content hidden">
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/Buslocation.html">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+        <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
+    </div>
+    <div id="other-content" class="sub-tab-content hidden">
+        <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
+    </div>
+</div>
+
+<div id="option-container">
+    <h3 class="section-title">設定 (Option)</h3>
+    <div class="option-card">
+        <h4><i class="fas fa-info-circle"></i> アプリ情報</h4>
+        <p>バージョン: 1.0.0</p>
+    </div>
+    <div class="option-card">
+        <h4><i class="fas fa-tools"></i> ツール</h4>
+        <p>ここに設定項目を追加できます。</p>
+    </div>
+</div>
+
+  <div id="iframe-modal" class="modal-overlay hidden">
+    <div class="modal-content iframe-modal-content">
+      <button class="close-modal-btn">&times;</button>
+      <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+    </div>
+  </div>
+</div>
+<script src="script.js" defer></script>
 </body>
 </html>
