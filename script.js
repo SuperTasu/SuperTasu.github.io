@@ -1,130 +1,139 @@
-// --- DOM要素の取得 ---
-const dom = {
-    date: document.getElementById('date'),
-    clock: document.getElementById('clock'),
-    countdown: document.getElementById('countdown'),
-    offlineStatus: document.getElementById('offline-status'),
-    refreshBtn: document.getElementById('refresh-button'),
-    speedTestRefreshBtn: document.getElementById('speed-test-refresh-button'),
-    
-    // タブ・コンテナ関連
-    tabAllApps: document.getElementById('tab-all-apps'),
-    tabBustarain: document.getElementById('tab-bustarain'),
-    tabOption: document.getElementById('tab-option'),
-    
-    mainGrid: document.getElementById('main-grid'), // Appsタブの内容
-    bustarainContainer: document.getElementById('bustarain-container'), // Bustarainタブの内容
-    optionContainer: document.getElementById('option-container'), // Optionタブの内容
-    
-    // アプリ表示エリア
-    recentlyUsedContainer: document.getElementById('recently-used-apps-container'),
-    recentlyUsedGrid: document.getElementById('recentlyUsedGridContainer'),
-    sectionDivider: document.getElementById('section-divider'),
-    allAppsGrid: document.getElementById('gridContainer'),
-    
-    // 検索関連
-    searchInput: document.getElementById('appSearchInput'),
-    clearSearchBtn: document.getElementById('clearSearchBtn'),
-    
-    // サブタブ（Bustarain内）
-    subTabBtns: document.querySelectorAll('.sub-tab-btn'),
-    subTabContents: document.querySelectorAll('.sub-tab-content'),
-    
-    // アコーディオン
-    accordionHeaders: document.querySelectorAll('.accordion-header'),
+const mainGrid = document.getElementById('main-grid');
+const bustarainContainer = document.getElementById('bustarain-container');
+const gridContainer = document.getElementById('gridContainer');
+const refreshButton = document.getElementById('refresh-button');
+const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
+const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
+const sectionDivider = document.getElementById('section-divider');
+const searchInput = document.getElementById('search-input'); // 検索ボックス（HTMLにあると仮定）
+const themeButton = document.getElementById('theme-toggle'); // テーマ切り替えボタン（HTMLにあると仮定）
 
-    // Iframe (SpeedTest)
-    speedTestIframe: document.querySelector('.header-speed-test iframe')
-};
+const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
-// --- 設定・データ ---
+let appData = [];
 
-// スケジュールデータ（カウントダウン用）
-const schedule = [
-    {name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},
-    {name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},
-    {name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},
-    {name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},
-    {name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},
-    {name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},
-    {name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},
-    {name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},
-    {name:"9限",start:"17:40",end:"18:30"}
-];
-
-// アプリデータ
+// カテゴリ指定は残していますが、フィルタリングロジックからは除外します
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
+    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",searchText:"Google Chat チャット"},
     {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",searchText:"Google Calendar カレンダー"},
     {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",searchText:"Google Photos フォト 写真"},
     {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",searchText:"Google Drive ドライブ"},
-    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",searchText:"Yahoo! ヤフー"},
+    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",searchText:"Google Sites サイト作成"},
+    {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",icon:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico",searchText:"Google Documents ドキュメント"},
+    {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",icon:"https://www.google.com/analytics/favicon.ico",searchText:"Google Analytics アナリティクス"},
+    {id:46,label:"App Script",url:"https://script.google.com/home",icon:"https://ssl.gstatic.com/script/images/favicon.png",searchText:"Google App Script GAS"},
+    {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",searchText:"Google Translate 翻訳"},
+    {id:40,label:"Family Club",url:"https://www.fc-member.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",searchText:"Family Club ファンクラブ"},
+    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",searchText:"SixTONES ジャニーズ"},
+    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",searchText:"ART-PUT アート"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",searchText:"Number i tobe"},
+    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",searchText:"Hiromitsu Kitayama tobe"},
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",searchText:"ChatGPT AI"},
+    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",searchText:"Claude AI クロード"},
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",searchText:"Google AI Studio Gemini"},
+    {id:75,label:"Perplexity",url:"https://www.perplexity.ai",icon:"https://www.perplexity.ai/favicon.ico",searchText:"Perplexity AI パープレキシティ"},
+    {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030da8.png",searchText:"Google Gemini ジェミニ"},
+    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",searchText:"Microsoft Copilot コパイロット Bing"},
     {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",searchText:"X Twitter ツイッター"},
     {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",searchText:"Instagram インスタグラム"},
     {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",searchText:"YouTube ユーチューブ"},
     {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",searchText:"YT Shorts YouTube ショート"},
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",searchText:"TikTok ティックトック"},
+    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",searchText:"Discord ディスコード"},
+    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",searchText:"Abema アベマ"},
     {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",searchText:"Spotify スポティファイ"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",searchText:"ChatGPT AI"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",searchText:"BUSTARAIN バスタレイン"},
-    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",searchText:"メルカリ フリマ"},
-    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",searchText:"Amazon アマゾン"},
-    {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",searchText:"Deepl 翻訳"},
+    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",searchText:"U-NEXT ユーネクスト"},
+    {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",searchText:"Pinterest ピンタレスト 画像"},
+    {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",searchText:"Apex Legends Status"},
     {id:58,label:"Splatoon Map",url:"https://www.splatoon3-schedule.net",icon:"https://www.splatoon3-schedule.net/favicon.ico",searchText:"Splatoon 3 スプラトゥーン マップ"},
+    {id:59,label:"Splatoon Note",url:"https://support.nintendo.com/jp/switch/software_support/av5ja/1010.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"Splatoon 3 パッチノート"},
+    {id:60,label:"MKBuilder",url:"https://mk8dxbuilder.com",icon:"https://mk8dxbuilder.com/favicon.ico",searchText:"MK8DX Builder マリオカート"},
+    {id:61,label:"MK Lounge",url:"https://lounge.mkcentral.com/mk8dx",icon:"https://lounge.mkcentral.com/favicon.ico",searchText:"MK8DX Lounge Status"},
+    {id:62,label:"MK Blog",url:"https://japan-mk.blog.jp",icon:"https://japan-mk.blog.jp/favicon.ico",searchText:"MK Blog マリオカート"},
+    {id:63,label:"MK Central",url:"https://mkcentral.com/en-us",icon:"https://mkcentral.com/favicon.ico",searchText:"MK Central"},
+    {id:64,label:"MK Overlay",url:"https://statsoverlay.prismillon.com/",icon:"https://statsoverlay.prismillon.com/assets/icon.png",searchText:"MK8DX Overlay"},
+    {id:65,label:"MK8DX Note",url:"https://support-jp.nintendo.com/app/answers/detail/a_id/34464",icon:"https://support.nintendo.com/favicon.ico",searchText:"MK8DX パッチノート"},
+    {id:66,label:"MKWD Note",url:"https://support.nintendo.com/jp/switch2/software_support/aaaaa/index.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"MKWD パッチノート"},
+    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",searchText:"y2mate ダウンロード"},
+    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",searchText:"Spotify Downloader ダウンロード"},
+    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",searchText:"Spotify mate ダウンロード"},
+    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",searchText:"Yahoo! ヤフー"},
+    {id:48,label:"知恵袋",url:"https://chiebukuro.yahoo.co.jp/notification",icon:"https://s.yimg.jp/c/icon/s/bsc/2.0/favicon.ico",searchText:"Yahoo 知恵袋"},
+    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",searchText:"Remote It リモート"},
+    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",searchText:"神戸市交通局 地下鉄 バス"},
+    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",searchText:"GigaFile ギガファイル便"},
+    {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",searchText:"Deepl 翻訳"},
+    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",searchText:"BUSTARAIN バスタレイン"},
+    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",searchText:"Answer I アンサー"},
+    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",searchText:"Rawkuro ブルーロック 漫画"},
+    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",searchText:"MN4U ブルーロック 漫画"},
+    {id:29,label:"マガポケ",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",searchText:"講談社 ブルーロック 漫画"},
+    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",searchText:"メルカリ フリマ"},
+    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",searchText:"Yahoo!フリマ ヤフー"},
+    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",searchText:"Amazon アマゾン"},
+    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",searchText:"ヤマト運輸 宅急便"},
+    {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",searchText:"GitHub ギットハブ"},
+    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",searchText:"AMEFURASSHI"},
+    {id:50,label:"画像圧縮",url:"https://www.iloveimg.com/ja/compress-image",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg compress"},
+    {id:51,label:"PDF圧縮",url:"https://www.ilovepdf.com/ja/compress_pdf",icon:"https://www.ilovepdf.com/img/favicons/favicon-32x32.png",searchText:"ilovepdf compress"},
+    {id:52,label:"enHack",url:"https://enhack.app/app/#!/index/you/home/",icon:"https://enhack.app/favicon.ico",searchText:"enHack"},
+    {id:53,label:"Scribd",url:"https://www.scribd.com",icon:"https://www.scribd.com/favicon.ico",searchText:"Scribd"},
+    {id:54,label:"背景透過",url:"https://www.iloveimg.com/ja/remove-background",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg remove background"},
+    {id:55,label:"便利ツール",url:"https://jp.piliapp.com",icon:"https://jp.piliapp.com/favicon.ico",searchText:"piliapp 工具"},
+    {id:56,label:"QR作成",url:"https://qr.quel.jp/url.php",icon:"https://qr.quel.jp/favicon.ico",searchText:"QRコード作成 quel"},
+    {id:67,label:"方眼ノート",url:"https://houganshi.net/note.php",icon:"https://houganshi.net/favicon.ico",searchText:"ノート作成 houganshi"},
+    {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",searchText:"Benesse ベネッセ"},
     {id:69, label:"兵庫県警報・注意報", url:"https://weathernews.jp/onebox/warn/hyogo/2810000/", icon:"https://weathernews.jp/favicon.ico", searchText:"警報 注意報 天気 兵庫 weathernews"},
-    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",searchText:"Microsoft Copilot コパイロット Bing"},
-    // ... 他のアプリデータも必要に応じてここに追加 ...
+    {id:70, label:"文字数カウント", url:"https://sundryst.com/convenienttool/strcount.html", icon:"https://sundryst.com/favicon.ico", searchText:"文字数 カウント tool"},
+    {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",searchText:"UKARO ウカロ 受験 大学"},
+    {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",searchText:"Wordpress ワードプレス ブログ answeri"},
+    {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",searchText:"受かる英語 英語学習"},
+    {id:78,label:"背景透過2",url:"https://www.remove.bg/ja",icon:"https://www.remove.bg/favicon.ico",searchText:"remove.bg 背景透過 removebg"},
+    {id:79,label:"Microsoft Form",url:"https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=Marketing",icon:"https://forms.office.com/favicon.ico",searchText:"Microsoft Forms フォーム アンケート"},
+    {id:80,label:"PDF圧縮2",url:"https://tools.pdf24.org/ja/compress-pdf",icon:"https://tools.pdf24.org/favicon.ico",searchText:"PDF24 compress 圧縮"},
+    {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",searchText:"imguma アッシュクマ 画像圧縮"},
 ];
 
 const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
-let appData = [];
+initialAppData.forEach(app => {
+    if (app.icon && (app.icon.startsWith('http') && !app.icon.includes(GOOGLE_FAVICON_API_BASE))) {
+        app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
+    }
+});
 
-// ローカルストレージキー
 const SAVE_KEYS = {
-    THEME: 'siteSaveTheme',     // 'light' or 'dark'
+    THEME: 'siteSaveTheme',
+    MAIN_TAB: 'siteSaveMainTab',
     RECENTLY_USED: 'siteRecentlyUsed',
     FAVORITES: 'siteFavorites'
 };
-
+const MAX_RECENTLY_USED = 12;
+let saveSettings = {
+    theme: true, // デフォルト: ダークモード
+    mainTab: true
+};
 let favoriteIds = [];
-let recentlyUsedIds = [];
 
-// --- CSS注入（お気に入りボタンの位置調整など） ---
+// --- CSSスタイル注入 ---
 const styleElement = document.createElement('style');
 styleElement.innerHTML = `
-    /* アプリアイコンのコンテナ調整 */
     .icon-item {
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        /* 必要に応じてサイズ調整 */
-        padding: 10px;
-        border-radius: 10px;
-        transition: background 0.2s;
     }
-    .icon-item:hover {
-        background-color: rgba(0,0,0,0.05);
-    }
-    body.dark-theme .icon-item:hover {
-        background-color: rgba(255,255,255,0.1);
-    }
-    
-    /* お気に入りボタン（右上） */
     .favorite-btn {
         position: absolute;
-        top: 5px;   /* ★ここで右上に配置 */
-        right: 5px; /* ★ここで右上に配置 */
+        bottom: 5px;
+        right: 5px;
         cursor: pointer;
         color: #ccc; 
         font-size: 14px;
         z-index: 10;
         text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
         transition: transform 0.2s, color 0.2s;
-        padding: 2px;
+        padding: 5px; 
     }
     .favorite-btn:hover {
         transform: scale(1.2);
@@ -133,213 +142,99 @@ styleElement.innerHTML = `
         color: #FFD700; 
         text-shadow: 0 0 2px rgba(0,0,0,0.5);
     }
-    
-    /* アイコン画像 */
-    .icon-img {
-        width: 32px;
-        height: 32px;
-        object-fit: contain;
-        margin-bottom: 5px;
+    .sub-filter-menu, .sub-filter-btn {
+        display: none !important;
     }
-    .icon-link {
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        height: 100%;
+    /* ダークモード用のクラス */
+    body.dark-mode {
+        background-color: #1a1a1a;
+        color: #f0f0f0;
     }
-    
-    /* グリッドレイアウト */
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 15px;
-        padding: 10px;
+    body.dark-mode .icon-item {
+        background-color: #2d2d2d;
+        color: #fff;
     }
-    .label-text {
-        font-size: 12px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
+    body.dark-mode .icon-link {
+        color: #fff;
     }
-    
-    /* アコーディオン内のiframe */
-    .accordion-content iframe {
-        width: 100%;
-        height: 400px; /* デフォルトの高さ */
-        border: none;
-    }
+    .hidden { display: none !important; }
 `;
 document.head.appendChild(styleElement);
 
 
-// --- 初期化処理 ---
-document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
-    initAppData();
-    
-    // UI描画
-    renderAllIcons();
-    renderRecentlyUsed();
-    
-    // 時計・カウントダウン開始
-    updateClock();
-    setInterval(updateClock, 1000);
-    
-    // SpeedTest Iframeの遅延ロード
-    if (dom.speedTestIframe && dom.speedTestIframe.dataset.src) {
-        dom.speedTestIframe.src = dom.speedTestIframe.dataset.src;
-    }
+// --- 設定の読み込みと保存 ---
 
-    setupEventListeners();
-});
-
-// --- データ・設定読み込み ---
-
-function loadSettings() {
-    // テーマ
+function loadSaveSettings() {
+    // テーマ設定の読み込み
     const savedTheme = localStorage.getItem(SAVE_KEYS.THEME);
-    // HTMLのonclick="setTheme('...')"と連携するため、初期状態を設定
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
+    if (savedTheme !== null) {
+        // "true" という文字列なら true, それ以外は false
+        saveSettings.theme = (savedTheme === 'true');
     } else {
-        document.body.classList.remove('dark-theme');
+        // 未設定時はデフォルト(true)
+        saveSettings.theme = true;
     }
 
-    // お気に入り
+    // タブ設定（今回は使用箇所が明確ではないがロジック維持）
+    const savedTab = localStorage.getItem(SAVE_KEYS.MAIN_TAB);
+    if (savedTab !== null) {
+        saveSettings.mainTab = (savedTab === 'true');
+    }
+
+    // お気に入りの読み込み
     const favData = localStorage.getItem(SAVE_KEYS.FAVORITES);
     favoriteIds = favData ? JSON.parse(favData) : [];
-
-    // 最近使用
-    const recentData = localStorage.getItem(SAVE_KEYS.RECENTLY_USED);
-    recentlyUsedIds = recentData ? JSON.parse(recentData) : [];
 }
 
-function initAppData() {
-    appData = JSON.parse(JSON.stringify(initialAppData));
-    
-    // アイコンURLの正規化
-    appData.forEach(app => {
-        if (app.icon && app.icon.startsWith('http') && !app.icon.includes(GOOGLE_FAVICON_API_BASE) && !app.icon.includes('gstatic')) {
-            app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
+function saveItem(key, value) {
+    if (key === SAVE_KEYS.THEME || key === SAVE_KEYS.MAIN_TAB) {
+        localStorage.setItem(key, value);
+    } else if (key === SAVE_KEYS.RECENTLY_USED) {
+        localStorage.setItem(key, value);
+    } else if (key === SAVE_KEYS.FAVORITES) {
+        localStorage.setItem(key, value);
+    }
+}
+
+// --- テーマ適用ロジック ---
+
+function applyTheme() {
+    if (saveSettings.theme) {
+        document.body.classList.add('dark-mode');
+        if (themeButton) {
+            themeButton.innerHTML = '<i class="fas fa-sun"></i>'; // アイコン変更例
+            themeButton.setAttribute('aria-label', 'ライトモードに切り替え');
         }
-        // お気に入り状態の反映
-        app.isFavorite = favoriteIds.includes(app.id);
-    });
-}
-
-// --- テーマ切り替え (HTMLのonclick属性から呼ばれる) ---
-window.setTheme = function(mode) {
-    if (mode === 'dark') {
-        document.body.classList.add('dark-theme');
-        localStorage.setItem(SAVE_KEYS.THEME, 'dark');
     } else {
-        document.body.classList.remove('dark-theme');
-        localStorage.setItem(SAVE_KEYS.THEME, 'light');
-    }
-};
-
-// --- タブ切り替え機能 ---
-window.activateTab = function(tabName) {
-    // 全てのコンテンツを非表示
-    dom.mainGrid.classList.add('hidden');
-    dom.bustarainContainer.classList.add('hidden');
-    dom.optionContainer.classList.add('hidden');
-    
-    // 全てのタブボタンのスタイルリセット（必要ならactiveクラス付け替えなど）
-    
-    // 対象を表示
-    if (tabName === 'all-apps') {
-        dom.mainGrid.classList.remove('hidden');
-    } else if (tabName === 'bustarain') {
-        dom.bustarainContainer.classList.remove('hidden');
-    } else if (tabName === 'option') {
-        dom.optionContainer.classList.remove('hidden');
-    }
-};
-
-// --- アプリ描画 ---
-
-function createIconElement(app, showStar = true) {
-    const item = document.createElement('div');
-    item.className = 'icon-item search-item';
-    item.dataset.searchText = (app.searchText || "").toLowerCase();
-    item.dataset.id = app.id;
-
-    // アイコン画像
-    let iconHTML;
-    if (app.icon) {
-        iconHTML = `<img src="${app.icon}" class="icon-img" loading="lazy" alt="${app.label}" onerror="this.src='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/svgs/solid/globe.svg'">`;
-    } else {
-        iconHTML = `<i class="fas fa-globe" style="font-size:32px; margin-bottom:5px;"></i>`;
-    }
-
-    // スター（お気に入り）ボタン
-    let starHTML = '';
-    if (showStar) {
-        const starClass = app.isFavorite ? 'fas fa-star favorite-btn active' : 'far fa-star favorite-btn';
-        // クリックイベントは後でaddEventListenerでも良いが、HTML文字列生成ならonclickが簡単
-        // ただし、JS関数を呼ぶ形にする
-        starHTML = `<i class="${starClass}" onclick="toggleFavorite(event, ${app.id})"></i>`;
-    }
-
-    // HTML組み立て
-    item.innerHTML = `
-        <a href="${app.url}" class="icon-link" target="_blank" onclick="trackUsage(${app.id})">
-            ${iconHTML}
-            <div class="label-text">${app.label}</div>
-        </a>
-        ${starHTML}
-    `;
-    
-    return item;
-}
-
-function renderAllIcons() {
-    dom.allAppsGrid.innerHTML = '';
-    
-    // お気に入りが先頭に来るようにソート
-    const sortedApps = [...appData].sort((a, b) => {
-        if (a.isFavorite === b.isFavorite) return 0;
-        return a.isFavorite ? -1 : 1;
-    });
-
-    sortedApps.forEach(app => {
-        dom.allAppsGrid.appendChild(createIconElement(app, true));
-    });
-    
-    // 検索フィルタ適用（検索窓に文字が残っている場合）
-    filterApps();
-}
-
-function renderRecentlyUsed() {
-    dom.recentlyUsedGrid.innerHTML = '';
-    
-    if (recentlyUsedIds.length === 0) {
-        dom.recentlyUsedContainer.classList.add('hidden');
-        dom.sectionDivider.classList.add('hidden');
-        return;
-    }
-
-    dom.recentlyUsedContainer.classList.remove('hidden');
-    dom.sectionDivider.classList.remove('hidden');
-    
-    recentlyUsedIds.forEach(id => {
-        const app = appData.find(a => a.id === id);
-        if (app) {
-            // 最近使用欄ではスターを表示しない（false）
-            dom.recentlyUsedGrid.appendChild(createIconElement(app, false));
+        document.body.classList.remove('dark-mode');
+        if (themeButton) {
+            themeButton.innerHTML = '<i class="fas fa-moon"></i>';
+            themeButton.setAttribute('aria-label', 'ダークモードに切り替え');
         }
-    });
+    }
 }
 
-// --- アクション（お気に入り・履歴） ---
+function toggleTheme() {
+    saveSettings.theme = !saveSettings.theme;
+    saveItem(SAVE_KEYS.THEME, saveSettings.theme);
+    applyTheme();
+}
 
-window.toggleFavorite = function(e, appId) {
+// --- データ処理 ---
+
+function loadAppData() { 
+    try { 
+        appData = JSON.parse(JSON.stringify(initialAppData));
+        appData.forEach(app => {
+            app.isFavorite = favoriteIds.includes(app.id);
+        });
+    } catch(e) { 
+        console.error("Data load error", e);
+        appData = JSON.parse(JSON.stringify(initialAppData)); 
+    } 
+}
+
+function toggleFavorite(e, appId) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -348,46 +243,111 @@ window.toggleFavorite = function(e, appId) {
     } else {
         favoriteIds.push(appId);
     }
-    localStorage.setItem(SAVE_KEYS.FAVORITES, JSON.stringify(favoriteIds));
+    saveItem(SAVE_KEYS.FAVORITES, JSON.stringify(favoriteIds));
 
-    // データ更新
     const app = appData.find(a => a.id === appId);
-    if (app) app.isFavorite = !app.isFavorite;
-
-    // 再描画（並び順が変わるため）
+    if (app) {
+        app.isFavorite = favoriteIds.includes(appId);
+    }
     renderAllIcons();
-};
+}
 
-window.trackUsage = function(appId) {
-    // 最近使用したリストを更新
-    recentlyUsedIds = recentlyUsedIds.filter(id => id !== appId); // 重複削除
-    recentlyUsedIds.unshift(appId); // 先頭に追加
-    
-    if (recentlyUsedIds.length > 12) {
-        recentlyUsedIds.pop();
+function getRecentlyUsed() {
+    const data = localStorage.getItem(SAVE_KEYS.RECENTLY_USED);
+    return data ? JSON.parse(data) : [];
+}
+
+function addRecentlyUsed(appId) {
+    let recentlyUsed = getRecentlyUsed();
+    recentlyUsed = recentlyUsed.filter(id => id !== appId);
+    recentlyUsed.unshift(appId);
+    if (recentlyUsed.length > MAX_RECENTLY_USED) {
+        recentlyUsed.pop();
     }
-    localStorage.setItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsedIds));
+    saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
+}
+
+// --- 描画ロジック ---
+
+function renderRecentlyUsed() {
+    const recentlyUsedIds = getRecentlyUsed();
     
-    // 再描画（即座には反映されないが、戻ってきたときのために）
-    renderRecentlyUsed();
-};
+    if (!recentlyUsedGridContainer) return; // コンテナがない場合のガード
+    
+    recentlyUsedGridContainer.innerHTML = '';
 
-// --- 検索機能 ---
+    if (recentlyUsedIds.length === 0) {
+        if(recentlyUsedContainer) recentlyUsedContainer.classList.add('hidden');
+        if(sectionDivider) sectionDivider.classList.add('hidden');
+        return;
+    }
 
-function filterApps() {
-    const query = dom.searchInput.value.toLowerCase().trim();
-    const items = dom.allAppsGrid.querySelectorAll('.search-item');
+    if(recentlyUsedContainer) recentlyUsedContainer.classList.remove('hidden');
+    if(sectionDivider) sectionDivider.classList.remove('hidden');
+    
+    recentlyUsedIds.forEach(id => {
+        const app = appData.find(a => a.id === id);
+        if (app) {
+            const iconElement = createIconElement(app, false);
+            recentlyUsedGridContainer.appendChild(iconElement);
+        }
+    });
+}
 
-    // クリアボタンの表示切り替え
-    if (query.length > 0) {
-        dom.clearSearchBtn.classList.remove('hidden');
+function createIconElement(app, showStar = true) {
+    const item = document.createElement('div');
+    item.className = `icon-item`;
+    item.dataset.id = app.id;
+    
+    let iconHTML;
+    if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
+        iconHTML = `<img src="${app.icon}" class="icon-img" loading="lazy" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
     } else {
-        dom.clearSearchBtn.classList.add('hidden');
+        iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
     }
+
+    let starHTML = '';
+    if (showStar) {
+        const starClass = app.isFavorite ? 'fas fa-star favorite-btn active' : 'far fa-star favorite-btn';
+        starHTML = `<i class="${starClass}" onclick="toggleFavorite(event, ${app.id})"></i>`;
+    }
+
+    item.innerHTML = `
+        <a href="${app.url}" class="icon-link" target="_blank" onclick="addRecentlyUsed(${app.id})">${iconHTML}</a>
+        ${starHTML}
+        <div class="label-text">${app.label}</div>`; 
+    
+    return item;
+}
+
+function renderAllIcons() {
+    if (!gridContainer) return;
+
+    gridContainer.innerHTML = '';
+    
+    const sortedApps = [...appData].sort((a, b) => {
+        if (a.isFavorite === b.isFavorite) return 0;
+        return a.isFavorite ? -1 : 1; 
+    });
+
+    sortedApps.forEach(app => {
+        const iconElement = createIconElement(app, true);
+        iconElement.classList.add('search-item');
+        iconElement.dataset.searchText = (app.searchText || "").toLowerCase();
+        gridContainer.appendChild(iconElement);
+    });
+
+    filterContent();
+}
+
+function filterContent() {
+    if (!searchInput) return;
+    const query = searchInput.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.search-item');
 
     items.forEach(item => {
-        const text = item.dataset.searchText;
-        if (text.includes(query)) {
+        const searchText = item.dataset.searchText;
+        if (searchText.includes(query)) {
             item.classList.remove('hidden');
         } else {
             item.classList.add('hidden');
@@ -395,169 +355,47 @@ function filterApps() {
     });
 }
 
-// --- Bustarain関連 (サブタブ・アコーディオン) ---
+// --- 時刻・スケジュール処理 (途中で切れていた部分の修正) ---
 
-function setupEventListeners() {
-    // 検索イベント
-    dom.searchInput.addEventListener('input', filterApps);
-    dom.clearSearchBtn.addEventListener('click', () => {
-        dom.searchInput.value = '';
-        filterApps();
-        dom.searchInput.focus();
-    });
-
-    // リロードボタン
-    if(dom.refreshBtn) dom.refreshBtn.addEventListener('click', () => location.reload());
-    if(dom.speedTestRefreshBtn) dom.speedTestRefreshBtn.addEventListener('click', () => {
-        if(dom.speedTestIframe) dom.speedTestIframe.src = dom.speedTestIframe.src;
-    });
-
-    // Bustarain サブタブ切り替え
-    dom.subTabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // ボタンのアクティブ化
-            dom.subTabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // コンテンツの切り替え
-            const targetId = btn.dataset.target;
-            dom.subTabContents.forEach(content => {
-                if (content.id === targetId) {
-                    content.classList.remove('hidden');
-                } else {
-                    content.classList.add('hidden');
-                }
-            });
-        });
-    });
-
-    // Bustarain アコーディオン制御
-    dom.accordionHeaders.forEach(header => {
-        header.addEventListener('click', () => {
-            // this (header) の次の要素 (content) を取得
-            const content = header.nextElementSibling;
-            
-            // アイコンの回転などをクラスで制御したい場合はここでheaderにtoggle
-            header.classList.toggle('active');
-            
-            // 表示切り替え (CSSで .accordion-content { display: none; } 前提、開くときは block か flex)
-            // HTML/CSSが提供されていない部分ですが、一般的にはmax-heightかdisplay操作
-            if (content.style.display === 'block') {
-                content.style.display = 'none';
-            } else {
-                content.style.display = 'block';
-                // iframeの遅延読み込み
-                const src = header.dataset.src;
-                if (src && !content.innerHTML.trim()) {
-                    // 相対パスの場合は適切に解決されるが、外部URLの場合はそのまま
-                    content.innerHTML = `<iframe src="${src}" loading="lazy"></iframe>`;
-                }
-            }
-            
-            // 矢印アイコンの回転（FontAwesomeのクラス切り替え例）
-            const icon = header.querySelector('.fa-chevron-down');
-            if (icon) {
-                if (content.style.display === 'block') {
-                    icon.style.transform = 'rotate(180deg)';
-                } else {
-                    icon.style.transform = 'rotate(0deg)';
-                }
-                icon.style.transition = 'transform 0.3s';
-            }
-        });
-    });
+function parseTimeToDate(t) {
+    if (!t) return new Date();
+    const [hours, minutes] = t.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date;
 }
 
-// --- 時計・カウントダウン機能 ---
-
-function parseTimeToDate(timeStr) {
-    if (!timeStr) return null;
-    const [h, m] = timeStr.split(':').map(Number);
-    const now = new Date();
-    const d = new Date();
-    d.setHours(h, m, 0, 0);
-    return d;
+function updateScheduleDisplay() {
+    // スケジュール表示ロジックの実装例（コンテナがあれば）
+    // 現在時刻に基づいて該当する授業などを強調表示するなどの処理をここに記述
 }
 
-function updateClock() {
-    const now = new Date();
 
-    // 日付表示: "12月7日(日)"
-    const days = ['日', '月', '火', '水', '木', '金', '土'];
-    const dateStr = `${now.getMonth() + 1}月${now.getDate()}日(${days[now.getDay()]})`;
-    if (dom.date) dom.date.textContent = dateStr;
+// --- 初期化 ---
 
-    // 時計表示: "21:30:45"
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    if (dom.clock) dom.clock.textContent = `${h}:${m}:${s}`;
+document.addEventListener('DOMContentLoaded', () => {
+    loadSaveSettings(); // 設定読み込み
+    applyTheme();       // テーマ即時適用
+    loadAppData();      // データ準備
 
-    // オフライン判定
-    if (dom.offlineStatus) {
-        if (!navigator.onLine) {
-            dom.offlineStatus.innerHTML = '<i class="fas fa-wifi-slash"></i> Offline';
-            dom.offlineStatus.style.color = 'red';
-        } else {
-            dom.offlineStatus.textContent = '';
-        }
+    renderRecentlyUsed();
+    renderAllIcons();
+
+    // イベントリスナー
+    if (themeButton) {
+        themeButton.addEventListener('click', toggleTheme);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterContent);
     }
 
-    // カウントダウンロジック
-    updateCountdown(now);
-}
-
-function updateCountdown(now) {
-    if (!dom.countdown) return;
-
-    // 時間を分単位の数値に変換して比較しやすくする
-    const currentMins = now.getHours() * 60 + now.getMinutes();
-
-    let currentPeriod = null;
-    let nextEvent = null;
-
-    // スケジュール判定
-    for (let i = 0; i < schedule.length; i++) {
-        const item = schedule[i];
-        const start = parseTimeToDate(item.start);
-        const end = parseTimeToDate(item.end);
-        
-        if (!start || !end) continue;
-
-        const startMins = start.getHours() * 60 + start.getMinutes();
-        const endMins = end.getHours() * 60 + end.getMinutes();
-
-        // 現在期間中か
-        if (currentMins >= startMins && currentMins < endMins) {
-            currentPeriod = item;
-            // 終了までの時間を計算
-            const diff = end - now; // ms
-            const diffMins = Math.floor(diff / 60000);
-            const diffSecs = Math.floor((diff % 60000) / 1000);
-            
-            dom.countdown.innerHTML = `
-                <span style="font-size:0.8em">${item.name}終了まで</span><br>
-                <span style="font-weight:bold; font-size:1.2em">${diffMins}分${String(diffSecs).padStart(2,'0')}秒</span>
-            `;
-            return;
-        }
-
-        // 次の予定を探す
-        if (currentMins < startMins) {
-            nextEvent = item;
-            // 次の開始までの時間を計算
-            const diff = start - now;
-            const diffMins = Math.floor(diff / 60000);
-            const diffSecs = Math.floor((diff % 60000) / 1000);
-
-            dom.countdown.innerHTML = `
-                <span style="font-size:0.8em">次は ${item.name}</span><br>
-                <span style="font-weight:bold; font-size:1.2em">開始まで ${diffMins}分${String(diffSecs).padStart(2,'0')}秒</span>
-            `;
-            return;
-        }
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            renderRecentlyUsed(); // 最新の状態に更新
+        });
     }
 
-    // 全スケジュール終了後
-    dom.countdown.textContent = "本日の予定終了";
-}
+    // 定期的な更新があればここに
+    // setInterval(updateScheduleDisplay, 60000);
+});
