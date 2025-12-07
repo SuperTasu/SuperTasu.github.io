@@ -44,13 +44,14 @@
       margin: 0; 
       background-color: var(--bg-color); 
       color: var(--text-color-primary); 
+      /* メインはゴシック体のまま */
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       transition: background-color 0.3s, color 0.3s; 
       padding: 0; 
       box-sizing: border-box; 
     }
 
-    /* ▼▼▼ 固定ヘッダー（黒背景・四角・フル幅） ▼▼▼ */
+    /* ▼▼▼ 固定ヘッダー（黒背景・四角・フル幅・明朝体） ▼▼▼ */
     .fixed-top-wrapper {
       position: fixed;
       top: 0;
@@ -62,6 +63,9 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
       border-radius: 0; /* 四角く */
       padding: 5px 0;
+
+      /* ★★★ ご要望のフォント変更（ヒラギノ明朝 Pro） ★★★ */
+      font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
     }
 
     .clock-area { 
@@ -70,10 +74,8 @@
         box-sizing: border-box;
         display: flex;
         align-items: center;
-        /* 背景等は親に従う */
     }
 
-    /* ヘッダー内のレイアウト調整 */
     .clock-main-row { 
         display: flex; 
         justify-content: space-between; 
@@ -86,40 +88,35 @@
         display: flex; 
         align-items: center; 
         gap: 20px; 
-        flex-grow: 1; /* 横幅を埋める */
+        flex-grow: 1; 
         flex-wrap: nowrap;
     }
 
-    /* 日付・時計・カウントダウン */
     #date, #clock, #countdown { 
-        color: #ffffff; /* ヘッダー内は強制白 */
+        color: #ffffff; 
         font-weight: bold; 
         white-space: nowrap;
+        /* 親の明朝体を継承させるため個別のフォント指定は解除 */
     }
     #date { font-size: 16px; }
-    #clock { font-size: 24px; font-family: 'Courier New', monospace; }
+    #clock { font-size: 24px; } /* Courier Newを削除して明朝に */
     #countdown { color: #88aaff; font-size: 16px; }
     #offline-status { color: #ff4444; font-weight: bold; display: none; }
-
-    /* Fast.comを右寄せにするためのスペーサー的な扱い */
-    .header-spacer { flex-grow: 1; } 
 
     .header-speed-test { 
         display: flex; 
         align-items: center; 
         gap: 8px; 
-        margin-left: auto; /* 右に寄せる */
+        margin-left: auto; /* 右寄せ */
     }
     .header-speed-test iframe {
         width: 120px; height: 35px;
         border: none;
-        border-radius: 4px; /* ここは少し丸くても良いが見やすさ重視 */
+        border-radius: 4px;
         background: #fff;
     }
     #speed-test-refresh-button { 
-        color: #aaaaaa; 
-        cursor: pointer; 
-        font-size: 14px;
+        color: #aaaaaa; cursor: pointer; font-size: 14px;
     }
     #speed-test-refresh-button:hover { color: #fff; }
 
@@ -127,38 +124,34 @@
     .control-icon { color: #aaaaaa; cursor: pointer; font-size: 18px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
 
-    /* テーマスイッチ */
     .theme-switcher { display: flex; gap: 8px; }
     .theme-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid #888; }
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-
-    /* ▼▼▼ メインコンテンツ（丸いデザインに戻す） ▼▼▼ */
+    /* ▼▼▼ メインコンテンツ（丸いデザイン） ▼▼▼ */
     .page-container { 
       max-width: 1200px; 
       margin: 0 auto; 
-      padding: 80px 20px 20px 20px; /* 固定ヘッダーの高さ分確保 */
+      padding: 80px 20px 20px 20px; 
     }
 
-    /* タブメニュー */
     .tab-container { 
         background: var(--card-bg); 
         box-shadow: var(--card-shadow); 
         margin-top: 20px; 
-        border-radius: 20px; /* 丸く */
+        border-radius: 20px; 
         overflow: hidden; 
         border: 1px solid var(--card-border-color); 
         padding: 10px;
     }
     .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 
-    /* 検索バー */
     .search-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 5px; }
     .search-container { 
         display: flex; align-items: center; padding: 0 15px; 
         background-color: var(--input-bg); 
-        border-radius: 20px; /* 丸く */
+        border-radius: 20px; 
         border: 1px solid rgba(0,0,0,0.1); 
         width: 100%; max-width: 600px; height: 40px; 
     }
@@ -166,13 +159,12 @@
     #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
     #clearSearchBtn { cursor: pointer; color: #999; }
 
-    /* タブボタン */
     .tab-item {
         padding: 10px 25px;
         color: var(--text-color-secondary); 
         font-weight: bold; font-size: 14px; 
         cursor: pointer; 
-        border-radius: 20px; /* 丸く */
+        border-radius: 20px; 
         transition: all 0.3s ease;
         display: flex; align-items: center; gap: 8px;
     }
@@ -185,19 +177,17 @@
     }
     .fy-icon { color: #ffc107; }
 
-    /* Apps グリッド */
     .main-grid { margin-top: 20px; }
     .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
 
     .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; }
     
-    /* 星アイコン（右上） */
     .icon-item .fav-btn {
         position: absolute !important;
         top: -5px !important;    
         right: -5px !important;   
         background: var(--card-bg); 
-        border-radius: 50%; /* 丸く */
+        border-radius: 50%; 
         width: 24px; height: 24px;
         display: flex; align-items: center; justify-content: center;
         z-index: 10; cursor: pointer;
@@ -212,7 +202,7 @@
     .icon-link {
         width: 60px; height: 60px;
         background-color: var(--icon-bg); 
-        border-radius: 22px; /* 丸く */
+        border-radius: 22px; 
         box-shadow: var(--icon-shadow); 
         display: flex; align-items: center; justify-content: center;
         text-decoration: none; color: var(--text-color-primary);
@@ -223,20 +213,19 @@
     .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
     .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; }
 
-    /* Bustarain & アコーディオン（丸く） */
     #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
     
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
     .sub-tab-btn { 
         background: var(--input-bg); color: var(--text-color-secondary); border: none; 
-        padding: 10px 20px; border-radius: 20px; /* 丸く */
+        padding: 10px 20px; border-radius: 20px; 
         font-weight: bold; cursor: pointer; transition: all 0.3s;
     } 
     .sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
 
     .accordion-item { 
         border: 1px solid var(--card-border-color); 
-        border-radius: 12px; /* 丸く */
+        border-radius: 12px; 
         margin-bottom: 15px; background: var(--card-bg); 
         box-shadow: var(--card-shadow);
         overflow: hidden;
@@ -247,7 +236,6 @@
     }
     .accordion-header:hover { background-color: rgba(0,0,0,0.02); }
 
-    /* アコーディオン内の星 */
     .accordion-header .acc-fav-btn {
         margin-left: auto; margin-right: 15px;
         color: #ccc; font-size: 18px; transition: transform 0.2s;
@@ -266,43 +254,37 @@
         padding-bottom: 5px; 
     }
     
+    /* Optionカードスタイル */
     .option-card { 
-        background: var(--card-bg); padding: 20px; border-radius: 15px; /* 丸く */
+        background: var(--card-bg); padding: 20px; border-radius: 15px;
         margin-bottom: 15px; box-shadow: var(--card-shadow); 
     }
 
-    /* レスポンシブ調整 */
     @media (max-width: 900px) {
-        /* 画面が狭いときはFast.comを下段に落とすなど調整が必要だが、
-           今回は「横をフルに」とのことでFlexboxで縮小させる */
         .datetime-row { gap: 10px; }
         .header-speed-test iframe { width: 100px; }
         #clock { font-size: 18px; }
     }
     @media (max-width: 768px) {
-        /* スマホ向け調整 */
         .fixed-top-wrapper { padding: 10px 0; }
         .clock-main-row { flex-wrap: wrap; justify-content: center; }
         .datetime-row { flex-wrap: wrap; justify-content: center; width: 100%; }
         .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
-        .page-container { padding-top: 140px; } /* ヘッダー高さに合わせて調整 */
+        .page-container { padding-top: 140px; } 
     }
   </style>
 </head>
 <body>
 
-<!-- ▼▼▼ 1. 固定ヘッダー（黒背景・四角・フル幅） ▼▼▼ -->
 <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            
             <div class="datetime-row">
                 <div id="date"></div>
                 <div id="clock"></div>
                 <div id="countdown"></div>
                 <div id="offline-status">OFFLINE</div>
                 
-                <!-- 埋め込みを右寄せにするためのクラス -->
                 <div class="header-speed-test">
                     <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                     <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
@@ -310,8 +292,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 右端のコントロール -->
             <div class="header-controls">
                 <div class="theme-switcher">
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
@@ -321,14 +301,11 @@
                     <i class="fas fa-sync-alt"></i> 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <div class="page-container">
-    
-    <!-- ▼▼▼ 2. タブメニュー & 検索（丸いデザイン） ▼▼▼ -->
     <div class="tab-container">
         <div class="search-wrapper">
             <div class="search-container"> 
@@ -354,29 +331,20 @@
         </div>
     </div>
 
-    <!-- ▼▼▼ 3. コンテンツエリア ▼▼▼ -->
-
-    <!-- FY (Favorites) -->
     <div id="fy-container">
         <h3 class="section-title"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
-        <div id="fy-content-area" class="grid-container">
-            <!-- JSで動的に追加 -->
-        </div>
+        <div id="fy-content-area" class="grid-container"></div>
     </div>
 
-    <!-- Apps (Main) -->
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            <div class="grid-container" id="gridContainer">
-                <!-- JSで動的に追加 -->
-            </div>
+            <div class="grid-container" id="gridContainer"></div>
         </div>
       </div>
     </div>
 
-    <!-- Bustarain (Content) -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
@@ -384,12 +352,11 @@
             <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
         </div>
         
-        <!-- Train Content -->
         <div id="train-content" class="sub-tab-content">
             <div class="accordion-item" data-id="tr-1" data-title="和田岬">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>和田岬</span>
-                    <i class="fas fa-star acc-fav-btn"></i> <!-- 星ボタン -->
+                    <i class="fas fa-star acc-fav-btn"></i>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="accordion-content">
@@ -418,7 +385,6 @@
             </div>
         </div>
         
-        <!-- Bus Content -->
         <div id="bus-content" class="sub-tab-content hidden">
             <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
@@ -482,7 +448,6 @@
             </div>
         </div>
 
-        <!-- Other Content -->
         <div id="other-content" class="sub-tab-content hidden">
             <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
@@ -497,18 +462,16 @@
         </div>
     </div>
 
-    <!-- Option -->
+    <!-- ▼▼▼ Optionコンテナ（中身は空にしてJSで注入） ▼▼▼ -->
     <div id="option-container">
-        <h3 class="section-title">設定 (Option)</h3>
-        <div class="option-card">
-            <h4><i class="fas fa-info-circle"></i> アプリ情報</h4>
-            <p>Link First: 1.0.3</p>
-        </div>
+        <!-- Option/main.js によりコンテンツが生成されます -->
     </div>
 
 </div>
 
-<!-- ▼▼▼ JavaScript ▼▼▼ -->
+<!-- ▼▼▼ JS読み込み ▼▼▼ -->
+<!-- 先にOption/main.jsを読み込み、関数を定義しておく -->
+<script src="Option/main.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
