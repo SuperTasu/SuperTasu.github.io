@@ -1,7 +1,8 @@
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
-// ▼▼▼ 追加：Damageコンテナの取得 ▼▼▼
-const damageContainer = document.getElementById('damage-container');
+
+// ▼▼▼ 修正：HTMLから削除されたため、damageContainerの取得をコメントアウトまたは削除します。 ▼▼▼
+// const damageContainer = document.getElementById('damage-container'); // HTMLに存在しないため削除
 
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
@@ -110,7 +111,9 @@ const initialAppData = [
 
 const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
 initialAppData.forEach(app => {
-    if (app.icon && app.icon.startsWith('http')) {
+    // 既存のアイコン処理は維持
+    if (app.icon && (app.icon.startsWith('http') && !app.icon.includes(GOOGLE_FAVICON_API_BASE))) {
+        // httpで始まるが既にGoogle API経由でない場合のみ変換を試みる
         app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
     }
 });
@@ -255,20 +258,18 @@ function setTheme(t){
     }
 }
 
-// ▼▼▼ 変更：Damageタブの切り替え処理を追加 ▼▼▼
+// ▼▼▼ 修正：Damageタブの切り替え処理を削除し、AppsとBustarainのみに対応 ▼▼▼
 function activateTab(tabId) {
     document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${tabId}`)?.classList.add('active');
 
     mainGrid.style.display = 'none'; 
     bustarainContainer.style.display = 'none'; 
-    damageContainer.style.display = 'none'; // Damageも非表示
 
     if (tabId === 'bustarain') { 
         bustarainContainer.style.display = 'block'; 
-    } else if (tabId === 'damage') {
-        damageContainer.style.display = 'flex'; // Damageを表示
     } else { 
+        // 'all-apps' またはその他の未定義タブはApps表示にフォールバック
         mainGrid.style.display = 'grid'; 
     }
 
@@ -334,8 +335,12 @@ function activateSubTab(targetId) {
         targetContent.classList.remove('hidden');
         const iframe = targetContent.querySelector('iframe[data-src]');
         if (iframe) {
-            iframe.src = iframe.dataset.src;
-            iframe.removeAttribute('data-src');
+            // アコーディオン内のiframeはinitAccordionsで読み込まれるため、
+            // Bustarainの 'その他' タブ内の iframe のみを対象とする
+            if (targetId === 'other-content') {
+                iframe.src = iframe.dataset.src;
+                iframe.removeAttribute('data-src');
+            }
         }
     }
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
@@ -401,61 +406,36 @@ function updateOnlineStatus() {
     }
 }
 
-// ▼▼▼ 追加：危険度判定の計算と表示更新を行う関数 ▼▼▼
+// ▼▼▼ 修正：HTMLに対応する要素がないため、関数内をコメントアウトして無効化 ▼▼▼
 function updateDangerLevel() {
-    const today = new Date();
-    const day = today.getDate();
-    // const day = 24; // テスト用
+    // const today = new Date();
+    // const day = today.getDate();
+    
+    // // 判定ロジック...
 
-    const baseNum = day % 10;
-    let numList = [baseNum, baseNum + 10];
-    if (baseNum < 7) {
-        numList.push(baseNum + 20);
-    }
+    // // --- Damageタブ内の更新 ---
+    // const dateDisp = document.getElementById("damage-date-disp");
+    // const calcDisp = document.getElementById("damage-calc-disp");
+    // const rankBox = document.getElementById("damage-rank-box");
+    // const rankResult = document.getElementById("damage-rank-result");
+    // const rankDesc = document.getElementById("damage-rank-desc");
 
-    // 判定ロジック
-    let rank = "";
-    let description = "";
-    const hasNum = (n) => numList.includes(n);
-    const hasRange = (min, max) => numList.some(n => n >= min && n <= max);
+    // if (dateDisp && calcDisp && rankBox && rankResult && rankDesc) {
+    //     dateDisp.innerText = day + "日";
+    //     calcDisp.innerText = numList.join(", ");
+    //     rankResult.innerText = rank;
+    //     rankDesc.innerText = description;
+    //     rankBox.className = "damage-rank-area rank-" + rank;
+    // }
 
-    if (day === 24) {
-        rank = "SSR";
-        description = "本日限定の特別危険度！";
-    } else if (hasNum(24)) {
-        rank = "S";
-        description = "数値「24」が検出されました";
-    } else if (hasRange(22, 26)) {
-        rank = "A";
-        description = "警戒域 (22-26) が検出されました";
-    } else {
-        rank = "C";
-        description = "低危険度";
-    }
-
-    // --- Damageタブ内の更新 ---
-    const dateDisp = document.getElementById("damage-date-disp");
-    const calcDisp = document.getElementById("damage-calc-disp");
-    const rankBox = document.getElementById("damage-rank-box");
-    const rankResult = document.getElementById("damage-rank-result");
-    const rankDesc = document.getElementById("damage-rank-desc");
-
-    if (dateDisp && calcDisp && rankBox && rankResult && rankDesc) {
-        dateDisp.innerText = day + "日";
-        calcDisp.innerText = numList.join(", ");
-        rankResult.innerText = rank;
-        rankDesc.innerText = description;
-        // 既存のクラスをリセットして追加
-        rankBox.className = "damage-rank-area rank-" + rank;
-    }
-
-    // --- ヘッダー内の更新 ---
-    const headerRank = document.getElementById("header-danger-rank");
-    if (headerRank) {
-        headerRank.innerText = rank;
-        headerRank.className = ""; // クラスリセット
-        headerRank.classList.add("header-rank-" + rank);
-    }
+    // // --- ヘッダー内の更新 ---
+    // const headerRank = document.getElementById("header-danger-rank");
+    // if (headerRank) {
+    //     headerRank.innerText = rank;
+    //     headerRank.className = ""; // クラスリセット
+    //     headerRank.classList.add("header-rank-" + rank);
+    // }
+    // console.log("Danger Level Update Skipped: HTML elements are missing.");
 }
 
 if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
@@ -471,13 +451,17 @@ function init() {
     updateClockAndDate();
     loadAppData(); 
     
-    // ▼▼▼ 追加：危険度判定を実行 ▼▼▼
-    updateDangerLevel();
+    // ▼▼▼ 修正：HTMLに要素がないため、危険度判定の実行をコメントアウト ▼▼▼
+    // updateDangerLevel(); 
 
     renderAllIcons();
     renderRecentlyUsed();
 
-    activateTab(savedTab || 'all-apps');
+    // 存在しないタブ (damage, answer-i, discordなど) が保存されていた場合、'all-apps'にフォールバックさせる
+    const validTabs = ['all-apps', 'bustarain'];
+    const initialTab = validTabs.includes(savedTab) ? savedTab : 'all-apps';
+    activateTab(initialTab);
+    
     initAccordions();
     activateSubTab(savedSubTab || 'train-content');
     
@@ -495,6 +479,7 @@ function init() {
 
     searchInput.addEventListener('input', () => { 
         if(searchInput.value) { 
+            // 検索時は必ず Apps タブを表示し、フィルターを 'All' にリセット
             activateTab('all-apps');
             document.querySelectorAll(".sub-filter-btn").forEach(btn => btn.classList.remove('active'));
             const allButton = document.querySelector(".sub-filter-btn[data-category='all']");
@@ -528,7 +513,8 @@ function init() {
         speedTestRefreshButton.addEventListener('click', () => {
             const speedTestIframe = document.querySelector('.header-speed-test iframe');
             if (speedTestIframe && navigator.onLine) {
-                speedTestIframe.src = 'https://fast.com/ja/';
+                // iframeのsrcを再設定することでリロード
+                speedTestIframe.src = speedTestIframe.dataset.src || 'https://fast.com/ja/';
             }
         });
     }
