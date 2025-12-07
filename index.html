@@ -15,11 +15,11 @@
     .label-text { font-weight: 700 !important; }
     .hidden { display: none !important; }
 
-    /* 検索コンテナのラッパー（検索バーを中央寄せ・独立させるため） */
+    /* 検索コンテナのラッパー */
     .search-wrapper {
         display: flex;
         justify-content: center;
-        padding: 10px 15px 0 15px; /* 上左右に余白 */
+        padding: 10px 15px 0 15px;
         width: 100%;
         box-sizing: border-box;
     }
@@ -34,10 +34,7 @@
         padding: 5px 10px;
         border: 1px solid #ccc;
         width: 100%;
-        
-        /* 検索バーの幅広設定（前回の変更を維持） */
         max-width: 800px; 
-        
         transition: background 0.3s, border-color 0.3s;
         height: 40px;
     }
@@ -63,7 +60,7 @@
     }
     #clearSearchBtn:hover { color: #333; }
 
-    /* タブメニューの調整（中央揃え） */
+    /* タブメニューの調整 */
     .tab-menu {
         display: flex;
         justify-content: center;
@@ -73,7 +70,6 @@
     }
     
     .tab-item {
-        /* 必要に応じてスタイル調整 */
         padding: 10px 20px;
         cursor: pointer;
         border-radius: 10px;
@@ -82,7 +78,8 @@
     .tab-item:hover {
         background-color: rgba(0,0,0,0.05);
     }
-
+    /* FYタブのアクティブ時の色などを設定したい場合はここに追加 */
+    
     /* ダークモード対応 */
     body.dark-theme .search-container { background: #333; border-color: #555; }
     body.dark-theme #appSearchInput { color: #eee; }
@@ -99,33 +96,38 @@
         .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; max-width: 100px; }
     }
 
-    /* Bustarain関連のスタイルは維持 */
-    #bustarain-container { display: none; } /* 初期状態は非表示、JSで制御 */
+    /* 各コンテナの初期表示設定 */
+    #bustarain-container { display: none; }
+    #fy-container { display: none; } /* FYコンテナも初期は非表示 */
+    #option-container { display: none; }
+
+    /* Bustarain関連のスタイル */
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
     .sub-tab-btn { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; cursor: pointer; }
     .sub-tab-btn.active { background: #007bff; color: white; }
     body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
     body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
 
-    /* Optionコンテナ用（必要に応じて追加） */
-    #option-container {
-        display: none; /* 初期状態は非表示 */
+    /* Option/FYコンテナ用共通スタイル */
+    #option-container, #fy-container {
         padding: 20px;
         max-width: 800px;
         margin: 0 auto;
     }
-    .option-card {
+    .option-card, .fy-card {
         background: rgba(255,255,255,0.8);
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    body.dark-theme .option-card {
+    body.dark-theme .option-card, 
+    body.dark-theme .fy-card {
         background: rgba(50,50,50,0.8);
         color: #eee;
     }
-
+    /* FYアイコンの色 */
+    .fa-star.fy-icon { color: #ffc107; margin-right: 5px; }
   </style>
 </head>
 <body>
@@ -170,6 +172,11 @@
   </div>
    
   <div class="tab-menu">
+    <!-- FY☆ タブを追加 (Appsの左隣) -->
+    <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
+        <i class="fas fa-star fy-icon"></i> FY☆ 
+    </div>
+
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
         <i class="fas fa-th-large"></i> Apps 
     </div>
@@ -182,6 +189,15 @@
         <i class="fas fa-cog"></i> Option 
     </div>
   </div>
+</div>
+
+<!-- FY☆ コンテンツコンテナ -->
+<div id="fy-container">
+    <h3 class="section-title"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
+    <div id="fy-content-area" class="grid-container">
+        <!-- ここにJavaScriptでお気に入りアイテムを追加する想定 -->
+        <p style="text-align:center; width:100%; color:#888;">お気に入りはまだ登録されていません。</p>
+    </div>
 </div>
 
 <div class="main-grid" id="main-grid">
