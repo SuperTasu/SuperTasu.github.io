@@ -26,8 +26,10 @@
       --input-bg: #e9ecef;
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
-      --swap-select-color: rgba(255, 235, 59, 0.5); /* 選択中の背景色 */
-      --grid-line-color: rgba(0,0,0,0.1); /* マス目の線 */
+      
+      --grid-line-color: rgba(0, 0, 0, 0.1);      
+      --swap-select-color: rgba(33, 150, 243, 0.2); 
+      --slot-hover-color: rgba(0, 0, 0, 0.03);    
     }
     body.dark-theme {
       --bg-color: #434343;
@@ -42,8 +44,10 @@
       --input-bg: #3a3a3a;
       --bus-board-bg: #2a3a2a;
       --bus-card-bg: #3c4c3c;
-      --swap-select-color: rgba(255, 152, 0, 0.5);
-      --grid-line-color: rgba(255,255,255,0.1);
+      
+      --grid-line-color: rgba(255, 255, 255, 0.1); 
+      --swap-select-color: rgba(100, 181, 246, 0.3);
+      --slot-hover-color: rgba(255, 255, 255, 0.05);
     }
 
     body { 
@@ -101,7 +105,7 @@
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .fy-icon { color: #ffc107; }
 
-    /* Appsグリッド (通常) */
+    /* Appsグリッド */
     .main-grid { margin-top: 20px; }
     .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
 
@@ -116,52 +120,32 @@
     .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
     body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
-    /* ▼▼▼ FYグリッドシステム（マス目分け） ▼▼▼ */
+    /* FYグリッドシステム */
     #fy-content-area {
         display: grid;
-        /* 幅に合わせて自動でカラム数を決定（最小90px） */
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 0; /* マス目をくっつける */
-        padding: 0;
+        gap: 0; padding: 5px;
     }
     
-    /* マス目スロット */
     .grid-slot {
-        aspect-ratio: 1 / 1.2; /* 縦長比率 */
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        aspect-ratio: 1 / 1.25; 
+        display: flex; align-items: center; justify-content: center;
         position: relative;
-        border: 1px solid transparent; /* 通常時は透明 */
+        border: 1px solid transparent; 
+        border-radius: 8px;
+        transition: border-color 0.2s, background-color 0.2s;
     }
 
-    /* 編集モード時のスタイル */
-    .edit-mode .grid-slot {
-        border: 1px solid var(--grid-line-color); /* 薄い線 */
-        cursor: pointer;
-    }
-    /* 編集モードかつ空のスロット */
-    .edit-mode .grid-slot.empty:hover {
-        background-color: rgba(0,0,0,0.03);
-    }
-    
-    /* 選択中のスロット */
-    .edit-mode .grid-slot.selected-slot {
-        background-color: var(--swap-select-color);
-        box-shadow: inset 0 0 0 2px #ffc107;
-    }
+    .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
+    .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
+    .edit-mode .grid-slot.selected-slot { background-color: var(--swap-select-color); border: 1px solid #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); }
 
-    /* 編集モード中のアイコン揺れ */
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
-    .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; /* アイコン自体のクリックを無効化しスロットで受ける */ }
     
-    /* 選択されたアイコンは揺れない */
+    .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
-    
-    /* 編集モード中はリンク無効 */
     .edit-mode .icon-link { pointer-events: none; }
-    .edit-mode .fav-btn { display: none; /* 編集中は星ボタンを隠して誤タップ防止 */ }
-
+    .edit-mode .fav-btn { display: none; }
 
     .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
     .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
@@ -245,7 +229,7 @@
         </div>
     </div>
 
-    <!-- FY コンテナ（編集ボタン） -->
+    <!-- FY コンテナ -->
     <div id="fy-container">
         <div class="fy-header-row">
             <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
