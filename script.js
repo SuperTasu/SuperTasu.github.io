@@ -30,7 +30,8 @@ const initialAppData = [
     {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",category:"google",searchText:"Google Translate 翻訳"},
     
     // --- Favorite Category ---
-    {id:40,label:"Family Club",url:"https://fc-securesignon.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"favorite",searchText:"Family Club ファンクラブ"},
+    // ▼▼▼ 変更：URLを更新しました ▼▼▼
+    {id:40,label:"Family Club",url:"https://www.fc-member.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",category:"favorite",searchText:"Family Club ファンクラブ"},
     {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",category:"favorite",searchText:"SixTONES ジャニーズ"},
     {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",category:"favorite",searchText:"ART-PUT アート"},
     {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",category:"favorite",searchText:"Number i tobe"},
@@ -107,6 +108,11 @@ const initialAppData = [
     {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",category:"other",searchText:"Wordpress ワードプレス ブログ answeri"},
     {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",category:"other",searchText:"受かる英語 英語学習"},
     {id:78,label:"背景透過2",url:"https://www.remove.bg/ja",icon:"https://www.remove.bg/favicon.ico",category:"other",searchText:"remove.bg 背景透過 removebg"},
+
+    // ▼▼▼ 新規追加分 ▼▼▼
+    {id:79,label:"Microsoft Form",url:"https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=Marketing",icon:"https://forms.office.com/favicon.ico",category:"other",searchText:"Microsoft Forms フォーム アンケート"},
+    {id:80,label:"PDF圧縮2",url:"https://tools.pdf24.org/ja/compress-pdf",icon:"https://tools.pdf24.org/favicon.ico",category:"other",searchText:"PDF24 compress 圧縮"},
+    {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",category:"other",searchText:"imguma アッシュクマ 画像圧縮"},
 ];
 
 const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
