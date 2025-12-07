@@ -1,548 +1,418 @@
-// --- DOM要素の取得 ---
+// --- DOM要素 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
-const optionContainer = document.getElementById('option-container'); // HTMLに合わせて追加
-const fyContainer = document.getElementById('fy-container'); // 追加: FYコンテナ
-const fyContentArea = document.getElementById('fy-content-area'); // 追加: FYコンテンツエリア
-
+const optionContainer = document.getElementById('option-container');
+const fyContainer = document.getElementById('fy-container');
+const fyContentArea = document.getElementById('fy-content-area');
 const gridContainer = document.getElementById('gridContainer');
-const refreshButton = document.getElementById('refresh-button');
-const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
-const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
-const sectionDivider = document.getElementById('section-divider');
-const searchInput = document.getElementById('appSearchInput'); // 検索用に追加
-const clearSearchBtn = document.getElementById('clearSearchBtn'); // 検索クリア用
+const searchInput = document.getElementById('appSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const fyEditBtn = document.getElementById('fy-edit-btn'); 
 
-// --- データ定義 ---
+const dateElement = document.getElementById('date');
+const clockElement = document.getElementById('clock');
+const countdownElement = document.getElementById('countdown');
+
 const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
-let appData = [];
-
 const initialAppData = [
-    {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
-    {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
-    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",searchText:"Google Chat チャット"},
-    {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",searchText:"Google Calendar カレンダー"},
-    {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",searchText:"Google Photos フォト 写真"},
-    {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",searchText:"Google Drive ドライブ"},
-    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",searchText:"Google Sites サイト作成"},
-    {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",icon:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico",searchText:"Google Documents ドキュメント"},
-    {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",icon:"https://www.google.com/analytics/favicon.ico",searchText:"Google Analytics アナリティクス"},
-    {id:46,label:"App Script",url:"https://script.google.com/home",icon:"https://ssl.gstatic.com/script/images/favicon.png",searchText:"Google App Script GAS"},
-    {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",searchText:"Google Translate 翻訳"},
-    {id:40,label:"Family Club",url:"https://www.fc-member.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",searchText:"Family Club ファンクラブ"},
-    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",searchText:"SixTONES ジャニーズ"},
-    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",searchText:"ART-PUT アート"},
-    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",searchText:"Number i tobe"},
-    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",searchText:"Hiromitsu Kitayama tobe"},
-    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",searchText:"ChatGPT AI"},
-    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",searchText:"Claude AI クロード"},
-    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",searchText:"Google AI Studio Gemini"},
-    {id:75,label:"Perplexity",url:"https://www.perplexity.ai",icon:"https://www.perplexity.ai/favicon.ico",searchText:"Perplexity AI パープレキシティ"},
-    {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030da8.png",searchText:"Google Gemini ジェミニ"},
-    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",searchText:"Microsoft Copilot コパイロット Bing"},
-    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",searchText:"X Twitter ツイッター"},
-    {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",searchText:"Instagram インスタグラム"},
-    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",searchText:"YT Shorts YouTube ショート"},
-    {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",searchText:"TikTok ティックトック"},
-    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",searchText:"Twitch ツイッチ"},
-    {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",searchText:"Discord ディスコード"},
-    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",searchText:"Abema アベマ"},
-    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",searchText:"Spotify スポティファイ"},
-    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",searchText:"U-NEXT ユーネクスト"},
-    {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",searchText:"Pinterest ピンタレスト 画像"},
-    {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",searchText:"Apex Legends Status"},
-    {id:58,label:"Splatoon Map",url:"https://www.splatoon3-schedule.net",icon:"https://www.splatoon3-schedule.net/favicon.ico",searchText:"Splatoon 3 スプラトゥーン マップ"},
-    {id:59,label:"Splatoon Note",url:"https://support.nintendo.com/jp/switch/software_support/av5ja/1010.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"Splatoon 3 パッチノート"},
-    {id:60,label:"MKBuilder",url:"https://mk8dxbuilder.com",icon:"https://mk8dxbuilder.com/favicon.ico",searchText:"MK8DX Builder マリオカート"},
-    {id:61,label:"MK Lounge",url:"https://lounge.mkcentral.com/mk8dx",icon:"https://lounge.mkcentral.com/favicon.ico",searchText:"MK8DX Lounge Status"},
-    {id:62,label:"MK Blog",url:"https://japan-mk.blog.jp",icon:"https://japan-mk.blog.jp/favicon.ico",searchText:"MK Blog マリオカート"},
-    {id:63,label:"MK Central",url:"https://mkcentral.com/en-us",icon:"https://mkcentral.com/favicon.ico",searchText:"MK Central"},
-    {id:64,label:"MK Overlay",url:"https://statsoverlay.prismillon.com/",icon:"https://statsoverlay.prismillon.com/assets/icon.png",searchText:"MK8DX Overlay"},
-    {id:65,label:"MK8DX Note",url:"https://support-jp.nintendo.com/app/answers/detail/a_id/34464",icon:"https://support.nintendo.com/favicon.ico",searchText:"MK8DX パッチノート"},
-    {id:66,label:"MKWD Note",url:"https://support.nintendo.com/jp/switch2/software_support/aaaaa/index.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"MKWD パッチノート"},
-    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",searchText:"y2mate ダウンロード"},
-    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",searchText:"Spotify Downloader ダウンロード"},
-    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",searchText:"Spotify mate ダウンロード"},
-    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",searchText:"Yahoo! ヤフー"},
-    {id:48,label:"知恵袋",url:"https://chiebukuro.yahoo.co.jp/notification",icon:"https://s.yimg.jp/c/icon/s/bsc/2.0/favicon.ico",searchText:"Yahoo 知恵袋"},
-    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",searchText:"Remote It リモート"},
-    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",searchText:"神戸市交通局 地下鉄 バス"},
-    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",searchText:"GigaFile ギガファイル便"},
-    {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",searchText:"Deepl 翻訳"},
-    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",searchText:"BUSTARAIN バスタレイン"},
-    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",searchText:"Answer I アンサー"},
-    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",searchText:"Rawkuro ブルーロック 漫画"},
-    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",searchText:"MN4U ブルーロック 漫画"},
-    {id:29,label:"マガポケ",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",searchText:"講談社 ブルーロック 漫画"},
-    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",searchText:"メルカリ フリマ"},
-    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",searchText:"Yahoo!フリマ ヤフー"},
-    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",searchText:"Amazon アマゾン"},
-    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",searchText:"ヤマト運輸 宅急便"},
-    {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",searchText:"GitHub ギットハブ"},
-    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",searchText:"AMEFURASSHI"},
-    {id:50,label:"画像圧縮",url:"https://www.iloveimg.com/ja/compress-image",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg compress"},
-    {id:51,label:"PDF圧縮",url:"https://www.ilovepdf.com/ja/compress_pdf",icon:"https://www.ilovepdf.com/img/favicons/favicon-32x32.png",searchText:"ilovepdf compress"},
-    {id:52,label:"enHack",url:"https://enhack.app/app/#!/index/you/home/",icon:"https://enhack.app/favicon.ico",searchText:"enHack"},
-    {id:53,label:"Scribd",url:"https://www.scribd.com",icon:"https://www.scribd.com/favicon.ico",searchText:"Scribd"},
-    {id:54,label:"背景透過",url:"https://www.iloveimg.com/ja/remove-background",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg remove background"},
-    {id:55,label:"便利ツール",url:"https://jp.piliapp.com",icon:"https://jp.piliapp.com/favicon.ico",searchText:"piliapp 工具"},
-    {id:56,label:"QR作成",url:"https://qr.quel.jp/url.php",icon:"https://qr.quel.jp/favicon.ico",searchText:"QRコード作成 quel"},
-    {id:67,label:"方眼ノート",url:"https://houganshi.net/note.php",icon:"https://houganshi.net/favicon.ico",searchText:"ノート作成 houganshi"},
-    {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",searchText:"Benesse ベネッセ"},
-    {id:69, label:"兵庫県警報・注意報", url:"https://weathernews.jp/onebox/warn/hyogo/2810000/", icon:"https://weathernews.jp/favicon.ico", searchText:"警報 注意報 天気 兵庫 weathernews"},
-    {id:70, label:"文字数カウント", url:"https://sundryst.com/convenienttool/strcount.html", icon:"https://sundryst.com/favicon.ico", searchText:"文字数 カウント tool"},
-    {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",searchText:"UKARO ウカロ 受験 大学"},
-    {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",searchText:"Wordpress ワードプレス ブログ answeri"},
-    {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",searchText:"受かる英語 英語学習"},
-    {id:78,label:"背景透過2",url:"https://www.remove.bg/ja",icon:"https://www.remove.bg/favicon.ico",searchText:"remove.bg 背景透過 removebg"},
-    {id:79,label:"Microsoft Form",url:"https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=Marketing",icon:"https://forms.office.com/favicon.ico",searchText:"Microsoft Forms フォーム アンケート"},
-    {id:80,label:"PDF圧縮2",url:"https://tools.pdf24.org/ja/compress-pdf",icon:"https://tools.pdf24.org/favicon.ico",searchText:"PDF24 compress 圧縮"},
-    {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",searchText:"imguma アッシュクマ 画像圧縮"},
+    {id:1,label:"Google",url:"https://www.google.com",searchText:"Google グーグル"},
+    {id:2,label:"Gmail",url:"https://mail.google.com",searchText:"Gmail Google Mail メール"},
+    {id:35,label:"Chat",url:"https://chat.google.com",searchText:"Google Chat チャット"},
+    {id:3,label:"Calendar",url:"https://calendar.google.com",searchText:"Google Calendar カレンダー"},
+    {id:4,label:"Photos",url:"https://photos.google.com",searchText:"Google Photos フォト 写真"},
+    {id:5,label:"Drive",url:"https://drive.google.com",searchText:"Google Drive ドライブ"},
+    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",searchText:"YouTube ユーチューブ"},
+    {id:7,label:"X",url:"https://x.com/i/timeline",searchText:"X Twitter ツイッター"},
+    {id:8,label:"Instagram",url:"https://www.instagram.com",searchText:"Instagram インスタグラム"},
+    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",searchText:"Yahoo! ヤフー"},
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",searchText:"ChatGPT AI"},
+    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",searchText:"神戸市交通局 地下鉄 バス"},
+    {id:21,label:"GigaFile",url:"https://gigafile.nu/",searchText:"GigaFile ギガファイル便"}
 ];
 
-const GOOGLE_FAVICON_API_BASE = 'https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=';
-initialAppData.forEach(app => {
-    if (app.icon && (app.icon.startsWith('http') && !app.icon.includes(GOOGLE_FAVICON_API_BASE))) {
-        app.icon = `${GOOGLE_FAVICON_API_BASE}${encodeURIComponent(app.url)}&size=64`;
-    }
-});
+const FAV_KEY = 'myLinkAppFavorites';
+const BG_KEY = 'myLinkAppBg'; 
 
-const SAVE_KEYS = {
-    THEME: 'siteSaveTheme',
-    MAIN_TAB: 'siteSaveMainTab',
-    RECENTLY_USED: 'siteRecentlyUsed',
-    FAVORITES: 'siteFavorites'
+let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+if (favorites.length < 24) {
+    const padding = new Array(24 - favorites.length).fill(null);
+    favorites = favorites.concat(padding);
+}
+
+let isEditMode = false; 
+let selectedSlotIndex = null; 
+
+window.onload = function() {
+    updateClock();
+    setInterval(updateClock, 1000);
+    
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme) setTheme(savedTheme);
+
+    loadBackground();
+
+    if (typeof initOptionTabContent === 'function') {
+        initOptionTabContent();
+    }
+
+    renderGrid(initialAppData);
+    initBustarain();
+
+    searchInput.addEventListener('input', handleSearch);
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        handleSearch();
+    });
 };
-const MAX_RECENTLY_USED = 12;
-let saveSettings = {};
-let favoriteIds = [];
-let currentActiveTab = 'all-apps'; // 現在のタブを追跡
 
-// --- CSS注入 ---
-const styleElement = document.createElement('style');
-styleElement.innerHTML = `
-    .icon-item {
-        position: relative;
+function saveBackground(urlData) {
+    try {
+        localStorage.setItem(BG_KEY, urlData);
+        applyBackground(urlData);
+        alert('背景を設定しました。');
+    } catch (e) {
+        console.error(e);
+        alert('保存に失敗しました。');
     }
-    .favorite-btn {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        cursor: pointer;
-        color: #ccc;
-        font-size: 14px;
-        z-index: 10;
-        text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
-        transition: transform 0.2s, color 0.2s;
-        padding: 5px;
-    }
-    .favorite-btn:hover {
-        transform: scale(1.2);
-    }
-    .favorite-btn.active {
-        color: #FFD700;
-        text-shadow: 0 0 2px rgba(0,0,0,0.5);
-    }
-`;
-document.head.appendChild(styleElement);
-
-
-// --- 設定ロード ---
-function loadSaveSettings() {
-    saveSettings = {
-        theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
-        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) || 'all-apps', // デフォルトをall-appsに
-    };
-    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = false;
-    
-    // 古い形式(boolean)からの移行対応
-    if (saveSettings.mainTab === 'true') saveSettings.mainTab = 'all-apps';
-    if (saveSettings.mainTab === 'false') saveSettings.mainTab = 'all-apps';
-
-    const favData = localStorage.getItem(SAVE_KEYS.FAVORITES);
-    favoriteIds = favData ? JSON.parse(favData) : [];
 }
-
-function getSavedItem(key) {
-    if (key === 'siteTheme') return saveSettings.theme;
-    if (key === 'siteActiveTab') return saveSettings.mainTab;
-    if (key === SAVE_KEYS.RECENTLY_USED) return localStorage.getItem(key);
-    return null; 
+function loadBackground() {
+    const savedBg = localStorage.getItem(BG_KEY);
+    if (savedBg) applyBackground(savedBg);
 }
-
-function saveItem(key, value) {
-    if (key === 'siteTheme') localStorage.setItem(key, value);
-    else if (key === 'siteActiveTab') localStorage.setItem(key, value);
-    else if (key === SAVE_KEYS.RECENTLY_USED) localStorage.setItem(key, value);
-    else if (key === SAVE_KEYS.FAVORITES) localStorage.setItem(key, value);
-    else if (key === SAVE_KEYS.MAIN_TAB) localStorage.setItem(key, value);
-}
-
-// --- アプリデータ準備 ---
-function loadAppData() { 
-    try { 
-        appData = JSON.parse(JSON.stringify(initialAppData));
-        // お気に入り状態を反映
-        appData.forEach(app => {
-            app.isFavorite = favoriteIds.includes(app.id);
-        });
-    } catch(e) { 
-        appData = JSON.parse(JSON.stringify(initialAppData)); 
-    } 
-}
-
-// --- タブ切り替え ---
-function activateTab(tabName) {
-    currentActiveTab = tabName;
-    saveItem(SAVE_KEYS.MAIN_TAB, tabName);
-
-    // 全てのコンテンツを非表示
-    mainGrid.style.display = 'none';
-    bustarainContainer.style.display = 'none';
-    optionContainer.style.display = 'none';
-    fyContainer.style.display = 'none';
-
-    // タブメニューの見た目更新（任意：CSSで.activeクラスなどを定義して色を変える場合に使用）
-    document.querySelectorAll('.tab-item').forEach(item => {
-        // ここでクラス操作などを追加可能
-    });
-
-    // 選択されたタブを表示
-    if (tabName === 'all-apps') {
-        mainGrid.style.display = 'block';
-        // 全アプリ表示時は再描画して最新のスター状態を反映
-        renderAllIcons();
-    } else if (tabName === 'bustarain') {
-        bustarainContainer.style.display = 'block';
-    } else if (tabName === 'option') {
-        optionContainer.style.display = 'block';
-    } else if (tabName === 'fy') {
-        fyContainer.style.display = 'block';
-        renderFavoritesTab(); // FYタブ表示時に中身を描画
-    }
-    
-    // 検索ボックスの中身をクリアまたは再適用（必要に応じて）
-    filterContent();
-}
-
-// --- お気に入り機能 ---
-function toggleFavorite(e, appId) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (favoriteIds.includes(appId)) {
-        favoriteIds = favoriteIds.filter(id => id !== appId);
+function applyBackground(urlData) {
+    if (urlData && urlData !== 'none') {
+        document.body.style.setProperty('--custom-bg-image', `url('${urlData}')`);
     } else {
-        favoriteIds.push(appId);
-    }
-    saveItem(SAVE_KEYS.FAVORITES, JSON.stringify(favoriteIds));
-
-    // appData更新
-    const app = appData.find(a => a.id === appId);
-    if (app) {
-        app.isFavorite = favoriteIds.includes(appId);
-    }
-
-    // 現在の表示タブに合わせて再描画
-    if (currentActiveTab === 'fy') {
-        renderFavoritesTab(); // リストから即座に削除
-    } else if (currentActiveTab === 'all-apps') {
-        renderAllIcons(); // スターの色を更新
-        renderRecentlyUsed(); // 最近使用した項目にも反映(必要なら)
+        document.body.style.setProperty('--custom-bg-image', 'none');
     }
 }
-
-// --- 最近使用したアプリ ---
-function getRecentlyUsed() {
-    const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
-    return data ? JSON.parse(data) : [];
-}
-
-function addRecentlyUsed(appId) {
-    let recentlyUsed = getRecentlyUsed();
-    recentlyUsed = recentlyUsed.filter(id => id !== appId);
-    recentlyUsed.unshift(appId);
-    if (recentlyUsed.length > MAX_RECENTLY_USED) {
-        recentlyUsed.pop();
-    }
-    saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
-    renderRecentlyUsed();
-}
-
-function renderRecentlyUsed() {
-    const recentlyUsedIds = getRecentlyUsed();
-    recentlyUsedGridContainer.innerHTML = '';
-
-    if (recentlyUsedIds.length === 0) {
-        recentlyUsedContainer.classList.add('hidden');
-        sectionDivider.classList.add('hidden');
-        return;
-    }
-
-    recentlyUsedContainer.classList.remove('hidden');
-    sectionDivider.classList.remove('hidden');
-    
-    recentlyUsedIds.forEach(id => {
-        const app = appData.find(a => a.id === id);
-        if (app) {
-            const iconElement = createIconElement(app, false); // ここではスター非表示
-            // 最近使用した項目のクリックイベント
-            iconElement.querySelector('a').addEventListener('click', () => {
-                addRecentlyUsed(app.id);
-            });
-            recentlyUsedGridContainer.appendChild(iconElement);
-        }
-    });
-}
-
-// --- アイコン要素作成 ---
-function createIconElement(app, showStar = true) {
-    const item = document.createElement('div');
-    item.className = `icon-item search-item`; // search-itemクラスを追加して検索対象にする
-    item.dataset.id = app.id;
-    item.dataset.searchText = app.searchText;
-    
-    let iconHTML;
-    if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
-        iconHTML = `<img src="${app.icon}" class="icon-img" loading="lazy" alt="${app.label}" onerror="this.outerHTML='<i class=\\\'fas fa-globe fallback-icon\\\'></i>'">`;
-    } else {
-        iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
-    }
-
-    let starHTML = '';
-    if (showStar) {
-        const starClass = app.isFavorite ? 'fas fa-star favorite-btn active' : 'far fa-star favorite-btn';
-        starHTML = `<i class="${starClass}" onclick="toggleFavorite(event, ${app.id})"></i>`;
-    }
-
-    item.innerHTML = `
-        <a href="${app.url}" class="icon-link" target="_blank">${iconHTML}</a>
-        ${starHTML}
-        <div class="label-text">${app.label}</div>`; 
-    
-    // リンククリック時に「最近使用」に追加
-    item.querySelector('a').addEventListener('click', () => {
-        addRecentlyUsed(app.id);
-    });
-
-    return item;
-}
-
-// --- メイングランド描画 ---
-function renderAllIcons() {
-    gridContainer.innerHTML = '';
-    
-    // お気に入りが先頭に来るようにソート
-    const sortedApps = [...appData].sort((a, b) => {
-        if (a.isFavorite === b.isFavorite) return 0;
-        return a.isFavorite ? -1 : 1;
-    });
-
-    sortedApps.forEach(app => {
-        const iconElement = createIconElement(app, true);
-        gridContainer.appendChild(iconElement);
-    });
-    
-    filterContent(); // 描画後に検索フィルタ適用
-}
-
-// --- FYタブ描画 (新規追加) ---
-function renderFavoritesTab() {
-    fyContentArea.innerHTML = '';
-    
-    const favorites = appData.filter(app => app.isFavorite);
-    
-    if (favorites.length === 0) {
-        fyContentArea.innerHTML = '<p style="text-align:center; width:100%; color:#888;">お気に入りは登録されていません。<br>Appsタブで☆マークを押すと追加されます。</p>';
-        return;
-    }
-
-    favorites.forEach(app => {
-        // FYタブ内でも検索できるように search-item クラス付きで作成
-        const iconElement = createIconElement(app, true);
-        fyContentArea.appendChild(iconElement);
-    });
-
-    filterContent(); // 描画後に検索フィルタ適用
-}
-
-// --- 検索機能 ---
-function filterContent() {
-    const searchText = searchInput.value.toLowerCase();
-    const clearBtn = document.getElementById('clearSearchBtn');
-    
-    if (searchText.length > 0) {
-        clearBtn.classList.remove('hidden');
-    } else {
-        clearBtn.classList.add('hidden');
-    }
-
-    // 現在表示されているコンテナ内のアイテムを対象にする
-    let targetContainer;
-    if (currentActiveTab === 'all-apps') targetContainer = gridContainer;
-    else if (currentActiveTab === 'fy') targetContainer = fyContentArea;
-    else return; // 他のタブでは検索しない
-
-    const items = targetContainer.querySelectorAll('.search-item');
-    
-    items.forEach(item => {
-        const text = item.dataset.searchText ? item.dataset.searchText.toLowerCase() : '';
-        const label = item.querySelector('.label-text').innerText.toLowerCase();
-        
-        if (text.includes(searchText) || label.includes(searchText)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// --- 時計関連 ---
-function parseTimeToDate(timeStr) {
-    const today = new Date();
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
-    return date;
+function resetBackground() {
+    localStorage.removeItem(BG_KEY);
+    applyBackground('none');
+    alert('背景をリセットしました。');
 }
 
 function updateClock() {
     const now = new Date();
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const dayName = days[now.getDay()];
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const day = days[now.getDay()];
     
-    const dateStr = `${now.getMonth() + 1}/${now.getDate()} (${dayName})`;
-    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    
-    document.getElementById('date').textContent = dateStr;
-    document.getElementById('clock').textContent = timeStr;
+    dateElement.textContent = `${year}/${month}/${date} (${day})`;
+    clockElement.textContent = now.toTimeString().split(' ')[0];
 
-    // カウントダウンロジック
-    let nextEvent = null;
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    let msg = "本日の予定は終了";
+    
     for (let item of schedule) {
-        const startTime = parseTimeToDate(item.start);
-        const endTime = parseTimeToDate(item.end);
-        
-        if (now < startTime) {
-            nextEvent = { name: item.name, time: startTime, type: 'start' };
+        const [sh, sm] = item.start.split(':').map(Number);
+        const [eh, em] = item.end.split(':').map(Number);
+        const sMin = sh * 60 + sm;
+        const eMin = eh * 60 + em;
+
+        if (nowMin >= sMin && nowMin < eMin) {
+            const totalDuration = eMin - sMin;
+            const elapsed = nowMin - sMin;
+            const percentage = Math.floor((elapsed / totalDuration) * 100);
+            msg = `${item.name} ${item.start} 〜 ${item.end} (${percentage}%)`;
             break;
-        } else if (now < endTime) {
-            nextEvent = { name: item.name, time: endTime, type: 'end' };
+        } else if (nowMin < sMin) {
+            msg = `次は ${item.name} (${item.start}〜)`;
             break;
         }
     }
+    countdownElement.textContent = msg;
+}
 
-    const countdownEl = document.getElementById('countdown');
-    if (nextEvent) {
-        const diff = nextEvent.time - now;
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        const prefix = nextEvent.type === 'start' ? '開始まで' : '終了まで';
-        countdownEl.textContent = `${nextEvent.name} ${prefix} ${minutes}分${seconds}秒`;
+function renderGrid(data) {
+    gridContainer.innerHTML = '';
+    data.forEach(app => {
+        const item = createIconItem(app);
+        gridContainer.appendChild(item);
+    });
+}
+
+function createIconItem(app) {
+    const div = document.createElement('div');
+    div.className = 'icon-item';
+
+    const a = document.createElement('a');
+    a.href = app.url;
+    a.className = 'icon-link';
+    a.target = '_blank';
+
+    const img = document.createElement('img');
+    let domain = '';
+    try {
+        const urlObj = new URL(app.url);
+        domain = urlObj.hostname;
+    } catch(e) { domain = 'google.com'; }
+    img.src = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    img.className = 'icon-img';
+    img.onerror = () => { img.src = 'https://via.placeholder.com/32?text=?'; };
+    a.appendChild(img);
+
+    const star = document.createElement('i');
+    const isFav = favorites.includes(app.id);
+    star.className = isFav ? 'fas fa-star fav-btn active' : 'far fa-star fav-btn';
+    
+    star.onclick = (e) => {
+        e.preventDefault(); 
+        toggleFavorite(app.id);
+    };
+
+    const label = document.createElement('div');
+    label.className = 'label-text';
+    label.textContent = app.label;
+
+    div.appendChild(star);
+    div.appendChild(a);
+    div.appendChild(label);
+
+    return div;
+}
+
+function initBustarain() {
+    const items = document.querySelectorAll('#bustarain-container .accordion-item');
+    items.forEach(item => {
+        const id = item.dataset.id;
+        const star = item.querySelector('.acc-fav-btn');
+        if(!star) return;
+
+        if(favorites.includes(id)) {
+            star.className = 'fas fa-star acc-fav-btn active';
+        } else {
+            star.className = 'far fa-star acc-fav-btn';
+        }
+
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+        };
+    });
+}
+
+function toggleFavorite(id) {
+    const existingIndex = favorites.indexOf(id);
+    if (existingIndex !== -1) {
+        favorites[existingIndex] = null;
     } else {
-        countdownEl.textContent = "本日の予定終了";
+        const emptyIndex = favorites.indexOf(null);
+        if (emptyIndex !== -1) {
+            favorites[emptyIndex] = id;
+        } else {
+            favorites.push(id);
+        }
+    }
+    saveFavorites();
+    renderGrid(initialAppData);
+    if (document.getElementById('tab-fy').classList.contains('active')) {
+        renderFavoritesPage();
+    }
+    initBustarain();
+}
+
+function saveFavorites() {
+    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+}
+
+// --- FY (Favorites) 表示 ---
+function renderFavoritesPage() {
+    fyContentArea.innerHTML = '';
+    
+    favorites.forEach((favId, index) => {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'grid-slot';
+        if (favId === null) slotDiv.classList.add('empty');
+        
+        let contentDiv = null;
+        
+        if (favId !== null) {
+            // ▼▼▼ 特別なコンポーネント (鷹取バス掲示板) の判定 ▼▼▼
+            if (favId === 'opt-takatori') {
+                slotDiv.classList.add('full-width'); // CSSで横幅一杯にするクラス
+                // 描画
+                if(typeof renderTakatoriBoard === 'function') {
+                    renderTakatoriBoard(slotDiv);
+                } else {
+                    slotDiv.textContent = "Takatori Board Loading...";
+                }
+            } 
+            else if (typeof favId === 'number') {
+                const app = initialAppData.find(a => a.id === favId);
+                if(app) contentDiv = createIconItem(app);
+            } else {
+                // Bustarainアイテム
+                const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
+                if(el) {
+                    const title = el.dataset.title;
+                    contentDiv = document.createElement('div');
+                    contentDiv.className = 'icon-item';
+                    
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'icon-link';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.innerHTML = '<i class="fas fa-bus" style="font-size:24px;"></i>';
+                    
+                    linkDiv.onclick = () => {
+                        if(isEditMode) return;
+                        activateTab('bustarain');
+                        const parentTabId = el.parentElement.id;
+                        switchSubTab(parentTabId);
+                        if(!el.classList.contains('active')) toggleAccordion(el.querySelector('.accordion-header'));
+                        setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                    };
+
+                    const star = document.createElement('i');
+                    star.className = 'fas fa-star fav-btn active';
+                    star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
+
+                    const label = document.createElement('div');
+                    label.className = 'label-text';
+                    label.textContent = title;
+
+                    contentDiv.appendChild(star);
+                    contentDiv.appendChild(linkDiv);
+                    contentDiv.appendChild(label);
+                }
+            }
+        }
+
+        if (contentDiv) {
+            slotDiv.appendChild(contentDiv);
+        }
+
+        if (isEditMode) {
+            // 編集モード中はスロット全体をクリック対象に
+            // ※バス掲示板のような内部ボタンがあるものも、pointer-events:noneで無効化されている想定
+            slotDiv.onclick = (e) => {
+                // イベント伝播を止めないとバス掲示板内のボタンが反応する可能性があるため
+                e.stopPropagation();
+                handleSlotClick(index);
+            };
+            if (selectedSlotIndex === index) {
+                slotDiv.classList.add('selected-slot');
+            }
+        }
+
+        fyContentArea.appendChild(slotDiv);
+    });
+
+    if(isEditMode) {
+        fyContentArea.classList.add('edit-mode');
+        fyEditBtn.textContent = '完了';
+        fyEditBtn.classList.add('editing');
+    } else {
+        fyContentArea.classList.remove('edit-mode');
+        fyEditBtn.textContent = '並び替え';
+        fyEditBtn.classList.remove('editing');
+        selectedSlotIndex = null;
     }
 }
 
-// --- Bustarain関連 ---
-function initBustarain() {
-    const btns = document.querySelectorAll('.sub-tab-btn');
-    btns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // アクティブクラス切り替え
-            btns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // コンテンツ表示切り替え
-            const targetId = btn.getAttribute('data-target');
-            document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
-            document.getElementById(targetId).classList.remove('hidden');
-        });
-    });
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    selectedSlotIndex = null;
+    renderFavoritesPage();
+}
 
-    // アコーディオン
-    document.querySelectorAll('.accordion-header').forEach(header => {
-        header.addEventListener('click', function() {
-            const content = this.nextElementSibling;
-            const src = this.getAttribute('data-src');
-            
-            // 開閉トグル
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
-                content.innerHTML = ''; // 閉じる時は中身を消して軽量化
-            } else {
-                // 他を閉じる（任意）
-                // document.querySelectorAll('.accordion-content').forEach(c => {c.style.maxHeight = null; c.innerHTML='';});
-                
-                content.innerHTML = `<iframe src="${src}" frameborder="0" style="width:100%; height:500px;"></iframe>`;
-                content.style.maxHeight = "500px"; // iframeの高さに合わせる
-            }
-        });
+function handleSlotClick(clickedIndex) {
+    if (selectedSlotIndex === null) {
+        if (favorites[clickedIndex] === null) return;
+        selectedSlotIndex = clickedIndex;
+        renderFavoritesPage();
+        return;
+    }
+
+    if (selectedSlotIndex === clickedIndex) {
+        selectedSlotIndex = null;
+        renderFavoritesPage();
+        return;
+    }
+
+    const temp = favorites[selectedSlotIndex];
+    favorites[selectedSlotIndex] = favorites[clickedIndex];
+    favorites[clickedIndex] = temp;
+    
+    saveFavorites();
+    selectedSlotIndex = null; 
+    renderFavoritesPage();
+}
+
+// --- 共通 ---
+function activateTab(tabName) {
+    mainGrid.style.display = 'none';
+    bustarainContainer.style.display = 'none';
+    optionContainer.style.display = 'none';
+    fyContainer.style.display = 'none';
+    
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.querySelector('.search-wrapper').classList.add('hidden'); 
+
+    if(isEditMode) {
+        isEditMode = false;
+        renderFavoritesPage();
+    }
+
+    if (tabName === 'all-apps') {
+        mainGrid.style.display = 'block';
+        document.getElementById('tab-all-apps').classList.add('active');
+        document.querySelector('.search-wrapper').classList.remove('hidden');
+    } else if (tabName === 'bustarain') {
+        bustarainContainer.style.display = 'block';
+        document.getElementById('tab-bustarain').classList.add('active');
+    } else if (tabName === 'option') {
+        optionContainer.style.display = 'block';
+        document.getElementById('tab-option').classList.add('active');
+    } else if (tabName === 'fy') {
+        fyContainer.style.display = 'block';
+        document.getElementById('tab-fy').classList.add('active');
+        renderFavoritesPage();
+    }
+}
+
+function switchSubTab(targetId) {
+    document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(targetId).classList.remove('hidden');
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
     });
 }
 
-// --- テーマ切り替え ---
-function setTheme(mode) {
-    if (mode === 'dark') {
+function toggleAccordion(header) {
+    const item = header.parentElement;
+    const content = item.querySelector('.accordion-content');
+    const iframe = content.querySelector('iframe');
+    item.classList.toggle('active');
+    if (item.classList.contains('active')) {
+        if (iframe && !iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src;
+    }
+}
+
+function handleSearch() {
+    const query = searchInput.value.toLowerCase();
+    clearSearchBtn.classList.toggle('hidden', query.length === 0);
+    const filtered = initialAppData.filter(app => {
+        return (app.label && app.label.toLowerCase().includes(query)) ||
+               (app.searchText && app.searchText.toLowerCase().includes(query));
+    });
+    renderGrid(filtered);
+}
+
+function setTheme(theme) {
+    if (theme === 'dark') {
         document.body.classList.add('dark-theme');
-        saveItem(SAVE_KEYS.THEME, 'true');
     } else {
         document.body.classList.remove('dark-theme');
-        saveItem(SAVE_KEYS.THEME, 'false');
     }
+    localStorage.setItem('theme', theme);
 }
 
-// --- 初期化 ---
-window.onload = function() {
-    loadSaveSettings();
-    loadAppData();
-
-    // テーマ適用
-    if (saveSettings.theme) {
-        document.body.classList.add('dark-theme');
-    }
-
-    // 初期タブ表示
-    activateTab(saveSettings.mainTab);
-    
-    renderRecentlyUsed();
-    if (saveSettings.mainTab === 'all-apps') {
-        renderAllIcons();
-    } else if (saveSettings.mainTab === 'fy') {
-        renderFavoritesTab();
-    }
-
-    // イベントリスナー
-    refreshButton.addEventListener('click', () => location.reload());
-    
-    searchInput.addEventListener('input', filterContent);
-    clearSearchBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        filterContent();
-    });
-
-    initBustarain();
-    
-    // 時計開始
-    updateClock();
-    setInterval(updateClock, 1000);
-    
-    // ネットワーク状態
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
-};
-
-function updateOnlineStatus() {
-    const statusEl = document.getElementById('offline-status');
-    if (navigator.onLine) {
-        statusEl.textContent = '';
-        statusEl.style.display = 'none';
-    } else {
-        statusEl.textContent = 'オフライン';
-        statusEl.style.display = 'block';
-        statusEl.style.color = 'red';
-        statusEl.style.fontWeight = 'bold';
-    }
+function reloadSpeedTest() {
+    const iframe = document.querySelector('.header-speed-test iframe');
+    iframe.src = iframe.src;
 }
