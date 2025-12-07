@@ -35,7 +35,7 @@
         border: 1px solid #ccc;
         width: 100%;
         
-        /* ★ここを変更しました：600px -> 800px */
+        /* 検索バーの幅広設定（前回の変更を維持） */
         max-width: 800px; 
         
         transition: background 0.3s, border-color 0.3s;
@@ -158,8 +158,7 @@
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
         <i class="fas fa-bus"></i> Bustarain 
     </div>
-    
-    </div>
+  </div>
 </div>
 
 <div class="main-grid" id="main-grid">
@@ -173,16 +172,7 @@
         <hr id="section-divider" class="hidden">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            <div class="sub-filter-tabs" id="sub-filter-tabs">
-                <button class="sub-filter-btn active" data-category="all">All</button>
-                <button class="sub-filter-btn" data-category="favorite">Favorite</button>
-                <button class="sub-filter-btn" data-category="ai">AI</button>
-                <button class="sub-filter-btn" data-category="google">Google</button>
-                <button class="sub-filter-btn" data-category="sns">SNS</button>
-                <button class="sub-filter-btn" data-category="game">Game</button>
-                <button class="sub-filter-btn" data-category="downloader">Downloader</button>
-                <button class="sub-filter-btn" data-category="other">Other</button>
-            </div>
+            
             <div class="grid-container" id="gridContainer"></div>
         </div>
       </div>
