@@ -35,23 +35,30 @@ const initialAppData = [
 
 const FAV_KEY = 'myLinkAppFavorites';
 const BG_KEY = 'myLinkAppBg'; 
+
+// favorites は [id, null, id, id, null...] のように空き情報を含む配列になる
+// 初期サイズは最低24マス確保
 let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
-let isEditMode = false; // 編集モードフラグ
-let selectedFavId = null; // 入れ替え用の一時選択ID
+if (favorites.length < 24) {
+    // 既存データ（IDのみの配列）から移行する場合や新規の場合
+    // 空きスロットで埋める
+    const padding = new Array(24 - favorites.length).fill(null);
+    favorites = favorites.concat(padding);
+}
+
+let isEditMode = false; 
+let selectedSlotIndex = null; // タップで移動用：選択されたスロットのインデックス
 
 // --- 初期化 ---
 window.onload = function() {
     updateClock();
     setInterval(updateClock, 1000);
     
-    // テーマ設定
     const savedTheme = localStorage.getItem('theme');
     if(savedTheme) setTheme(savedTheme);
 
-    // 背景設定
     loadBackground();
 
-    // Option初期化
     if (typeof initOptionTabContent === 'function') {
         initOptionTabContent();
     }
@@ -94,7 +101,7 @@ function resetBackground() {
     alert('背景をリセットしました。');
 }
 
-// --- 時計 (新フォーマット) ---
+// --- 時計 ---
 function updateClock() {
     const now = new Date();
     const days = ['日', '月', '火', '水', '木', '金', '土'];
@@ -195,11 +202,21 @@ function initBustarain() {
 }
 
 function toggleFavorite(id) {
-    const idx = favorites.indexOf(id);
-    if (idx === -1) {
-        favorites.push(id);
+    // favorites配列内に存在するか確認
+    const existingIndex = favorites.indexOf(id);
+
+    if (existingIndex !== -1) {
+        // 既に存在する場合は削除（その位置をnullにする）
+        favorites[existingIndex] = null;
     } else {
-        favorites.splice(idx, 1);
+        // 新規追加：最初の空きスロット(null)を探して入れる
+        const emptyIndex = favorites.indexOf(null);
+        if (emptyIndex !== -1) {
+            favorites[emptyIndex] = id;
+        } else {
+            // 空きがない場合は末尾に追加
+            favorites.push(id);
+        }
     }
     saveFavorites();
     
@@ -211,76 +228,84 @@ function toggleFavorite(id) {
 }
 
 function saveFavorites() {
+    // 末尾の連続するnullを削除してから保存すると容量節約になるが、
+    // マス目位置を固定したい場合はそのまま保存するほうが良い
     localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
 }
 
-// --- FY (Favorites) 表示 & タップ交換 ---
+// --- FY (Favorites) 表示 & タップ移動ロジック ---
 function renderFavoritesPage() {
     fyContentArea.innerHTML = '';
     
-    if (favorites.length === 0) {
-        fyContentArea.innerHTML = '<p style="width:100%; text-align:center; color:#888;">お気に入りはまだ登録されていません。</p>';
-        return;
-    }
-
-    favorites.forEach((favId) => {
-        let itemDiv = null;
+    // favorites配列（null含む）をループしてスロットを描画
+    // 最低でも24個などの固定枠を表示したい場合はループ回数を固定する手もあるが
+    // ここではfavorites配列長に依存させる（toggleFavoriteで自動拡張される）
+    
+    favorites.forEach((favId, index) => {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'grid-slot';
+        if (favId === null) slotDiv.classList.add('empty');
         
-        if (typeof favId === 'number') {
-            const app = initialAppData.find(a => a.id === favId);
-            if(app) itemDiv = createIconItem(app);
-        } else {
-            const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
-            if(el) {
-                const title = el.dataset.title;
-                itemDiv = document.createElement('div');
-                itemDiv.className = 'icon-item';
-                
-                const linkDiv = document.createElement('div');
-                linkDiv.className = 'icon-link';
-                linkDiv.style.cursor = 'pointer';
-                linkDiv.innerHTML = '<i class="fas fa-bus" style="font-size:24px;"></i>';
-                
-                // 通常モード時のクリックイベント
-                linkDiv.onclick = () => {
-                    if(isEditMode) return; // 編集モード中は親のクリックが優先
-                    activateTab('bustarain');
-                    const parentTabId = el.parentElement.id;
-                    switchSubTab(parentTabId);
-                    if(!el.classList.contains('active')) toggleAccordion(el.querySelector('.accordion-header'));
-                    setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-                };
+        // アイコン要素の生成（中身がある場合）
+        let contentDiv = null;
+        if (favId !== null) {
+            if (typeof favId === 'number') {
+                const app = initialAppData.find(a => a.id === favId);
+                if(app) contentDiv = createIconItem(app);
+            } else {
+                // Bustarainアイテム
+                const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
+                if(el) {
+                    const title = el.dataset.title;
+                    contentDiv = document.createElement('div');
+                    contentDiv.className = 'icon-item';
+                    
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'icon-link';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.innerHTML = '<i class="fas fa-bus" style="font-size:24px;"></i>';
+                    
+                    linkDiv.onclick = () => {
+                        if(isEditMode) return;
+                        activateTab('bustarain');
+                        const parentTabId = el.parentElement.id;
+                        switchSubTab(parentTabId);
+                        if(!el.classList.contains('active')) toggleAccordion(el.querySelector('.accordion-header'));
+                        setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                    };
 
-                const star = document.createElement('i');
-                star.className = 'fas fa-star fav-btn active';
-                star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
+                    const star = document.createElement('i');
+                    star.className = 'fas fa-star fav-btn active';
+                    star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
 
-                const label = document.createElement('div');
-                label.className = 'label-text';
-                label.textContent = title;
+                    const label = document.createElement('div');
+                    label.className = 'label-text';
+                    label.textContent = title;
 
-                itemDiv.appendChild(star);
-                itemDiv.appendChild(linkDiv);
-                itemDiv.appendChild(label);
-            }
-        }
-
-        if(itemDiv) {
-            // 編集モード時: 全体をクリック可能にして交換処理を呼ぶ
-            if(isEditMode) {
-                // CSSで .edit-mode .icon-link { pointer-events: none; } となっているため
-                // itemDiv (親) の onclick が発火する
-                itemDiv.onclick = () => {
-                    handleSwapClick(favId);
-                };
-                
-                // 選択中のスタイル適用
-                if (selectedFavId === favId) {
-                    itemDiv.classList.add('selected-swap');
+                    contentDiv.appendChild(star);
+                    contentDiv.appendChild(linkDiv);
+                    contentDiv.appendChild(label);
                 }
             }
-            fyContentArea.appendChild(itemDiv);
         }
+
+        if (contentDiv) {
+            slotDiv.appendChild(contentDiv);
+        }
+
+        // 編集モード時のイベント
+        if (isEditMode) {
+            slotDiv.onclick = () => {
+                handleSlotClick(index);
+            };
+            
+            // 選択中ハイライト
+            if (selectedSlotIndex === index) {
+                slotDiv.classList.add('selected-slot');
+            }
+        }
+
+        fyContentArea.appendChild(slotDiv);
     });
 
     if(isEditMode) {
@@ -291,48 +316,45 @@ function renderFavoritesPage() {
         fyContentArea.classList.remove('edit-mode');
         fyEditBtn.textContent = '並び替え';
         fyEditBtn.classList.remove('editing');
-        selectedFavId = null; // リセット
+        selectedSlotIndex = null;
     }
 }
 
-// 編集モード切替
 function toggleEditMode() {
     isEditMode = !isEditMode;
-    selectedFavId = null; // モード切替時に選択解除
+    selectedSlotIndex = null;
     renderFavoritesPage();
 }
 
-// タップ交換ロジック
-function handleSwapClick(clickedFavId) {
+function handleSlotClick(clickedIndex) {
     // まだ何も選択されていない場合
-    if (selectedFavId === null) {
-        selectedFavId = clickedFavId;
+    if (selectedSlotIndex === null) {
+        // 空のスロットを選んでも何も起きない（移動するものがない）
+        if (favorites[clickedIndex] === null) return;
+        
+        selectedSlotIndex = clickedIndex;
         renderFavoritesPage(); // 再描画して選択スタイル適用
         return;
     }
 
-    // 同じものをタップした場合 -> 選択解除
-    if (selectedFavId === clickedFavId) {
-        selectedFavId = null;
+    // 同じ場所をタップ -> 選択解除
+    if (selectedSlotIndex === clickedIndex) {
+        selectedSlotIndex = null;
         renderFavoritesPage();
         return;
     }
 
-    // 違うものをタップした場合 -> 入れ替え実行
-    const index1 = favorites.indexOf(selectedFavId);
-    const index2 = favorites.indexOf(clickedFavId);
-
-    if (index1 !== -1 && index2 !== -1) {
-        // 配列要素の交換
-        const temp = favorites[index1];
-        favorites[index1] = favorites[index2];
-        favorites[index2] = temp;
-        
-        saveFavorites();
-        selectedFavId = null; // 選択解除
-        renderFavoritesPage(); // 再描画
-    }
+    // 違う場所をタップ -> 移動 or 入れ替え
+    // 空きスロットなら移動、埋まっていれば交換
+    const temp = favorites[selectedSlotIndex];
+    favorites[selectedSlotIndex] = favorites[clickedIndex];
+    favorites[clickedIndex] = temp;
+    
+    saveFavorites();
+    selectedSlotIndex = null; // 移動完了で選択解除
+    renderFavoritesPage();
 }
+
 
 // --- 共通 ---
 function activateTab(tabName) {
@@ -346,7 +368,7 @@ function activateTab(tabName) {
 
     if(isEditMode) {
         isEditMode = false;
-        renderFavoritesPage(); // 編集モード終了して再描画
+        renderFavoritesPage();
     }
 
     if (tabName === 'all-apps') {
