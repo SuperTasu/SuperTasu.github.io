@@ -16,7 +16,7 @@ const countdownElement = document.getElementById('countdown');
 // --- データ定義 ---
 const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
-// アプリリスト（元のデータを維持）
+// アプリリスト
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
@@ -31,7 +31,6 @@ const initialAppData = [
     {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",searchText:"ChatGPT AI"},
     {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",searchText:"神戸市交通局 地下鉄 バス"},
     {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",searchText:"GigaFile ギガファイル便"}
-    // 必要に応じて元の長いリストを追加してください
 ];
 
 // お気に入りデータ保存用
@@ -50,7 +49,7 @@ window.onload = function() {
     // Appsグリッド描画
     renderGrid(initialAppData);
 
-    // Bustarain初期化（お気に入りボタン付与）
+    // Bustarain初期化（お気に入りボタン同期）
     initBustarain();
 
     // 検索イベント
@@ -61,11 +60,18 @@ window.onload = function() {
     });
 };
 
-// --- 時計機能 ---
+// --- 時計機能 (年を追加) ---
 function updateClock() {
     const now = new Date();
     const days = ['日', '月', '火', '水', '木', '金', '土'];
-    dateElement.textContent = `${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]})`;
+    
+    // YYYY/MM/DD 形式に変更
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const day = days[now.getDay()];
+    
+    dateElement.textContent = `${year}/${month}/${date} (${day})`;
     clockElement.textContent = now.toTimeString().split(' ')[0];
 
     // スケジュールカウントダウン
@@ -129,7 +135,7 @@ function createIconItem(app) {
     label.className = 'label-text';
     label.textContent = app.label;
 
-    div.appendChild(star); // 右上配置のためdiv直下
+    div.appendChild(star);
     div.appendChild(a);
     div.appendChild(label);
 
@@ -138,30 +144,25 @@ function createIconItem(app) {
 
 // --- Bustarain初期化 ---
 function initBustarain() {
-    // Bustarainのアコーディオンヘッダー全てに☆ボタンを追加
-    const headers = document.querySelectorAll('#bustarain-container .accordion-header');
-    headers.forEach(header => {
-        const item = header.parentElement;
-        const id = item.dataset.id; // HTMLで定義した data-id
-        if(!id) return;
+    // Bustarainのアコーディオンヘッダー内の☆ボタンの状態を更新
+    const items = document.querySelectorAll('#bustarain-container .accordion-item');
+    items.forEach(item => {
+        const id = item.dataset.id;
+        const star = item.querySelector('.acc-fav-btn');
+        if(!star) return;
 
-        const star = document.createElement('i');
-        const isFav = favorites.includes(id);
-        star.className = isFav ? 'fas fa-star acc-fav-btn active' : 'far fa-star acc-fav-btn';
-        
+        // イベントリスナーの重複登録を防ぐため、一度cloneして置き換える手法も取れますが、
+        // 今回は単純にクラス更新と、onclick設定（上書き）を行います
+        if(favorites.includes(id)) {
+            star.className = 'fas fa-star acc-fav-btn active';
+        } else {
+            star.className = 'far fa-star acc-fav-btn';
+        }
+
         star.onclick = (e) => {
             e.stopPropagation(); // アコーディオン開閉を防ぐ
-            toggleFavorite(id, 'bustarain');
-            // 表示切替
-            if(favorites.includes(id)) {
-                star.className = 'fas fa-star acc-fav-btn active';
-            } else {
-                star.className = 'far fa-star acc-fav-btn';
-            }
+            toggleFavorite(id);
         };
-
-        // タイトル(span)の後ろ、矢印の前に追加
-        header.insertBefore(star, header.lastElementChild);
     });
 }
 
@@ -180,8 +181,7 @@ function toggleFavorite(id) {
     if (document.getElementById('tab-fy').classList.contains('active')) {
         renderFavoritesPage();
     }
-    // Bustarain側の星も同期
-    initBustarain(); // クラスを再適用
+    initBustarain(); // Bustarainの星更新
 }
 
 // --- FYタブ描画 ---
@@ -208,7 +208,7 @@ function renderFavoritesPage() {
                 const iconDiv = document.createElement('div');
                 iconDiv.className = 'icon-item';
                 
-                // リンクの代わりにクリックイベントを持つdivを作成
+                // リンク風ボタン
                 const linkDiv = document.createElement('div');
                 linkDiv.className = 'icon-link';
                 linkDiv.style.cursor = 'pointer';
@@ -217,17 +217,16 @@ function renderFavoritesPage() {
                 linkDiv.onclick = () => {
                     // Bustarainタブへ移動して該当を開く
                     activateTab('bustarain');
-                    // サブタブ判定（親IDから）
                     const parentTabId = el.parentElement.id;
                     switchSubTab(parentTabId);
                     
-                    // アコーディオンを開く
                     if(!el.classList.contains('active')) {
-                        const header = el.querySelector('.accordion-header');
-                        toggleAccordion(header);
+                        // toggleAccordionはヘッダー要素を引数にとる
+                        toggleAccordion(el.querySelector('.accordion-header'));
                     }
-                    // スクロール
-                    el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    setTimeout(() => {
+                        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }, 100);
                 };
 
                 // 削除ボタン
@@ -253,14 +252,13 @@ function renderFavoritesPage() {
 
 // --- タブ切り替え ---
 function activateTab(tabName) {
-    // 全非表示
     mainGrid.style.display = 'none';
     bustarainContainer.style.display = 'none';
     optionContainer.style.display = 'none';
     fyContainer.style.display = 'none';
     
     document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-    document.querySelector('.search-wrapper').classList.add('hidden'); // デフォルト非表示
+    document.querySelector('.search-wrapper').classList.add('hidden'); 
 
     if (tabName === 'all-apps') {
         mainGrid.style.display = 'block';
@@ -300,7 +298,6 @@ function toggleAccordion(header) {
 
     item.classList.toggle('active');
 
-    // 開いたときにsrcを設定（遅延読み込み）
     if (item.classList.contains('active')) {
         if (iframe && !iframe.src && iframe.dataset.src) {
             iframe.src = iframe.dataset.src;
