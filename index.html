@@ -15,6 +15,15 @@
     .label-text { font-weight: 700 !important; }
     .hidden { display: none !important; }
 
+    /* 検索コンテナのラッパー（検索バーを中央寄せ・独立させるため） */
+    .search-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 10px 15px 0 15px; /* 上左右に余白 */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     /* 検索コンテナ */
     .search-container {
         position: relative;
@@ -24,9 +33,10 @@
         border-radius: 20px;
         padding: 5px 10px;
         border: 1px solid #ccc;
-        flex-grow: 1;
-        max-width: 400px;
+        width: 100%;
+        max-width: 600px; /* 横幅を少し広めに設定 */
         transition: background 0.3s, border-color 0.3s;
+        height: 40px;
     }
     .search-container i.fa-search { color: #888; margin-right: 8px; }
     #appSearchInput {
@@ -50,6 +60,26 @@
     }
     #clearSearchBtn:hover { color: #333; }
 
+    /* タブメニューの調整（中央揃え） */
+    .tab-menu {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .tab-item {
+        /* 必要に応じてスタイル調整 */
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: background 0.2s;
+    }
+    .tab-item:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+
     /* ダークモード対応 */
     body.dark-theme .search-container { background: #333; border-color: #555; }
     body.dark-theme #appSearchInput { color: #eee; }
@@ -57,117 +87,23 @@
     body.dark-theme #clearSearchBtn { color: #aaa; }
     body.dark-theme #clearSearchBtn:hover { color: #fff; }
     body.dark-theme #appSearchInput::placeholder { color: #777; }
+    body.dark-theme .tab-item:hover { background-color: rgba(255,255,255,0.1); }
 
     /* スマホ向け最適化 */
     @media (max-width: 768px) {
-        .tab-menu { flex-wrap: wrap; gap: 10px; padding: 10px; }
-        .search-container { order: -1; width: 100%; max-width: 100%; margin-bottom: 5px; height: 44px; }
-        .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; }
+        .search-wrapper { padding: 10px; }
+        .tab-menu { gap: 10px; }
+        .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; max-width: 150px; }
     }
 
-    /* ▼▼▼ 追加：ヘッダーのランク表示用スタイル ▼▼▼ */
-    #header-danger-rank {
-        font-weight: 800;
-        font-size: 1.2rem;
-        margin-right: 15px;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: #333; /* デフォルト背景 */
-        border: 1px solid #555;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 40px;
-    }
-    /* ヘッダー用ランクカラー定義 */
-    .header-rank-SSR { color: #FFD700; border-color: #FFD700; text-shadow: 0 0 5px #FFD700; animation: glow-text 1.5s infinite alternate; }
-    .header-rank-S { color: #ff2a2a; border-color: #ff2a2a; text-shadow: 0 0 5px #ff0000; }
-    .header-rank-A { color: #ff9900; border-color: #ff9900; }
-    .header-rank-C { color: #3399ff; border-color: #3399ff; }
+    /* Bustarain関連のスタイルは維持 */
+    #bustarain-container { display: none; } /* 初期状態は非表示、JSで制御 */
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+    .sub-tab-btn { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; cursor: pointer; }
+    .sub-tab-btn.active { background: #007bff; color: white; }
+    body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
+    body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
 
-    @keyframes glow-text {
-        from { text-shadow: 0 0 5px #FFD700; }
-        to { text-shadow: 0 0 15px #FFD700, 0 0 5px #ff00de; }
-    }
-
-    /* ▼▼▼ 追加：Damageタブ内のスタイル（提供されたコードを移植・調整） ▼▼▼ */
-    #damage-container {
-        display: none; /* JSで制御 */
-        width: 100%;
-        justify-content: center;
-        align-items: flex-start; /* 上寄せ */
-        padding-top: 20px;
-        min-height: 80vh;
-    }
-    .damage-wrapper {
-        background-color: #2d2d2d;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        text-align: center;
-        width: 90%;
-        max-width: 400px;
-        border: 1px solid #444;
-        color: #e0e0e0;
-        font-family: "Helvetica Neue", Arial, sans-serif;
-    }
-    .damage-wrapper h1 { margin: 0 0 20px; font-size: 1.4rem; color: #bbb; }
-    .damage-info-box {
-        background: #3a3a3a;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .damage-numbers {
-        font-size: 1.3rem;
-        letter-spacing: 2px;
-        margin-top: 5px;
-        font-family: monospace;
-        color: #fff;
-    }
-    .damage-rank-area {
-        padding: 25px;
-        border-radius: 12px;
-        background: #222;
-        border: 2px solid #444;
-        transition: all 0.3s ease;
-    }
-    .damage-rank-label { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-    .damage-rank-value {
-        font-size: 5rem;
-        font-weight: 800;
-        margin: 5px 0;
-        line-height: 1;
-    }
-    .damage-rank-desc { font-size: 0.9rem; color: #aaa; }
-
-    /* Damageタブ内ランク別スタイル */
-    .rank-SSR {
-        border-color: #FFD700;
-        background: linear-gradient(135deg, #222 0%, #332a00 100%);
-        color: #FFD700;
-        text-shadow: 0 0 15px #FFD700, 0 0 30px #ff00de;
-        animation: glow 1.5s ease-in-out infinite alternate;
-    }
-    .rank-S {
-        border-color: #ff2a2a;
-        background: linear-gradient(135deg, #222 0%, #330000 100%);
-        color: #ff2a2a;
-        text-shadow: 0 0 15px #ff0000;
-    }
-    .rank-A {
-        border-color: #ff9900;
-        color: #ff9900;
-        text-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
-    }
-    .rank-C {
-        border-color: #3399ff;
-        color: #3399ff;
-    }
-    @keyframes glow {
-        from { box-shadow: 0 0 5px #FFD700; transform: scale(1); }
-        to { box-shadow: 0 0 20px #FFD700, 0 0 10px #ff00de; transform: scale(1.02); }
-    }
   </style>
 </head>
 <body>
@@ -177,9 +113,6 @@
         <div class="clock-main-row">
             <div class="clock-content-wrapper">
               <div class="datetime-row">
-                <!-- ▼▼▼ 追加：危険度ランク表示（時計の左） ▼▼▼ -->
-                <div id="header-danger-rank"></div>
-                
                 <div id="date"></div>
                 <div id="clock"></div>
                 <div id="countdown"></div>
@@ -204,28 +137,37 @@
         </div>
     </div>
 </header>
+
 <div class="tab-container">
+  <!-- 変更点：検索バーを独立させて上部に配置 -->
+  <div class="search-wrapper">
+      <div class="search-container"> 
+          <i class="fas fa-search"></i> 
+          <input type="text" id="appSearchInput" placeholder="検索..."> 
+          <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+      </div>
+  </div>
+  
+  <!-- 変更点：タブメニュー（検索バーの下に配置） -->
   <div class="tab-menu">
-    <div class="search-container"> 
-        <i class="fas fa-search"></i> 
-        <input type="text" id="appSearchInput" placeholder="検索..."> 
-        <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+    <!-- Apps タブ -->
+    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
+        <i class="fas fa-th-large"></i> Apps 
     </div>
     
-    <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> Apps </div>
-    <!-- ▼▼▼ 追加：Damageタブ ▼▼▼ -->
-    <div class="tab-item" id="tab-damage" onclick="activateTab('damage')"> <i class="fas fa-exclamation-triangle"></i> Damage </div>
+    <!-- Bustarain タブ -->
+    <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
+        <i class="fas fa-bus"></i> Bustarain 
+    </div>
     
-    <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> Bustarain </div>
-    <a href="https://sites.google.com/view/answer-i/all-home" class="tab-item" target="_blank"> <i class="fas fa-robot"></i> Answer I </a>
-    <a href="https://discord.com/channels/@me" class="tab-item" target="_blank" title="Discord" style="padding-left: 16px; padding-right: 16px; min-width: 0;"><i class="fab fa-discord"></i></a>
+    <!-- 削除済み: Damage, Answer I, Discord -->
   </div>
 </div>
 
 <!-- Main Apps Grid -->
 <div class="main-grid" id="main-grid">
   <div class="apps-area">
-    <div id="search-wrapper">
+    <div id="search-wrapper-content">
       <div class="main-content" id="mainContent">
         <div id="recently-used-apps-container" class="hidden">
             <h3 class="section-title">最近使用したアプリ</h3>
@@ -251,26 +193,7 @@
   </div>
 </div>
 
-<!-- ▼▼▼ 追加：Damage Container (提供コードの埋め込み) ▼▼▼ -->
-<div id="damage-container">
-    <div class="damage-wrapper">
-        <h1>本日の危険度</h1>
-        
-        <div class="damage-info-box">
-            <div style="font-size:0.9rem; color:#888;">今日の日付</div>
-            <div style="font-size:1.5rem; font-weight:bold;" id="damage-date-disp"></div>
-            <hr style="border-color:#555; margin:10px 0; opacity:0.5;">
-            <div style="font-size:0.9rem; color:#888;">計算数値 (+0, +10, +20)</div>
-            <div class="damage-numbers" id="damage-calc-disp"></div>
-        </div>
-
-        <div id="damage-rank-box" class="damage-rank-area">
-            <div class="damage-rank-label">Danger Level</div>
-            <div id="damage-rank-result" class="damage-rank-value"></div>
-            <div id="damage-rank-desc" class="damage-rank-desc"></div>
-        </div>
-    </div>
-</div>
+<!-- 削除済み: Damage Container -->
 
 <!-- Bustarain Container -->
 <div id="bustarain-container">
