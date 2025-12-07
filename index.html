@@ -16,22 +16,80 @@
     .hidden { display: none !important; }
 
     /* 検索バー周り */
-    .search-wrapper { display: flex; justify-content: center; padding: 10px 15px 0 15px; width: 100%; box-sizing: border-box; }
-    .search-container { position: relative; display: flex; align-items: center; background: #fff; border-radius: 20px; padding: 5px 10px; border: 1px solid #ccc; width: 100%; max-width: 800px; transition: background 0.3s, border-color 0.3s; height: 40px; }
+    .search-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 10px 15px 0 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .search-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 20px;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        width: 100%;
+        max-width: 800px; 
+        transition: background 0.3s, border-color 0.3s;
+        height: 40px;
+    }
     .search-container i.fa-search { color: #888; margin-right: 8px; }
-    #appSearchInput { border: none; outline: none; width: 100%; font-size: 16px; background: transparent; padding-right: 30px; height: 30px; color: #333; }
-    #clearSearchBtn { position: absolute; right: 10px; color: #999; cursor: pointer; font-size: 16px; padding: 5px; z-index: 2; }
+    #appSearchInput {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 16px;
+        background: transparent;
+        padding-right: 30px;
+        height: 30px;
+        color: #333;
+    }
+    #clearSearchBtn {
+        position: absolute;
+        right: 10px;
+        color: #999;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 5px;
+        z-index: 2;
+    }
     #clearSearchBtn:hover { color: #333; }
 
     /* タブメニュー */
-    .tab-menu { display: flex; justify-content: center; gap: 15px; padding: 10px; flex-wrap: wrap; }
-    .tab-item { padding: 10px 20px; cursor: pointer; border-radius: 10px; transition: background 0.2s; }
-    .tab-item:hover { background-color: rgba(0,0,0,0.05); }
+    .tab-menu {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 10px;
+        flex-wrap: wrap;
+    }
+    .tab-item {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: background 0.2s;
+    }
+    .tab-item:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
 
     /* コンテナ表示切り替え */
     #bustarain-container, #fy-container, #option-container { display: none; }
-    #option-container, #fy-container { padding: 20px; max-width: 800px; margin: 0 auto; }
-    .option-card { background: rgba(255,255,255,0.8); padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    #option-container, #fy-container {
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .option-card {
+        background: rgba(255,255,255,0.8);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
 
     /* Bustarainスタイル */
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
@@ -42,9 +100,15 @@
     .accordion-header {
         display: flex;
         align-items: center;
-        /* justify-contentはJS側で制御、あるいはデフォルト */
         position: relative;
+        cursor: pointer;
+        padding: 10px;
+        background: rgba(255,255,255,0.9);
+        border-bottom: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 5px;
     }
+    .accordion-item { margin-bottom: 5px; }
     .accordion-star {
         margin-left: auto; /* 右端に寄せる */
         margin-right: 15px;
@@ -59,11 +123,13 @@
     /* ダークモード */
     body.dark-theme .search-container { background: #333; border-color: #555; }
     body.dark-theme #appSearchInput { color: #eee; }
-    body.dark-theme .search-container i.fa-search, body.dark-theme #clearSearchBtn { color: #aaa; }
+    body.dark-theme .search-container i.fa-search,
+    body.dark-theme #clearSearchBtn { color: #aaa; }
     body.dark-theme #clearSearchBtn:hover { color: #fff; }
     body.dark-theme .option-card { background: rgba(50,50,50,0.8); color: #eee; }
     body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
     body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
+    body.dark-theme .accordion-header { background: #444; color: #fff; border-bottom-color: #555; }
 
     /* Fast.com 小さく表示するためのスタイル */
     .header-speed-test {
@@ -72,14 +138,15 @@
         height: 50px;
         overflow: hidden;
         border-radius: 5px;
-        background: #000; /* fast.comは黒背景が合う */
+        background: #000;
+        margin-left: 10px;
     }
     .header-speed-test iframe {
-        width: 180px; /* 元の幅を大きく */
-        height: 100px; /* 元の高さを大きく */
+        width: 180px; /* 元の幅を確保 */
+        height: 100px; /* 元の高さを確保 */
         border: none;
         transform: scale(0.5); /* 50%に縮小 */
-        transform-origin: 0 0; /* 左上基準で縮小 */
+        transform-origin: 0 0; /* 左上基準 */
         pointer-events: none; /* 誤クリック防止 */
     }
     .speed-test-refresh {
@@ -91,6 +158,7 @@
         cursor: pointer;
         z-index: 10;
     }
+    .speed-test-refresh:hover { color: #fff; }
 
     /* FY☆アイコンの色 */
     .fa-star.fy-icon { color: #ffc107; margin-right: 5px; }
@@ -198,7 +266,7 @@
     <div id="train-content" class="sub-tab-content"></div>
     <div id="bus-content" class="sub-tab-content hidden"></div>
     <div id="other-content" class="sub-tab-content hidden">
-        <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
+        <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px; width: 100%; border: none;" loading="lazy"></iframe>
     </div>
 </div>
 
@@ -207,6 +275,10 @@
     <div class="option-card">
         <h4><i class="fas fa-info-circle"></i> アプリ情報</h4>
         <p>バージョン: 1.1.0</p>
+    </div>
+    <div class="option-card">
+        <h4><i class="fas fa-tools"></i> ツール</h4>
+        <p>設定項目を追加できます。</p>
     </div>
 </div>
 
