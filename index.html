@@ -11,123 +11,95 @@
   <link rel="stylesheet" href="style.css">
    
   <style>
-    /* --- 既存のスタイル --- */
+    /* --- 既存スタイル + 追加修正 --- */
     .label-text { font-weight: 700 !important; }
     .hidden { display: none !important; }
 
-    /* 検索コンテナのラッパー */
-    .search-wrapper {
-        display: flex;
-        justify-content: center;
-        padding: 10px 15px 0 15px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* 検索コンテナ */
-    .search-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        background: #fff;
-        border-radius: 20px;
-        padding: 5px 10px;
-        border: 1px solid #ccc;
-        width: 100%;
-        max-width: 800px; 
-        transition: background 0.3s, border-color 0.3s;
-        height: 40px;
-    }
+    /* 検索バー周り */
+    .search-wrapper { display: flex; justify-content: center; padding: 10px 15px 0 15px; width: 100%; box-sizing: border-box; }
+    .search-container { position: relative; display: flex; align-items: center; background: #fff; border-radius: 20px; padding: 5px 10px; border: 1px solid #ccc; width: 100%; max-width: 800px; transition: background 0.3s, border-color 0.3s; height: 40px; }
     .search-container i.fa-search { color: #888; margin-right: 8px; }
-    #appSearchInput {
-        border: none;
-        outline: none;
-        width: 100%;
-        font-size: 16px;
-        background: transparent;
-        padding-right: 30px;
-        height: 30px;
-        color: #333;
-    }
-    #clearSearchBtn {
-        position: absolute;
-        right: 10px;
-        color: #999;
-        cursor: pointer;
-        font-size: 16px;
-        padding: 5px;
-        z-index: 2;
-    }
+    #appSearchInput { border: none; outline: none; width: 100%; font-size: 16px; background: transparent; padding-right: 30px; height: 30px; color: #333; }
+    #clearSearchBtn { position: absolute; right: 10px; color: #999; cursor: pointer; font-size: 16px; padding: 5px; z-index: 2; }
     #clearSearchBtn:hover { color: #333; }
 
-    /* タブメニューの調整 */
-    .tab-menu {
+    /* タブメニュー */
+    .tab-menu { display: flex; justify-content: center; gap: 15px; padding: 10px; flex-wrap: wrap; }
+    .tab-item { padding: 10px 20px; cursor: pointer; border-radius: 10px; transition: background 0.2s; }
+    .tab-item:hover { background-color: rgba(0,0,0,0.05); }
+
+    /* コンテナ表示切り替え */
+    #bustarain-container, #fy-container, #option-container { display: none; }
+    #option-container, #fy-container { padding: 20px; max-width: 800px; margin: 0 auto; }
+    .option-card { background: rgba(255,255,255,0.8); padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    /* Bustarainスタイル */
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+    .sub-tab-btn { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; cursor: pointer; }
+    .sub-tab-btn.active { background: #007bff; color: white; }
+    
+    /* アコーディオン内のスターボタン配置 */
+    .accordion-header {
         display: flex;
-        justify-content: center;
-        gap: 15px;
-        padding: 10px;
-        flex-wrap: wrap;
+        align-items: center;
+        /* justify-contentはJS側で制御、あるいはデフォルト */
+        position: relative;
     }
-    
-    .tab-item {
-        padding: 10px 20px;
+    .accordion-star {
+        margin-left: auto; /* 右端に寄せる */
+        margin-right: 15px;
+        color: #ccc;
         cursor: pointer;
-        border-radius: 10px;
-        transition: background 0.2s;
+        font-size: 1.2rem;
+        transition: transform 0.2s;
     }
-    .tab-item:hover {
-        background-color: rgba(0,0,0,0.05);
-    }
-    /* FYタブのアクティブ時の色などを設定したい場合はここに追加 */
-    
-    /* ダークモード対応 */
+    .accordion-star:hover { transform: scale(1.2); }
+    .accordion-star.active { color: #FFD700; }
+
+    /* ダークモード */
     body.dark-theme .search-container { background: #333; border-color: #555; }
     body.dark-theme #appSearchInput { color: #eee; }
-    body.dark-theme .search-container i.fa-search,
-    body.dark-theme #clearSearchBtn { color: #aaa; }
+    body.dark-theme .search-container i.fa-search, body.dark-theme #clearSearchBtn { color: #aaa; }
     body.dark-theme #clearSearchBtn:hover { color: #fff; }
-    body.dark-theme #appSearchInput::placeholder { color: #777; }
-    body.dark-theme .tab-item:hover { background-color: rgba(255,255,255,0.1); }
+    body.dark-theme .option-card { background: rgba(50,50,50,0.8); color: #eee; }
+    body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
+    body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
 
-    /* スマホ向け最適化 */
+    /* Fast.com 小さく表示するためのスタイル */
+    .header-speed-test {
+        position: relative;
+        width: 90px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 5px;
+        background: #000; /* fast.comは黒背景が合う */
+    }
+    .header-speed-test iframe {
+        width: 180px; /* 元の幅を大きく */
+        height: 100px; /* 元の高さを大きく */
+        border: none;
+        transform: scale(0.5); /* 50%に縮小 */
+        transform-origin: 0 0; /* 左上基準で縮小 */
+        pointer-events: none; /* 誤クリック防止 */
+    }
+    .speed-test-refresh {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        color: rgba(255,255,255,0.7);
+        font-size: 10px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    /* FY☆アイコンの色 */
+    .fa-star.fy-icon { color: #ffc107; margin-right: 5px; }
+
     @media (max-width: 768px) {
         .search-wrapper { padding: 10px; }
         .tab-menu { gap: 10px; }
         .tab-item { flex-grow: 1; text-align: center; justify-content: center; font-size: 14px; padding: 10px 5px; max-width: 100px; }
     }
-
-    /* 各コンテナの初期表示設定 */
-    #bustarain-container { display: none; }
-    #fy-container { display: none; } /* FYコンテナも初期は非表示 */
-    #option-container { display: none; }
-
-    /* Bustarain関連のスタイル */
-    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
-    .sub-tab-btn { padding: 8px 16px; border: none; background: #eee; border-radius: 20px; cursor: pointer; }
-    .sub-tab-btn.active { background: #007bff; color: white; }
-    body.dark-theme .sub-tab-btn { background: #444; color: #ddd; }
-    body.dark-theme .sub-tab-btn.active { background: #0056b3; color: white; }
-
-    /* Option/FYコンテナ用共通スタイル */
-    #option-container, #fy-container {
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    .option-card, .fy-card {
-        background: rgba(255,255,255,0.8);
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    body.dark-theme .option-card, 
-    body.dark-theme .fy-card {
-        background: rgba(50,50,50,0.8);
-        color: #eee;
-    }
-    /* FYアイコンの色 */
-    .fa-star.fy-icon { color: #ffc107; margin-right: 5px; }
   </style>
 </head>
 <body>
@@ -141,12 +113,15 @@
                 <div id="clock"></div>
                 <div id="countdown"></div>
                 <div id="offline-status"></div>
+                
+                <!-- Fast.com 埋め込み (小さく表示) -->
                 <div class="header-speed-test">
-                    <iframe data-src="https://fast.com/ja/" title="速度テスト" loading="lazy"></iframe>
-                    <div class="control-icon" id="speed-test-refresh-button" title="速度テストを再実行">
-                        <i class="fas fa-redo"></i> 
+                    <iframe id="speed-frame" src="https://fast.com/ja/" title="速度テスト" loading="lazy"></iframe>
+                    <div class="speed-test-refresh" id="speed-test-refresh-button" title="更新">
+                        <i class="fas fa-redo"></i>
                     </div>
                 </div>
+
                 <div class="theme-switcher">
                   <div class="theme-dot light" onclick="setTheme('light')"></div>
                   <div class="theme-dot dark" onclick="setTheme('dark')"></div>
@@ -172,7 +147,6 @@
   </div>
    
   <div class="tab-menu">
-    <!-- FY☆ タブを追加 (Appsの左隣) -->
     <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
         <i class="fas fa-star fy-icon"></i> FY☆ 
     </div>
@@ -191,13 +165,9 @@
   </div>
 </div>
 
-<!-- FY☆ コンテンツコンテナ -->
 <div id="fy-container">
     <h3 class="section-title"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
-    <div id="fy-content-area" class="grid-container">
-        <!-- ここにJavaScriptでお気に入りアイテムを追加する想定 -->
-        <p style="text-align:center; width:100%; color:#888;">お気に入りはまだ登録されていません。</p>
-    </div>
+    <div id="fy-content-area" class="grid-container"></div>
 </div>
 
 <div class="main-grid" id="main-grid">
@@ -211,7 +181,6 @@
         <hr id="section-divider" class="hidden">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            
             <div class="grid-container" id="gridContainer"></div>
         </div>
       </div>
@@ -225,19 +194,9 @@
         <button class="sub-tab-btn" data-target="bus-content"><i class="fas fa-bus"></i> BUS</button>
         <button class="sub-tab-btn" data-target="other-content"><i class="fas fa-info-circle"></i> その他</button>
     </div>
-    <div id="train-content" class="sub-tab-content">
-        <div class="accordion-item"><div class="accordion-header" data-src="train/wadmisaki-train.html">和田岬 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/itayado-train.html">帰）板宿新長田経由海岸線 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="train/Itayado-sannyou.html">板宿駅（山陽電車） <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
-    <div id="bus-content" class="sub-tab-content hidden">
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/Buslocation.html">バスロケーション <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/iki-kaeri.html">行き・帰り（今出在家 ⇔ 鷹取団地）<i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/imadezaike.html">今出在家 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/yumeno3.html">夢野町3丁目 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/takatoridantimae.html">高取団地前 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-        <div class="accordion-item"><div class="accordion-header" data-src="bus/Itayado-bus.html">板宿駅 <i class="fas fa-chevron-down"></i></div><div class="accordion-content"></div></div>
-    </div>
+    <!-- 中身はJSで生成します -->
+    <div id="train-content" class="sub-tab-content"></div>
+    <div id="bus-content" class="sub-tab-content hidden"></div>
     <div id="other-content" class="sub-tab-content hidden">
         <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/" style="height: 1000px;" loading="lazy"></iframe>
     </div>
@@ -247,11 +206,7 @@
     <h3 class="section-title">設定 (Option)</h3>
     <div class="option-card">
         <h4><i class="fas fa-info-circle"></i> アプリ情報</h4>
-        <p>バージョン: 1.0.0</p>
-    </div>
-    <div class="option-card">
-        <h4><i class="fas fa-tools"></i> ツール</h4>
-        <p>ここに設定項目を追加できます。</p>
+        <p>バージョン: 1.1.0</p>
     </div>
 </div>
 
