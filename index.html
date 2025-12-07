@@ -34,7 +34,10 @@
         padding: 5px 10px;
         border: 1px solid #ccc;
         width: 100%;
-        max-width: 600px; /* 横幅を少し広めに設定 */
+        
+        /* ★ここを変更しました：600px -> 800px */
+        max-width: 800px; 
+        
         transition: background 0.3s, border-color 0.3s;
         height: 40px;
     }
@@ -139,7 +142,6 @@
 </header>
 
 <div class="tab-container">
-  <!-- 変更点：検索バーを独立させて上部に配置 -->
   <div class="search-wrapper">
       <div class="search-container"> 
           <i class="fas fa-search"></i> 
@@ -148,23 +150,18 @@
       </div>
   </div>
   
-  <!-- 変更点：タブメニュー（検索バーの下に配置） -->
   <div class="tab-menu">
-    <!-- Apps タブ -->
     <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
         <i class="fas fa-th-large"></i> Apps 
     </div>
     
-    <!-- Bustarain タブ -->
     <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
         <i class="fas fa-bus"></i> Bustarain 
     </div>
     
-    <!-- 削除済み: Damage, Answer I, Discord -->
-  </div>
+    </div>
 </div>
 
-<!-- Main Apps Grid -->
 <div class="main-grid" id="main-grid">
   <div class="apps-area">
     <div id="search-wrapper-content">
@@ -193,9 +190,6 @@
   </div>
 </div>
 
-<!-- 削除済み: Damage Container -->
-
-<!-- Bustarain Container -->
 <div id="bustarain-container">
     <div class="sub-tab-menu">
         <button class="sub-tab-btn active" data-target="train-content"><i class="fas fa-train"></i> Train</button>
