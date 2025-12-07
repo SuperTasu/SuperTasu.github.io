@@ -1,15 +1,23 @@
+// --- DOM要素の取得 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
+const optionContainer = document.getElementById('option-container'); // HTMLに合わせて追加
+const fyContainer = document.getElementById('fy-container'); // 追加: FYコンテナ
+const fyContentArea = document.getElementById('fy-content-area'); // 追加: FYコンテンツエリア
+
 const gridContainer = document.getElementById('gridContainer');
 const refreshButton = document.getElementById('refresh-button');
 const recentlyUsedGridContainer = document.getElementById('recentlyUsedGridContainer');
 const recentlyUsedContainer = document.getElementById('recently-used-apps-container');
 const sectionDivider = document.getElementById('section-divider');
+const searchInput = document.getElementById('appSearchInput'); // 検索用に追加
+const clearSearchBtn = document.getElementById('clearSearchBtn'); // 検索クリア用
 
+// --- データ定義 ---
 const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
+
 let appData = [];
 
-// カテゴリ指定は残していますが、フィルタリングロジックからは除外します
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
@@ -105,14 +113,14 @@ const SAVE_KEYS = {
     THEME: 'siteSaveTheme',
     MAIN_TAB: 'siteSaveMainTab',
     RECENTLY_USED: 'siteRecentlyUsed',
-    FAVORITES: 'siteFavorites' // お気に入り保存用キー
+    FAVORITES: 'siteFavorites'
 };
 const MAX_RECENTLY_USED = 12;
 let saveSettings = {};
-let favoriteIds = []; // お気に入りIDリスト
+let favoriteIds = [];
+let currentActiveTab = 'all-apps'; // 現在のタブを追跡
 
-// --- お気に入り機能用CSSの注入 ---
-// HTML/CSSファイルを触らずにスタイルを適用するためJSで追加
+// --- CSS注入 ---
 const styleElement = document.createElement('style');
 styleElement.innerHTML = `
     .icon-item {
@@ -123,37 +131,36 @@ styleElement.innerHTML = `
         bottom: 5px;
         right: 5px;
         cursor: pointer;
-        color: #ccc; /* 未選択時はグレー */
+        color: #ccc;
         font-size: 14px;
         z-index: 10;
         text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
         transition: transform 0.2s, color 0.2s;
-        padding: 5px; /* クリック領域を少し広げる */
+        padding: 5px;
     }
     .favorite-btn:hover {
         transform: scale(1.2);
     }
     .favorite-btn.active {
-        color: #FFD700; /* 選択時は金色 */
+        color: #FFD700;
         text-shadow: 0 0 2px rgba(0,0,0,0.5);
-    }
-    /* 不要になったサブフィルターボタンを隠す（念のため） */
-    .sub-filter-menu, .sub-filter-btn {
-        display: none !important;
     }
 `;
 document.head.appendChild(styleElement);
 
 
+// --- 設定ロード ---
 function loadSaveSettings() {
     saveSettings = {
         theme: localStorage.getItem(SAVE_KEYS.THEME) === 'true',
-        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) === 'true',
+        mainTab: localStorage.getItem(SAVE_KEYS.MAIN_TAB) || 'all-apps', // デフォルトをall-appsに
     };
-    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = true;
-    if (localStorage.getItem(SAVE_KEYS.MAIN_TAB) === null) saveSettings.mainTab = true;
+    if (localStorage.getItem(SAVE_KEYS.THEME) === null) saveSettings.theme = false;
+    
+    // 古い形式(boolean)からの移行対応
+    if (saveSettings.mainTab === 'true') saveSettings.mainTab = 'all-apps';
+    if (saveSettings.mainTab === 'false') saveSettings.mainTab = 'all-apps';
 
-    // お気に入りの読み込み
     const favData = localStorage.getItem(SAVE_KEYS.FAVORITES);
     favoriteIds = favData ? JSON.parse(favData) : [];
 }
@@ -170,15 +177,13 @@ function saveItem(key, value) {
     else if (key === 'siteActiveTab') localStorage.setItem(key, value);
     else if (key === SAVE_KEYS.RECENTLY_USED) localStorage.setItem(key, value);
     else if (key === SAVE_KEYS.FAVORITES) localStorage.setItem(key, value);
+    else if (key === SAVE_KEYS.MAIN_TAB) localStorage.setItem(key, value);
 }
 
+// --- アプリデータ準備 ---
 function loadAppData() { 
     try { 
-        // アプリデータ自体は変更しないのでinitialAppDataを使用
-        // カテゴリー削除などの構造変更に対応するため、LocalStorageからの全データ復元はせず、
-        // initialAppDataをベースにお気に入りフラグをマージする形にします
         appData = JSON.parse(JSON.stringify(initialAppData));
-        
         // お気に入り状態を反映
         appData.forEach(app => {
             app.isFavorite = favoriteIds.includes(app.id);
@@ -188,10 +193,44 @@ function loadAppData() {
     } 
 }
 
-// お気に入りの切り替え
+// --- タブ切り替え ---
+function activateTab(tabName) {
+    currentActiveTab = tabName;
+    saveItem(SAVE_KEYS.MAIN_TAB, tabName);
+
+    // 全てのコンテンツを非表示
+    mainGrid.style.display = 'none';
+    bustarainContainer.style.display = 'none';
+    optionContainer.style.display = 'none';
+    fyContainer.style.display = 'none';
+
+    // タブメニューの見た目更新（任意：CSSで.activeクラスなどを定義して色を変える場合に使用）
+    document.querySelectorAll('.tab-item').forEach(item => {
+        // ここでクラス操作などを追加可能
+    });
+
+    // 選択されたタブを表示
+    if (tabName === 'all-apps') {
+        mainGrid.style.display = 'block';
+        // 全アプリ表示時は再描画して最新のスター状態を反映
+        renderAllIcons();
+    } else if (tabName === 'bustarain') {
+        bustarainContainer.style.display = 'block';
+    } else if (tabName === 'option') {
+        optionContainer.style.display = 'block';
+    } else if (tabName === 'fy') {
+        fyContainer.style.display = 'block';
+        renderFavoritesTab(); // FYタブ表示時に中身を描画
+    }
+    
+    // 検索ボックスの中身をクリアまたは再適用（必要に応じて）
+    filterContent();
+}
+
+// --- お気に入り機能 ---
 function toggleFavorite(e, appId) {
     e.preventDefault();
-    e.stopPropagation(); // リンク遷移を防ぐ
+    e.stopPropagation();
 
     if (favoriteIds.includes(appId)) {
         favoriteIds = favoriteIds.filter(id => id !== appId);
@@ -200,16 +239,22 @@ function toggleFavorite(e, appId) {
     }
     saveItem(SAVE_KEYS.FAVORITES, JSON.stringify(favoriteIds));
 
-    // appDataの状態更新
+    // appData更新
     const app = appData.find(a => a.id === appId);
     if (app) {
         app.isFavorite = favoriteIds.includes(appId);
     }
 
-    // 再描画（並び順を変えるため）
-    renderAllIcons();
+    // 現在の表示タブに合わせて再描画
+    if (currentActiveTab === 'fy') {
+        renderFavoritesTab(); // リストから即座に削除
+    } else if (currentActiveTab === 'all-apps') {
+        renderAllIcons(); // スターの色を更新
+        renderRecentlyUsed(); // 最近使用した項目にも反映(必要なら)
+    }
 }
 
+// --- 最近使用したアプリ ---
 function getRecentlyUsed() {
     const data = getSavedItem(SAVE_KEYS.RECENTLY_USED);
     return data ? JSON.parse(data) : [];
@@ -223,6 +268,7 @@ function addRecentlyUsed(appId) {
         recentlyUsed.pop();
     }
     saveItem(SAVE_KEYS.RECENTLY_USED, JSON.stringify(recentlyUsed));
+    renderRecentlyUsed();
 }
 
 function renderRecentlyUsed() {
@@ -241,18 +287,22 @@ function renderRecentlyUsed() {
     recentlyUsedIds.forEach(id => {
         const app = appData.find(a => a.id === id);
         if (app) {
-            // 最近使用したアプリにはお気に入りスターは表示しない（メイングリッドで操作させる）
-            // または表示したい場合は createIconElement をそのまま使う
-            const iconElement = createIconElement(app, false); // false = スターを表示しない
+            const iconElement = createIconElement(app, false); // ここではスター非表示
+            // 最近使用した項目のクリックイベント
+            iconElement.querySelector('a').addEventListener('click', () => {
+                addRecentlyUsed(app.id);
+            });
             recentlyUsedGridContainer.appendChild(iconElement);
         }
     });
 }
 
+// --- アイコン要素作成 ---
 function createIconElement(app, showStar = true) {
     const item = document.createElement('div');
-    item.className = `icon-item`;
+    item.className = `icon-item search-item`; // search-itemクラスを追加して検索対象にする
     item.dataset.id = app.id;
+    item.dataset.searchText = app.searchText;
     
     let iconHTML;
     if (app.icon && (app.icon.startsWith('http') || app.icon.startsWith('data:'))) {
@@ -261,7 +311,6 @@ function createIconElement(app, showStar = true) {
         iconHTML = `<i class="${app.icon || 'fas fa-globe'}" style="${app.style || ''}"></i>`;
     }
 
-    // お気に入りスターのHTML
     let starHTML = '';
     if (showStar) {
         const starClass = app.isFavorite ? 'fas fa-star favorite-btn active' : 'far fa-star favorite-btn';
@@ -273,279 +322,227 @@ function createIconElement(app, showStar = true) {
         ${starHTML}
         <div class="label-text">${app.label}</div>`; 
     
+    // リンククリック時に「最近使用」に追加
+    item.querySelector('a').addEventListener('click', () => {
+        addRecentlyUsed(app.id);
+    });
+
     return item;
 }
 
+// --- メイングランド描画 ---
 function renderAllIcons() {
     gridContainer.innerHTML = '';
     
     // お気に入りが先頭に来るようにソート
-    // (true=1, false=0として降順ソート)
     const sortedApps = [...appData].sort((a, b) => {
-        if (a.isFavorite === b.isFavorite) {
-            return 0; // そのままの順序（ID順など）
-        }
-        return a.isFavorite ? -1 : 1; // お気に入りを前に
+        if (a.isFavorite === b.isFavorite) return 0;
+        return a.isFavorite ? -1 : 1;
     });
 
     sortedApps.forEach(app => {
         const iconElement = createIconElement(app, true);
-        iconElement.classList.add('search-item');
-        iconElement.dataset.searchText = app.searchText;
-        // カテゴリー属性は残すがフィルタリングには使用しない
-        iconElement.dataset.category = app.category || 'all'; 
         gridContainer.appendChild(iconElement);
     });
-
-    // 初期表示時に検索フィルタを適用（文字が入っている場合用）
-    filterContent();
-}
-
-function parseTimeToDate(t){const[e,n]=t.split(":").map(Number),o=new Date;return o.setHours(e,n,0,0),o}
-function getCurrentPeriod(t){for(const e of schedule){const n=parseTimeToDate(e.start),o=parseTimeToDate(e.end);if(t>=n&&t<o)return{...e,startTime:n,endTime:o}}return null}
-function updateCountdown(t){const e=getCurrentPeriod(t),n=document.getElementById("countdown");if(e){const o=e.endTime-t,a=e.endTime-e.startTime,s=a-o,r=Math.floor(s/a*100),i=Math.floor(o/1e3),l=String(Math.floor(i/3600)).padStart(2,"0"),c=String(Math.floor(i%3600/60)).padStart(2,"0"),d=String(i%60).padStart(2,"0");n.textContent=`${e.name} 残り: ${l}:${c}:${d} (${r}%)`,document.title=`${e.name} Left: ${l}:${c}:${d}`}else n.textContent="現在は授業時間外です",document.title="授業時間外"}
-function updateClockAndDate(){const t=new Date,e=String(t.getHours()).padStart(2,"0"),n=String(t.getMinutes()).padStart(2,"0"),o=String(t.getSeconds()).padStart(2,"0");document.getElementById("clock").textContent=`${e}:${n}:${o}`;const a=t.getFullYear(),s=String(t.getMonth()+1).padStart(2,"0"),r=String(t.getDate()).padStart(2,"0"),i=["日","月","火","水","木","金","土"][t.getDay()];document.getElementById("date").textContent=`${a}/${s}/${r}(${i})`,updateCountdown(t)}
-
-function setTheme(t){
-    if ("dark"===t) {
-        document.body.classList.add("dark-theme");
-        saveItem('siteTheme', 'dark');
-    } else {
-        document.body.classList.remove("dark-theme");
-        saveItem('siteTheme', 'light');
-    }
-}
-
-function activateTab(tabId) {
-    document.querySelectorAll(".tab-item").forEach(t => t.classList.remove('active'));
-    document.getElementById(`tab-${tabId}`)?.classList.add('active');
-
-    mainGrid.style.display = 'none'; 
-    bustarainContainer.style.display = 'none'; 
-
-    if (tabId === 'bustarain') { 
-        bustarainContainer.style.display = 'block'; 
-    } else { 
-        mainGrid.style.display = 'grid'; 
-    }
-
-    saveItem('siteActiveTab', tabId);
-}
-
-// カテゴリフィルタ関数は削除（または無効化）
-// function filterIconsByCategory(category) { ... } 
-
-function filterContent(){ 
-    const input = document.getElementById("appSearchInput");
-    const s = input.value.toLowerCase(); 
     
+    filterContent(); // 描画後に検索フィルタ適用
+}
+
+// --- FYタブ描画 (新規追加) ---
+function renderFavoritesTab() {
+    fyContentArea.innerHTML = '';
+    
+    const favorites = appData.filter(app => app.isFavorite);
+    
+    if (favorites.length === 0) {
+        fyContentArea.innerHTML = '<p style="text-align:center; width:100%; color:#888;">お気に入りは登録されていません。<br>Appsタブで☆マークを押すと追加されます。</p>';
+        return;
+    }
+
+    favorites.forEach(app => {
+        // FYタブ内でも検索できるように search-item クラス付きで作成
+        const iconElement = createIconElement(app, true);
+        fyContentArea.appendChild(iconElement);
+    });
+
+    filterContent(); // 描画後に検索フィルタ適用
+}
+
+// --- 検索機能 ---
+function filterContent() {
+    const searchText = searchInput.value.toLowerCase();
     const clearBtn = document.getElementById('clearSearchBtn');
     
-    if (s.length > 0) {
+    if (searchText.length > 0) {
         clearBtn.classList.remove('hidden');
-        recentlyUsedContainer.classList.add('hidden');
-        sectionDivider.classList.add('hidden');
     } else {
         clearBtn.classList.add('hidden');
-        const recentlyUsedIds = getRecentlyUsed();
-        if (recentlyUsedIds.length > 0) {
-            recentlyUsedContainer.classList.remove('hidden');
-            sectionDivider.classList.remove('hidden');
-        }
     }
 
-    // カテゴリチェックを削除し、検索ワードのみでフィルタリング
-    document.querySelectorAll("#gridContainer .search-item").forEach(i => { 
-        const searchMatch = i.dataset.searchText.toLowerCase().includes(s) || i.querySelector('.label-text').textContent.toLowerCase().includes(s); 
-        i.style.display = searchMatch ? 'grid' : 'none';
-    }); 
-}
+    // 現在表示されているコンテナ内のアイテムを対象にする
+    let targetContainer;
+    if (currentActiveTab === 'all-apps') targetContainer = gridContainer;
+    else if (currentActiveTab === 'fy') targetContainer = fyContentArea;
+    else return; // 他のタブでは検索しない
 
-function initAccordions() { 
-    document.querySelectorAll('.accordion-header').forEach(h => h.addEventListener('click', () => { 
-        const item = h.parentElement; 
-        const wasActive = item.classList.contains('active'); 
-        h.closest('.sub-tab-content').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active')); 
-        if (!wasActive) { 
-            item.classList.add('active'); 
-            const content = h.nextElementSibling, src = h.dataset.src; 
-            if (src && content.innerHTML.trim() === '') { 
-                const iframe = document.createElement('iframe'); 
-                iframe.className = 'accordion-iframe'; 
-                iframe.loading = 'lazy';
-                iframe.src = src; 
-                content.appendChild(iframe); 
-            } 
-        } 
-    })); 
-}
-
-function activateSubTab(targetId) {
-    document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
-    const targetContent = document.getElementById(targetId);
-    if(targetContent) {
-        targetContent.classList.remove('hidden');
-        const iframe = targetContent.querySelector('iframe[data-src]');
-        if (iframe) {
-            if (targetId === 'other-content') {
-                iframe.src = iframe.dataset.src;
-                iframe.removeAttribute('data-src');
-            }
-        }
-    }
-    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === targetId));
-    saveItem('siteActiveSubTab', targetId);
-}
-
-function setupModal() {
-    const iframeModal = document.getElementById('iframe-modal');
-    const modalIframe = document.getElementById('modal-iframe');
-
-    document.querySelectorAll('.expand-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = e.currentTarget;
-            let iframeSrc = '';
-            const card = target.closest('.status-card');
-            const iframe = card ? card.querySelector('iframe') : null;
-            if (iframe) iframeSrc = iframe.src || iframe.dataset.src;
-            if (iframeSrc) {
-                modalIframe.src = iframeSrc;
-                iframeModal.classList.remove('hidden');
-            }
-        });
-    });
+    const items = targetContainer.querySelectorAll('.search-item');
     
-    iframeModal.addEventListener('click', (e) => {
-        if (e.target === iframeModal || e.target.closest('.close-modal-btn')) {
-            iframeModal.classList.add('hidden');
-            modalIframe.src = 'about:blank';
+    items.forEach(item => {
+        const text = item.dataset.searchText ? item.dataset.searchText.toLowerCase() : '';
+        const label = item.querySelector('.label-text').innerText.toLowerCase();
+        
+        if (text.includes(searchText) || label.includes(searchText)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
         }
     });
 }
 
-function lazyLoadIframes() {
-    const lazyIframes = document.querySelectorAll('iframe[data-src]');
-    if ("IntersectionObserver" in window) {
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const iframe = entry.target;
-                    iframe.src = iframe.dataset.src;
-                    iframe.removeAttribute('data-src');
-                    observer.unobserve(iframe);
-                }
-            });
-        });
-        lazyIframes.forEach(iframe => observer.observe(iframe));
+// --- 時計関連 ---
+function parseTimeToDate(timeStr) {
+    const today = new Date();
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+    return date;
+}
+
+function updateClock() {
+    const now = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayName = days[now.getDay()];
+    
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} (${dayName})`;
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    document.getElementById('date').textContent = dateStr;
+    document.getElementById('clock').textContent = timeStr;
+
+    // カウントダウンロジック
+    let nextEvent = null;
+    for (let item of schedule) {
+        const startTime = parseTimeToDate(item.start);
+        const endTime = parseTimeToDate(item.end);
+        
+        if (now < startTime) {
+            nextEvent = { name: item.name, time: startTime, type: 'start' };
+            break;
+        } else if (now < endTime) {
+            nextEvent = { name: item.name, time: endTime, type: 'end' };
+            break;
+        }
+    }
+
+    const countdownEl = document.getElementById('countdown');
+    if (nextEvent) {
+        const diff = nextEvent.time - now;
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        const prefix = nextEvent.type === 'start' ? '開始まで' : '終了まで';
+        countdownEl.textContent = `${nextEvent.name} ${prefix} ${minutes}分${seconds}秒`;
     } else {
-        lazyIframes.forEach(iframe => {
-            iframe.src = iframe.dataset.src;
-            iframe.removeAttribute('data-src');
-        });
+        countdownEl.textContent = "本日の予定終了";
     }
 }
 
-function updateOnlineStatus() {
-    const offlineStatusElement = document.getElementById('offline-status');
-    if (navigator.onLine) {
-        offlineStatusElement.textContent = '';
-        offlineStatusElement.style.display = 'none';
+// --- Bustarain関連 ---
+function initBustarain() {
+    const btns = document.querySelectorAll('.sub-tab-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // アクティブクラス切り替え
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // コンテンツ表示切り替え
+            const targetId = btn.getAttribute('data-target');
+            document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(targetId).classList.remove('hidden');
+        });
+    });
+
+    // アコーディオン
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const src = this.getAttribute('data-src');
+            
+            // 開閉トグル
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                content.innerHTML = ''; // 閉じる時は中身を消して軽量化
+            } else {
+                // 他を閉じる（任意）
+                // document.querySelectorAll('.accordion-content').forEach(c => {c.style.maxHeight = null; c.innerHTML='';});
+                
+                content.innerHTML = `<iframe src="${src}" frameborder="0" style="width:100%; height:500px;"></iframe>`;
+                content.style.maxHeight = "500px"; // iframeの高さに合わせる
+            }
+        });
+    });
+}
+
+// --- テーマ切り替え ---
+function setTheme(mode) {
+    if (mode === 'dark') {
+        document.body.classList.add('dark-theme');
+        saveItem(SAVE_KEYS.THEME, 'true');
     } else {
-        offlineStatusElement.textContent = 'オフライン';
-        offlineStatusElement.style.display = 'block';
+        document.body.classList.remove('dark-theme');
+        saveItem(SAVE_KEYS.THEME, 'false');
     }
 }
 
-function updateDangerLevel() {
-    // 削除された機能のため空処理
-}
-
-if (typeof window.initBusSchedule === 'undefined') { window.initBusSchedule = () => console.log("Bus schedule script not loaded."); window.updateBusCountdowns = () => {}; window.updateBusDisplay = () => {}; }
-
-function init() {
+// --- 初期化 ---
+window.onload = function() {
     loadSaveSettings();
+    loadAppData();
 
-    const savedTheme = getSavedItem('siteTheme');
-    const savedTab = getSavedItem('siteActiveTab');
-    
-    // サブフィルターの設定は無視または削除
-    const savedSubTab = localStorage.getItem('siteActiveSubTab'); // Bustarain用は残す
+    // テーマ適用
+    if (saveSettings.theme) {
+        document.body.classList.add('dark-theme');
+    }
 
-    setTheme(savedTheme || 'light');
-    updateClockAndDate();
-    loadAppData(); 
+    // 初期タブ表示
+    activateTab(saveSettings.mainTab);
     
-    renderAllIcons();
     renderRecentlyUsed();
+    if (saveSettings.mainTab === 'all-apps') {
+        renderAllIcons();
+    } else if (saveSettings.mainTab === 'fy') {
+        renderFavoritesTab();
+    }
 
-    const validTabs = ['all-apps', 'bustarain'];
-    const initialTab = validTabs.includes(savedTab) ? savedTab : 'all-apps';
-    activateTab(initialTab);
+    // イベントリスナー
+    refreshButton.addEventListener('click', () => location.reload());
     
-    initAccordions();
-    activateSubTab(savedSubTab || 'train-content');
-    
-    setupModal();
-    lazyLoadIframes();
+    searchInput.addEventListener('input', filterContent);
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        filterContent();
+    });
 
-    window.initBusSchedule();
+    initBustarain();
     
-    updateOnlineStatus();
+    // 時計開始
+    updateClock();
+    setInterval(updateClock, 1000);
+    
+    // ネットワーク状態
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+};
 
-    const searchInput = document.getElementById('appSearchInput');
-    const clearBtn = document.getElementById('clearSearchBtn');
-
-    searchInput.addEventListener('input', () => { 
-        if(searchInput.value) { 
-            activateTab('all-apps');
-        }
-        filterContent(); 
-    });
-
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            filterContent();
-            searchInput.focus(); 
-        });
+function updateOnlineStatus() {
+    const statusEl = document.getElementById('offline-status');
+    if (navigator.onLine) {
+        statusEl.textContent = '';
+        statusEl.style.display = 'none';
+    } else {
+        statusEl.textContent = 'オフライン';
+        statusEl.style.display = 'block';
+        statusEl.style.color = 'red';
+        statusEl.style.fontWeight = 'bold';
     }
-
-    // カテゴリフィルターボタンのリスナーは削除
-
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
-        activateSubTab(e.currentTarget.dataset.target);
-    }));
-
-    refreshButton.addEventListener('click', () => {
-        location.reload(); 
-    });
-
-    const speedTestRefreshButton = document.getElementById('speed-test-refresh-button');
-    if (speedTestRefreshButton) {
-        speedTestRefreshButton.addEventListener('click', () => {
-            const speedTestIframe = document.querySelector('.header-speed-test iframe');
-            if (speedTestIframe && navigator.onLine) {
-                speedTestIframe.src = speedTestIframe.dataset.src || 'https://fast.com/ja/';
-            }
-        });
-    }
-    
-    document.getElementById('mainContent').addEventListener('click', (e) => {
-        const iconLink = e.target.closest('.icon-link');
-        if (iconLink) {
-            const iconItem = iconLink.closest('.icon-item');
-            if (iconItem && iconItem.dataset.id) {
-                addRecentlyUsed(parseInt(iconItem.dataset.id, 10));
-            }
-        }
-    });
-
-    setInterval(() => {
-        renderRecentlyUsed();
-    }, 30000); 
 }
-
-setInterval(() => { updateClockAndDate(); }, 1000);
-document.addEventListener('DOMContentLoaded', init);
