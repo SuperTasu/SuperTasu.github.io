@@ -15,6 +15,9 @@
       --bg-color: #ffffff;
       --text-color-primary: #333;
       --text-color-secondary: #666;
+      /* 背景画像用の変数を追加 */
+      --custom-bg-image: none; 
+      
       --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       --card-border-color: rgba(0,0,0,0.05);
       --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -43,10 +46,16 @@
     body { 
       margin: 0; 
       background-color: var(--bg-color); 
+      /* ▼▼▼ 背景画像の設定 ▼▼▼ */
+      background-image: var(--custom-bg-image);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      
       color: var(--text-color-primary); 
-      /* メインはゴシック体のまま */
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      transition: background-color 0.3s, color 0.3s; 
+      transition: background-color 0.3s, color 0.3s, background-image 0.3s; 
       padding: 0; 
       box-sizing: border-box; 
     }
@@ -58,13 +67,11 @@
       left: 0;
       width: 100%;
       z-index: 1000;
-      background-color: #000000; /* 黒背景 */
-      color: #ffffff; /* 文字白 */
+      background-color: #000000;
+      color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      border-radius: 0; /* 四角く */
+      border-radius: 0;
       padding: 5px 0;
-
-      /* ★★★ ご要望のフォント変更（ヒラギノ明朝 Pro） ★★★ */
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
     }
 
@@ -86,28 +93,31 @@
     
     .datetime-row { 
         display: flex; 
-        align-items: center; 
+        align-items: baseline; /* ベースラインで揃える */
         gap: 20px; 
         flex-grow: 1; 
-        flex-wrap: nowrap;
+        flex-wrap: wrap; /* 画面が狭いときは折り返す */
     }
 
+    /* ▼▼▼ 文字サイズを時計(24px)に統一 ▼▼▼ */
     #date, #clock, #countdown { 
         color: #ffffff; 
         font-weight: bold; 
         white-space: nowrap;
-        /* 親の明朝体を継承させるため個別のフォント指定は解除 */
+        font-size: 24px; /* 全て同じサイズ */
+        line-height: 1.2;
     }
-    #date { font-size: 16px; }
-    #clock { font-size: 24px; } /* Courier Newを削除して明朝に */
-    #countdown { color: #88aaff; font-size: 16px; }
-    #offline-status { color: #ff4444; font-weight: bold; display: none; }
+    
+    /* カウントダウンだけ少し色を変える（視認性のため） */
+    #countdown { color: #88aaff; }
+    
+    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
 
     .header-speed-test { 
         display: flex; 
         align-items: center; 
         gap: 8px; 
-        margin-left: auto; /* 右寄せ */
+        margin-left: auto;
     }
     .header-speed-test iframe {
         width: 120px; height: 35px;
@@ -116,25 +126,35 @@
         background: #fff;
     }
     #speed-test-refresh-button { 
-        color: #aaaaaa; cursor: pointer; font-size: 14px;
+        color: #aaaaaa; cursor: pointer; font-size: 16px;
     }
     #speed-test-refresh-button:hover { color: #fff; }
 
     .header-controls { display: flex; align-items: center; gap: 15px; margin-left: 15px; }
-    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 18px; transition: color 0.3s; }
+    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 20px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
 
     .theme-switcher { display: flex; gap: 8px; }
-    .theme-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 1px solid #888; }
+    .theme-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid #888; }
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-    /* ▼▼▼ メインコンテンツ（丸いデザイン） ▼▼▼ */
+    /* メインコンテンツ */
     .page-container { 
       max-width: 1200px; 
       margin: 0 auto; 
-      padding: 80px 20px 20px 20px; 
+      /* 文字が大きくなった分、ヘッダーが高くなる可能性があるため少し余裕を持つ */
+      padding: 90px 20px 20px 20px; 
     }
+
+    /* 背景画像がある場合にカードの視認性を上げる調整 */
+    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container {
+        position: relative;
+        z-index: 1;
+    }
+    /* 背景画像設定時、各カードの背景を少し透過させるとオシャレですが、
+       今回は既存の変数(--card-bg)を使用します。
+       必要であればOptionで透明度を変える機能も考えられます。 */
 
     .tab-container { 
         background: var(--card-bg); 
@@ -211,7 +231,8 @@
     }
     .icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
     .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
-    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; }
+    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+    body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
     #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
     
@@ -254,23 +275,24 @@
         padding-bottom: 5px; 
     }
     
-    /* Optionカードスタイル */
     .option-card { 
         background: var(--card-bg); padding: 20px; border-radius: 15px;
         margin-bottom: 15px; box-shadow: var(--card-shadow); 
     }
 
     @media (max-width: 900px) {
-        .datetime-row { gap: 10px; }
         .header-speed-test iframe { width: 100px; }
-        #clock { font-size: 18px; }
+        .datetime-row { gap: 10px; }
+        /* 文字が大きいので間隔を詰める */
     }
     @media (max-width: 768px) {
         .fixed-top-wrapper { padding: 10px 0; }
         .clock-main-row { flex-wrap: wrap; justify-content: center; }
-        .datetime-row { flex-wrap: wrap; justify-content: center; width: 100%; }
+        /* スマホでは文字が大きすぎると改行するのでFlex調整 */
+        .datetime-row { justify-content: center; width: 100%; gap: 15px; }
         .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
-        .page-container { padding-top: 140px; } 
+        /* ヘッダーの高さが増えるので余白調整 */
+        .page-container { padding-top: 180px; } 
     }
   </style>
 </head>
@@ -462,15 +484,12 @@
         </div>
     </div>
 
-    <!-- ▼▼▼ Optionコンテナ（中身は空にしてJSで注入） ▼▼▼ -->
-    <div id="option-container">
-        <!-- Option/main.js によりコンテンツが生成されます -->
-    </div>
+    <!-- Optionコンテナ -->
+    <div id="option-container"></div>
 
 </div>
 
-<!-- ▼▼▼ JS読み込み ▼▼▼ -->
-<!-- 先にOption/main.jsを読み込み、関数を定義しておく -->
+<!-- JS読み込み -->
 <script src="Option/main.js"></script>
 <script src="script.js"></script>
 </body>
