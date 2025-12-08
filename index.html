@@ -13,9 +13,7 @@
     /* --- CSS変数 --- */
     :root {
       --bg-color: #ffffff;
-      /* ▼▼▼ テキスト色を変数化（初期値） ▼▼▼ */
       --text-color-primary: #333333;
-      
       --text-color-secondary: #666;
       --custom-bg-image: none; 
       
@@ -35,7 +33,7 @@
     }
     body.dark-theme {
       --bg-color: #434343;
-      --text-color-primary: #f5f5f5; /* デフォルトのダークモード文字色 */
+      --text-color-primary: #f5f5f5;
       --text-color-secondary: #aaa;
       --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
       --card-border-color: rgba(255,255,255,0.1);
@@ -55,7 +53,6 @@
     body { 
       margin: 0; 
       background-color: var(--bg-color); 
-      /* 文字色は変数を使用 */
       color: var(--text-color-primary); 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       transition: background-color 0.3s, color 0.3s; 
@@ -64,17 +61,16 @@
       min-height: 100vh;
     }
 
-    /* ▼▼▼ 背景画像の完全固定（擬似要素） ▼▼▼ */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1; /* コンテンツの裏側 */
+      z-index: -1; 
       background-image: var(--custom-bg-image);
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      pointer-events: none; /* クリック等を透過 */
+      pointer-events: none; 
     }
 
     /* 固定ヘッダー */
@@ -148,11 +144,30 @@
         transition: border-color 0.2s, background-color 0.2s;
     }
     
-    .grid-slot.full-width {
-        grid-column: 1 / -1; 
-        aspect-ratio: auto;  
+    /* ▼▼▼ Takatori (13x3) & Memo サイズ定義 ▼▼▼ */
+    .grid-slot.takatori-size {
+        grid-column: span 13;
+        grid-row: span 3;
+        aspect-ratio: auto;
         padding: 5px;
-        min-height: 200px;
+        background-color: #ffffff; /* 背景白 */
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 5; /* 少し浮かせる */
+    }
+    /* スマホなどで13列ない場合は全幅にする */
+    @media (max-width: 1200px) {
+        .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
+    }
+
+    .grid-slot.memo-size {
+        grid-column: span 4;
+        grid-row: span 2;
+        aspect-ratio: auto;
+        padding: 5px;
+    }
+    @media (max-width: 600px) {
+        .grid-slot.memo-size { grid-column: span 2; grid-row: span 2; }
     }
 
     .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
@@ -162,7 +177,10 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    .edit-mode .grid-slot.full-width .takatori-display-board { pointer-events: none; opacity: 0.7; }
+    /* 大きなウィジェットは揺らさない */
+    .edit-mode .grid-slot.takatori-size .takatori-display-board,
+    .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
+
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
     .edit-mode .icon-link { pointer-events: none; }
     .edit-mode .fav-btn { display: none; }
@@ -392,6 +410,7 @@
 
 <!-- JS読み込み -->
 <script src="Option/takatori.js"></script>
+<script src="Option/memo.js"></script>
 <script src="Option/main.js"></script>
 <script src="script.js"></script>
 </body>
