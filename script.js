@@ -18,6 +18,8 @@ const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"
 
 
 
+let appData = [];
+
 const initialAppData = [
     {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
     {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
