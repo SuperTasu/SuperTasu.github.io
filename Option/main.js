@@ -38,6 +38,11 @@ function initOptionTabContent() {
         </div>
 
         <div class="option-card">
+            <h4><i class="fas fa-edit"></i> メモ帳</h4>
+            <div id="option-memo-container" style="height: 150px;"></div>
+        </div>
+
+        <div class="option-card">
             <h4><i class="fas fa-bus"></i> 鷹取団地前 バス掲示板</h4>
             <div id="option-takatori-container"></div>
         </div>
@@ -45,13 +50,20 @@ function initOptionTabContent() {
         <div class="option-card">
             <h4><i class="fas fa-info-circle"></i> アプリ情報</h4>
             <p><strong>Link First</strong></p>
-            <p>Version: 1.1.2</p>
+            <p>Version: 1.1.3</p>
         </div>
     `;
 
+    // 鷹取掲示板
     const takatoriContainer = document.getElementById('option-takatori-container');
     if(typeof renderTakatoriBoard === 'function') {
         renderTakatoriBoard(takatoriContainer);
+    }
+
+    // メモ帳
+    const memoContainer = document.getElementById('option-memo-container');
+    if(typeof renderMemoBoard === 'function') {
+        renderMemoBoard(memoContainer);
     }
 }
 
