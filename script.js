@@ -1,398 +1,456 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>Link First</title>
-  <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
-   
-  <style>
-    /* --- CSS変数 --- */
-    :root {
-      --bg-color: #ffffff;
-      /* ▼▼▼ テキスト色を変数化（初期値） ▼▼▼ */
-      --text-color-primary: #333333;
-      
-      --text-color-secondary: #666;
-      --custom-bg-image: none; 
-      
-      --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      --card-border-color: rgba(0,0,0,0.05);
-      --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      --icon-bg: #fff;
-      --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      --tab-active-text: #ffffff;
-      --input-bg: #e9ecef;
-      --bus-board-bg: #e8f5e8;
-      --bus-card-bg: #fff;
-      
-      --grid-line-color: rgba(0, 0, 0, 0.1);      
-      --swap-select-color: rgba(33, 150, 243, 0.2); 
-      --slot-hover-color: rgba(0, 0, 0, 0.03);    
-    }
-    body.dark-theme {
-      --bg-color: #434343;
-      --text-color-primary: #f5f5f5; /* デフォルトのダークモード文字色 */
-      --text-color-secondary: #aaa;
-      --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
-      --card-border-color: rgba(255,255,255,0.1);
-      --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
-      --icon-bg: #555;
-      --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      --tab-active-text: #ffffff;
-      --input-bg: #3a3a3a;
-      --bus-board-bg: #2a3a2a;
-      --bus-card-bg: #3c4c3c;
-      
-      --grid-line-color: rgba(255, 255, 255, 0.1); 
-      --swap-select-color: rgba(100, 181, 246, 0.3);
-      --slot-hover-color: rgba(255, 255, 255, 0.05);
-    }
+// --- DOM要素 ---
+const mainGrid = document.getElementById('main-grid');
+const bustarainContainer = document.getElementById('bustarain-container');
+const optionContainer = document.getElementById('option-container');
+const fyContainer = document.getElementById('fy-container');
+const fyContentArea = document.getElementById('fy-content-area');
+const gridContainer = document.getElementById('gridContainer');
+const searchInput = document.getElementById('appSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const fyEditBtn = document.getElementById('fy-edit-btn'); 
 
-    body { 
-      margin: 0; 
-      background-color: var(--bg-color); 
-      /* 文字色は変数を使用 */
-      color: var(--text-color-primary); 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      transition: background-color 0.3s, color 0.3s; 
-      padding: 0; 
-      box-sizing: border-box; 
-      min-height: 100vh;
-    }
+const dateElement = document.getElementById('date');
+const clockElement = document.getElementById('clock');
+const countdownElement = document.getElementById('countdown');
 
-    /* ▼▼▼ 背景画像の完全固定（擬似要素） ▼▼▼ */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -1; /* コンテンツの裏側 */
-      background-image: var(--custom-bg-image);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      pointer-events: none; /* クリック等を透過 */
-    }
+// --- データ ---
+const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7限",start:"15:20",end:"16:10"},{name:"休憩",start:"16:10",end:"16:40"},{name:"8限",start:"16:40",end:"17:30"},{name:"休憩",start:"17:30",end:"17:40"},{name:"9限",start:"17:40",end:"18:30"}];
 
-    /* 固定ヘッダー */
-    .fixed-top-wrapper {
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
-      background-color: #000000; color: #ffffff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; padding: 5px 0;
-      font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
-    }
-    .clock-area { width: 100%; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; }
-    .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px; }
-    .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
-    #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
-    #countdown { color: #88aaff; }
-    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
-    .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-    .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
-    #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 16px; }
-    #speed-test-refresh-button:hover { color: #fff; }
-    .header-controls { display: flex; align-items: center; gap: 15px; margin-left: 15px; }
-    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 20px; transition: color 0.3s; }
-    .control-icon:hover { color: #ffffff; }
-    .theme-switcher { display: flex; gap: 8px; }
-    .theme-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid #888; }
-    .theme-dot.light { background-color: #fff; }
-    .theme-dot.dark { background-color: #444; }
+const initialAppData = [
+    {id:1,label:"Google",url:"https://www.google.com",searchText:"Google グーグル"},
+    {id:2,label:"Gmail",url:"https://mail.google.com",searchText:"Gmail Google Mail メール"},
+    {id:35,label:"Chat",url:"https://chat.google.com",searchText:"Google Chat チャット"},
+    {id:3,label:"Calendar",url:"https://calendar.google.com",searchText:"Google Calendar カレンダー"},
+    {id:4,label:"Photos",url:"https://photos.google.com",searchText:"Google Photos フォト 写真"},
+    {id:5,label:"Drive",url:"https://drive.google.com",searchText:"Google Drive ドライブ"},
+    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",searchText:"YouTube ユーチューブ"},
+    {id:7,label:"X",url:"https://x.com/i/timeline",searchText:"X Twitter ツイッター"},
+    {id:8,label:"Instagram",url:"https://www.instagram.com",searchText:"Instagram インスタグラム"},
+    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",searchText:"Yahoo! ヤフー"},
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",searchText:"ChatGPT AI"},
+    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",searchText:"神戸市交通局 地下鉄 バス"},
+    {id:21,label:"GigaFile",url:"https://gigafile.nu/",searchText:"GigaFile ギガファイル便"}
+];
 
-    /* メインコンテンツ */
-    .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
-    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container { position: relative; z-index: 1; }
-    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); padding: 10px; }
-    .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-    .search-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 5px; }
-    .search-container { display: flex; align-items: center; padding: 0 15px; background-color: var(--input-bg); border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); width: 100%; max-width: 600px; height: 40px; }
-    .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
-    #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
-    #clearSearchBtn { cursor: pointer; color: #999; }
-    .tab-item { padding: 10px 25px; color: var(--text-color-secondary); font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 20px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
-    .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
-    .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
-    .fy-icon { color: #ffc107; }
+const FAV_KEY = 'myLinkAppFavorites';
+const BG_KEY = 'myLinkAppBg'; 
+const TAB_KEY = 'myLinkAppLastTab';
+const TEXT_COLOR_KEY = 'myLinkAppTextColor';
 
-    /* Appsグリッド */
-    .main-grid { margin-top: 20px; }
-    .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
+let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+// ▼▼▼ 修正：最低マス目を60まで増やす ▼▼▼
+if (favorites.length < 60) {
+    const padding = new Array(60 - favorites.length).fill(null);
+    favorites = favorites.concat(padding);
+}
 
-    /* アイコン共通 */
-    .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; border-radius: 10px; transition: all 0.2s; z-index: 2; }
-    .icon-item .fav-btn { position: absolute !important; top: -5px !important; right: -5px !important; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: #ccc; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
-    .icon-item .fav-btn.active { color: #ffc107; }
-    .icon-item .fav-btn:hover { transform: scale(1.2); }
-    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-    .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
-    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-    body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+let isEditMode = false; 
+let selectedSlotIndex = null; 
 
-    /* FYグリッドシステム */
-    #fy-content-area {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 0; padding: 5px;
-    }
+// --- 初期化 ---
+window.onload = function() {
+    updateClock();
+    setInterval(updateClock, 1000);
     
-    .grid-slot {
-        aspect-ratio: 1 / 1.25; 
-        display: flex; align-items: center; justify-content: center;
-        position: relative;
-        border: 1px solid transparent; 
-        border-radius: 8px;
-        transition: border-color 0.2s, background-color 0.2s;
-    }
-    
-    .grid-slot.full-width {
-        grid-column: 1 / -1; 
-        aspect-ratio: auto;  
-        padding: 5px;
-        min-height: 200px;
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme) setTheme(savedTheme);
+
+    loadBackground();
+    loadTextColor(); // テキスト色の復元
+
+    if (typeof initOptionTabContent === 'function') {
+        initOptionTabContent();
     }
 
-    .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
-    .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
-    .edit-mode .grid-slot.selected-slot { background-color: var(--swap-select-color); border: 1px solid #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); }
+    renderGrid(initialAppData);
+    initBustarain();
 
-    @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
+    // ▼▼▼ タブの復元 ▼▼▼
+    const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
+    activateTab(lastTab);
+
+    searchInput.addEventListener('input', handleSearch);
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        handleSearch();
+    });
+};
+
+// --- 背景画像管理 ---
+function saveBackground(urlData) {
+    try {
+        localStorage.setItem(BG_KEY, urlData);
+        applyBackground(urlData);
+        alert('背景を設定しました。');
+    } catch (e) {
+        alert('保存に失敗しました。');
+    }
+}
+function loadBackground() {
+    const savedBg = localStorage.getItem(BG_KEY);
+    if (savedBg) applyBackground(savedBg);
+}
+function applyBackground(urlData) {
+    if (urlData && urlData !== 'none') {
+        document.body.style.setProperty('--custom-bg-image', `url('${urlData}')`);
+    } else {
+        document.body.style.setProperty('--custom-bg-image', 'none');
+    }
+}
+function resetBackground() {
+    localStorage.removeItem(BG_KEY);
+    applyBackground('none');
+    alert('背景をリセットしました。');
+}
+
+// --- テキスト色管理 ---
+function saveTextColor(color) {
+    localStorage.setItem(TEXT_COLOR_KEY, color);
+    applyTextColor(color);
+}
+function loadTextColor() {
+    const color = localStorage.getItem(TEXT_COLOR_KEY);
+    if(color) applyTextColor(color);
+}
+function applyTextColor(color) {
+    document.documentElement.style.setProperty('--text-color-primary', color);
+}
+function resetTextColor() {
+    localStorage.removeItem(TEXT_COLOR_KEY);
+    // デフォルトに戻す（Lightモード想定）
+    document.documentElement.style.setProperty('--text-color-primary', '#333333');
+    // 現在のテーマに合わせて再設定したい場合はsetThemeを呼ぶ手もある
+    const currentTheme = localStorage.getItem('theme');
+    setTheme(currentTheme || 'light');
+}
+
+
+// --- 時計 ---
+function updateClock() {
+    const now = new Date();
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const day = days[now.getDay()];
     
-    .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    .edit-mode .grid-slot.full-width .takatori-display-board { pointer-events: none; opacity: 0.7; }
-    .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
-    .edit-mode .icon-link { pointer-events: none; }
-    .edit-mode .fav-btn { display: none; }
+    dateElement.textContent = `${year}/${month}/${date} (${day})`;
+    clockElement.textContent = now.toTimeString().split(' ')[0];
 
-    .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
-    .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
-    .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    let msg = "本日の予定は終了";
+    
+    for (let item of schedule) {
+        const [sh, sm] = item.start.split(':').map(Number);
+        const [eh, em] = item.end.split(':').map(Number);
+        const sMin = sh * 60 + sm;
+        const eMin = eh * 60 + em;
 
-    #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
-    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
-    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; } 
-    .sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
-    .accordion-item { border: 1px solid var(--card-border-color); border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; } 
-    .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .accordion-header:hover { background-color: rgba(0,0,0,0.02); }
-    .accordion-header .acc-fav-btn { margin-left: auto; margin-right: 15px; color: #ccc; font-size: 18px; transition: transform 0.2s; }
-    .accordion-header .acc-fav-btn.active { color: #ffc107; }
-    .accordion-header .acc-fav-btn:hover { transform: scale(1.2); }
-    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; } 
-    .accordion-item.active .accordion-content { max-height: 1200px; } 
-    .accordion-iframe { width: 100%; height: 600px; border: none; }
-    .hidden { display: none !important; }
-    .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
-    .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+        if (nowMin >= sMin && nowMin < eMin) {
+            const totalDuration = eMin - sMin;
+            const elapsed = nowMin - sMin;
+            const percentage = Math.floor((elapsed / totalDuration) * 100);
+            msg = `${item.name} ${item.start} 〜 ${item.end} (${percentage}%)`;
+            break;
+        } else if (nowMin < sMin) {
+            msg = `次は ${item.name} (${item.start}〜)`;
+            break;
+        }
+    }
+    countdownElement.textContent = msg;
+}
 
-    @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
-    @media (max-width: 768px) { .fixed-top-wrapper { padding: 10px 0; } .clock-main-row { flex-wrap: wrap; justify-content: center; } .datetime-row { justify-content: center; width: 100%; gap: 15px; } .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } .page-container { padding-top: 180px; } }
-  </style>
-</head>
-<body>
+// --- Apps グリッド描画 ---
+function renderGrid(data) {
+    gridContainer.innerHTML = '';
+    data.forEach(app => {
+        const item = createIconItem(app);
+        gridContainer.appendChild(item);
+    });
+}
 
-<div class="fixed-top-wrapper">
-    <div class="clock-area">
-        <div class="clock-main-row">
-            <div class="datetime-row">
-                <div id="date"></div>
-                <div id="clock"></div>
-                <div id="countdown"></div>
-                <div id="offline-status">OFFLINE</div>
-                
-                <div class="header-speed-test">
-                    <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
-                    <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
-                        <i class="fas fa-redo"></i> 
-                    </div>
-                </div>
-            </div>
-            <div class="header-controls">
-                <div class="theme-switcher">
-                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
-                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
-                </div>
-                <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i> 
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+function createIconItem(app) {
+    const div = document.createElement('div');
+    div.className = 'icon-item';
 
-<div class="page-container">
-    <div class="tab-container">
-        <div class="search-wrapper">
-            <div class="search-container"> 
-                <i class="fas fa-search"></i> 
-                <input type="text" id="appSearchInput" placeholder="検索..."> 
-                <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-            </div>
-        </div>
+    const a = document.createElement('a');
+    a.href = app.url;
+    a.className = 'icon-link';
+    a.target = '_blank';
+
+    const img = document.createElement('img');
+    let domain = '';
+    try {
+        const urlObj = new URL(app.url);
+        domain = urlObj.hostname;
+    } catch(e) { domain = 'google.com'; }
+    img.src = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    img.className = 'icon-img';
+    img.onerror = () => { img.src = 'https://via.placeholder.com/32?text=?'; };
+    a.appendChild(img);
+
+    const star = document.createElement('i');
+    const isFav = favorites.includes(app.id);
+    star.className = isFav ? 'fas fa-star fav-btn active' : 'far fa-star fav-btn';
+    
+    star.onclick = (e) => {
+        e.preventDefault(); 
+        toggleFavorite(app.id);
+    };
+
+    const label = document.createElement('div');
+    label.className = 'label-text';
+    label.textContent = app.label;
+
+    div.appendChild(star);
+    div.appendChild(a);
+    div.appendChild(label);
+
+    return div;
+}
+
+function initBustarain() {
+    const items = document.querySelectorAll('#bustarain-container .accordion-item');
+    items.forEach(item => {
+        const id = item.dataset.id;
+        const star = item.querySelector('.acc-fav-btn');
+        if(!star) return;
+
+        if(favorites.includes(id)) {
+            star.className = 'fas fa-star acc-fav-btn active';
+        } else {
+            star.className = 'far fa-star acc-fav-btn';
+        }
+
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+        };
+    });
+}
+
+function toggleFavorite(id) {
+    const existingIndex = favorites.indexOf(id);
+    if (existingIndex !== -1) {
+        favorites[existingIndex] = null;
+    } else {
+        const emptyIndex = favorites.indexOf(null);
+        if (emptyIndex !== -1) {
+            favorites[emptyIndex] = id;
+        } else {
+            favorites.push(id);
+        }
+    }
+    saveFavorites();
+    renderGrid(initialAppData);
+    if (document.getElementById('tab-fy').classList.contains('active')) {
+        renderFavoritesPage();
+    }
+    initBustarain();
+}
+
+function saveFavorites() {
+    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+}
+
+// --- FY (Favorites) 表示 ---
+function renderFavoritesPage() {
+    fyContentArea.innerHTML = '';
+    
+    favorites.forEach((favId, index) => {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'grid-slot';
+        if (favId === null) slotDiv.classList.add('empty');
         
-        <div class="tab-menu">
-            <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
-                <i class="fas fa-star fy-icon"></i> FY☆ 
-            </div>
-            <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> 
-                <i class="fas fa-th-large"></i> Apps 
-            </div>
-            <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
-                <i class="fas fa-bus"></i> Bustarain 
-            </div>
-            <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
-                <i class="fas fa-cog"></i> Option 
-            </div>
-        </div>
-    </div>
-
-    <!-- FY コンテナ -->
-    <div id="fy-container">
-        <div class="fy-header-row">
-            <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
-            <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
-        </div>
-        <!-- グリッド表示エリア -->
-        <div id="fy-content-area"></div>
-    </div>
-
-    <div class="main-grid" id="main-grid">
-      <div class="apps-area">
-        <div id="all-apps-container">
-            <h3 class="section-title">すべてのアプリ</h3>
-            <div class="grid-container" id="gridContainer"></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="bustarain-container">
-        <div class="sub-tab-menu">
-            <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
-        </div>
+        let contentDiv = null;
         
-        <div id="train-content" class="sub-tab-content">
-            <div class="accordion-item" data-id="tr-1" data-title="和田岬">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>和田岬</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>帰）板宿新長田経由海岸線</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅（山陽電車）</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
-                </div>
-            </div>
-        </div>
-        
-        <div id="bus-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>バスロケーション</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-3" data-title="今出在家">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>今出在家</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>夢野町3丁目</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>高取団地前</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
-                </div>
-            </div>
-        </div>
+        if (favId !== null) {
+            if (favId === 'opt-takatori') {
+                slotDiv.classList.add('full-width');
+                if(typeof renderTakatoriBoard === 'function') {
+                    renderTakatoriBoard(slotDiv);
+                } else {
+                    slotDiv.textContent = "Takatori Board Loading...";
+                }
+            } 
+            else if (typeof favId === 'number') {
+                const app = initialAppData.find(a => a.id === favId);
+                if(app) contentDiv = createIconItem(app);
+            } else {
+                const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
+                if(el) {
+                    const title = el.dataset.title;
+                    contentDiv = document.createElement('div');
+                    contentDiv.className = 'icon-item';
+                    
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'icon-link';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.innerHTML = '<i class="fas fa-bus" style="font-size:24px;"></i>';
+                    
+                    linkDiv.onclick = () => {
+                        if(isEditMode) return;
+                        activateTab('bustarain');
+                        const parentTabId = el.parentElement.id;
+                        switchSubTab(parentTabId);
+                        if(!el.classList.contains('active')) toggleAccordion(el.querySelector('.accordion-header'));
+                        setTimeout(() => { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                    };
 
-        <div id="other-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>ノエビアスタジアム イベント情報</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
+                    const star = document.createElement('i');
+                    star.className = 'fas fa-star fav-btn active';
+                    star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
 
-    <!-- Optionコンテナ -->
-    <div id="option-container"></div>
+                    const label = document.createElement('div');
+                    label.className = 'label-text';
+                    label.textContent = title;
 
-</div>
+                    contentDiv.appendChild(star);
+                    contentDiv.appendChild(linkDiv);
+                    contentDiv.appendChild(label);
+                }
+            }
+        }
 
-<!-- JS読み込み -->
-<script src="Option/takatori.js"></script>
-<script src="Option/main.js"></script>
-<script src="script.js"></script>
-</body>
-</html>
+        if (contentDiv) {
+            slotDiv.appendChild(contentDiv);
+        }
+
+        if (isEditMode) {
+            slotDiv.onclick = (e) => {
+                e.stopPropagation();
+                handleSlotClick(index);
+            };
+            if (selectedSlotIndex === index) {
+                slotDiv.classList.add('selected-slot');
+            }
+        }
+
+        fyContentArea.appendChild(slotDiv);
+    });
+
+    if(isEditMode) {
+        fyContentArea.classList.add('edit-mode');
+        fyEditBtn.textContent = '完了';
+        fyEditBtn.classList.add('editing');
+    } else {
+        fyContentArea.classList.remove('edit-mode');
+        fyEditBtn.textContent = '並び替え';
+        fyEditBtn.classList.remove('editing');
+        selectedSlotIndex = null;
+    }
+}
+
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    selectedSlotIndex = null;
+    renderFavoritesPage();
+}
+
+function handleSlotClick(clickedIndex) {
+    if (selectedSlotIndex === null) {
+        if (favorites[clickedIndex] === null) return;
+        selectedSlotIndex = clickedIndex;
+        renderFavoritesPage();
+        return;
+    }
+
+    if (selectedSlotIndex === clickedIndex) {
+        selectedSlotIndex = null;
+        renderFavoritesPage();
+        return;
+    }
+
+    const temp = favorites[selectedSlotIndex];
+    favorites[selectedSlotIndex] = favorites[clickedIndex];
+    favorites[clickedIndex] = temp;
+    
+    saveFavorites();
+    selectedSlotIndex = null; 
+    renderFavoritesPage();
+}
+
+// --- 共通 ---
+function activateTab(tabName) {
+    mainGrid.style.display = 'none';
+    bustarainContainer.style.display = 'none';
+    optionContainer.style.display = 'none';
+    fyContainer.style.display = 'none';
+    
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.querySelector('.search-wrapper').classList.add('hidden'); 
+
+    if(isEditMode) {
+        isEditMode = false;
+        renderFavoritesPage();
+    }
+
+    // ▼▼▼ タブ状態保存 ▼▼▼
+    localStorage.setItem(TAB_KEY, tabName);
+
+    if (tabName === 'all-apps') {
+        mainGrid.style.display = 'block';
+        document.getElementById('tab-all-apps').classList.add('active');
+        document.querySelector('.search-wrapper').classList.remove('hidden');
+    } else if (tabName === 'bustarain') {
+        bustarainContainer.style.display = 'block';
+        document.getElementById('tab-bustarain').classList.add('active');
+    } else if (tabName === 'option') {
+        optionContainer.style.display = 'block';
+        document.getElementById('tab-option').classList.add('active');
+    } else if (tabName === 'fy') {
+        fyContainer.style.display = 'block';
+        document.getElementById('tab-fy').classList.add('active');
+        renderFavoritesPage();
+    }
+}
+
+function switchSubTab(targetId) {
+    document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(targetId).classList.remove('hidden');
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
+    });
+}
+
+function toggleAccordion(header) {
+    const item = header.parentElement;
+    const content = item.querySelector('.accordion-content');
+    const iframe = content.querySelector('iframe');
+    item.classList.toggle('active');
+    if (item.classList.contains('active')) {
+        if (iframe && !iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src;
+    }
+}
+
+function handleSearch() {
+    const query = searchInput.value.toLowerCase();
+    clearSearchBtn.classList.toggle('hidden', query.length === 0);
+    const filtered = initialAppData.filter(app => {
+        return (app.label && app.label.toLowerCase().includes(query)) ||
+               (app.searchText && app.searchText.toLowerCase().includes(query));
+    });
+    renderGrid(filtered);
+}
+
+function setTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        // ダークモード時のデフォルト文字色
+        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
+            document.documentElement.style.setProperty('--text-color-primary', '#f5f5f5');
+        }
+    } else {
+        document.body.classList.remove('dark-theme');
+        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
+            document.documentElement.style.setProperty('--text-color-primary', '#333333');
+        }
+    }
+    localStorage.setItem('theme', theme);
+}
+
+function reloadSpeedTest() {
+    const iframe = document.querySelector('.header-speed-test iframe');
+    iframe.src = iframe.src;
+}
