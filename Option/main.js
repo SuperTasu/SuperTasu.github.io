@@ -1,3 +1,7 @@
+/**
+ * Option/main.js
+ */
+
 function initOptionTabContent() {
     const container = document.getElementById('option-container');
     if (!container) return;
@@ -25,6 +29,15 @@ function initOptionTabContent() {
         </div>
 
         <div class="option-card">
+            <h4><i class="fas fa-palette"></i> テキスト色設定</h4>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <label for="text-color-picker">メイン文字色:</label>
+                <input type="color" id="text-color-picker" onchange="saveTextColor(this.value)">
+                <button onclick="resetTextColor()" style="padding:5px 10px; border-radius:5px; border:1px solid #999; background:#eee; color:#333; cursor:pointer; font-size:12px;">リセット</button>
+            </div>
+        </div>
+
+        <div class="option-card">
             <h4><i class="fas fa-bus"></i> 鷹取団地前 バス掲示板</h4>
             <div id="option-takatori-container"></div>
         </div>
@@ -36,7 +49,6 @@ function initOptionTabContent() {
         </div>
     `;
 
-    // 鷹取掲示板を描画
     const takatoriContainer = document.getElementById('option-takatori-container');
     if(typeof renderTakatoriBoard === 'function') {
         renderTakatoriBoard(takatoriContainer);
