@@ -13,7 +13,9 @@
     /* --- CSS変数 --- */
     :root {
       --bg-color: #ffffff;
-      --text-color-primary: #333;
+      /* ▼▼▼ テキスト色を変数化（初期値） ▼▼▼ */
+      --text-color-primary: #333333;
+      
       --text-color-secondary: #666;
       --custom-bg-image: none; 
       
@@ -33,7 +35,7 @@
     }
     body.dark-theme {
       --bg-color: #434343;
-      --text-color-primary: #f5f5f5;
+      --text-color-primary: #f5f5f5; /* デフォルトのダークモード文字色 */
       --text-color-secondary: #aaa;
       --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
       --card-border-color: rgba(255,255,255,0.1);
@@ -53,16 +55,26 @@
     body { 
       margin: 0; 
       background-color: var(--bg-color); 
+      /* 文字色は変数を使用 */
+      color: var(--text-color-primary); 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      transition: background-color 0.3s, color 0.3s; 
+      padding: 0; 
+      box-sizing: border-box; 
+      min-height: 100vh;
+    }
+
+    /* ▼▼▼ 背景画像の完全固定（擬似要素） ▼▼▼ */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; /* コンテンツの裏側 */
       background-image: var(--custom-bg-image);
       background-size: cover;
       background-position: center;
-      background-attachment: fixed;
       background-repeat: no-repeat;
-      color: var(--text-color-primary); 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      transition: background-color 0.3s, color 0.3s, background-image 0.3s; 
-      padding: 0; 
-      box-sizing: border-box; 
+      pointer-events: none; /* クリック等を透過 */
     }
 
     /* 固定ヘッダー */
@@ -136,10 +148,9 @@
         transition: border-color 0.2s, background-color 0.2s;
     }
     
-    /* ▼▼▼ 追加：フルサイズ表示用のスロットスタイル ▼▼▼ */
     .grid-slot.full-width {
-        grid-column: 1 / -1; /* 全列使用 */
-        aspect-ratio: auto;  /* 縦横比固定解除 */
+        grid-column: 1 / -1; 
+        aspect-ratio: auto;  
         padding: 5px;
         min-height: 200px;
     }
@@ -151,9 +162,7 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    /* フルサイズのアイテムは揺らさない */
     .edit-mode .grid-slot.full-width .takatori-display-board { pointer-events: none; opacity: 0.7; }
-
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
     .edit-mode .icon-link { pointer-events: none; }
     .edit-mode .fav-btn { display: none; }
