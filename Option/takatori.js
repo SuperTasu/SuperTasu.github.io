@@ -3,7 +3,6 @@
  * 鷹取団地前バス掲示板コンポーネント
  */
 
-// ユニークなスタイルを注入（一度だけ）
 (function injectTakatoriStyles() {
     if (document.getElementById('takatori-styles')) return;
     const style = document.createElement('style');
@@ -11,18 +10,16 @@
     style.innerHTML = `
         .takatori-display-board {
             font-family: 'MS Gothic', monospace;
-            background-color: var(--bus-board-bg);
+            background-color: #ffffff; /* 背景を白に固定 */
             border: 3px solid #009900;
             border-radius: 10px;
             padding: 12px;
             color: #333;
             width: 100%;
+            height: 100%; /* 親要素に合わせる */
             box-sizing: border-box;
             position: relative;
-        }
-        body.dark-theme .takatori-display-board {
-            color: #ddd;
-            border-color: #007700;
+            overflow-y: auto; /* コンテンツが多い場合スクロール */
         }
         .takatori-header {
             display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
@@ -39,12 +36,12 @@
         .takatori-item { flex: 1; }
         .takatori-content {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--bus-card-bg); border-radius: 8px;
+            background-color: #fff; border-radius: 8px;
             padding: 8px 10px; border: 2px solid #009900; min-height: 65px;
         }
         .takatori-left { display: flex; flex-direction: column; gap: 2px; }
-        .takatori-label { font-size: 14px; font-weight: bold; color: var(--text-color-primary); }
-        .takatori-route { font-size: 13px; color: var(--text-color-primary); }
+        .takatori-label { font-size: 14px; font-weight: bold; color: #333; }
+        .takatori-route { font-size: 13px; color: #333; }
         .takatori-time-col { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
         .takatori-clock { font-size: 22px; font-weight: bold; color: #cc0000; }
         .takatori-sub-row { display: flex; align-items: center; gap: 8px; }
@@ -79,7 +76,6 @@
     document.head.appendChild(style);
 })();
 
-// データ定義
 const takatoriTimetables = {
     shinkaichi: {
         route11: { name: "神戸駅前方面", number: "11", detailUrl: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0440&directionId=kobe0016", weekdays: [{ hour: 5, minutes: [] }, { hour: 6, minutes: [12, 27, 42] }, { hour: 7, minutes: [7, 24, 38, 52, 59] }, { hour: 8, minutes: [11, 21, 32, 44, 51] }, { hour: 9, minutes: [5, 13, 37, 49] }, { hour: 10, minutes: [25, 50] }, { hour: 11, minutes: [1, 25] }, { hour: 12, minutes: [2, 25] }, { hour: 13, minutes: [2, 25] }, { hour: 14, minutes: [2, 25] }, { hour: 15, minutes: [2, 25] }, { hour: 16, minutes: [2, 25] }, { hour: 17, minutes: [2, 25] }, { hour: 18, minutes: [2, 25, 49] }, { hour: 19, minutes: [1, 25, 50] }, { hour: 20, minutes: [19, 49] }, { hour: 21, minutes: [29, 49] }, { hour: 22, minutes: [7, 25, 39, 53] }, { hour: 23, minutes: [] }], holidays: [{ hour: 5, minutes: [] }, { hour: 6, minutes: [12, 27, 42, 55] }, { hour: 7, minutes: [17, 37, 57] }, { hour: 8, minutes: [17, 37, 57] }, { hour: 9, minutes: [19, 55] }, { hour: 10, minutes: [19, 31, 55] }, { hour: 11, minutes: [19, 31, 55] }, { hour: 12, minutes: [19, 31, 55] }, { hour: 13, minutes: [19, 31, 55] }, { hour: 14, minutes: [19, 31, 55] }, { hour: 15, minutes: [19, 31, 55] }, { hour: 16, minutes: [19, 31, 55] }, { hour: 17, minutes: [19, 31, 55] }, { hour: 18, minutes: [19, 31, 55] }, { hour: 19, minutes: [31, 55] }, { hour: 20, minutes: [37] }, { hour: 21, minutes: [12, 52] }, { hour: 22, minutes: [12, 32, 53] }, { hour: 23, minutes: [] }] },
@@ -98,16 +94,13 @@ const takatoriTimetables = {
 
 const TAKATORI_ID = 'opt-takatori';
 
-// 指定されたコンテナにバス掲示板を描画する関数
 function renderTakatoriBoard(container) {
     if(!container) return;
 
-    // 現在の設定
     let currentDirection = 'yoshidacho';
     let updateTimer = null;
     let countdownTimer = null;
 
-    // HTML構造
     container.innerHTML = `
         <div class="takatori-display-board">
             <div class="takatori-header">
@@ -125,24 +118,20 @@ function renderTakatoriBoard(container) {
         </div>
     `;
 
-    // 要素取得
     const scheduleTypeEl = container.querySelector('#takatori-schedule-type');
     const departuresEl = container.querySelector('#takatori-departures');
     const btns = container.querySelectorAll('.takatori-dir-btn');
     const favBtn = container.querySelector('#takatori-fav-btn');
 
-    // お気に入りボタンの状態反映
     if(typeof favorites !== 'undefined' && favorites.includes(TAKATORI_ID)) {
         favBtn.classList.remove('far');
         favBtn.classList.add('fas', 'active');
     }
     
-    // お気に入りクリックイベント
     favBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if(typeof toggleFavorite === 'function') {
             toggleFavorite(TAKATORI_ID);
-            // 状態再反映
             if(favorites.includes(TAKATORI_ID)) {
                 favBtn.classList.remove('far');
                 favBtn.classList.add('fas', 'active');
@@ -153,7 +142,6 @@ function renderTakatoriBoard(container) {
         }
     });
 
-    // 方向ボタンイベント
     btns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             currentDirection = e.target.dataset.dir;
@@ -163,7 +151,6 @@ function renderTakatoriBoard(container) {
         });
     });
 
-    // --- ロジック関数群 ---
     function getCurrentDateTime() { return new Date(); }
 
     function isHoliday(date) {
@@ -325,7 +312,6 @@ function renderTakatoriBoard(container) {
 
     function updateDisplay() {
         if(!document.body.contains(container)) {
-            // コンテナが消えていたらタイマー停止
             clearInterval(updateTimer);
             clearInterval(countdownTimer);
             return;
@@ -336,9 +322,7 @@ function renderTakatoriBoard(container) {
         updateCountdowns();
     }
 
-    // 初回実行
     updateDisplay();
-    // タイマー設定
     updateTimer = setInterval(updateDisplay, 30000);
     countdownTimer = setInterval(updateCountdowns, 1000);
 }
