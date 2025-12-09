@@ -7,21 +7,21 @@
     <style>
         body {
             font-family: 'MS Gothic', monospace;
-            background-color: #fff;
+            background-color: #f4f4f4;
             color: #333;
             margin: 0;
             padding: 10px;
             overflow-x: auto;
             font-size: 14px;
         }
-        
+
         @media (max-width: 768px) {
             body {
                 padding: 5px;
                 font-size: 12px;
             }
         }
-        
+
         .display-board {
             background-color: #fff;
             border: 3px solid #333;
@@ -32,14 +32,14 @@
             max-width: 100%;
             overflow-x: auto;
         }
-        
+
         @media (max-width: 768px) {
             .display-board {
                 padding: 10px;
                 border-width: 2px;
             }
         }
-        
+
         .header-container {
             position: relative;
             margin-bottom: 20px;
@@ -50,63 +50,73 @@
             flex-wrap: wrap;
         }
 
-        .header-main-title {
-            width: 100%;
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: #009900;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            user-select: none; /* スワイプ操作のためにテキスト選択を無効化 */
-            cursor: grab;
-        }
-
-        .swipe-indicator {
-            color: #aaa;
-            font-weight: bold;
-            font-size: 0.8em;
-            margin: 0 10px;
-            cursor: pointer; /* クリック可能であることを示すカーソル */
-        }
-        
         @media (max-width: 768px) {
             .header-container {
                 margin-bottom: 15px;
                 flex-direction: column;
                 align-items: center;
-                gap: 15px;
+                gap: 10px;
             }
-             .header-main-title {
-                font-size: 24px;
-             }
         }
         
+        /* バス停名表示用スタイル追加 */
+        .bus-stop-header {
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .stop-switch-btn {
+            cursor: pointer;
+            color: #0066cc;
+            font-size: 24px;
+            user-select: none;
+        }
+        .stop-switch-btn:hover { color: #004499; }
+
         .direction-controls {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
             justify-content: center;
-            width: 100%;
         }
 
         .time-info {
             display: flex;
             gap: 10px;
-            align-items: flex-start;
+            align-items: center;
             flex-shrink: 0;
-            position: absolute;
-            top: 5px;
-            right: 5px;
         }
 
         @media (max-width: 768px) {
-            .time-info {
-                position: static;
-                order: -1; /* 時刻情報をタイトルの上に表示 */
-                width: 100%;
+            .direction-controls {
                 justify-content: center;
-                margin-bottom: 10px;
+                order: 2;
+                width: 100%;
+            }
+            .header-controls {
+                order: 3;
+                width: 100%;
+            }
+            .time-info {
+                justify-content: center;
+                width: 100%;
+                order: 1;
             }
         }
 
@@ -118,13 +128,7 @@
             padding: 4px 8px;
             border-radius: 5px;
         }
-        
-        @media (max-width: 768px) {
-            .current-time {
-                font-size: 14px;
-            }
-        }
-        
+
         .schedule-type {
             font-size: 14px;
             color: #009900;
@@ -135,880 +139,484 @@
             border: 2px solid #009900;
         }
         
-        @media (max-width: 768px) {
-            .schedule-type {
-                font-size: 12px;
-            }
-        }
+        /* --- PC・スマホ レイアウト切り替え --- */
+        .pc-container { display: none; }
+        .mobile-container { display: block; }
 
+        @media (min-width: 769px) {
+            .mobile-container { display: none; }
+            .pc-container {
+                display: flex;
+                align-items: stretch;
+                background-color: #f0fff0;
+                border: 3px solid #2e8b57;
+                border-radius: 10px;
+                padding: 15px;
+                min-height: 400px;
+            }
+            .left-column {
+                flex: 1;
+                min-width: 300px;
+                display: flex;
+                flex-direction: column;
+                padding-right: 15px;
+                border-right: 2px solid #90ee90;
+                box-sizing: border-box;
+                position: relative;
+                overflow: hidden;
+            }
+            .right-column {
+                flex: 2;
+                min-width: 450px;
+                display: flex;
+                flex-direction: column;
+                padding-left: 15px;
+                gap: 0;
+            }
+            
+            #pcFirstDepartureDetail {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                background-color: #e9ecef;
+            }
+            #pcOverlayDetail {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 90%;
+                max-height: 450px;
+                background-color: #fff;
+                border: 2px solid #cc0000;
+                border-radius: 10px 10px 0 0;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+                transform: translateY(100%);
+                transition: transform 0.4s ease-in-out;
+                display: flex;
+                flex-direction: column;
+                z-index: 20;
+            }
+            #pcOverlayDetail.is-visible {
+                transform: translateY(0);
+            }
+            .detail-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                text-align: center;
+                color: #888;
+                font-size: 16px;
+                padding: 20px;
+                box-sizing: border-box;
+                line-height: 1.6;
+            }
+            .close-detail-panel {
+                position: absolute; top: 5px; left: 5px; z-index: 30;
+                background-color: rgba(204, 0, 0, 0.8); color: white;
+                border: 1px solid white; border-radius: 50%; width: 30px; height: 30px;
+                font-size: 20px; cursor: pointer; display: flex;
+                justify-content: center; align-items: center; line-height: 1;
+                transition: background-color 0.2s;
+            }
+            .close-detail-panel:hover { background-color: rgba(153, 0, 0, 1); }
+
+            
+            .right-top-section { padding-bottom: 15px; }
+            .right-bottom-section {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            #pcNextDepartureInfo .next-departure-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: #fff;
+                border-radius: 8px;
+                padding: 12px;
+                border: 2px solid #009900;
+            }
+            #pcJustDepartedInfo { margin-top: 10px; }
+            
+            #pcDepartureList {
+                overflow-y: auto;
+                flex-grow: 1;
+                max-height: 260px;
+            }
+            #pcDepartureList .departure-info { margin-bottom: 8px; }
+            #pcDepartureList .no-service { margin-top: 20px; }
+        }
+        
+        /* --- スマホ版コンテナ内のスタイル --- */
         .next-departure {
             background-color: #e8f5e8;
             border: 3px solid #009900;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
+            text-align: center;
         }
-        
         .next-departure-title {
             font-size: 20px;
             font-weight: bold;
             color: #009900;
             margin-bottom: 10px;
-            text-align: center;
         }
+        @media (max-width: 768px) { .next-departure-title { font-size: 18px; } }
         
-        @media (max-width: 768px) {
-            .next-departure-title {
-                font-size: 18px;
-            }
-        }
-        
-        #justDepartedSection {
-            margin-bottom: 10px;
-        }
-        .just-departed-info {
-            font-size: 13px;
-            color: #444;
-            background-color: #e0e0e0;
-            padding: 5px 10px;
-            margin: 0 auto 5px auto;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            max-width: 90%;
+        #justDepartedSection { margin-bottom: 10px; }
+
+        .mobile-container .next-departure-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-        }
-        .just-departed-info .route-number {
-             font-size: 12px;
-             padding: 1px 4px;
-             border-width: 1px;
-             margin-right: 5px;
-             color: #333;
-             border-color: #333;
-        }
-        .just-departed-info .detail-button {
-            flex-shrink: 0;
-            padding: 2px 8px;
-            font-size: 11px;
-        }
-
-        .next-departure-content-wrapper {
             background-color: #fff;
             border-radius: 8px;
             padding: 12px;
             border: 2px solid #009900;
         }
-        
-        .next-departure-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
+        @media (max-width: 768px) { .mobile-container .next-departure-content { flex-direction: column; gap: 10px; padding: 15px; } }
+
+        .next-departure-route { flex: 1; text-align: left; }
+        @media (max-width: 768px) { .next-departure-route { text-align: center; width: 100%; } }
+
+        .next-departure-time { display: flex; align-items: center; gap: 15px; }
+        @media (max-width: 768px) { .next-departure-time { flex-direction: column; gap: 8px; } }
+
+        .next-departure-clock { font-size: 24px; font-weight: bold; color: #cc0000; }
+        .next-departure-remaining { font-size: 20px; font-weight: bold; color: #009900; }
         @media (max-width: 768px) {
-            .next-departure-content {
-                flex-direction: column;
-                gap: 10px;
-            }
+            .next-departure-clock { font-size: 28px; }
+            .next-departure-remaining { font-size: 24px; }
         }
-        
-        .next-departure-route {
-            flex: 1;
-            text-align: left;
-            /* --- 強調のためのスタイル追加 --- */
-            font-size: 22px;
-            font-weight: bold;
-            color: #0066cc;
-            text-align: center;
-            margin-bottom: 10px;
+
+        /* --- 共通コンポーネントスタイル --- */
+        .just-departed-info {
+            font-size: 13px; color: #444; background-color: #e0e0e0;
+            padding: 5px 10px; margin: 0 auto 5px auto; border: 1px solid #ccc;
+            border-radius: 5px; max-width: 90%; display: flex;
+            justify-content: space-between; align-items: center; gap: 10px;
         }
-        
-        .next-departure-route .route-number {
-            /* --- 強調のためのスタイル追加 --- */
-            font-size: 28px;
-            padding: 4px 12px;
-            border-width: 3px;
-            border-radius: 8px;
-            margin-right: 12px;
-            background-color: #0066cc;
-            color: white;
-            display: inline-block;
-            vertical-align: middle;
+        .just-departed-info .route-number {
+             font-size: 12px; padding: 1px 4px; border-width: 1px;
+             margin-right: 5px; color: #333; border-color: #333;
         }
-        
-        @media (max-width: 768px) {
-            .next-departure-route {
-                text-align: center;
-                width: 100%;
-                font-size: 18px;
-            }
-             .next-departure-route .route-number {
-                font-size: 24px;
-            }
-        }
-        
-        .next-departure-time {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .next-departure-time {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-        
-        .next-departure-clock {
-            font-size: 24px;
-            font-weight: bold;
-            color: #cc0000;
-        }
-        
-        .next-departure-remaining {
-            font-size: 20px;
-            font-weight: bold;
-            color: #009900;
-        }
-        
-        @media (max-width: 768px) {
-            .next-departure-clock {
-                font-size: 28px;
-            }
-            
-            .next-departure-remaining {
-                font-size: 24px;
-            }
-        }
-        
+        .just-departed-info .detail-button { flex-shrink: 0; padding: 2px 8px; font-size: 11px; }
+
         .departure-detail-embedded {
-            position: relative;
-            margin-top: 10px;
+            position: relative; margin-top: 0; border: none;
+            border-radius: 8px; overflow: hidden; background-color: #fff;
+            flex-grow: 1; display: flex; flex-direction: column;
+        }
+        #pcFirstDepartureDetail .departure-detail-embedded {
             border: 2px solid #0066cc;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #fff;
         }
-        
+        .mobile-container .departure-detail-embedded { margin-top: 10px; border: 2px solid #0066cc;}
+
         .departure-detail-embedded iframe {
-            display: block;
-            border: none;
-            width: 100%;
-            min-height: 300px;
+            display: block; border: none; width: 100%;
+            min-height: initial; flex-grow: 1;
         }
-        
-        @media (max-width: 768px) {
-            .departure-detail-embedded iframe {
-                min-height: 250px;
-            }
-        }
+        @media (max-width: 768px) { .departure-detail-embedded iframe { min-height: 250px; } }
 
         .expand-iframe-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            z-index: 10;
-            background-color: rgba(0, 102, 204, 0.8);
-            color: white;
-            border: 1px solid white;
-            border-radius: 5px;
-            width: 30px;
-            height: 30px;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.2s;
+            position: absolute; top: 5px; right: 5px; z-index: 10;
+            background-color: rgba(0, 102, 204, 0.8); color: white;
+            border: 1px solid white; border-radius: 5px; width: 30px; height: 30px;
+            font-size: 16px; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; transition: background-color 0.2s;
         }
-        .expand-iframe-btn:hover {
-            background-color: rgba(0, 82, 163, 1);
-        }
+        .expand-iframe-btn:hover { background-color: rgba(0, 82, 163, 1); }
 
-        #departureList {
-            display: none;
-        }
-        
+        #departureList { display: none; }
+
         .departure-info {
-            display: flex;
-            margin-bottom: 6px;
-            padding: 8px;
-            background-color: #f8f8f8;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 16px;
-            font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            flex-wrap: wrap;
-            gap: 5px;
+            display: flex; margin-bottom: 6px; padding: 8px; background-color: #f8f8f8;
+            border-radius: 5px; border: 1px solid #ddd; font-size: 16px; font-weight: bold;
+            white-space: nowrap; overflow: hidden; flex-wrap: wrap; gap: 5px;
         }
-        
         @media (max-width: 768px) {
             .departure-info {
-                flex-direction: column;
-                font-size: 14px;
-                padding: 6px;
-                white-space: normal;
-                gap: 3px;
+                flex-direction: column; font-size: 14px; padding: 6px;
+                white-space: normal; gap: 3px;
             }
         }
-        
-        .departure-label {
-            width: 60px;
-            color: #333;
-            flex-shrink: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .departure-label {
-                width: 100%;
-                text-align: center;
-                font-size: 12px;
-                order: 1;
-            }
-        }
-        
+
+        .departure-label { width: 60px; color: #333; flex-shrink: 0; }
+        @media (max-width: 768px) { .departure-label { width: 100%; text-align: center; font-size: 12px; order: 1; } }
+
         .departure-route {
-            flex: 1;
-            color: #0066cc;
-            overflow: visible;
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.2;
+            flex: 1; color: #0066cc; overflow: visible;
+            white-space: normal; word-wrap: break-word; line-height: 1.2;
         }
-        
-        @media (max-width: 768px) {
-            .departure-route {
-                width: 100%;
-                text-align: center;
-                order: 2;
-                font-size: 16px;
-                white-space: normal;
-            }
-        }
-        
+        @media (max-width: 768px) { .departure-route { width: 100%; text-align: center; order: 2; font-size: 16px; white-space: normal; } }
+
         .route-number {
-            display: inline-block;
-            border: 2px solid #0066cc;
-            padding: 2px 6px;
-            margin-right: 8px;
-            background-color: #fff;
-            color: #0066cc;
-            font-size: 14px;
-            min-width: 25px;
-            text-align: center;
+            display: inline-block; border: 2px solid #0066cc; padding: 2px 6px;
+            margin-right: 8px; background-color: #fff; color: #0066cc;
+            font-size: 14px; min-width: 25px; text-align: center;
         }
-        
-        @media (max-width: 768px) {
-            .route-number {
-                font-size: 16px;
-                min-width: 30px;
-                padding: 3px 8px;
-            }
-        }
-        
-        .time-remaining-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .time-remaining-section {
-                flex-direction: column;
-                order: 3;
-                width: 100%;
-                align-items: center;
-                gap: 8px;
-                margin-top: 5px;
-            }
-        }
-        
-        .departure-time {
-            color: #cc0000;
-            font-size: 18px;
-            text-align: center;
-        }
-        
-        @media (max-width: 768px) {
-            .departure-time {
-                font-size: 20px;
-                font-weight: bold;
-            }
-        }
-        
-        .remaining-time {
-            color: #009900;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        @media (max-width: 768px) {
-            .remaining-time {
-                font-size: 18px;
-            }
-        }
-        
-        .side-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .side-info {
-                width: 100%;
-                align-items: center;
-                order: 4;
-                gap: 8px;
-                margin-top: 5px;
-            }
-        }
-        
+        @media (max-width: 768px) { .route-number { font-size: 16px; min-width: 30px; padding: 3px 8px; } }
+
+        .time-remaining-section { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        @media (max-width: 768px) { .time-remaining-section { flex-direction: column; order: 3; width: 100%; align-items: center; gap: 8px; margin-top: 5px; } }
+
+        .departure-time { color: #cc0000; font-size: 18px; text-align: center; }
+        @media (max-width: 768px) { .departure-time { font-size: 20px; font-weight: bold; } }
+
+        .remaining-time { color: #009900; font-size: 16px; font-weight: bold; }
+        @media (max-width: 768px) { .remaining-time { font-size: 18px; } }
+
+        .side-info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex-shrink: 0; }
+        @media (max-width: 768px) { .side-info { width: 100%; align-items: center; order: 4; gap: 8px; margin-top: 5px; } }
+
         .detail-button {
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-family: inherit; /* フォントを継承 */
+            background-color: #0066cc; color: white; border: none; padding: 3px 6px;
+            border-radius: 3px; font-size: 12px; cursor: pointer; text-decoration: none;
+            display: inline-block; font-family: inherit;
         }
+        @media (max-width: 768px) { .detail-button { padding: 5px 10px; font-size: 14px; margin: 2px; } }
+        .detail-button:hover { background-color: #0052a3; }
         
-        @media (max-width: 768px) {
-            .detail-button {
-                padding: 5px 10px;
-                font-size: 14px;
-                margin: 2px;
-            }
+        #pcNextDepartureInfo .detail-button {
+             margin-left: 15px; padding: 5px 12px; font-size: 14px;
         }
-        
-        .detail-button:hover {
-            background-color: #0052a3;
-        }
-        
-        .no-service, .no-next-departure {
-            color: #cc0000;
-            font-size: 16px;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .no-service, .no-next-departure {
-                font-size: 14px;
-                padding: 15px;
-            }
-        }
-        
-        .blink {
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-        
+
+        .no-service, .no-next-departure { color: #cc0000; font-size: 16px; text-align: center; padding: 20px; }
+        @media (max-width: 768px) { .no-service, .no-next-departure { font-size: 14px; padding: 15px; } }
+
         .direction-button {
-            background-color: #f0f0f0;
-            border: 2px solid #333;
-            padding: 8px 16px;
-            margin: 0;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            white-space: normal;
-            word-wrap: break-word;
-            line-height: 1.2;
-            flex-grow: 1;
-            text-align: center;
+            background-color: #f0f0f0; border: 2px solid #333; padding: 8px 16px; margin: 0;
+            font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 5px;
+            transition: all 0.3s ease; white-space: normal; word-wrap: break-word; line-height: 1.2;
         }
+        @media (max-width: 768px) { .direction-button { padding: 8px 12px; font-size: 13px; flex-grow: 1; text-align: center; } }
+        .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
+        .direction-button:hover:not(.active) { background-color: #e0e0e0; }
         
-        @media (max-width: 768px) {
-            .direction-button {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-        }
-        
-        .direction-button.active {
-            background-color: #0066cc;
-            color: white;
-            border-color: #0066cc;
-        }
-        
-        .direction-button:hover:not(.active) {
-            background-color: #e0e0e0;
-        }
-        
-        .operation-panel {
-            background-color: #f8f8ff;
-            border: 2px solid #0066cc;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
+        .operation-panel { position: relative; }
         .operation-panel-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            padding: 5px;
-            border-radius: 5px;
-            transition: background-color 0.2s;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            user-select: none; padding: 6px 12px; border-radius: 5px; transition: background-color 0.2s;
+            border: 2px solid #0066cc; background-color: #fff;
         }
-        
-        .operation-panel-header:hover {
-            background-color: rgba(0, 102, 204, 0.1);
-        }
-        
-        .operation-panel-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #0066cc;
-            margin: 0 10px 0 0;
-        }
-        
-        .collapse-icon {
-            font-size: 14px;
-            color: #0066cc;
-            transition: transform 0.3s ease;
-        }
-        
-        .collapse-icon.expanded {
-            transform: rotate(180deg);
-        }
-        
+        .operation-panel-header:hover { background-color: #e6f0ff; }
+        .operation-panel-title { font-size: 14px; font-weight: bold; color: #0066cc; margin: 0 8px 0 0; }
+        .collapse-icon { font-size: 12px; color: #0066cc; transition: transform 0.3s ease; }
+        .collapse-icon.expanded { transform: rotate(180deg); }
         .operation-panel-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            margin-top: 0;
+            display: none; position: absolute; top: 110%; left: 50%;
+            transform: translateX(-50%); width: 380px; max-width: 90vw; z-index: 100;
+            background-color: #f8f8ff; border: 2px solid #0066cc; border-radius: 8px;
+            padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0; transition: opacity 0.3s ease-out;
         }
-        
-        .operation-panel-content.expanded {
-            max-height: 1000px;
-            opacity: 1;
-            margin-top: 10px;
-        }
+        .operation-panel-content.expanded { display: block; opacity: 1; }
         
         @media (max-width: 768px) {
-            .operation-panel-title {
-                font-size: 18px;
+            .operation-panel { width: 100%; }
+            .operation-panel-header { padding: 10px; }
+            .operation-panel-title { font-size: 18px; }
+            .collapse-icon { font-size: 16px; }
+            .operation-panel-content {
+                position: static; transform: none; width: auto; max-height: 0;
+                padding: 0; margin: 0; border: none; box-shadow: none;
+                overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
             }
-            
-            .collapse-icon {
-                font-size: 16px;
-            }
+            .operation-panel-content.expanded { max-height: 1000px; padding: 15px 0 0 0; }
         }
-        
-        .route-checkboxes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .route-checkboxes {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-        }
-        
+
+        .route-checkboxes { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        @media (max-width: 768px) { .route-checkboxes { gap: 10px; } }
+
         .route-checkbox {
-            display: flex;
-            align-items: center;
-            padding: 6px 8px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 13px;
+            display: flex; align-items: center; padding: 6px 8px; background-color: #fff;
+            border: 1px solid #ddd; border-radius: 5px; font-size: 13px;
         }
-        
-        @media (max-width: 768px) {
-            .route-checkbox {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
-        }
-        
-        .route-checkbox input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
-        }
-        
-        @media (max-width: 768px) {
-            .route-checkbox input[type="checkbox"] {
-                margin-right: 12px;
-                transform: scale(1.4);
-            }
-        }
-        
-        .route-checkbox label {
-            flex: 1;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
+        @media (max-width: 768px) { .route-checkbox { padding: 10px 12px; font-size: 14px; } }
+        .route-checkbox input[type="checkbox"] { margin-right: 8px; transform: scale(1.2); }
+        @media (max-width: 768px) { .route-checkbox input[type="checkbox"] { margin-right: 12px; transform: scale(1.4); } }
+        .route-checkbox label { flex: 1; cursor: pointer; font-weight: bold; }
+
         .route-checkbox-number {
-            display: inline-block;
-            border: 1px solid #0066cc;
-            padding: 1px 4px;
-            margin-right: 6px;
-            background-color: #fff;
-            color: #0066cc;
-            font-size: 11px;
-            min-width: 20px;
-            text-align: center;
+            display: inline-block; border: 1px solid #0066cc; padding: 1px 4px; margin-right: 6px;
+            background-color: #fff; color: #0066cc; font-size: 11px; min-width: 20px; text-align: center;
         }
-        
-        @media (max-width: 768px) {
-            .route-checkbox-number {
-                font-size: 12px;
-                min-width: 25px;
-                padding: 2px 6px;
-            }
-        }
-        
+        @media (max-width: 768px) { .route-checkbox-number { font-size: 12px; min-width: 25px; padding: 2px 6px; } }
+
         .filter-controls {
-            text-align: center;
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            text-align: center; margin-top: 10px; display: flex; justify-content: center;
+            gap: 10px; flex-wrap: wrap;
         }
-        
-        @media (max-width: 768px) {
-            .filter-controls {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-        
+        @media (max-width: 768px) { .filter-controls { flex-direction: column; gap: 8px; } }
+
         .filter-button {
-            background-color: #009900;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
+            background-color: #009900; color: white; border: none; padding: 6px 12px;
+            border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
         }
-        
-        @media (max-width: 768px) {
-            .filter-button {
-                padding: 10px 16px;
-                font-size: 14px;
-            }
-        }
-        
-        .filter-button:hover {
-            background-color: #007700;
-        }
-        
-        .filter-button.secondary {
-            background-color: #666;
-        }
-        
-        .filter-button.secondary:hover {
-            background-color: #555;
-        }
-        
+        @media (max-width: 768px) { .filter-button { padding: 10px 16px; font-size: 14px; } }
+        .filter-button:hover { background-color: #007700; }
+        .filter-button.secondary { background-color: #666; }
+        .filter-button.secondary:hover { background-color: #555; }
+
         .datetime-search {
-            text-align: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #ddd;
+            text-align: center; margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd;
         }
+        @media (max-width: 768px) { .datetime-search { padding: 8px; margin-top: 10px; padding-top: 10px; } }
+        .datetime-title { margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #333; }
+        @media (max-width: 768px) { .datetime-title { font-size: 16px; margin-bottom: 10px; } }
+        .datetime-controls { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+        @media (max-width: 768px) { .datetime-controls { flex-direction: column; gap: 10px; } }
+        .datetime-input { padding: 4px 6px; font-size: 12px; border: 2px solid #ccc; border-radius: 4px; }
+        @media (max-width: 768px) { .datetime-input { padding: 8px 12px; font-size: 16px; width: 200px; } }
         
+        .search-button, .reset-button {
+            padding: 5px 10px; font-size: 12px; color: white; border: none;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .search-button { background-color: #009900; }
+        .reset-button { background-color: #666; }
+        @media (max-width: 768px) { .search-button, .reset-button { padding: 10px 20px; font-size: 16px; margin: 5px; } }
+
+        .header-icon-button {
+            background-color: #f0f0f0; border: 2px solid #333; width: 38px; height: 38px;
+            border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;
+            padding: 0; flex-shrink: 0;
+        }
+        .header-icon-button:hover { background-color: #e0e0e0; transform: rotate(90deg); }
         @media (max-width: 768px) {
-            .datetime-search {
-                padding: 8px;
-                margin-top: 10px;
-                padding-top: 10px;
-            }
-        }
-        
-        .datetime-title {
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        @media (max-width: 768px) {
-            .datetime-title {
-                font-size: 16px;
-                margin-bottom: 10px;
-            }
-        }
-        
-        .datetime-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        @media (max-width: 768px) {
-            .datetime-controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-        
-        .datetime-input {
-            padding: 4px 6px;
-            font-size: 12px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-        }
-        
-        @media (max-width: 768px) {
-            .datetime-input {
-                padding: 8px 12px;
-                font-size: 16px;
-                width: 200px;
-            }
-        }
-        
-        .search-button {
-            padding: 5px 10px;
-            font-size: 12px;
-            background-color: #009900;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        @media (max-width: 768px) {
-            .search-button {
-                padding: 10px 20px;
-                font-size: 16px;
-                margin: 5px;
-            }
-        }
-        
-        .reset-button {
-            padding: 5px 10px;
-            font-size: 12px;
-            background-color: #666;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        @media (max-width: 768px) {
-            .reset-button {
-                padding: 10px 20px;
-                font-size: 16px;
-                margin: 5px;
-            }
+            .header-icon-button { width: 44px; height: 44px; font-size: 22px; }
         }
 
-        .departures-container {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 2px solid #ddd;
-        }
-
+        .departures-container { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd; }
         .show-departures-btn {
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 80%;
-            max-width: 300px;
-            font-family: inherit;
+            background-color: #0066cc; color: white; border: none; padding: 12px 24px;
+            border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: background-color 0.3s ease; width: 80%; max-width: 300px; font-family: inherit;
         }
-
-        .show-departures-btn:hover {
-            background-color: #0052a3;
-        }
-
+        .show-departures-btn:hover { background-color: #0052a3; }
 
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;
         }
-        .modal-overlay.visible {
-            display: flex;
-        }
+        .modal-overlay.visible { display: flex; }
+        .close-modal { color: #aaa; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .close-modal:hover, .close-modal:focus { color: #000; }
+        
         .modal-content {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 650px;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
+            background-color: #fff; padding: 25px; border-radius: 10px; width: 90%;
+            max-width: 650px; max-height: 85vh; overflow-y: auto; position: relative;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;
         }
-        .modal-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-        .close-modal {
-            color: #aaa;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .close-modal:hover,
-        .close-modal:focus {
-            color: #000;
-        }
-        #modalDepartureList .departure-info {
-            margin-bottom: 10px;
-            padding: 12px;
-        }
+        .modal-title { font-size: 20px; font-weight: bold; color: #333; }
+        #modalDepartureList .departure-info { margin-bottom: 10px; padding: 12px; }
         
+        .iframe-modal-overlay { display: none; }
+        .iframe-modal-overlay.visible { display: flex; }
         .iframe-modal-content {
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            width: 95%;
-            height: 90vh;
-            max-width: 1200px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
+            background-color: #fff; padding: 10px; border-radius: 10px; width: 95%; height: 90vh;
+            max-width: 1200px; overflow: hidden; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
         }
         #closeIframeModal {
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            color: #000;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+            position: absolute; top: 5px; right: 15px; color: #000; font-size: 32px; font-weight: bold;
+            cursor: pointer; z-index: 1001; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; line-height: 1;
         }
-        #iframeModalContainer {
-            width: 100%;
-            height: 100%;
-            flex-grow: 1;
-        }
-        #iframeModalContainer iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        #iframeModalContainer { width: 100%; height: 100%; flex-grow: 1; }
+        #iframeModalContainer iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
     <div class="display-board">
+        <!-- バス停選択ヘッダーを追加 -->
+        <div class="bus-stop-header">
+            <span class="stop-switch-btn" id="prevStopBtn">◀</span>
+            <span id="busStopName">和田岬</span>
+            <span class="stop-switch-btn" id="nextStopBtn">▶</span>
+        </div>
+
         <div class="header-container">
-             <div class="time-info">
-                <div class="current-time" id="currentTime"></div>
-                <div class="schedule-type" id="scheduleType"></div>
-            </div>
-            <div class="header-main-title" id="headerMainTitle">
-                 <span class="swipe-indicator" id="prevStopBtn">◀</span>
-                 <span id="busStopName"></span>
-                 <span class="swipe-indicator" id="nextStopBtn">▶</span>
-            </div>
             <div class="direction-controls">
+                <!-- 方面ボタンを更新 -->
                 <button id="shinkaichi-btn" class="direction-button active">新開地・夢野方面</button>
                 <button id="yoshidacho-btn" class="direction-button">吉田町・名倉町方面</button>
             </div>
-        </div>
-        
-        <div class="operation-panel" id="operationPanel">
-            <div class="operation-panel-header" id="operationPanelHeader">
-                <div class="operation-panel-title">表示設定（系統・時刻）</div>
-                <div class="collapse-icon" id="collapseIcon">▼</div>
-            </div>
-            <div class="operation-panel-content" id="operationPanelContent">
-                <div class="route-checkboxes" id="routeCheckhouses">
-                    <!-- 動的に生成される系統チェックボックス -->
-                </div>
-                <div class="filter-controls">
-                    <button id="selectAllBtn" class="filter-button">すべて選択</button>
-                    <button id="clearAllBtn" class="filter-button secondary">すべて解除</button>
-                </div>
-                <div class="datetime-search">
-                    <div class="datetime-title">時刻指定検索</div>
-                    <div class="datetime-controls">
-                        <input type="date" id="searchDate" class="datetime-input">
-                        <input type="time" id="searchTime" class="datetime-input">
-                        <button id="searchBtn" class="search-button">検索</button>
-                        <button id="resetBtn" class="reset-button">現在時刻</button>
+            
+            <div class="header-controls">
+                <div class="operation-panel" id="operationPanel">
+                    <div class="operation-panel-header" id="operationPanelHeader">
+                        <div class="operation-panel-title">表示設定</div>
+                        <div class="collapse-icon" id="collapseIcon">▼</div>
+                    </div>
+                    <div class="operation-panel-content" id="operationPanelContent">
+                        <div class="route-checkboxes" id="routeCheckhouses"></div>
+                        <div class="filter-controls">
+                            <button id="selectAllBtn" class="filter-button">すべて選択</button>
+                            <button id="clearAllBtn" class="filter-button secondary">すべて解除</button>
+                        </div>
+                        <div class="datetime-search">
+                            <div class="datetime-title">時刻指定検索</div>
+                            <div class="datetime-controls">
+                                <input type="date" id="searchDate" class="datetime-input">
+                                <input type="time" id="searchTime" class="datetime-input">
+                                <button id="searchBtn" class="search-button">検索</button>
+                                <button id="resetBtn" class="reset-button">現在時刻</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <button id="refresh-btn" class="header-icon-button" title="更新">↻</button>
+            </div>
+
+            <div class="time-info">
+                <div class="current-time" id="currentTime"></div>
+                <div class="schedule-type" id="scheduleType"></div>
             </div>
         </div>
         
-        <div class="next-departure" id="nextDepartureSection">
-            <div class="next-departure-title">先発</div>
-            <div id="justDepartedSection"></div>
-            <div id="nextDepartureContentWrapper">
-                <!-- 動的に生成される先発情報 -->
+        <!-- PC Layout -->
+        <div class="pc-container">
+            <div class="left-column">
+                <div id="pcFirstDepartureDetail"></div>
+                <div id="pcOverlayDetail"></div>
+            </div>
+            <div class="right-column">
+                <div class="right-top-section">
+                    <div id="pcNextDepartureInfo"></div>
+                    <div id="pcJustDepartedInfo"></div>
+                </div>
+                <div class="right-bottom-section">
+                    <div id="pcDepartureList"></div>
+                </div>
             </div>
         </div>
-        
-        <div class="departures-container">
-            <button id="showDeparturesBtn" class="show-departures-btn">出発予定一覧を表示</button>
-            <div id="departureList">
-                <!-- 動的に生成される発車情報（この部分は非表示） -->
+
+        <!-- Mobile Layout -->
+        <div class="mobile-container">
+            <div class="next-departure" id="nextDepartureSection">
+                <div class="next-departure-title">先発</div>
+                <div id="justDepartedSection"></div>
+                <div id="mobileNextDepartureContent"></div>
+            </div>
+            
+            <div class="departures-container">
+                <button id="showDeparturesBtn" class="show-departures-btn">出発予定一覧を表示</button>
+                <div id="departureList"></div>
             </div>
         </div>
     </div>
@@ -1019,529 +627,546 @@
                 <div class="modal-title">出発予定一覧</div>
                 <span id="closeModal" class="close-modal">&times;</span>
             </div>
-            <div id="modalDepartureList">
-                <!-- JavaScriptによって出発情報がここにコピーされます -->
-            </div>
+            <div id="modalDepartureList"></div>
         </div>
     </div>
-    
-    <div id="iframeModalOverlay" class="modal-overlay">
+
+    <div id="iframeModalOverlay" class="iframe-modal-overlay">
         <div class="iframe-modal-content">
             <span id="closeIframeModal" class="close-modal">&times;</span>
-            <div id="iframeModalContainer">
-                <!-- ここに拡大表示するiframeが挿入される -->
-            </div>
+            <div id="iframeModalContainer"></div>
         </div>
     </div>
 
 
-    <script>
-        const busStops = {
-            wadamisaki: { name: '和田岬', adjustment: { yoshidacho: 1, shinkaichi: -1 } },
-            imade: { name: '今出在家町', adjustment: { yoshidacho: 0, shinkaichi: 0 } },
-            museum: { name: '県立兵庫津ミュージアム前', adjustment: { yoshidacho: -1, shinkaichi: 1 } },
-            market: { name: '中央市場', adjustment: { yoshidacho: -2, shinkaichi: 2 } }
-        };
+<script>
+    // --- データ統合部分開始 ---
 
-        const detailUrls = {
-            wadamisaki: {
-                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0151" },
-                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0150" }
-            },
-            imade: {
-                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151" },
-                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150" }
-            },
-            museum: {
-                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0151" },
-                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0150" }
-            },
-            market: {
-                shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0151" },
-                yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0150" }
-            }
-        };
+    // バス停データ
+    const busStops = {
+        wadamisaki: { name: '和田岬', adjustment: { yoshidacho: 1, shinkaichi: -1 } },
+        imade: { name: '今出在家町', adjustment: { yoshidacho: 0, shinkaichi: 0 } },
+        museum: { name: '県立兵庫津ミュージアム前', adjustment: { yoshidacho: -1, shinkaichi: 1 } },
+        market: { name: '中央市場', adjustment: { yoshidacho: -2, shinkaichi: 2 } }
+    };
+    const busStopOrder = ['wadamisaki', 'imade', 'museum', 'market'];
 
-        const timetables = {
-            shinkaichi: {
-                route3: { name: "新開地・夢野方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [35] }, { hour: 7, minutes: [3, 15, 27, 39, 51] }, { hour: 8, minutes: [3, 35] }, { hour: 9, minutes: [34] }, { hour: 10, minutes: [34] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [12, 23, 30, 39, 48, 57] }, { hour: 18, minutes: [13, 23, 33, 43, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [3] }], holidays: [{ hour: 6, minutes: [30, 49] }, { hour: 7, minutes: [8, 35, 51] }, { hour: 8, minutes: [35] }, { hour: 9, minutes: [33] }, { hour: 10, minutes: [33] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [33] }, { hour: 18, minutes: [13, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [37] }] },
-                route9: { name: "新開地・兵庫駅前方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 7, minutes: [10] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [2] }, { hour: 10, minutes: [2] }, { hour: 11, minutes: [2] }, { hour: 12, minutes: [2] }, { hour: 13, minutes: [2] }, { hour: 14, minutes: [2] }, { hour: 15, minutes: [2] }, { hour: 16, minutes: [2] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [5] }, { hour: 19, minutes: [5] }, { hour: 20, minutes: [5] }, { hour: 21, minutes: [5] }], holidays: [{ hour: 7, minutes: [21] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [3] }, { hour: 10, minutes: [3] }, { hour: 11, minutes: [3] }, { hour: 12, minutes: [3] }, { hour: 13, minutes: [3] }, { hour: 14, minutes: [3] }, { hour: 15, minutes: [3] }, { hour: 16, minutes: [3] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [3] }, { hour: 19, minutes: [3] }, { hour: 20, minutes: [3] }, { hour: 21, minutes: [3] }, { hour: 22, minutes: [3] }] }
-            },
-            yoshidacho: {
-                route3: { name: "名倉町方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 9, minutes: [45] }, { hour: 11, minutes: [45] }, { hour: 13, minutes: [45] }, { hour: 15, minutes: [45] }], holidays: [{ hour: 9, minutes: [42] }, { hour: 11, minutes: [43] }, { hour: 13, minutes: [43] }, { hour: 15, minutes: [43] }] },
-                route9: { name: "新開地先行 吉田町１丁目方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [38] }, { hour: 7, minutes: [1, 12, 22, 32, 42, 49, 55] }, { hour: 8, minutes: [0, 5, 13, 15, 20, 25, 30, 35, 40, 45, 55] }, { hour: 9, minutes: [16] }, { hour: 10, minutes: [16, 45] }, { hour: 11, minutes: [16] }, { hour: 12, minutes: [16, 45] }, { hour: 13, minutes: [16] }, { hour: 14, minutes: [16, 45] }, { hour: 15, minutes: [16] }, { hour: 16, minutes: [16, 45] }, { hour: 17, minutes: [16, 49] }, { hour: 18, minutes: [4, 19, 34, 49] }, { hour: 19, minutes: [4, 19, 34, 49] }, { hour: 20, minutes: [17, 37] }, { hour: 21, minutes: [17, 30] }, { hour: 22, minutes: [40] }], holidays: [{ hour: 6, minutes: [38, 57] }, { hour: 7, minutes: [14, 23, 31, 50] }, { hour: 8, minutes: [11, 22, 42] }, { hour: 9, minutes: [14] }, { hour: 10, minutes: [15, 43] }, { hour: 11, minutes: [15] }, { hour: 12, minutes: [15, 43] }, { hour: 13, minutes: [15] }, { hour: 14, minutes: [15, 43] }, { hour: 15, minutes: [15] }, { hour: 16, minutes: [15, 43] }, { hour: 17, minutes: [15, 41] }, { hour: 18, minutes: [11, 15, 42] }, { hour: 19, minutes: [13, 15, 45] }, { hour: 20, minutes: [15, 41] }, { hour: 21, minutes: [8, 38] }, { hour: 22, minutes: [8, 38] }] }
-            }
-        };
+    // 詳細URLデータ
+    const detailUrls = {
+        wadamisaki: {
+            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0151" },
+            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0150" }
+        },
+        imade: {
+            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151" },
+            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150" }
+        },
+        museum: {
+            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0151" },
+            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0150" }
+        },
+        market: {
+            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0151" },
+            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0150" }
+        }
+    };
+
+    // 時刻表データ（系統3、9）
+    const timetables = {
+        shinkaichi: {
+            route3: { name: "新開地・夢野方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [35] }, { hour: 7, minutes: [3, 15, 27, 39, 51] }, { hour: 8, minutes: [3, 35] }, { hour: 9, minutes: [34] }, { hour: 10, minutes: [34] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [12, 23, 30, 39, 48, 57] }, { hour: 18, minutes: [13, 23, 33, 43, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [3] }], holidays: [{ hour: 6, minutes: [30, 49] }, { hour: 7, minutes: [8, 35, 51] }, { hour: 8, minutes: [35] }, { hour: 9, minutes: [33] }, { hour: 10, minutes: [33] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes: [33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [33] }, { hour: 18, minutes: [13, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [37] }] },
+            route9: { name: "新開地・兵庫駅前方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 7, minutes: [10] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [2] }, { hour: 10, minutes: [2] }, { hour: 11, minutes: [2] }, { hour: 12, minutes: [2] }, { hour: 13, minutes: [2] }, { hour: 14, minutes: [2] }, { hour: 15, minutes: [2] }, { hour: 16, minutes: [2] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [5] }, { hour: 19, minutes: [5] }, { hour: 20, minutes: [5] }, { hour: 21, minutes: [5] }], holidays: [{ hour: 7, minutes: [21] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [3] }, { hour: 10, minutes: [3] }, { hour: 11, minutes: [3] }, { hour: 12, minutes: [3] }, { hour: 13, minutes: [3] }, { hour: 14, minutes: [3] }, { hour: 15, minutes: [3] }, { hour: 16, minutes: [3] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [3] }, { hour: 19, minutes: [3] }, { hour: 20, minutes: [3] }, { hour: 21, minutes: [3] }, { hour: 22, minutes: [3] }] }
+        },
+        yoshidacho: {
+            route3: { name: "名倉町方面", number: "3", detailLabel: "詳細", weekdays: [{ hour: 9, minutes: [45] }, { hour: 11, minutes: [45] }, { hour: 13, minutes: [45] }, { hour: 15, minutes: [45] }], holidays: [{ hour: 9, minutes: [42] }, { hour: 11, minutes: [43] }, { hour: 13, minutes: [43] }, { hour: 15, minutes: [43] }] },
+            route9: { name: "新開地先行 吉田町１丁目方面", number: "9", detailLabel: "詳細", weekdays: [{ hour: 6, minutes: [38] }, { hour: 7, minutes: [1, 12, 22, 32, 42, 49, 55] }, { hour: 8, minutes: [0, 5, 13, 15, 20, 25, 30, 35, 40, 45, 55] }, { hour: 9, minutes: [16] }, { hour: 10, minutes: [16, 45] }, { hour: 11, minutes: [16] }, { hour: 12, minutes: [16, 45] }, { hour: 13, minutes: [16] }, { hour: 14, minutes: [16, 45] }, { hour: 15, minutes: [16] }, { hour: 16, minutes: [16, 45] }, { hour: 17, minutes: [16, 49] }, { hour: 18, minutes: [4, 19, 34, 49] }, { hour: 19, minutes: [4, 19, 34, 49] }, { hour: 20, minutes: [17, 37] }, { hour: 21, minutes: [17, 30] }, { hour: 22, minutes: [40] }], holidays: [{ hour: 6, minutes: [38, 57] }, { hour: 7, minutes: [14, 23, 31, 50] }, { hour: 8, minutes: [11, 22, 42] }, { hour: 9, minutes: [14] }, { hour: 10, minutes: [15, 43] }, { hour: 11, minutes: [15] }, { hour: 12, minutes: [15, 43] }, { hour: 13, minutes: [15] }, { hour: 14, minutes: [15, 43] }, { hour: 15, minutes: [15] }, { hour: 16, minutes: [15, 43] }, { hour: 17, minutes: [15, 41] }, { hour: 18, minutes: [11, 15, 42] }, { hour: 19, minutes: [13, 15, 45] }, { hour: 20, minutes: [15, 41] }, { hour: 21, minutes: [8, 38] }, { hour: 22, minutes: [8, 38] }] }
+        }
+    };
+    
+    // --- データ統合部分終了 ---
+
+    let currentDirection = 'shinkaichi'; // デフォルト方面更新
+    let currentBusStop = 'imade'; // デフォルトバス停
+    let customDateTime = null;
+    let selectedRoutes = new Set();
+    let hidePanelTimeoutId = null;
+
+    function getCurrentDateTime() {
+        return customDateTime || new Date();
+    }
+
+    function updateTime() {
+        const now = getCurrentDateTime();
+        const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         
-        let currentDirection = 'shinkaichi';
-        let currentBusStop = 'imade'; 
-        let customDateTime = null;
-        let selectedRoutes = new Set();
-        const busStopOrder = ['wadamisaki', 'imade', 'museum', 'market'];
-
-        function getCurrentDateTime() {
-            return customDateTime || new Date();
-        }
-
-        function updateTime() {
-            const now = getCurrentDateTime();
-            const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            
-            const timeElement = document.getElementById('currentTime');
-            timeElement.textContent = timeString;
-            if (customDateTime) {
-                timeElement.style.backgroundColor = 'rgba(255, 200, 200, 0.9)';
-                timeElement.style.color = '#cc0000';
-            } else {
-                timeElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                timeElement.style.color = '#0066cc';
-            }
-            
-            const scheduleTypeElement = document.getElementById('scheduleType');
-            if (isHoliday(now)) {
-                scheduleTypeElement.textContent = '休日ダイヤ';
-                scheduleTypeElement.style.color = '#cc0000';
-                scheduleTypeElement.style.borderColor = '#cc0000';
-            } else {
-                scheduleTypeElement.textContent = '平日ダイヤ';
-                scheduleTypeElement.style.color = '#009900';
-                scheduleTypeElement.style.borderColor = '#009900';
-            }
-        }
-
-        function isHoliday(date) {
-            const day = date.getDay();
-            const month = date.getMonth() + 1;
-            const dateNum = date.getDate();
-            const year = date.getFullYear();
-            
-            if (year === 2025 && month === 8 && dateNum === 15) return true;
-            return day === 0 || day === 6;
+        const timeElement = document.getElementById('currentTime');
+        timeElement.textContent = timeString;
+        if (customDateTime) {
+            timeElement.style.backgroundColor = 'rgba(255, 200, 200, 0.9)';
+            timeElement.style.color = '#cc0000';
+        } else {
+            timeElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            timeElement.style.color = '#0066cc';
         }
         
-        function updateBusStopName() {
-            document.getElementById('busStopName').textContent = busStops[currentBusStop].name;
+        const scheduleTypeElement = document.getElementById('scheduleType');
+        if (isHoliday(now)) {
+            scheduleTypeElement.textContent = '休日ダイヤ';
+            scheduleTypeElement.style.color = '#cc0000';
+            scheduleTypeElement.style.borderColor = '#cc0000';
+        } else {
+            scheduleTypeElement.textContent = '平日ダイヤ';
+            scheduleTypeElement.style.color = '#009900';
+            scheduleTypeElement.style.borderColor = '#009900';
         }
-        
-        function selectBusStop(stopId) {
-            if (!stopId || currentBusStop === stopId) return;
-            currentBusStop = stopId;
-            updateDisplay();
-        }
+    }
 
-        function toggleOperationPanel() {
-            const content = document.getElementById('operationPanelContent');
-            const icon = document.getElementById('collapseIcon');
-            const isExpanded = content.classList.contains('expanded');
-            
-            if (isExpanded) {
-                content.classList.remove('expanded');
-                icon.classList.remove('expanded');
-                icon.textContent = '▼';
-            } else {
-                content.classList.add('expanded');
-                icon.classList.add('expanded');
-                icon.textContent = '▲';
-            }
-        }
+    function isHoliday(date) {
+        const day = date.getDay();
+        const month = date.getMonth() + 1;
+        const dateNum = date.getDate();
+        const year = date.getFullYear();
+        if (year === 2025 && month === 8 && dateNum === 15) return true;
+        return day === 0 || day === 6;
+    }
+
+    // バス停名更新
+    function updateBusStopName() {
+        document.getElementById('busStopName').textContent = busStops[currentBusStop].name;
+    }
+
+    // バス停変更ロジック
+    function selectBusStop(stopId) {
+        if (!stopId || currentBusStop === stopId) return;
+        currentBusStop = stopId;
+        updateDisplay();
+    }
+
+    function toggleOperationPanel() {
+        const content = document.getElementById('operationPanelContent');
+        const icon = document.getElementById('collapseIcon');
+        content.classList.toggle('expanded');
+        icon.classList.toggle('expanded');
+        icon.textContent = icon.classList.contains('expanded') ? '▲' : '▼';
+    }
+
+    function createRouteCheckboxes() {
+        const checkboxContainer = document.getElementById('routeCheckhouses');
+        const currentTimetable = timetables[currentDirection];
+        checkboxContainer.innerHTML = '';
         
-        function createRouteCheckboxes() {
-            const checkboxContainer = document.getElementById('routeCheckhouses');
-            const currentTimetable = timetables[currentDirection];
+        Object.keys(currentTimetable).forEach(routeKey => {
+            const route = currentTimetable[routeKey];
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.className = 'route-checkbox';
             
-            checkboxContainer.innerHTML = '';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `route-${routeKey}`;
+            checkbox.value = routeKey;
+            checkbox.checked = selectedRoutes.has(routeKey);
             
-            Object.keys(currentTimetable).forEach(routeKey => {
-                const route = currentTimetable[routeKey];
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.className = 'route-checkbox';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `route-${routeKey}`;
-                checkbox.value = routeKey;
-                checkbox.checked = selectedRoutes.has(routeKey);
-                
-                const label = document.createElement('label');
-                label.htmlFor = `route-${routeKey}`;
-                label.innerHTML = `<span class="route-checkbox-number">${route.number}</span>${route.name}`;
-                
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(label);
-                checkboxContainer.appendChild(checkboxDiv);
-                
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        selectedRoutes.add(routeKey);
-                    } else {
-                        selectedRoutes.delete(routeKey);
-                    }
-                    updateDisplay();
-                });
+            const label = document.createElement('label');
+            label.htmlFor = `route-${routeKey}`;
+            label.innerHTML = `<span class="route-checkbox-number">${route.number}</span>${route.name}`;
+            
+            checkboxDiv.append(checkbox, label);
+            checkboxContainer.appendChild(checkboxDiv);
+            
+            checkbox.addEventListener('change', function() {
+                if (this.checked) selectedRoutes.add(routeKey);
+                else selectedRoutes.delete(routeKey);
+                updateDisplay();
             });
-        }
+        });
+    }
+
+    function getAllDepartures() {
+        const now = getCurrentDateTime();
+        const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
         
-        function getAllDepartures() {
-            const now = getCurrentDateTime();
-            const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-            
-            const allDepartures = [];
-            const timetableForDirection = timetables[currentDirection];
-            const timeAdjustment = busStops[currentBusStop]?.adjustment[currentDirection] ?? 0;
+        const allDepartures = [];
+        const currentTimetable = timetables[currentDirection];
+        // バス停ごとの時刻補正を取得
+        const timeAdjustment = busStops[currentBusStop]?.adjustment[currentDirection] ?? 0;
 
-            const routesToShow = selectedRoutes.size > 0 
-                ? Array.from(selectedRoutes) 
-                : Object.keys(timetableForDirection);
+        const routesToShow = selectedRoutes.size > 0 ? Array.from(selectedRoutes) : Object.keys(currentTimetable);
 
-            const collectDepartures = (date) => {
-                const scheduleType = isHoliday(date) ? 'holidays' : 'weekdays';
-                routesToShow.forEach(routeKey => {
-                    const routeInfo = timetableForDirection[routeKey];
-                    if (!routeInfo || !routeInfo[scheduleType]) return;
+        const collectDepartures = (date) => {
+            const scheduleType = isHoliday(date) ? 'holidays' : 'weekdays';
+            routesToShow.forEach(routeKey => {
+                const routeInfo = currentTimetable[routeKey];
+                if (!routeInfo || !routeInfo[scheduleType]) return;
 
-                    const schedule = routeInfo[scheduleType];
-                    schedule.forEach(hourData => {
-                        hourData.minutes.forEach(minute => {
-                            const baseDepartureDate = new Date(date);
-                            baseDepartureDate.setHours(hourData.hour, minute, 0, 0);
+                const schedule = routeInfo[scheduleType];
+                schedule.forEach(hourData => {
+                    hourData.minutes.forEach(minute => {
+                        const baseDepartureDate = new Date(date);
+                        baseDepartureDate.setHours(hourData.hour, minute, 0, 0);
 
-                            const adjustedDepartureDate = new Date(baseDepartureDate.getTime() + timeAdjustment * 60000);
-                            
-                            if (adjustedDepartureDate.getDate() !== now.getDate() && adjustedDepartureDate.getDate() !== (new Date(now.getTime() - 24*60*60*1000)).getDate()) {
-                                return;
-                            }
+                        // 時刻補正を適用
+                        const adjustedDepartureDate = new Date(baseDepartureDate.getTime() + timeAdjustment * 60000);
 
-                            const detailUrl = detailUrls[currentBusStop]?.[currentDirection]?.[routeKey] || "";
+                        // バス停・方面・系統に応じた詳細URLを取得
+                        const specificDetailUrl = detailUrls[currentBusStop]?.[currentDirection]?.[routeKey] || "";
 
-                            allDepartures.push({
-                                routeKey: routeKey,
-                                routeName: routeInfo.name,
-                                routeNumber: routeInfo.number,
-                                detailUrl: detailUrl,
-                                detailLabel: routeInfo.detailLabel || "詳細",
-                                date: adjustedDepartureDate
-                            });
+                        allDepartures.push({ 
+                            ...routeInfo, 
+                            routeKey, 
+                            detailUrl: specificDetailUrl, // URLを上書き
+                            date: adjustedDepartureDate 
                         });
                     });
                 });
-            };
-            
-            const today = new Date(now);
-            const yesterday = new Date(now);
-            yesterday.setDate(now.getDate() - 1);
-            
-            collectDepartures(yesterday);
-            collectDepartures(today);
-
-            return allDepartures
-                .filter(dep => dep.date >= fiveMinutesAgo)
-                .sort((a, b) => a.date - b.date);
-        }
+            });
+        };
         
-        function updateJustDeparted(allDepartures) {
-            const justDepartedSection = document.getElementById('justDepartedSection');
-            const now = getCurrentDateTime();
-            
-            const recentlyDeparted = allDepartures.filter(dep => 
-                dep.date < now && (now.getTime() - dep.date.getTime()) < 5 * 60 * 1000
-            );
-            
-            justDepartedSection.innerHTML = ''; 
-            
-            if (recentlyDeparted.length > 0) {
-                recentlyDeparted.forEach(dep => {
-                    const timeStr = `${String(dep.date.getHours()).padStart(2, '0')}:${String(dep.date.getMinutes()).padStart(2, '0')}`;
-                    const infoDiv = document.createElement('div');
-                    infoDiv.className = 'just-departed-info';
+        const today = new Date(now);
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        
+        collectDepartures(yesterday);
+        collectDepartures(today);
 
-                    let detailButtonHtml = '';
-                    if (dep.detailUrl) {
-                        detailButtonHtml = `<button class="detail-button" data-url="${dep.detailUrl}">詳細</button>`;
-                    }
-
-                    infoDiv.innerHTML = `
+        return allDepartures
+            .filter(dep => dep.date >= fiveMinutesAgo)
+            .sort((a, b) => a.date - b.date);
+    }
+    
+    function updateJustDeparted(allDepartures) {
+        const mobileSection = document.getElementById('justDepartedSection');
+        const pcSection = document.getElementById('pcJustDepartedInfo');
+        const now = getCurrentDateTime();
+        
+        const recentlyDeparted = allDepartures.filter(dep => 
+            dep.date < now && (now.getTime() - dep.date.getTime()) < 5 * 60 * 1000
+        );
+        
+        let htmlContent = '';
+        if (recentlyDeparted.length > 0) {
+            recentlyDeparted.forEach(dep => {
+                const timeStr = `${String(dep.date.getHours()).padStart(2, '0')}:${String(dep.date.getMinutes()).padStart(2, '0')}`;
+                let detailButtonHtml = dep.detailUrl ? `<button class="detail-button" data-url="${dep.detailUrl}">詳細</button>` : '';
+                htmlContent += `
+                    <div class="just-departed-info">
                         <span>
-                            <span class="route-number">${dep.routeNumber}</span>
-                            <strong>${dep.routeName}</strong> (${timeStr}発) の定刻は過ぎました。
+                            <span class="route-number">${dep.number}</span>
+                            <strong>${dep.name}</strong> (${timeStr}発) の定刻は過ぎました。
                         </span>
                         ${detailButtonHtml}
-                    `;
-                    justDepartedSection.appendChild(infoDiv);
-                });
-            }
-        }
-
-        function updateNextDeparture(allDepartures) {
-            const nextDepartureWrapper = document.getElementById('nextDepartureContentWrapper');
-            const now = getCurrentDateTime();
-            
-            const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
-            
-            if (upcomingDepartures.length === 0) {
-                const message = selectedRoutes.size > 0 ? 
-                    '選択された系統の今後の運行便がありません' : 
-                    '本日の運行は終了しました';
-                nextDepartureWrapper.innerHTML = `<div class="no-next-departure">${message}</div>`;
-                return;
-            }
-            
-            const nextDeparture = upcomingDepartures[0];
-            const depTime = nextDeparture.date;
-            const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
-            
-            const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
-            const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
-            
-            let detailContent = '';
-            if (nextDeparture.detailUrl) {
-                detailContent = `
-                    <div class="departure-detail-embedded">
-                        <button class="expand-iframe-btn" title="拡大表示">↗</button>
-                        <iframe src="${nextDeparture.detailUrl}" width="100%" height="300" frameborder="0" style="border-radius: 5px; margin-top: 10px;"></iframe>
                     </div>`;
-            }
-            
-            nextDepartureWrapper.innerHTML = `
-                <div class="next-departure-content">
-                    <div class="next-departure-route">
-                        <span class="route-number">${nextDeparture.routeNumber}</span>${nextDeparture.routeName}
-                    </div>
-                    <div class="next-departure-time">
-                        <div class="next-departure-clock">${timeStr}</div>
-                        <div class="next-departure-remaining">(${remainingText})</div>
-                    </div>
-                </div>
-                ${detailContent}`;
-        }
-
-        function createDepartureElement(departure, index, now) {
-            const departureDiv = document.createElement('div');
-            departureDiv.className = 'departure-info';
-            const depTime = departure.date;
-            
-            const label = `${index + 2}便目`;
-            const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
-            
-            const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
-            const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
-            
-            let detailButton = '';
-            if (departure.detailUrl) {
-                // --- 変更点: aタグをbuttonタグに変更し、data-url属性を追加 ---
-                detailButton = `<button class="detail-button" data-url="${departure.detailUrl}">${departure.detailLabel}</button>`;
-            }
-            
-            departureDiv.innerHTML = `
-                <div class="departure-label">${label}</div>
-                <div class="departure-route"><span class="route-number">${departure.routeNumber}</span>${departure.routeName}</div>
-                <div class="time-remaining-section">
-                    <div class="departure-time">${timeStr}</div>
-                    <div class="remaining-time">(${remainingText})</div>
-                </div>
-                <div class="side-info">
-                    ${detailButton}
-                </div>`;
-            
-            return departureDiv;
-        }
-
-        function updateDepartures(allDepartures) {
-            const now = getCurrentDateTime();
-            const departureList = document.getElementById('departureList');
-            departureList.innerHTML = '';
-            
-            const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
-            
-            if (upcomingDepartures.length <= 1) {
-                departureList.innerHTML = `<div class="no-service">次の便はありません</div>`;
-                return;
-            }
-            
-            const departuresToShow = upcomingDepartures.slice(1, 6);
-            departuresToShow.forEach((departure, index) => {
-                const departureElement = createDepartureElement(departure, index, now);
-                departureList.appendChild(departureElement);
             });
         }
+        mobileSection.innerHTML = htmlContent;
+        pcSection.innerHTML = htmlContent;
+    }
 
-        function initializeDateTimeInputs() {
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            
-            document.getElementById('searchDate').value = dateStr;
-            document.getElementById('searchTime').value = timeStr;
+    function updateNextDeparture(allDepartures) {
+        const mobileContent = document.getElementById('mobileNextDepartureContent');
+        const pcNextInfo = document.getElementById('pcNextDepartureInfo');
+        const pcFirstDetailContainer = document.getElementById('pcFirstDepartureDetail');
+        const now = getCurrentDateTime();
+
+        hidePcOverlayPanel();
+
+        const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
+        
+        if (upcomingDepartures.length === 0) {
+            const message = selectedRoutes.size > 0 ? '選択された系統の今後の運行便がありません' : '本日の運行は終了しました';
+            const noServiceHtml = `<div class="no-next-departure">${message}</div>`;
+            mobileContent.innerHTML = noServiceHtml;
+            pcNextInfo.innerHTML = noServiceHtml;
+            pcFirstDetailContainer.innerHTML = `<div class="detail-placeholder">運行予定のバスはありません</div>`;
+            return;
         }
         
-        function updateDisplay() {
-            const allDepartures = getAllDepartures();
-            
-            updateTime();
-            updateBusStopName();
-            updateJustDeparted(allDepartures);
-            updateNextDeparture(allDepartures);
-            updateDepartures(allDepartures);
+        const nextDeparture = upcomingDepartures[0];
+        const depTime = nextDeparture.date;
+        const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
+        const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
+        const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
+        
+        const pcNextDepartureInfoHtml = `
+            <div class="next-departure-content">
+                <div class="next-departure-route">
+                    <span class="route-number">${nextDeparture.number}</span>${nextDeparture.name}
+                </div>
+                <div class="next-departure-time">
+                    <div class="next-departure-clock">${timeStr}</div>
+                    <div class="next-departure-remaining">(${remainingText})</div>
+                </div>
+            </div>`;
+
+        let mobileDetailContentHtml = '';
+        if (nextDeparture.detailUrl) {
+            mobileDetailContentHtml = `
+                <div class="departure-detail-embedded">
+                    <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                    <iframe src="${nextDeparture.detailUrl}" width="100%" frameborder="0"></iframe>
+                </div>`;
         }
+        const mobileNextDepartureInfoHtml = `
+            <div class="next-departure-content">
+                <div class="next-departure-route">
+                    <span class="route-number">${nextDeparture.number}</span>${nextDeparture.name}
+                </div>
+                <div class="next-departure-time">
+                    <div class="next-departure-clock">${timeStr}</div>
+                    <div class="next-departure-remaining">(${remainingText})</div>
+                </div>
+            </div>`;
+        
+        mobileContent.innerHTML = mobileNextDepartureInfoHtml + mobileDetailContentHtml;
+        pcNextInfo.innerHTML = pcNextDepartureInfoHtml;
 
-        function changeDirection(direction) {
-            currentDirection = direction;
-            selectedRoutes.clear();
-            createRouteCheckboxes();
-            updateDisplay();
-            
-            document.getElementById('shinkaichi-btn').classList.toggle('active', direction === 'shinkaichi');
-            document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
+        // PC版の先発詳細（背景）を更新
+        if (nextDeparture.detailUrl) {
+            pcFirstDetailContainer.innerHTML = createDetailHtml(nextDeparture.detailUrl, false);
+        } else {
+            pcFirstDetailContainer.innerHTML = `<div class="detail-placeholder">先発バスの詳細情報はありません</div>`;
         }
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDateTimeInputs();
-            createRouteCheckboxes();
-            updateDisplay();
-            
-            setInterval(() => {
-                if (!customDateTime) {
-                    updateTime();
-                }
-            }, 1000);
+    function createDepartureElement(departure, index, now) {
+        const departureDiv = document.createElement('div');
+        departureDiv.className = 'departure-info';
+        const depTime = departure.date;
+        
+        const label = `${index + 2}便目`;
+        const timeStr = `${String(depTime.getHours()).padStart(2, '0')}:${String(depTime.getMinutes()).padStart(2, '0')}`;
+        
+        const remainingMinutes = Math.ceil((depTime.getTime() - now.getTime()) / 60000);
+        const remainingText = remainingMinutes <= 1 ? 'まもなく' : `あと${remainingMinutes}分`;
+        
+        let detailButton = departure.detailUrl ? `<button class="detail-button" data-url="${departure.detailUrl}">${departure.detailLabel}</button>` : '';
+        
+        departureDiv.innerHTML = `
+            <div class="departure-label">${label}</div>
+            <div class="departure-route"><span class="route-number">${departure.number}</span>${departure.name}</div>
+            <div class="time-remaining-section">
+                <div class="departure-time">${timeStr}</div>
+                <div class="remaining-time">(${remainingText})</div>
+            </div>
+            <div class="side-info">
+                ${detailButton}
+            </div>`;
+        
+        return departureDiv;
+    }
 
-            setInterval(() => {
-                if (!customDateTime) {
-                    updateDisplay();
-                }
-            }, 30000);
-            
-            document.getElementById('shinkaichi-btn').addEventListener('click', () => changeDirection('shinkaichi'));
-            document.getElementById('yoshidacho-btn').addEventListener('click', () => changeDirection('yoshidacho'));
-
-            const swipeTarget = document.getElementById('headerMainTitle');
-            let touchStartX = 0;
-            let touchEndX = 0;
-            const swipeThreshold = 50;
-
-            function changeToNextStop() {
-                const currentIndex = busStopOrder.indexOf(currentBusStop);
-                const nextIndex = (currentIndex + 1) % busStopOrder.length;
-                selectBusStop(busStopOrder[nextIndex]);
-            }
-
-            function changeToPrevStop() {
-                const currentIndex = busStopOrder.indexOf(currentBusStop);
-                const prevIndex = (currentIndex - 1 + busStopOrder.length) % busStopOrder.length;
-                selectBusStop(busStopOrder[prevIndex]);
-            }
-            
-            document.getElementById('prevStopBtn').addEventListener('click', changeToPrevStop);
-            document.getElementById('nextStopBtn').addEventListener('click', changeToNextStop);
-
-            swipeTarget.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            swipeTarget.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            });
-
-            function handleSwipe() {
-                const swipeDistance = touchEndX - touchStartX;
-                if (Math.abs(swipeDistance) < swipeThreshold) return;
-                if (swipeDistance < 0) {
-                    changeToNextStop();
-                } else {
-                    changeToPrevStop();
-                }
-            }
-
-            document.getElementById('operationPanelHeader').addEventListener('click', toggleOperationPanel);
-            
-            document.getElementById('selectAllBtn').addEventListener('click', function() {
-                document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = true;
-                    selectedRoutes.add(checkbox.value);
-                });
-                updateDisplay();
-            });
-            
-            document.getElementById('clearAllBtn').addEventListener('click', function() {
-                document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
-                selectedRoutes.clear();
-                updateDisplay();
-            });
-            
-            document.getElementById('searchBtn').addEventListener('click', function() {
-                const dateValue = document.getElementById('searchDate').value;
-                const timeValue = document.getElementById('searchTime').value;
-                if (dateValue && timeValue) {
-                    customDateTime = new Date(`${dateValue}T${timeValue}`);
-                    updateDisplay();
-                }
-            });
-            
-            document.getElementById('resetBtn').addEventListener('click', function() {
-                customDateTime = null;
-                initializeDateTimeInputs();
-                updateDisplay();
-            });
-
-            const showDeparturesBtn = document.getElementById('showDeparturesBtn');
-            const modalOverlay = document.getElementById('modalOverlay');
-            const closeModalBtn = document.getElementById('closeModal');
-            const modalDepartureList = document.getElementById('modalDepartureList');
-            const departureListSource = document.getElementById('departureList');
-
-            showDeparturesBtn.addEventListener('click', () => {
-                modalDepartureList.innerHTML = departureListSource.innerHTML;
-                modalOverlay.classList.add('visible');
-            });
-
-            const closeModal = () => modalOverlay.classList.remove('visible');
-            closeModalBtn.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) closeModal();
-            });
-
-            // --- 変更点: iframe拡大表示モーダルのロジックを共通化 ---
-            const iframeModalOverlay = document.getElementById('iframeModalOverlay');
-            const closeIframeModalBtn = document.getElementById('closeIframeModal');
-            const iframeModalContainer = document.getElementById('iframeModalContainer');
-
-            function openIframeModal(url) {
-                if (url) {
-                    iframeModalContainer.innerHTML = `<iframe src="${url}"></iframe>`;
-                    iframeModalOverlay.classList.add('visible');
-                }
-            }
-
-            function closeIframeModal() {
-                iframeModalOverlay.classList.remove('visible');
-                iframeModalContainer.innerHTML = '';
-            }
-            
-            // イベントデリゲーションを使用して、複数の場所からのクリックを処理
-            document.body.addEventListener('click', (e) => {
-                // 先発情報の「拡大」ボタン
-                const expandButton = e.target.closest('.expand-iframe-btn');
-                if (expandButton) {
-                    const iframe = expandButton.closest('.departure-detail-embedded')?.querySelector('iframe');
-                    if (iframe) {
-                        openIframeModal(iframe.src);
-                    }
-                    return;
-                }
-                
-                // 「詳細」ボタン（どの場所にあっても対応）
-                const detailButton = e.target.closest('.detail-button');
-                if (detailButton && detailButton.dataset.url) {
-                    openIframeModal(detailButton.dataset.url);
-                    return;
-                }
-            });
-
-            closeIframeModalBtn.addEventListener('click', closeIframeModal);
-            iframeModalOverlay.addEventListener('click', (e) => {
-                if (e.target === iframeModalOverlay) closeIframeModal();
-            });
+    function updateDepartures(allDepartures) {
+        const now = getCurrentDateTime();
+        const modalList = document.getElementById('departureList');
+        const pcList = document.getElementById('pcDepartureList');
+        
+        modalList.innerHTML = '';
+        pcList.innerHTML = '';
+        
+        const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
+        
+        if (upcomingDepartures.length <= 1) {
+            const noServiceHtml = `<div class="no-service">次の便はありません</div>`;
+            modalList.innerHTML = noServiceHtml;
+            pcList.innerHTML = noServiceHtml;
+            return;
+        }
+        
+        const fragment = document.createDocumentFragment();
+        const departuresToShow = upcomingDepartures.slice(1, 11); 
+        departuresToShow.forEach((departure, index) => {
+            const departureElement = createDepartureElement(departure, index, now);
+            fragment.appendChild(departureElement);
         });
-    </script>
+        
+        modalList.appendChild(fragment.cloneNode(true));
+        pcList.appendChild(fragment);
+    }
+
+    function initializeDateTimeInputs() {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
+        document.getElementById('searchDate').value = dateStr;
+        document.getElementById('searchTime').value = timeStr;
+    }
+    
+    function updateDisplay() {
+        updateBusStopName(); // バス停名更新
+        const allDepartures = getAllDepartures();
+        updateTime();
+        updateJustDeparted(allDepartures);
+        updateNextDeparture(allDepartures);
+        updateDepartures(allDepartures);
+    }
+
+    function changeDirection(direction) {
+        currentDirection = direction;
+        selectedRoutes.clear();
+        createRouteCheckboxes();
+        updateDisplay();
+        
+        document.getElementById('shinkaichi-btn').classList.toggle('active', direction === 'shinkaichi');
+        document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
+    }
+
+    function createDetailHtml(url, isOverlay) {
+        const closeButton = isOverlay ? `<button class="close-detail-panel" title="閉じる">&times;</button>` : '';
+        return `
+            ${closeButton}
+            <div class="departure-detail-embedded">
+                <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                <iframe src="${url}" width="100%" frameborder="0"></iframe>
+            </div>
+        `;
+    }
+
+    function showPcOverlayPanel(url) {
+        if (hidePanelTimeoutId) {
+            clearTimeout(hidePanelTimeoutId);
+            hidePanelTimeoutId = null;
+        }
+        const overlayView = document.getElementById('pcOverlayDetail');
+        overlayView.innerHTML = createDetailHtml(url, true);
+        overlayView.classList.add('is-visible');
+    }
+
+    function hidePcOverlayPanel() {
+        if (hidePanelTimeoutId) {
+            clearTimeout(hidePanelTimeoutId);
+        }
+        const overlayView = document.getElementById('pcOverlayDetail');
+        if (overlayView.classList.contains('is-visible')) {
+            overlayView.classList.remove('is-visible');
+            hidePanelTimeoutId = setTimeout(() => {
+                if (!overlayView.classList.contains('is-visible')) {
+                    overlayView.innerHTML = '';
+                }
+                hidePanelTimeoutId = null;
+            }, 400); 
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDateTimeInputs();
+        createRouteCheckboxes();
+        updateDisplay();
+        
+        setInterval(() => { if (!customDateTime) updateTime(); }, 1000);
+        setInterval(() => { if (!customDateTime) updateDisplay(); }, 30000);
+        
+        document.getElementById('shinkaichi-btn').addEventListener('click', () => changeDirection('shinkaichi'));
+        document.getElementById('yoshidacho-btn').addEventListener('click', () => changeDirection('yoshidacho'));
+        
+        // バス停切り替えイベントリスナー
+        document.getElementById('prevStopBtn').addEventListener('click', () => {
+            const currentIndex = busStopOrder.indexOf(currentBusStop);
+            const prevIndex = (currentIndex - 1 + busStopOrder.length) % busStopOrder.length;
+            selectBusStop(busStopOrder[prevIndex]);
+        });
+        document.getElementById('nextStopBtn').addEventListener('click', () => {
+            const currentIndex = busStopOrder.indexOf(currentBusStop);
+            const nextIndex = (currentIndex + 1) % busStopOrder.length;
+            selectBusStop(busStopOrder[nextIndex]);
+        });
+
+        document.getElementById('operationPanelHeader').addEventListener('click', toggleOperationPanel);
+        
+        document.addEventListener('click', function(event) {
+            const operationPanel = document.getElementById('operationPanel');
+            const content = document.getElementById('operationPanelContent');
+            if (content.classList.contains('expanded') && !operationPanel.contains(event.target)) {
+                toggleOperationPanel();
+            }
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            updateDisplay();
+        });
+
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(cb => { cb.checked = true; selectedRoutes.add(cb.value); });
+            updateDisplay();
+        });
+        
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+            document.querySelectorAll('#routeCheckhouses input[type="checkbox"]').forEach(cb => cb.checked = false);
+            selectedRoutes.clear();
+            updateDisplay();
+        });
+        
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const dateValue = document.getElementById('searchDate').value;
+            const timeValue = document.getElementById('searchTime').value;
+            if (dateValue && timeValue) {
+                customDateTime = new Date(`${dateValue}T${timeValue}`);
+                updateDisplay();
+            }
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            customDateTime = null;
+            initializeDateTimeInputs();
+            updateDisplay();
+        });
+
+        // モーダル処理
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModal = () => modalOverlay.classList.remove('visible');
+        document.getElementById('showDeparturesBtn').addEventListener('click', () => {
+            document.getElementById('modalDepartureList').innerHTML = document.getElementById('departureList').innerHTML;
+            modalOverlay.classList.add('visible');
+        });
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+        // Iframe拡大モーダル処理
+        const iframeModalOverlay = document.getElementById('iframeModalOverlay');
+        const iframeModalContainer = document.getElementById('iframeModalContainer');
+        const closeIframeModal = () => {
+            iframeModalOverlay.classList.remove('visible');
+            iframeModalContainer.innerHTML = '';
+        };
+        const openIframeModal = (url) => {
+            iframeModalContainer.innerHTML = `<iframe src="${url}"></iframe>`;
+            iframeModalOverlay.classList.add('visible');
+        };
+        
+        document.addEventListener('click', (e) => {
+            // オーバーレイパネルの閉じるボタン
+            const closePanelBtn = e.target.closest('.close-detail-panel');
+            if (closePanelBtn) {
+                hidePcOverlayPanel();
+                return;
+            }
+
+            // 拡大ボタン
+            const expandButton = e.target.closest('.expand-iframe-btn');
+            if (expandButton) {
+                const iframe = expandButton.closest('.departure-detail-embedded').querySelector('iframe');
+                if (iframe) openIframeModal(iframe.src);
+                return;
+            }
+
+            // 詳細ボタン
+            const detailButton = e.target.closest('.detail-button');
+            if (detailButton && detailButton.dataset.url) {
+                const url = detailButton.dataset.url;
+                if (window.innerWidth >= 769) {
+                    // PC表示: オーバーレイパネルを表示
+                    showPcOverlayPanel(url);
+                } else {
+                    // モバイル表示: 全画面モーダル
+                    openIframeModal(url);
+                }
+                return;
+            }
+        });
+        
+        document.getElementById('closeIframeModal').addEventListener('click', closeIframeModal);
+        iframeModalOverlay.addEventListener('click', e => { if (e.target === iframeModalOverlay) closeIframeModal(); });
+    });
+</script>
 </body>
 </html>
