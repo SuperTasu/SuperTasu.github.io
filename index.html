@@ -503,20 +503,121 @@
 <!-- 猫通知JS -->
 <script src="Option/nekotuti.js"></script>
 
-<!-- ★タブ切り替え機能の上書き -->
+<!-- ★ロジック追加：Appsの定義・お気に入り機能・タブ切り替え -->
 <script>
+    // サンプルアプリデータ（本来はmain.jsなどで定義されるもの）
+    const appList = [
+        { id: 'app1', name: 'Google', url: 'https://google.com', icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=64' },
+        { id: 'app2', name: 'YouTube', url: 'https://youtube.com', icon: 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64' },
+        { id: 'app3', name: 'Twitter', url: 'https://twitter.com', icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=64' },
+        { id: 'app4', name: 'Instagram', url: 'https://instagram.com', icon: 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64' },
+        { id: 'app5', name: 'Amazon', url: 'https://amazon.co.jp', icon: 'https://www.google.com/s2/favicons?domain=amazon.co.jp&sz=64' },
+        { id: 'app6', name: 'Yahoo!', url: 'https://yahoo.co.jp', icon: 'https://www.google.com/s2/favicons?domain=yahoo.co.jp&sz=64' },
+    ];
+
+    // ローカルストレージからお気に入りを取得
+    function getFavorites() {
+        try {
+            return JSON.parse(localStorage.getItem('myFavs')) || [];
+        } catch(e) {
+            return [];
+        }
+    }
+
+    // お気に入りの保存
+    function saveFavorites(favs) {
+        localStorage.setItem('myFavs', JSON.stringify(favs));
+    }
+
+    // お気に入りの切り替え
+    function toggleFavorite(id) {
+        let favs = getFavorites();
+        if (favs.includes(id)) {
+            favs = favs.filter(favId => favId !== id); // 解除
+        } else {
+            favs.push(id); // 追加
+        }
+        saveFavorites(favs);
+        
+        // 再描画
+        renderApps();
+        renderFavorites();
+    }
+
+    // Appsタブの描画
+    function renderApps() {
+        const container = document.getElementById('gridContainer');
+        if (!container) return;
+        
+        const favs = getFavorites();
+        container.innerHTML = ''; // クリア
+
+        appList.forEach(app => {
+            const isFav = favs.includes(app.id);
+            const activeClass = isFav ? 'active' : '';
+            
+            const html = `
+                <div class="icon-item">
+                    <div class="fav-btn ${activeClass}" onclick="toggleFavorite('${app.id}')">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <a href="${app.url}" class="icon-link" target="_blank">
+                        <img src="${app.icon}" class="icon-img" alt="${app.name}">
+                    </a>
+                    <div class="label-text">${app.name}</div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // FYタブ（お気に入り）の描画
+    function renderFavorites() {
+        const container = document.getElementById('fy-content-area');
+        if (!container) return;
+        
+        const favs = getFavorites();
+        container.innerHTML = ''; // クリア
+
+        // お気に入りIDに一致するアプリだけ抽出
+        const favoriteApps = appList.filter(app => favs.includes(app.id));
+
+        if (favoriteApps.length === 0) {
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#999; padding:20px;">Appsタブで☆を押すとここに追加されます</div>';
+            return;
+        }
+
+        favoriteApps.forEach(app => {
+            // CSSグリッドに合わせてスロットを作成
+            const html = `
+                <div class="grid-slot">
+                    <div class="icon-item">
+                        <a href="${app.url}" class="icon-link" target="_blank">
+                            <img src="${app.icon}" class="icon-img" alt="${app.name}">
+                        </a>
+                        <div class="label-text">${app.name}</div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // タブ切り替え機能（既存のscript.jsを上書き・統合）
     window.activateTab = function(tabName) {
+        // 全タブのactive解除
         document.querySelectorAll('.tab-item').forEach(item => {
             item.classList.remove('active');
         });
         
+        // 選択タブをactive
         const activeBtn = document.getElementById('tab-' + tabName);
         if(activeBtn) activeBtn.classList.add('active');
 
-        // 表示エリアをすべて非表示
+        // 全コンテナ非表示
         const containers = [
             'fy-container', 
-            'main-grid',  // Appsのコンテナ
+            'main-grid', 
             'bustarain-container', 
             'option-container', 
             'nekotuti-container'
@@ -527,11 +628,13 @@
             if(el) el.style.display = 'none';
         });
 
-        // 選択されたコンテナを表示
+        // 対象コンテナを表示
         if (tabName === 'fy') {
             document.getElementById('fy-container').style.display = 'block';
+            renderFavorites(); // FYを開いたときに再描画
         } else if (tabName === 'all-apps') {
             document.getElementById('main-grid').style.display = 'block';
+            renderApps(); // Appsを開いたときに再描画
         } else if (tabName === 'bustarain') {
             document.getElementById('bustarain-container').style.display = 'block';
         } else if (tabName === 'option') {
@@ -544,6 +647,16 @@
             localStorage.setItem('activeTab', tabName);
         } catch(e) {}
     };
+
+    // 初期化処理
+    window.addEventListener('DOMContentLoaded', () => {
+        renderApps();
+        renderFavorites();
+        
+        // 最後に開いていたタブを復元（なければApps）
+        const lastTab = localStorage.getItem('activeTab') || 'all-apps';
+        activateTab(lastTab);
+    });
 </script>
 </body>
 </html>
