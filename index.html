@@ -208,17 +208,11 @@
 
     /* --- Nekotuti (Git通知) 用スタイル --- */
     
-    /* コンテナ自体を相対位置にして、中のabsolute要素をここに閉じ込める */
     #nekotuti-container {
         position: relative;
-        min-height: 300px; /* 空の時でもオーバーレイがかかるように高さを確保 */
+        min-height: 300px; 
     }
 
-    /* 
-       fixed から absolute に変更することで、
-       画面全体ではなく #nekotuti-container の右下に配置されます。
-       タブを切り替えてコンテナが display:none になれば、これも一緒に消えます。
-    */
     .api-limit-display { 
         position: absolute; 
         bottom: 0; 
@@ -233,7 +227,6 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
     }
 
-    /* 制限オーバーレイもコンテナ内だけに表示 */
     #limit-overlay { 
         display: none; 
         position: absolute; 
@@ -509,5 +502,54 @@
 <script src="script.js"></script>
 <!-- 猫通知JS -->
 <script src="Option/nekotuti.js"></script>
+
+<!-- ★タブ切り替え機能の上書き（ここを追加） -->
+<script>
+    // script.jsのactivateTabを上書きして、nekotutiコンテナも制御できるようにする
+    window.activateTab = function(tabName) {
+        // 1. すべてのタブから active クラスを削除
+        document.querySelectorAll('.tab-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // 2. クリックされたタブに active クラスを追加
+        const activeBtn = document.getElementById('tab-' + tabName);
+        if(activeBtn) activeBtn.classList.add('active');
+
+        // 3. すべてのコンテナを非表示にする
+        const containers = [
+            'fy-container', 
+            'all-apps-container', // 修正: コンテナIDの不一致対策（念のため）
+            'main-grid', 
+            'bustarain-container', 
+            'option-container', 
+            'nekotuti-container'
+        ];
+        
+        containers.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+
+        // 4. 選択されたコンテナを表示する
+        if (tabName === 'fy') {
+            document.getElementById('fy-container').style.display = 'block';
+        } else if (tabName === 'all-apps') {
+            document.getElementById('main-grid').style.display = 'block';
+        } else if (tabName === 'bustarain') {
+            document.getElementById('bustarain-container').style.display = 'block';
+        } else if (tabName === 'option') {
+            document.getElementById('option-container').style.display = 'block';
+        } else if (tabName === 'nekotuti') {
+            // ここで Git通知コンテナを表示
+            document.getElementById('nekotuti-container').style.display = 'block';
+        }
+        
+        // ローカルストレージに保存（もし既存機能にあれば）
+        try {
+            localStorage.setItem('activeTab', tabName);
+        } catch(e) {}
+    };
+</script>
 </body>
 </html>
