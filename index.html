@@ -15,7 +15,7 @@
       --bg-color: #ffffff;
       --text-color-primary: #333333;
       --text-color-secondary: #666;
-      --custom-bg-image: none; 
+      --custom-bg-image: none; /* JSで書き換え */
       
       --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       --card-border-color: rgba(0,0,0,0.05);
@@ -24,8 +24,6 @@
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
       --tab-active-text: #ffffff;
       --input-bg: #e9ecef;
-      --bus-board-bg: #e8f5e8;
-      --bus-card-bg: #fff;
       
       --grid-line-color: rgba(0, 0, 0, 0.1);      
       --swap-select-color: rgba(33, 150, 243, 0.2); 
@@ -42,8 +40,6 @@
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
       --tab-active-text: #ffffff;
       --input-bg: #3a3a3a;
-      --bus-board-bg: #2a3a2a;
-      --bus-card-bg: #3c4c3c;
       
       --grid-line-color: rgba(255, 255, 255, 0.1); 
       --swap-select-color: rgba(100, 181, 246, 0.3);
@@ -61,6 +57,7 @@
       min-height: 100vh;
     }
 
+    /* 背景画像設定用 */
     body::before {
       content: "";
       position: fixed;
@@ -71,6 +68,7 @@
       background-position: center;
       background-repeat: no-repeat;
       pointer-events: none; 
+      transition: background-image 0.5s ease;
     }
 
     /* 固定ヘッダー */
@@ -116,24 +114,39 @@
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .fy-icon { color: #ffc107; }
 
-    /* 通知タブ用の特別スタイル（右端配置） */
+    /* 通知タブ用のスタイル（バッジ付き） */
     .tab-item.notification-btn {
-        margin-left: auto; /* Flexboxで右端に寄せる */
+        margin-left: auto; /* 右端へ */
         padding: 10px 15px;
         background: transparent;
         border: 1px solid var(--card-border-color);
+        position: relative; /* バッジの基準位置 */
     }
     .tab-item.notification-btn.active {
         background: #ff4444;
         color: white;
         border-color: #ff4444;
     }
+    .notif-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ff0000;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: none; /* デフォルト非表示 */
+        animation: popIn 0.3s ease-out;
+    }
+    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
     /* Appsグリッド */
     .main-grid { margin-top: 20px; }
     .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
 
-    /* アイコン共通 */
     .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; border-radius: 10px; transition: all 0.2s; z-index: 2; }
     .icon-item .fav-btn { position: absolute !important; top: -5px !important; right: -5px !important; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: #ccc; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
     .icon-item .fav-btn.active { color: #ffc107; }
@@ -160,7 +173,6 @@
         transition: border-color 0.2s, background-color 0.2s;
     }
     
-    /* ▼▼▼ Takatori (13x3) & Memo サイズ定義 ▼▼▼ */
     .grid-slot.takatori-size {
         grid-column: span 13;
         grid-row: span 3;
@@ -174,7 +186,6 @@
     @media (max-width: 1200px) {
         .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
     }
-
     .grid-slot.memo-size {
         grid-column: span 4;
         grid-row: span 2;
@@ -220,7 +231,7 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
-    /* --- Notification Tab CSS --- */
+    /* Notification Tab CSS */
     .notif-header-row {
         position: relative;
         display: flex;
@@ -244,7 +255,6 @@
         background-color: rgba(102, 126, 234, 0.1);
         color: #667eea;
     }
-
     .post-card {
         background: var(--card-bg);
         border-radius: 8px;
@@ -299,6 +309,26 @@
         color: var(--text-color-secondary);
     }
 
+    /* 背景選択用のスタイル */
+    .bg-preset-container {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .bg-preset-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .bg-preset-btn:hover { transform: scale(1.1); }
+    .bg-preset-btn.selected { border-color: #667eea; }
+    .bg-input-row { display: flex; gap: 10px; margin-top: 15px; }
+    .bg-input-row input { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: var(--input-bg); color: var(--text-color-primary); }
+
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) { 
         .fixed-top-wrapper { padding: 10px 0; } 
@@ -306,7 +336,7 @@
         .datetime-row { justify-content: center; width: 100%; gap: 15px; } 
         .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } 
         .page-container { padding-top: 180px; } 
-        .tab-menu { justify-content: space-between; } /* スマホでは均等配置っぽくしつつ右端も維持 */
+        .tab-menu { justify-content: space-between; }
     }
   </style>
 </head>
@@ -365,9 +395,10 @@
                 <i class="fas fa-cog"></i> Option 
             </div>
             
-            <!-- 通知ボタン (右端) -->
+            <!-- 通知ボタン (新着バッジ付き) -->
             <div class="tab-item notification-btn" id="tab-notification" onclick="activateTab('notification')" title="通知">
                 <i class="fas fa-bell"></i>
+                <span class="notif-badge" id="notif-badge">0</span>
             </div>
         </div>
     </div>
@@ -387,7 +418,6 @@
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             <div class="grid-container" id="gridContainer">
-                <!-- ここにJSでアプリアイコンが生成されます -->
                 <div class="icon-item"><a href="#" class="icon-link"><i class="fas fa-rocket fa-2x"></i></a><div class="label-text">Sample App</div></div>
                 <div class="icon-item"><a href="https://google.com" target="_blank" class="icon-link"><i class="fab fa-google fa-2x"></i></a><div class="label-text">Google</div></div>
                 <div class="icon-item"><a href="https://youtube.com" target="_blank" class="icon-link"><i class="fab fa-youtube fa-2x" style="color:red;"></i></a><div class="label-text">YouTube</div></div>
@@ -478,7 +508,7 @@
                     <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
                 </div>
             </div>
-             <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>夢野町3丁目</span>
                     <i class="fas fa-star acc-fav-btn"></i>
@@ -488,15 +518,38 @@
                     <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
                 </div>
             </div>
+            
+            <!-- 復活: 高取団地前 -->
+            <div class="accordion-item" data-id="bs-takatori" data-title="高取団地前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>高取団地前</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/takatori.html"></iframe>
+                </div>
+            </div>
+
+            <!-- 復活: 板宿駅 (Bus) -->
+            <div class="accordion-item" data-id="bs-itayado" data-title="板宿駅">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/itayado-bus.html"></iframe>
+                </div>
+            </div>
         </div>
 
         <div id="other-content" class="sub-tab-content hidden">
-             <!-- その他のコンテンツ用 -->
              <p style="text-align:center; padding:20px;">その他情報はありません。</p>
         </div>
     </div>
 
-    <!-- Notification コンテナ (新規追加) -->
+    <!-- Notification コンテナ -->
     <div id="notification-container">
         <div class="notif-header-row">
             <h3 class="section-title" style="margin:0;">受信ボックス</h3>
@@ -508,11 +561,27 @@
         <div id="posts-list-area"></div>
     </div>
 
-    <!-- Option コンテナ -->
+    <!-- Option コンテナ (背景選択復活) -->
     <div id="option-container">
         <h3 class="section-title">設定</h3>
         <div class="option-card">
-            <p>テーマ設定: <span onclick="setTheme('light')" style="cursor:pointer; text-decoration:underline;">ライト</span> / <span onclick="setTheme('dark')" style="cursor:pointer; text-decoration:underline;">ダーク</span></p>
+            <h4>テーマ設定</h4>
+            <p><span onclick="setTheme('light')" style="cursor:pointer; text-decoration:underline;">ライト</span> / <span onclick="setTheme('dark')" style="cursor:pointer; text-decoration:underline;">ダーク</span></p>
+            
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--grid-line-color);">
+            
+            <h4>背景画像の変更</h4>
+            <div class="bg-preset-container">
+                <div class="bg-preset-btn" style="background: #fff; border: 1px solid #ddd;" onclick="setBg('none')" title="デフォルト"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="setBg('linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)')" title="Blue Gradient"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);" onclick="setBg('linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)')" title="Grey Gradient"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="setBg('url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80)')" title="Landscape"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="setBg('url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80)')" title="Space"></div>
+            </div>
+            <div class="bg-input-row">
+                <input type="text" id="customBgUrl" placeholder="画像のURLを入力...">
+                <button class="edit-btn" onclick="setBg('url(' + document.getElementById('customBgUrl').value + ')')">適用</button>
+            </div>
         </div>
     </div>
 
@@ -530,7 +599,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // --- テーマ設定 ---
+    // --- テーマ & 背景 設定 ---
     function setTheme(mode) {
         if(mode === 'dark') {
             document.body.classList.add('dark-theme');
@@ -539,20 +608,37 @@
         }
     }
 
+    // 背景変更関数
+    function setBg(value) {
+        document.documentElement.style.setProperty('--custom-bg-image', value);
+        // ローカルストレージに保存
+        localStorage.setItem('user_custom_bg', value);
+    }
+    
+    // 起動時に保存された背景を適用
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedBg = localStorage.getItem('user_custom_bg');
+        if (savedBg) {
+            setBg(savedBg);
+        }
+        // バックグラウンドで新着チェック
+        checkNewPosts();
+    });
+
     // --- タブ切り替え機能 ---
     function activateTab(tabName) {
-        // すべてのコンテンツを非表示
+        // すべて非表示
         document.getElementById('fy-container').style.display = 'none';
         document.getElementById('main-grid').style.display = 'none';
         document.getElementById('bustarain-container').style.display = 'none';
         document.getElementById('option-container').style.display = 'none';
         document.getElementById('notification-container').style.display = 'none';
 
-        // すべてのタブのactiveクラス削除
+        // クラス削除
         const tabs = document.querySelectorAll('.tab-item');
         tabs.forEach(t => t.classList.remove('active'));
 
-        // 選択されたタブとコンテンツを表示
+        // 選択されたタブを表示
         if(tabName === 'fy') {
             document.getElementById('fy-container').style.display = 'block';
             document.getElementById('tab-fy').classList.add('active');
@@ -568,7 +654,16 @@
         } else if(tabName === 'notification') {
             document.getElementById('notification-container').style.display = 'block';
             document.getElementById('tab-notification').classList.add('active');
-            // 通知タブが開かれたときにデータをフェッチ
+            
+            // 通知を開いたのでバッジを消す
+            document.getElementById('notif-badge').style.display = 'none';
+            document.getElementById('notif-badge').innerText = "0";
+            
+            // 現在の総数を「既読数」として保存
+            if(currentTotalPosts > 0) {
+                localStorage.setItem('last_viewed_posts_count', currentTotalPosts);
+            }
+            
             fetchPosts();
         }
     }
@@ -577,13 +672,8 @@
     function toggleAccordion(header) {
         const item = header.parentElement;
         const isActive = item.classList.contains('active');
-        
-        // 他を閉じる動作を入れたい場合はここで処理
-        // document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
-
         if(!isActive) {
             item.classList.add('active');
-            // iframeの遅延読み込み (data-src -> src)
             const iframe = item.querySelector('.accordion-iframe');
             if(iframe && !iframe.getAttribute('src')) {
                 iframe.setAttribute('src', iframe.getAttribute('data-src'));
@@ -595,16 +685,13 @@
 
     // --- サブタブ切り替え (Bustarain内) ---
     function switchSubTab(contentId) {
-        // ボタンのアクティブ化
         const buttons = document.querySelectorAll('.sub-tab-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
         event.target.closest('.sub-tab-btn').classList.add('active');
 
-        // コンテンツの表示切替
         document.getElementById('train-content').classList.add('hidden');
         document.getElementById('bus-content').classList.add('hidden');
         document.getElementById('other-content').classList.add('hidden');
-        
         document.getElementById(contentId).classList.remove('hidden');
     }
 
@@ -614,17 +701,46 @@
         container.src = container.src;
     }
 
-    // --- Notification / GitHub Fetch Logic ---
+    // --- Notification Logic ---
     const GITHUB_USER = "SuperTasu";
     const GITHUB_REPO = "Call-Answered-";
     const GITHUB_PATH = "image/";
     const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
     const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
     
-    let isPostsLoaded = false; // 重複読み込み防止
+    let isPostsLoaded = false;
+    let currentTotalPosts = 0; // 現在のサーバー上の投稿総数
 
+    // 1. 新着チェック（バッジ表示用）
+    async function checkNewPosts() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) return; // 静かに失敗させる
+            const files = await response.json();
+            
+            // メッセージファイルのみカウント
+            const messageFiles = files.filter(file => file.name.endsWith('_message.json'));
+            currentTotalPosts = messageFiles.length;
+
+            // ローカルストレージから前回見た数を取得
+            const lastViewed = parseInt(localStorage.getItem('last_viewed_posts_count') || "0");
+            
+            // 差分計算
+            const newCount = currentTotalPosts - lastViewed;
+
+            if (newCount > 0) {
+                const badge = document.getElementById('notif-badge');
+                badge.innerText = newCount;
+                badge.style.display = 'block'; // バッジ表示
+            }
+        } catch (err) {
+            console.error("Background check failed:", err);
+        }
+    }
+
+    // 2. 投稿一覧取得（表示用）
     async function fetchPosts() {
-        if(isPostsLoaded) return; // すでに読み込み済みなら再実行しない（リロードボタン実装時はここを調整）
+        if(isPostsLoaded) return; 
 
         const container = document.getElementById('posts-list-area');
         const loading = document.getElementById('loading-msg');
@@ -636,10 +752,8 @@
             if (!response.ok) throw new Error("API Limit or Network Error");
             const files = await response.json();
 
-            // _message.json で終わるファイルのみ
             const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
-            // 降順ソート
-            jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+            jsonFiles.sort((a, b) => b.name.localeCompare(a.name)); // 新しい順
 
             if (jsonFiles.length === 0) {
                 loading.innerText = "投稿が見つかりませんでした。";
@@ -648,7 +762,6 @@
 
             loading.style.display = 'none';
 
-            // 順次読み込み
             for (const file of jsonFiles) {
                 await loadAndDisplayPost(file.download_url, container);
             }
@@ -656,7 +769,6 @@
 
         } catch (err) {
             loading.innerText = "エラーが発生しました: " + err.message;
-            console.error(err);
         }
     }
 
@@ -664,10 +776,8 @@
         try {
             const res = await fetch(jsonUrl);
             const data = await res.json();
-
             const card = document.createElement('div');
             card.className = 'post-card';
-
             const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
 
             let imagesHtml = '';
@@ -691,9 +801,7 @@
                 ${imagesHtml}
             `;
             container.appendChild(card);
-        } catch (e) {
-            console.error("個別の投稿読み込みエラー", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function escapeHtml(str) {
@@ -703,9 +811,8 @@
         });
     }
 
-    // 初期化: FYタブのエディットモードなどの関数があればここに
     function toggleEditMode() {
-        alert("Edit functionality not fully implemented in this snippet.");
+        alert("並び替え機能は現在未実装です");
     }
 </script>
 </body>
