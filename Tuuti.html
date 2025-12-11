@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿一覧</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            /* ボタンを絶対配置するための基準点 */
+            position: relative;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #24292e;
+            margin-top: 10px;
+        }
+        
+        /* --- 追加: 右上のGitHubボタンのデザイン --- */
+        .github-btn {
+            position: absolute; /* 絶対配置 */
+            top: 20px;          /* 上から20px */
+            right: 20px;        /* 右から20px */
+            background-color: #24292e; /* GitHubっぽい色 */
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.2s;
+            z-index: 100; /* 他の要素より手前に表示 */
+        }
+        .github-btn:hover {
+            background-color: #444d56; /* ホバー時の色 */
+        }
+
+        /* スマホ向けの調整: 画面幅が600px以下のときは配置を変える */
+        @media (max-width: 600px) {
+            .github-btn {
+                position: static; /* 絶対配置を解除 */
+                display: block;
+                width: fit-content;
+                margin: 0 auto 15px auto; /* 中央寄せ */
+                text-align: center;
+            }
+        }
+        /* --------------------------------------- */
+
+        /* 投稿カードのデザイン */
+        .post-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .post-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .post-id {
+            font-weight: bold;
+            color: #0366d6;
+            font-family: monospace;
+        }
+        .post-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .post-message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap; /* 改行を反映 */
+        }
+
+        /* 画像グリッド */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .post-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .post-image:hover {
+            opacity: 0.8;
+        }
+
+        /* 読み込み中の表示 */
+        #loading {
+            text-align: center;
+            margin-top: 50px;
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 追加: GitHubへのリンクボタン -->
+<a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-btn">
+    GitHub画像フォルダを見る
+</a>
+
+<div class="container">
+    <h1>受信ボックス</h1>
+    <div id="loading">データを読み込んでいます...</div>
+    <div id="posts-container"></div>
+</div>
+
+<script>
+    // --- 設定 ---
+    const GITHUB_USER = "SuperTasu";
+    const GITHUB_REPO = "Call-Answered-";
+    const GITHUB_PATH = "image/";
+    
+    // GitHub PagesのベースURL（画像を表示するために使用）
+    const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
+
+    // GitHub APIのエンドポイント（ファイル一覧取得用）
+    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+
+    async function fetchPosts() {
+        const container = document.getElementById('posts-container');
+        const loading = document.getElementById('loading');
+
+        try {
+            // 1. フォルダ内のファイル一覧を取得
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error("API Limit or Network Error");
+            const files = await response.json();
+
+            // 2. "_message.json" で終わるファイルだけをフィルタリング
+            const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
+
+            // 3. 新しい順（降順）に並び替え
+            // ファイル名が "yyyyMMdd-HHmmss..." なので名前でソートすれば時系列になる
+            jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+            if (jsonFiles.length === 0) {
+                loading.innerText = "投稿が見つかりませんでした。";
+                return;
+            }
+
+            // 4. 各JSONファイルの中身を取得して表示
+            // ※大量にあると遅くなるため、最新20件だけ取得するなどの制限をかけても良い
+            for (const file of jsonFiles) {
+                await loadAndDisplayPost(file.download_url, container);
+            }
+
+            loading.style.display = 'none';
+
+        } catch (err) {
+            loading.innerText = "エラーが発生しました: " + err.message;
+            console.error(err);
+        }
+    }
+
+    async function loadAndDisplayPost(jsonUrl, container) {
+        try {
+            // JSONの中身を取得（Rawデータ）
+            const res = await fetch(jsonUrl);
+            const data = await res.json();
+
+            // カードのHTMLを作成
+            const card = document.createElement('div');
+            card.className = 'post-card';
+
+            // 日付のフォーマット整形（簡易的）
+            const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
+
+            // 画像HTMLの生成
+            let imagesHtml = '';
+            if (data.uploadedFiles && data.uploadedFiles.length > 0) {
+                imagesHtml = `<div class="image-grid">`;
+                data.uploadedFiles.forEach(fileName => {
+                    // 画像のURLは GitHub Pages のURLを使用する
+                    const imageUrl = PAGES_BASE_URL + fileName;
+                    // クリックで原寸表示するためのリンク
+                    imagesHtml += `<a href="${imageUrl}" target="_blank">
+                        <img src="${imageUrl}" class="post-image" loading="lazy">
+                    </a>`;
+                });
+                imagesHtml += `</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="post-header">
+                    <span class="post-id">ID: ${data.id}</span>
+                    <span class="post-date">${dateStr}</span>
+                </div>
+                <div class="post-message">${escapeHtml(data.message || '（メッセージなし）')}</div>
+                ${imagesHtml}
+            `;
+
+            container.appendChild(card);
+
+        } catch (e) {
+            console.error("個別の投稿読み込みエラー", e);
+        }
+    }
+
+    // XSS対策用エスケープ関数
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>"']/g, function(match) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[match];
+        });
+    }
+
+    // 実行
+    fetchPosts();
+</script>
+
+</body>
+</html>
