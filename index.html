@@ -155,7 +155,6 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         z-index: 5; /* 少し浮かせる */
     }
-    /* スマホなどで13列ない場合は全幅にする */
     @media (max-width: 1200px) {
         .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
     }
@@ -177,7 +176,6 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    /* 大きなウィジェットは揺らさない */
     .edit-mode .grid-slot.takatori-size .takatori-display-board,
     .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
 
@@ -207,41 +205,9 @@
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     /* --- Nekotuti (Git通知) 用スタイル --- */
-    #nekotuti-container {
-        position: relative;
-        min-height: 300px; 
-    }
-
-    .api-limit-display { 
-        position: absolute; 
-        bottom: 0; 
-        right: 0; 
-        background: rgba(0, 0, 0, 0.8); 
-        color: #fff; 
-        padding: 8px 12px; 
-        border-radius: 20px; 
-        font-size: 12px; 
-        font-family: monospace; 
-        z-index: 999; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
-    }
-
-    #limit-overlay { 
-        display: none; 
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
-        background: rgba(255, 255, 255, 0.95); 
-        z-index: 2000; 
-        flex-direction: column; 
-        justify-content: center; 
-        align-items: center; 
-        text-align: center; 
-        border-radius: 12px;
-    }
-
+    #nekotuti-container { position: relative; min-height: 300px; }
+    .api-limit-display { position: absolute; bottom: 0; right: 0; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-family: monospace; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    #limit-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 12px; }
     .timer-box { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; color: #333; }
     .timer-count { font-size: 48px; font-weight: bold; color: #d73a49; margin: 20px 0; font-family: monospace; }
     .post-card { background: var(--bus-card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -325,7 +291,6 @@
             <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
             <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
         </div>
-        <!-- グリッド表示エリア -->
         <div id="fy-content-area"></div>
     </div>
 
@@ -471,10 +436,7 @@
 
     <!-- 猫通知コンテナ -->
     <div id="nekotuti-container">
-        <!-- API残り回数表示 -->
         <div id="api-limit-display" class="api-limit-display">API確認中...</div>
-
-        <!-- 制限時のオーバーレイ -->
         <div id="limit-overlay">
             <div class="timer-box">
                 <h2>⚠️ API制限がかかりました</h2>
@@ -483,67 +445,21 @@
                 <p><small>※この画面を開いたままお待ちいただくか、時間をおいてリロードしてください。</small></p>
             </div>
         </div>
-
         <div class="header-row" style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
             <h3 class="section-title" style="margin:0; border:none;">受信ボックス</h3>
             <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="edit-btn" style="text-decoration:none;">GitHub画像フォルダ</a>
         </div>
-        
         <div id="nekotuti-status-message">データを読み込んでいます...</div>
         <div id="nekotuti-posts-container"></div>
     </div>
-
 </div>
 
 <!-- JS読み込み -->
 <script src="Option/takatori.js"></script>
 <script src="Option/memo.js"></script>
-<script src="Option/main.js"></script>
+<!-- Option/main.jsは削除 -->
 <script src="script.js"></script>
-<!-- 猫通知JS -->
 <script src="Option/nekotuti.js"></script>
 
-<!-- ★タブ切り替え機能の上書き -->
-<script>
-    window.activateTab = function(tabName) {
-        document.querySelectorAll('.tab-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        const activeBtn = document.getElementById('tab-' + tabName);
-        if(activeBtn) activeBtn.classList.add('active');
-
-        // 表示エリアをすべて非表示
-        const containers = [
-            'fy-container', 
-            'main-grid',  // Appsのコンテナ
-            'bustarain-container', 
-            'option-container', 
-            'nekotuti-container'
-        ];
-        
-        containers.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) el.style.display = 'none';
-        });
-
-        // 選択されたコンテナを表示
-        if (tabName === 'fy') {
-            document.getElementById('fy-container').style.display = 'block';
-        } else if (tabName === 'all-apps') {
-            document.getElementById('main-grid').style.display = 'block';
-        } else if (tabName === 'bustarain') {
-            document.getElementById('bustarain-container').style.display = 'block';
-        } else if (tabName === 'option') {
-            document.getElementById('option-container').style.display = 'block';
-        } else if (tabName === 'nekotuti') {
-            document.getElementById('nekotuti-container').style.display = 'block';
-        }
-        
-        try {
-            localStorage.setItem('activeTab', tabName);
-        } catch(e) {}
-    };
-</script>
 </body>
 </html>
