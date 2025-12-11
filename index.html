@@ -143,7 +143,7 @@
         border-radius: 8px;
         transition: border-color 0.2s, background-color 0.2s;
     }
-    p
+    
     /* ▼▼▼ Takatori (13x3) & Memo サイズ定義 ▼▼▼ */
     .grid-slot.takatori-size {
         grid-column: span 13;
@@ -206,8 +206,23 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
+    /* --- Nekotuti (Git通知) 用スタイル --- */
+    .api-limit-display { position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-family: monospace; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    #limit-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .timer-box { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; color: #333; }
+    .timer-count { font-size: 48px; font-weight: bold; color: #d73a49; margin: 20px 0; font-family: monospace; }
+    .post-card { background: var(--bus-card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .post-header { border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 10px; margin-bottom: 10px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 5px; }
+    .post-id { font-weight: bold; color: #0366d6; font-family: monospace; font-size: 14px; }
+    .post-date { font-size: 0.85em; color: var(--text-color-secondary); }
+    .post-message { font-size: 16px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; word-wrap: break-word; color: var(--text-color-primary); }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+    .post-image { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; transition: opacity 0.2s; background-color: #eee; }
+    .post-image:hover { opacity: 0.8; }
+    #nekotuti-status-message { text-align: center; margin-top: 50px; font-weight: bold; color: var(--text-color-secondary); }
+
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
-    @media (max-width: 768px) { .fixed-top-wrapper { padding: 10px 0; } .clock-main-row { flex-wrap: wrap; justify-content: center; } .datetime-row { justify-content: center; width: 100%; gap: 15px; } .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } .page-container { padding-top: 180px; } }
+    @media (max-width: 768px) { .fixed-top-wrapper { padding: 10px 0; } .clock-main-row { flex-wrap: wrap; justify-content: center; } .datetime-row { justify-content: center; width: 100%; gap: 15px; } .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } .page-container { padding-top: 180px; } .api-limit-display { bottom: 10px; right: 10px; font-size: 10px; } .timer-count { font-size: 32px; } }
   </style>
 </head>
 <body>
@@ -264,7 +279,7 @@
             <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
                 <i class="fas fa-cog"></i> Option 
             </div>
-            <!-- 猫通知タブを追加 -->
+            <!-- 猫通知タブ -->
             <div class="tab-item" id="tab-nekotuti" onclick="activateTab('nekotuti')"> 
                 <i class="fas fa-cat"></i> Git通知 
             </div>
@@ -341,7 +356,8 @@
                     <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
                 </div>
             </div>
-                      <div class="accordion-item" data-id="tr-3" data-title="locate育英高校前">
+            <!-- ID重複を修正しました (tr-3 -> bs-ikuei) -->
+            <div class="accordion-item" data-id="bs-ikuei" data-title="locate育英高校前">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span> Locate育英高校前 </span>
                     <i class="fas fa-star acc-fav-btn"></i>
@@ -420,8 +436,29 @@
     <!-- Optionコンテナ -->
     <div id="option-container"></div>
 
-    <!-- 猫通知コンテナ -->
-    <div id="nekotuti-container"></div>
+    <!-- 猫通知コンテナ (HTML構造を追加) -->
+    <div id="nekotuti-container">
+        <!-- API残り回数表示 -->
+        <div id="api-limit-display" class="api-limit-display">API確認中...</div>
+
+        <!-- 制限時のオーバーレイ -->
+        <div id="limit-overlay">
+            <div class="timer-box">
+                <h2>⚠️ API制限がかかりました</h2>
+                <p>GitHub APIの利用上限に達しました。<br>以下の時間が経過すると自動的に解除されます。</p>
+                <div id="countdown-timer" class="timer-count">00:00:00</div>
+                <p><small>※この画面を開いたままお待ちいただくか、時間をおいてリロードしてください。</small></p>
+            </div>
+        </div>
+
+        <div class="header-row" style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
+            <h3 class="section-title" style="margin:0; border:none;">受信ボックス</h3>
+            <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="edit-btn" style="text-decoration:none;">GitHub画像フォルダ</a>
+        </div>
+        
+        <div id="nekotuti-status-message">データを読み込んでいます...</div>
+        <div id="nekotuti-posts-container"></div>
+    </div>
 
 </div>
 
