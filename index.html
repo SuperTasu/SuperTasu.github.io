@@ -100,18 +100,34 @@
 
     /* メインコンテンツ */
     .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
-    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container { position: relative; z-index: 1; }
+    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container, #notification-container { position: relative; z-index: 1; }
     .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); padding: 10px; }
-    .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    
+    .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; position: relative; }
+    
     .search-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 5px; }
     .search-container { display: flex; align-items: center; padding: 0 15px; background-color: var(--input-bg); border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); width: 100%; max-width: 600px; height: 40px; }
     .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
     #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
     #clearSearchBtn { cursor: pointer; color: #999; }
+    
     .tab-item { padding: 10px 25px; color: var(--text-color-secondary); font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 20px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
     .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .fy-icon { color: #ffc107; }
+
+    /* 通知タブ用の特別スタイル（右端配置） */
+    .tab-item.notification-btn {
+        margin-left: auto; /* Flexboxで右端に寄せる */
+        padding: 10px 15px;
+        background: transparent;
+        border: 1px solid var(--card-border-color);
+    }
+    .tab-item.notification-btn.active {
+        background: #ff4444;
+        color: white;
+        border-color: #ff4444;
+    }
 
     /* Appsグリッド */
     .main-grid { margin-top: 20px; }
@@ -143,19 +159,18 @@
         border-radius: 8px;
         transition: border-color 0.2s, background-color 0.2s;
     }
-    p
+    
     /* ▼▼▼ Takatori (13x3) & Memo サイズ定義 ▼▼▼ */
     .grid-slot.takatori-size {
         grid-column: span 13;
         grid-row: span 3;
         aspect-ratio: auto;
         padding: 5px;
-        background-color: #ffffff; /* 背景白 */
+        background-color: #ffffff;
         border-radius: 10px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        z-index: 5; /* 少し浮かせる */
+        z-index: 5;
     }
-    /* スマホなどで13列ない場合は全幅にする */
     @media (max-width: 1200px) {
         .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
     }
@@ -177,7 +192,6 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    /* 大きなウィジェットは揺らさない */
     .edit-mode .grid-slot.takatori-size .takatori-display-board,
     .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
 
@@ -189,7 +203,7 @@
     .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
     .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
 
-    #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
+    #bustarain-container, #option-container, #fy-container, #notification-container { display: none; margin-top: 20px; }
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; } 
     .sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
@@ -206,8 +220,94 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
+    /* --- Notification Tab CSS --- */
+    .notif-header-row {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .github-link-btn {
+        background-color: var(--input-bg);
+        color: var(--text-color-primary);
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: var(--card-shadow);
+        transition: background-color 0.2s;
+        border: 1px solid var(--card-border-color);
+    }
+    .github-link-btn:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .post-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+    }
+    .post-header {
+        border-bottom: 1px solid var(--grid-line-color);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .post-id {
+        font-weight: bold;
+        color: #667eea;
+        font-family: monospace;
+    }
+    .post-date {
+        font-size: 0.9em;
+        color: var(--text-color-secondary);
+    }
+    .post-message {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        white-space: pre-wrap;
+        color: var(--text-color-primary);
+    }
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    .post-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid var(--card-border-color);
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .post-image:hover { opacity: 0.8; }
+    #loading-msg {
+        text-align: center;
+        margin-top: 50px;
+        font-weight: bold;
+        color: var(--text-color-secondary);
+    }
+
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
-    @media (max-width: 768px) { .fixed-top-wrapper { padding: 10px 0; } .clock-main-row { flex-wrap: wrap; justify-content: center; } .datetime-row { justify-content: center; width: 100%; gap: 15px; } .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } .page-container { padding-top: 180px; } }
+    @media (max-width: 768px) { 
+        .fixed-top-wrapper { padding: 10px 0; } 
+        .clock-main-row { flex-wrap: wrap; justify-content: center; } 
+        .datetime-row { justify-content: center; width: 100%; gap: 15px; } 
+        .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } 
+        .page-container { padding-top: 180px; } 
+        .tab-menu { justify-content: space-between; } /* スマホでは均等配置っぽくしつつ右端も維持 */
+    }
   </style>
 </head>
 <body>
@@ -264,6 +364,11 @@
             <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
                 <i class="fas fa-cog"></i> Option 
             </div>
+            
+            <!-- 通知ボタン (右端) -->
+            <div class="tab-item notification-btn" id="tab-notification" onclick="activateTab('notification')" title="通知">
+                <i class="fas fa-bell"></i>
+            </div>
         </div>
     </div>
 
@@ -273,19 +378,25 @@
             <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
             <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
         </div>
-        <!-- グリッド表示エリア -->
         <div id="fy-content-area"></div>
     </div>
 
+    <!-- Apps グリッド -->
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            <div class="grid-container" id="gridContainer"></div>
+            <div class="grid-container" id="gridContainer">
+                <!-- ここにJSでアプリアイコンが生成されます -->
+                <div class="icon-item"><a href="#" class="icon-link"><i class="fas fa-rocket fa-2x"></i></a><div class="label-text">Sample App</div></div>
+                <div class="icon-item"><a href="https://google.com" target="_blank" class="icon-link"><i class="fab fa-google fa-2x"></i></a><div class="label-text">Google</div></div>
+                <div class="icon-item"><a href="https://youtube.com" target="_blank" class="icon-link"><i class="fab fa-youtube fa-2x" style="color:red;"></i></a><div class="label-text">YouTube</div></div>
+            </div>
         </div>
       </div>
     </div>
 
+    <!-- Bustarain コンテナ -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
@@ -337,7 +448,7 @@
                     <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
                 </div>
             </div>
-                      <div class="accordion-item" data-id="tr-3" data-title="locate育英高校前">
+            <div class="accordion-item" data-id="bs-ikuei" data-title="Locate育英高校前">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span> Locate育英高校前 </span>
                     <i class="fas fa-star acc-fav-btn"></i>
@@ -367,7 +478,7 @@
                     <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
                 </div>
             </div>
-            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+             <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>夢野町3丁目</span>
                     <i class="fas fa-star acc-fav-btn"></i>
@@ -377,51 +488,225 @@
                     <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
                 </div>
             </div>
-            <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>高取団地前</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
-                </div>
-            </div>
         </div>
 
         <div id="other-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>ノエビアスタジアム イベント情報</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/"></iframe>
-                </div>
-            </div>
+             <!-- その他のコンテンツ用 -->
+             <p style="text-align:center; padding:20px;">その他情報はありません。</p>
         </div>
     </div>
 
-    <!-- Optionコンテナ -->
-    <div id="option-container"></div>
+    <!-- Notification コンテナ (新規追加) -->
+    <div id="notification-container">
+        <div class="notif-header-row">
+            <h3 class="section-title" style="margin:0;">受信ボックス</h3>
+            <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-link-btn">
+                <i class="fab fa-github"></i> 画像フォルダ
+            </a>
+        </div>
+        <div id="loading-msg">データを読み込んでいます...</div>
+        <div id="posts-list-area"></div>
+    </div>
+
+    <!-- Option コンテナ -->
+    <div id="option-container">
+        <h3 class="section-title">設定</h3>
+        <div class="option-card">
+            <p>テーマ設定: <span onclick="setTheme('light')" style="cursor:pointer; text-decoration:underline;">ライト</span> / <span onclick="setTheme('dark')" style="cursor:pointer; text-decoration:underline;">ダーク</span></p>
+        </div>
+    </div>
 
 </div>
 
-<!-- JS読み込み -->
-<script src="Option/takatori.js"></script>
-<script src="Option/memo.js"></script>
-<script src="Option/main.js"></script>
-<script src="script.js"></script>
+<script>
+    // --- 時計機能 ---
+    function updateClock() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+        const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('date').textContent = dateStr;
+        document.getElementById('clock').textContent = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- テーマ設定 ---
+    function setTheme(mode) {
+        if(mode === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    }
+
+    // --- タブ切り替え機能 ---
+    function activateTab(tabName) {
+        // すべてのコンテンツを非表示
+        document.getElementById('fy-container').style.display = 'none';
+        document.getElementById('main-grid').style.display = 'none';
+        document.getElementById('bustarain-container').style.display = 'none';
+        document.getElementById('option-container').style.display = 'none';
+        document.getElementById('notification-container').style.display = 'none';
+
+        // すべてのタブのactiveクラス削除
+        const tabs = document.querySelectorAll('.tab-item');
+        tabs.forEach(t => t.classList.remove('active'));
+
+        // 選択されたタブとコンテンツを表示
+        if(tabName === 'fy') {
+            document.getElementById('fy-container').style.display = 'block';
+            document.getElementById('tab-fy').classList.add('active');
+        } else if(tabName === 'all-apps') {
+            document.getElementById('main-grid').style.display = 'block';
+            document.getElementById('tab-all-apps').classList.add('active');
+        } else if(tabName === 'bustarain') {
+            document.getElementById('bustarain-container').style.display = 'block';
+            document.getElementById('tab-bustarain').classList.add('active');
+        } else if(tabName === 'option') {
+            document.getElementById('option-container').style.display = 'block';
+            document.getElementById('tab-option').classList.add('active');
+        } else if(tabName === 'notification') {
+            document.getElementById('notification-container').style.display = 'block';
+            document.getElementById('tab-notification').classList.add('active');
+            // 通知タブが開かれたときにデータをフェッチ
+            fetchPosts();
+        }
+    }
+
+    // --- アコーディオン機能 ---
+    function toggleAccordion(header) {
+        const item = header.parentElement;
+        const isActive = item.classList.contains('active');
+        
+        // 他を閉じる動作を入れたい場合はここで処理
+        // document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+
+        if(!isActive) {
+            item.classList.add('active');
+            // iframeの遅延読み込み (data-src -> src)
+            const iframe = item.querySelector('.accordion-iframe');
+            if(iframe && !iframe.getAttribute('src')) {
+                iframe.setAttribute('src', iframe.getAttribute('data-src'));
+            }
+        } else {
+            item.classList.remove('active');
+        }
+    }
+
+    // --- サブタブ切り替え (Bustarain内) ---
+    function switchSubTab(contentId) {
+        // ボタンのアクティブ化
+        const buttons = document.querySelectorAll('.sub-tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.closest('.sub-tab-btn').classList.add('active');
+
+        // コンテンツの表示切替
+        document.getElementById('train-content').classList.add('hidden');
+        document.getElementById('bus-content').classList.add('hidden');
+        document.getElementById('other-content').classList.add('hidden');
+        
+        document.getElementById(contentId).classList.remove('hidden');
+    }
+
+    // --- 速度テストリロード ---
+    function reloadSpeedTest() {
+        const container = document.querySelector('.header-speed-test iframe');
+        container.src = container.src;
+    }
+
+    // --- Notification / GitHub Fetch Logic ---
+    const GITHUB_USER = "SuperTasu";
+    const GITHUB_REPO = "Call-Answered-";
+    const GITHUB_PATH = "image/";
+    const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
+    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+    
+    let isPostsLoaded = false; // 重複読み込み防止
+
+    async function fetchPosts() {
+        if(isPostsLoaded) return; // すでに読み込み済みなら再実行しない（リロードボタン実装時はここを調整）
+
+        const container = document.getElementById('posts-list-area');
+        const loading = document.getElementById('loading-msg');
+        container.innerHTML = '';
+        loading.style.display = 'block';
+
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error("API Limit or Network Error");
+            const files = await response.json();
+
+            // _message.json で終わるファイルのみ
+            const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
+            // 降順ソート
+            jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+            if (jsonFiles.length === 0) {
+                loading.innerText = "投稿が見つかりませんでした。";
+                return;
+            }
+
+            loading.style.display = 'none';
+
+            // 順次読み込み
+            for (const file of jsonFiles) {
+                await loadAndDisplayPost(file.download_url, container);
+            }
+            isPostsLoaded = true;
+
+        } catch (err) {
+            loading.innerText = "エラーが発生しました: " + err.message;
+            console.error(err);
+        }
+    }
+
+    async function loadAndDisplayPost(jsonUrl, container) {
+        try {
+            const res = await fetch(jsonUrl);
+            const data = await res.json();
+
+            const card = document.createElement('div');
+            card.className = 'post-card';
+
+            const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
+
+            let imagesHtml = '';
+            if (data.uploadedFiles && data.uploadedFiles.length > 0) {
+                imagesHtml = `<div class="image-grid">`;
+                data.uploadedFiles.forEach(fileName => {
+                    const imageUrl = PAGES_BASE_URL + fileName;
+                    imagesHtml += `<a href="${imageUrl}" target="_blank">
+                        <img src="${imageUrl}" class="post-image" loading="lazy">
+                    </a>`;
+                });
+                imagesHtml += `</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="post-header">
+                    <span class="post-id">ID: ${data.id}</span>
+                    <span class="post-date">${dateStr}</span>
+                </div>
+                <div class="post-message">${escapeHtml(data.message || '（メッセージなし）')}</div>
+                ${imagesHtml}
+            `;
+            container.appendChild(card);
+        } catch (e) {
+            console.error("個別の投稿読み込みエラー", e);
+        }
+    }
+
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>"']/g, function(match) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+        });
+    }
+
+    // 初期化: FYタブのエディットモードなどの関数があればここに
+    function toggleEditMode() {
+        alert("Edit functionality not fully implemented in this snippet.");
+    }
+</script>
 </body>
 </html>
