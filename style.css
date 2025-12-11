@@ -1,34 +1,55 @@
+/* --- CSS変数 --- */
 :root {
   --bg-color: #ffffff;
   --text-color-primary: #333;
   --text-color-secondary: #666;
+  
+  /* カード・背景系 */
   --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   --card-border-color: rgba(0,0,0,0.05);
   --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  --custom-bg-image: none; /* JSで変更される変数 */
+  
+  /* アイコン・入力系 */
   --icon-bg: #fff;
   --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
   --tab-active-text: #ffffff;
   --input-bg: #e9ecef;
+  
+  /* バス・交通系 */
   --bus-board-bg: #e8f5e8;
   --bus-card-bg: #fff;
   --save-toggle-color-on: #009900;
-  --save-toggle-color-off: #777; 
+  --save-toggle-color-off: #777;
+  
+  /* グリッド・編集モード用 */
+  --grid-line-color: rgba(0, 0, 0, 0.1);      
+  --swap-select-color: rgba(33, 150, 243, 0.2); 
+  --slot-hover-color: rgba(0, 0, 0, 0.03);    
 }
+
 body.dark-theme {
   --bg-color: #434343;
   --text-color-primary: #f5f5f5;
   --text-color-secondary: #aaa;
+  
   --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
   --card-border-color: rgba(255,255,255,0.1);
   --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  
   --icon-bg: #555;
   --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
   --tab-active-text: #ffffff;
   --input-bg: #3a3a3a;
+  
   --bus-board-bg: #2a3a2a;
   --bus-card-bg: #3c4c3c;
   --save-toggle-color-on: #76ff03;
   --save-toggle-color-off: #aaa;
+  
+  --grid-line-color: rgba(255, 255, 255, 0.1); 
+  --swap-select-color: rgba(100, 181, 246, 0.3);
+  --slot-hover-color: rgba(255, 255, 255, 0.05);
 }
 
 body { 
@@ -37,29 +58,36 @@ body {
   color: var(--text-color-primary); 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   transition: background-color 0.3s, color 0.3s; 
-  padding: 20px; 
+  padding: 0; 
   box-sizing: border-box; 
-  padding-bottom: 20px; 
+  min-height: 100vh;
 }
 
-/* ▼▼▼ 修正：固定ヘッダー分の余白を確保 ▼▼▼ */
-.page-container { 
-  max-width: 1200px; 
-  margin: 0 auto; 
-  padding-top: 240px; /* 時計とタブの高さ分、コンテンツを下げる */
+/* ▼▼▼ 必須：背景画像を表示するための要素 ▼▼▼ */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: -1; 
+  background-image: var(--custom-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none; 
 }
 
-/* ▼▼▼ 追加：ヘッダーとタブを固定するためのラッパー ▼▼▼ */
+/* --- レイアウト構造 --- */
+
+/* ヘッダー固定用ラッパー */
 .fixed-top-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: var(--bg-color);
-  padding: 10px 20px 15px 20px; /* 上右下左のパディング */
-  box-sizing: border-box;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* 浮いているような影 */
+  background-color: var(--bg-color); /* 背景色を透過させない */
+  padding: 10px 0 15px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
   transition: background-color 0.3s;
 }
 body.dark-theme .fixed-top-wrapper {
@@ -67,10 +95,16 @@ body.dark-theme .fixed-top-wrapper {
   border-bottom: 1px solid var(--card-border-color);
 }
 
-.main-grid { display: grid; grid-template-columns: 1fr; grid-template-areas: "apps"; gap: 20px; margin-top: 20px; }
-.apps-area { grid-area: apps; }
+/* メインコンテンツ（ヘッダーの高さ分下げる） */
+.page-container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 240px 20px 20px 20px; /* 上・右・下・左 */
+}
 
+/* --- 時計・ヘッダーエリア --- */
 .clock-area { 
+    margin: 0 20px; /* 横幅調整 */
     background: var(--card-bg); 
     box-shadow: var(--card-shadow); 
     border-radius: 20px; 
@@ -81,44 +115,25 @@ body.dark-theme .fixed-top-wrapper {
     align-items: stretch;
 }
 .clock-main-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-.clock-content-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; flex-grow: 1; }
 .datetime-row { display: flex; align-items: center; justify-content: flex-start; gap: 15px; flex-wrap: wrap; }
-#date, #clock { color: var(--text-color-primary); font-weight: bold; letter-spacing: 1px; }
-#date { font-size: 18px; }
-#clock { font-size: 24px; font-family: 'Courier New', Courier, monospace; }
+#date { font-size: 18px; font-weight: bold; }
+#clock { font-size: 24px; font-weight: bold; font-family: 'Courier New', Courier, monospace; }
 #countdown { color: #667eea; font-weight: bold; font-size: 18px; }
 
-#offline-status {
-    color: red;
-    font-weight: bold;
-    display: none; 
-}
-
-.header-speed-test {
-    display: flex;
-    align-items: center;
-    gap: 8px; 
-}
+/* 速度テスト・コントロール */
+.header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .header-speed-test iframe {
-    width: 130px;
-    height: 40px;
+    width: 130px; height: 40px;
     border: 1px solid var(--card-border-color);
-    border-radius: 5px;
-    overflow: hidden;
+    border-radius: 5px; background: #fff;
 }
 #speed-test-refresh-button {
-    font-size: 1.1em;
-    color: var(--text-color-secondary);
-    cursor: pointer;
-    padding: 5px;
-    transition: transform 0.2s, color 0.2s;
+    font-size: 1.1em; color: var(--text-color-secondary);
+    cursor: pointer; padding: 5px; transition: transform 0.2s;
 }
-#speed-test-refresh-button:hover {
-    transform: scale(1.1) rotate(90deg);
-    color: #667eea;
-}
+#speed-test-refresh-button:hover { transform: scale(1.1) rotate(90deg); color: #667eea; }
 
-.header-controls { display: flex; align-items: center; gap: 10px; }
+.header-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
 .theme-switcher { display: flex; gap: 5px; }
 .theme-dot { width: 15px; height: 15px; border-radius: 50%; cursor: pointer; border: 2px solid var(--text-color-secondary); transition: transform 0.2s; }
 .theme-dot:hover { transform: scale(1.2); }
@@ -129,183 +144,187 @@ body.dark-theme .fixed-top-wrapper {
     width: 40px; height: 40px; 
     background: rgba(0,0,0,0.05); border-radius: 50%; 
     color: var(--text-color-secondary); font-size: 18px; 
-    text-decoration: none; transition: all 0.2s; cursor: pointer; 
+    cursor: pointer; transition: all 0.2s;
 }
 .control-icon:hover { background: #667eea; color: white; transform: scale(1.1); }
 
-.tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 15px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); }
-.tab-menu { display: flex; align-items: center; }
-.search-container { display: flex; align-items: center; padding: 0 15px; margin: 6px; background-color: var(--input-bg); border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); }
-.search-container i { color: var(--text-color-secondary); }
-#appSearchInput { border: none; background: transparent; outline: none; padding: 10px 8px; font-size: 14px; width: 150px; color: var(--text-color-primary); transition: width 0.3s ease-in-out; }
-#appSearchInput:focus { width: 200px; }
-
-.tab-item {
-    flex-grow: 1; text-align: center; padding: 15px 20px;
-    color: var(--text-color-secondary); text-decoration: none;
-    font-weight: bold; font-size: 14px; position: relative;
-    transition: all 0.3s ease; border-radius: 16px;
-    margin: 6px; border-right: 1px solid rgba(0,0,0,0.1);
-    cursor: pointer; white-space: nowrap; min-width: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+/* --- タブ・検索エリア --- */
+.tab-container { 
+    background: var(--card-bg); 
+    box-shadow: var(--card-shadow); 
+    margin-top: 15px; border-radius: 20px; 
+    overflow: hidden; 
+    border: 1px solid var(--card-border-color); 
+    position: relative; z-index: 1;
 }
-.tab-item:last-of-type { border-right: none; }
-.tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
-.tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
 
+.search-wrapper { display: flex; justify-content: center; width: 100%; margin-top: 10px; }
+.search-container { 
+    display: flex; align-items: center; padding: 0 15px; 
+    background-color: var(--input-bg); 
+    border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); 
+    height: 40px;
+}
+.search-container i { color: var(--text-color-secondary); margin-right: 8px; }
+#appSearchInput { 
+    border: none; background: transparent; outline: none; 
+    font-size: 14px; width: 150px; 
+    color: var(--text-color-primary); 
+    transition: width 0.3s ease-in-out; 
+}
+#appSearchInput:focus { width: 200px; }
+#clearSearchBtn { cursor: pointer; margin-left: auto; color: #999; }
+
+.tab-menu { display: flex; justify-content: center; flex-wrap: wrap; padding: 5px; }
+.tab-item {
+    flex-grow: 1; text-align: center; padding: 12px 20px;
+    color: var(--text-color-secondary); 
+    font-weight: bold; font-size: 14px; 
+    border-radius: 16px; margin: 5px; 
+    cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-width: 100px;
+}
+.tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
+.tab-item.active { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    color: var(--tab-active-text); 
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); 
+    transform: translateY(-2px); 
+}
+.fy-icon { color: #ffc107; }
+
+/* --- コンテナ制御 --- */
+#main-grid, #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
+.main-grid { display: block; } /* 初期表示用 */
+
+/* --- グリッド・アイコン --- */
 .grid-container { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; padding: 10px; }
 
-/* ▼▼▼ 修正：アイコンアイテムの基準位置設定 ▼▼▼ */
 .icon-item { 
-    text-align: center; width: 75px; margin: 0; 
-    position: relative; /* 星アイコン配置の基準 */
-    transition: transform 0.2s ease-out; 
-    user-select: none; -webkit-user-select: none; 
+    text-align: center; width: 75px; margin: 5px; 
+    position: relative; /* 星配置の基準 */
+    user-select: none; transition: transform 0.2s ease-out; 
+    z-index: 2;
 }
 
-/* ▼▼▼ 追加：お気に入り☆アイコンを右上に配置するスタイル ▼▼▼ */
-.icon-item i.fa-star,
-.icon-item i.far.fa-star {
+/* お気に入りスター（修正済み：右上配置） */
+.icon-item .fav-btn {
     position: absolute !important;
-    top: -5px !important;    /* 上端より少し上にはみ出させる */
-    right: 0px !important;   /* 右端 */
-    bottom: auto !important; /* 下固定を解除 */
-    left: auto !important;
-    
-    background: var(--card-bg); /* 背景色をつけて見やすくする */
+    top: -5px !important;
+    right: -5px !important; /* 右端より少し外へ */
+    width: 24px; height: 24px;
+    background: var(--card-bg);
     border-radius: 50%;
-    padding: 4px;
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 10;
-    color: #ffc107; /* 星の色（ゴールド） */
+    z-index: 10; cursor: pointer;
+    color: #ccc; font-size: 13px;
+    transition: transform 0.2s;
 }
-
-body.dark-theme .icon-item i.fa-star,
-body.dark-theme .icon-item i.far.fa-star {
-    background: #555; /* ダークモード時の星背景 */
-    color: #ffc107;
-}
+.icon-item .fav-btn.active { color: #ffc107; }
+.icon-item .fav-btn:hover { transform: scale(1.2); }
 
 .icon-link {
     width: 60px; height: 60px;
     background-color: var(--icon-bg); border-radius: 22px;
-    box-shadow: var(--icon-shadow); display: flex;
-    align-items: center; justify-content: center;
+    box-shadow: var(--icon-shadow); 
+    display: flex; align-items: center; justify-content: center;
     text-decoration: none; color: var(--text-color-primary);
     margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.icon-link:hover { transform: scale(1.1) translateY(-3px); background-color: #e6f2ff; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-body.dark-theme .icon-link:hover { background-color: #4a5568; }
-.icon-link i { font-size: 26px; }
+.icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
 .icon-img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
-.icon-link .fallback-icon {
-    font-size: 26px;
-    color: var(--text-color-secondary);
+.label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; line-height: 1.1; }
+
+/* --- FY (Favorites) グリッドシステム --- */
+#fy-content-area {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0; padding: 5px;
 }
-.label-text { font-size: 10px; margin-top: 5px; color: var(--text-color-primary); word-break: break-word; line-height: 1.1; font-weight: bold; }
-#search-wrapper { user-select: none; position: relative; z-index: 1; border-radius: 15px; overflow: hidden; }
-#search-wrapper::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('IMAGE_0120.PNG'); background-size: cover; background-position: center center; background-attachment: fixed; opacity: 0.5; z-index: -1; transition: opacity 0.3s ease-in-out; }
-body.dark-theme #search-wrapper::before { opacity: 0.2; }
-.main-content{padding-top:10px}
-#status-container, #bustarain-container { display: none; margin-top: 20px; }
-#status-container { display: flex; flex-direction: column; gap: 20px; }
-.section-title {
-    font-size: 16px;
-    color: var(--text-color-secondary);
-    margin: 15px 10px 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--card-border-color);
+.grid-slot {
+    aspect-ratio: 1 / 1.25; 
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    border: 1px solid transparent; 
+    border-radius: 8px;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
-.bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); }
+/* ▼▼▼ Takatori (13x3) サイズ定義（必須） ▼▼▼ */
+.grid-slot.takatori-size {
+    grid-column: span 13;
+    grid-row: span 3;
+    aspect-ratio: auto;
+    padding: 5px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 5;
+}
+@media (max-width: 1200px) {
+    .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
+}
+
+/* --- 編集モード (Edit Mode) --- */
+.edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
+.edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
+.edit-mode .grid-slot.selected-slot { 
+    background-color: var(--swap-select-color); 
+    border: 1px solid #667eea; 
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); 
+}
+@keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
+.edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
+.edit-mode .grid-slot.takatori-size { pointer-events: none; opacity: 0.7; } /* 大型ウィジェットは編集時は半透明 */
+.edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
+.edit-mode .icon-link { pointer-events: none; }
+.edit-mode .fav-btn { display: none; }
+
+.fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
+.edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+.edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
+
+/* --- Bustarain / バス・電車 --- */
+.bus-display-board { background: var(--bus-board-bg); border: 3px solid #009900; border-radius: 15px; padding: 20px; box-shadow: var(--card-shadow); margin-bottom: 20px; }
 .bus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
 .bus-stop-name { font-size: 22px; font-weight: bold; color: #009900; }
-.direction-controls { display: flex; gap: 8px; }
-.direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: all .3s ease; color: #333; }
-body.dark-theme .direction-button { background-color: rgba(0,0,0,0.3); color: var(--text-color-primary); border-color: #777; }
+.direction-button { background-color: rgba(255,255,255,0.5); border: 2px solid #333; padding: 8px 14px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 8px; color: #333; }
 .direction-button.active { background-color: #0066cc; color: white; border-color: #0066cc; }
-.schedule-type { font-size: 14px; color: #009900; font-weight: bold; background-color: var(--icon-bg); padding: 5px 10px; border-radius: 8px; border: 2px solid #009900; }
-#justDepartedSection { margin-bottom: 15px; }
-.just-departed-info { font-size: 13px; color: #444; background-color: #e0e0e0; padding: 5px 10px; margin: 0 auto 5px; border: 1px solid #ccc; border-radius: 8px; text-align: center; }
-body.dark-theme .just-departed-info { background-color: #555; color: #ddd; border-color: #666; }
-.departures-container { display: grid; gap: 15px; }
-.bus-card { background-color: var(--bus-card-bg); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; border: 2px solid #009900; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
-.bus-card__label { position: absolute; top: -12px; left: 10px; background: #009900; color: white; padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; }
-.bus-card__main { display: flex; align-items: center; gap: 20px; }
-.bus-card__time { font-size: 40px; font-weight: bold; color: #cc0000; font-family: 'Courier New', monospace; }
-.bus-card__details { display: flex; flex-direction: column; gap: 4px; }
-.bus-card__route { font-size: 16px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-.route-number { display: inline-block; border: 2px solid #0066cc; padding: 1px 8px; background-color: var(--icon-bg); color: #0066cc; font-size: 14px; border-radius: 5px; font-weight: bold; }
-.itayado-arrival { color: #cc6600; font-size: 13px; font-weight: bold; }
-.bus-card__side { text-align: right; }
-.bus-card__remaining { font-size: 24px; font-weight: bold; color: #009900; margin-bottom: 8px; }
-.detail-button { display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px; background-color: #0066cc; color: white; border: none; border-radius: 50%; text-decoration: none; cursor: pointer; }
-.no-departure-card { text-align: center; padding: 30px; font-size: 16px; font-weight: bold; color: var(--text-color-secondary); }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.3; } }
-.other-statuses { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-.status-card { background: var(--card-bg); border-radius: 15px; padding: 15px; box-shadow: var(--card-shadow); }
-.status-card-title { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
-.expand-btn { cursor: pointer; color: var(--text-color-secondary); font-size: 16px; transition: color 0.2s, transform 0.2s; margin-left: auto; padding: 5px; }
-.expand-btn:hover { color: #667eea; transform: scale(1.2); }
-.game-buttons { display: flex; gap: 15px; }
-.game-button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; transition: all .3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.game-button.apex { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
-.game-button.splatoon { background: linear-gradient(135deg, #00d4ff 0%, #ff6b8a 100%); }
-.iframe-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; }
-.iframe-container iframe { width: 100%; height: 100%; border: none; }
-.sub-filter-tabs { display: flex; gap: 10px; padding: 10px; justify-content: center; flex-wrap: wrap; }
-.sub-filter-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 13px; }
-.sub-filter-btn.active { background: #667eea; color: white; }
-.sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 10px; flex-wrap: wrap; } .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; } .sub-tab-btn.active { background: #667eea; color: white; } .accordion-item { border: 1px solid var(--card-border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; } .accordion-header { background: var(--card-bg); padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; } .accordion-header .fas { transition: transform 0.3s ease; } .accordion-item.active .accordion-header .fas { transform: rotate(180deg); } .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; padding: 0 15px; } .accordion-item.active .accordion-content { max-height: 1200px; padding: 15px 0; } .accordion-iframe { width: 100%; height: 800px; border: none; }
+
+.sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; } 
+.sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; } 
+.sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
+
+.accordion-item { border: 1px solid var(--card-border-color); border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; } 
+.accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.accordion-header:hover { background-color: rgba(0,0,0,0.02); }
+.accordion-header .acc-fav-btn { margin-left: auto; margin-right: 15px; color: #ccc; font-size: 18px; transition: transform 0.2s; }
+.accordion-header .acc-fav-btn.active { color: #ffc107; }
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; } 
+.accordion-item.active .accordion-content { max-height: 1200px; } 
+.accordion-iframe { width: 100%; height: 600px; border: none; }
+
+/* --- Option / 設定 --- */
+.section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
+.option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+.option-row { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
+.option-row input[type="text"] { flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+.option-btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; background: #667eea; color: #fff; }
+.option-btn.reset { background: #ff6b6b; }
+
+/* 共通ユーティリティ */
 .hidden { display: none !important; }
-.iframe-modal-content { width: 90%; height: 90%; max-width: 1400px; padding: 15px; display: flex; flex-direction: column; position: relative; }
-.close-modal-btn { position: absolute; top: -10px; right: -5px; font-size: 30px; font-weight: bold; color: var(--text-color-secondary); background: var(--icon-bg); border-radius: 50%; border: none; cursor: pointer; line-height: 1; width: 35px; height: 35px; z-index: 10; }
-#modal-iframe { width: 100%; height: 100%; flex-grow: 1; border-radius: 10px; border: 1px solid var(--card-border-color); }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
 
-@media (min-width: 769px) { .theme-switcher { position: absolute; top: 20px; right: 110px; } }
+/* レスポンシブ調整 */
+@media (max-width: 900px) { 
+    .header-speed-test iframe { width: 100px; } 
+}
 @media (max-width: 768px) {
-    body { padding: 10px; -webkit-text-size-adjust: 100%; padding-bottom: 20px; }
-    .clock-area { padding: 10px 15px; }
-    /* スマホなどでヘッダーが高くなる場合の調整 */
-    .page-container { padding-top: 260px; }
-}
-
-.grid-container-grouped {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 10px;
-}
-.game-group {
-    border: 1px solid var(--card-border-color);
-    border-radius: 15px;
-    padding: 15px;
-    background: rgba(0,0,0,0.02);
-}
-body.dark-theme .game-group {
-    background: rgba(255,255,255,0.03);
-}
-.game-group-title {
-    margin: 0 0 15px 5px;
-    font-size: 16px;
-    color: var(--text-color-secondary);
-    border-bottom: 1px solid var(--card-border-color);
-    padding-bottom: 8px;
-}
-.game-group-icons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: flex-start;
+    .page-container { padding-top: 260px; } /* モバイルはヘッダーが高いので余白を増やす */
+    .clock-main-row { justify-content: center; }
+    .datetime-row { justify-content: center; }
+    .header-speed-test { width: 100%; justify-content: center; margin: 10px 0; }
+    .header-controls { margin-left: 0; margin-top: 5px; }
 }
