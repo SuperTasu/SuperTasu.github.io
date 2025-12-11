@@ -6,6 +6,7 @@
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 外部CSSライブラリ -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
    
@@ -15,7 +16,7 @@
       --bg-color: #ffffff;
       --text-color-primary: #333333;
       --text-color-secondary: #666;
-      --custom-bg-image: none; /* JSで書き換え */
+      --custom-bg-image: none; 
       
       --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       --card-border-color: rgba(0,0,0,0.05);
@@ -57,7 +58,6 @@
       min-height: 100vh;
     }
 
-    /* 背景画像設定用 */
     body::before {
       content: "";
       position: fixed;
@@ -83,7 +83,7 @@
     .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
     #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
     #countdown { color: #88aaff; }
-    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
+    
     .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
     #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 16px; }
@@ -114,33 +114,10 @@
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .fy-icon { color: #ffc107; }
 
-    /* 通知タブ用のスタイル（バッジ付き） */
-    .tab-item.notification-btn {
-        margin-left: auto; /* 右端へ */
-        padding: 10px 15px;
-        background: transparent;
-        border: 1px solid var(--card-border-color);
-        position: relative; /* バッジの基準位置 */
-    }
-    .tab-item.notification-btn.active {
-        background: #ff4444;
-        color: white;
-        border-color: #ff4444;
-    }
-    .notif-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: #ff0000;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        padding: 2px 6px;
-        border-radius: 50%;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        display: none; /* デフォルト非表示 */
-        animation: popIn 0.3s ease-out;
-    }
+    /* 通知タブ用のスタイル */
+    .tab-item.notification-btn { margin-left: auto; padding: 10px 15px; background: transparent; border: 1px solid var(--card-border-color); position: relative; }
+    .tab-item.notification-btn.active { background: #ff4444; color: white; border-color: #ff4444; }
+    .notif-badge { position: absolute; top: -5px; right: -5px; background-color: #ff0000; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: popIn 0.3s ease-out; }
     @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
     /* Appsグリッド */
@@ -173,6 +150,7 @@
         transition: border-color 0.2s, background-color 0.2s;
     }
     
+    /* Takatoriウィジェット用 */
     .grid-slot.takatori-size {
         grid-column: span 13;
         grid-row: span 3;
@@ -186,15 +164,6 @@
     @media (max-width: 1200px) {
         .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
     }
-    .grid-slot.memo-size {
-        grid-column: span 4;
-        grid-row: span 2;
-        aspect-ratio: auto;
-        padding: 5px;
-    }
-    @media (max-width: 600px) {
-        .grid-slot.memo-size { grid-column: span 2; grid-row: span 2; }
-    }
 
     .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
     .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
@@ -203,8 +172,7 @@
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    .edit-mode .grid-slot.takatori-size .takatori-display-board,
-    .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
+    .edit-mode .grid-slot.takatori-size .takatori-display-board { pointer-events: none; opacity: 0.7; }
 
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
     .edit-mode .icon-link { pointer-events: none; }
@@ -218,6 +186,7 @@
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; } 
     .sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
+    
     .accordion-item { border: 1px solid var(--card-border-color); border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; } 
     .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .accordion-header:hover { background-color: rgba(0,0,0,0.02); }
@@ -228,104 +197,28 @@
     .accordion-item.active .accordion-content { max-height: 1200px; } 
     .accordion-iframe { width: 100%; height: 600px; border: none; }
     .hidden { display: none !important; }
+    
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     /* Notification Tab CSS */
-    .notif-header-row {
-        position: relative;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .github-link-btn {
-        background-color: var(--input-bg);
-        color: var(--text-color-primary);
-        text-decoration: none;
-        padding: 8px 15px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: bold;
-        box-shadow: var(--card-shadow);
-        transition: background-color 0.2s;
-        border: 1px solid var(--card-border-color);
-    }
-    .github-link-btn:hover {
-        background-color: rgba(102, 126, 234, 0.1);
-        color: #667eea;
-    }
-    .post-card {
-        background: var(--card-bg);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--card-border-color);
-    }
-    .post-header {
-        border-bottom: 1px solid var(--grid-line-color);
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .post-id {
-        font-weight: bold;
-        color: #667eea;
-        font-family: monospace;
-    }
-    .post-date {
-        font-size: 0.9em;
-        color: var(--text-color-secondary);
-    }
-    .post-message {
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 15px;
-        white-space: pre-wrap;
-        color: var(--text-color-primary);
-    }
-    .image-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 10px;
-    }
-    .post-image {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid var(--card-border-color);
-        cursor: pointer;
-        transition: opacity 0.2s;
-    }
+    .notif-header-row { position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .github-link-btn { background-color: var(--input-bg); color: var(--text-color-primary); text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; box-shadow: var(--card-shadow); transition: background-color 0.2s; border: 1px solid var(--card-border-color); }
+    .github-link-btn:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; }
+    .post-card { background: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid var(--card-border-color); }
+    .post-header { border-bottom: 1px solid var(--grid-line-color); padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .post-id { font-weight: bold; color: #667eea; font-family: monospace; }
+    .post-date { font-size: 0.9em; color: var(--text-color-secondary); }
+    .post-message { font-size: 16px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; color: var(--text-color-primary); }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .post-image { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; border: 1px solid var(--card-border-color); cursor: pointer; transition: opacity 0.2s; }
     .post-image:hover { opacity: 0.8; }
-    #loading-msg {
-        text-align: center;
-        margin-top: 50px;
-        font-weight: bold;
-        color: var(--text-color-secondary);
-    }
+    #loading-msg { text-align: center; margin-top: 50px; font-weight: bold; color: var(--text-color-secondary); }
 
     /* 背景選択用のスタイル */
-    .bg-preset-container {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-    }
-    .bg-preset-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        cursor: pointer;
-        border: 2px solid transparent;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
+    .bg-preset-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .bg-preset-btn { width: 50px; height: 50px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     .bg-preset-btn:hover { transform: scale(1.1); }
-    .bg-preset-btn.selected { border-color: #667eea; }
     .bg-input-row { display: flex; gap: 10px; margin-top: 15px; }
     .bg-input-row input { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: var(--input-bg); color: var(--text-color-primary); }
 
@@ -349,7 +242,6 @@
                 <div id="date"></div>
                 <div id="clock"></div>
                 <div id="countdown"></div>
-                <div id="offline-status">OFFLINE</div>
                 
                 <div class="header-speed-test">
                     <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
@@ -395,7 +287,6 @@
                 <i class="fas fa-cog"></i> Option 
             </div>
             
-            <!-- 通知ボタン (新着バッジ付き) -->
             <div class="tab-item notification-btn" id="tab-notification" onclick="activateTab('notification')" title="通知">
                 <i class="fas fa-bell"></i>
                 <span class="notif-badge" id="notif-badge">0</span>
@@ -417,11 +308,7 @@
       <div class="apps-area">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
-            <div class="grid-container" id="gridContainer">
-                <div class="icon-item"><a href="#" class="icon-link"><i class="fas fa-rocket fa-2x"></i></a><div class="label-text">Sample App</div></div>
-                <div class="icon-item"><a href="https://google.com" target="_blank" class="icon-link"><i class="fab fa-google fa-2x"></i></a><div class="label-text">Google</div></div>
-                <div class="icon-item"><a href="https://youtube.com" target="_blank" class="icon-link"><i class="fab fa-youtube fa-2x" style="color:red;"></i></a><div class="label-text">YouTube</div></div>
-            </div>
+            <div class="grid-container" id="gridContainer"></div>
         </div>
       </div>
     </div>
@@ -518,8 +405,6 @@
                     <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
                 </div>
             </div>
-            
-            <!-- 復活: 高取団地前 -->
             <div class="accordion-item" data-id="bs-takatori" data-title="高取団地前">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>高取団地前</span>
@@ -530,8 +415,6 @@
                     <iframe class="accordion-iframe" data-src="bus/takatori.html"></iframe>
                 </div>
             </div>
-
-            <!-- 復活: 板宿駅 (Bus) -->
             <div class="accordion-item" data-id="bs-itayado" data-title="板宿駅">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>板宿駅</span>
@@ -561,7 +444,7 @@
         <div id="posts-list-area"></div>
     </div>
 
-    <!-- Option コンテナ (背景選択復活) -->
+    <!-- Option コンテナ -->
     <div id="option-container">
         <h3 class="section-title">設定</h3>
         <div class="option-card">
@@ -572,248 +455,21 @@
             
             <h4>背景画像の変更</h4>
             <div class="bg-preset-container">
-                <div class="bg-preset-btn" style="background: #fff; border: 1px solid #ddd;" onclick="setBg('none')" title="デフォルト"></div>
-                <div class="bg-preset-btn" style="background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="setBg('linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)')" title="Blue Gradient"></div>
-                <div class="bg-preset-btn" style="background: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);" onclick="setBg('linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)')" title="Grey Gradient"></div>
-                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="setBg('url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80)')" title="Landscape"></div>
-                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="setBg('url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80)')" title="Space"></div>
+                <div class="bg-preset-btn" style="background: #fff; border: 1px solid #ddd;" onclick="saveBackground('none')" title="デフォルト"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="saveBackground('linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)')" title="Blue Gradient"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);" onclick="saveBackground('linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)')" title="Grey Gradient"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="saveBackground('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80')" title="Landscape"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="saveBackground('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80')" title="Space"></div>
             </div>
             <div class="bg-input-row">
                 <input type="text" id="customBgUrl" placeholder="画像のURLを入力...">
-                <button class="edit-btn" onclick="setBg('url(' + document.getElementById('customBgUrl').value + ')')">適用</button>
+                <button class="edit-btn" onclick="saveBackground(document.getElementById('customBgUrl').value)">適用</button>
+                <button class="edit-btn" style="background:#ffcccc;" onclick="resetBackground()">リセット</button>
             </div>
         </div>
     </div>
-
 </div>
 
-<script>
-    // --- 時計機能 ---
-    function updateClock() {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-        const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('date').textContent = dateStr;
-        document.getElementById('clock').textContent = timeStr;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // --- テーマ & 背景 設定 ---
-    function setTheme(mode) {
-        if(mode === 'dark') {
-            document.body.classList.add('dark-theme');
-        } else {
-            document.body.classList.remove('dark-theme');
-        }
-    }
-
-    // 背景変更関数
-    function setBg(value) {
-        document.documentElement.style.setProperty('--custom-bg-image', value);
-        // ローカルストレージに保存
-        localStorage.setItem('user_custom_bg', value);
-    }
-    
-    // 起動時に保存された背景を適用
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedBg = localStorage.getItem('user_custom_bg');
-        if (savedBg) {
-            setBg(savedBg);
-        }
-        // バックグラウンドで新着チェック
-        checkNewPosts();
-    });
-
-    // --- タブ切り替え機能 ---
-    function activateTab(tabName) {
-        // すべて非表示
-        document.getElementById('fy-container').style.display = 'none';
-        document.getElementById('main-grid').style.display = 'none';
-        document.getElementById('bustarain-container').style.display = 'none';
-        document.getElementById('option-container').style.display = 'none';
-        document.getElementById('notification-container').style.display = 'none';
-
-        // クラス削除
-        const tabs = document.querySelectorAll('.tab-item');
-        tabs.forEach(t => t.classList.remove('active'));
-
-        // 選択されたタブを表示
-        if(tabName === 'fy') {
-            document.getElementById('fy-container').style.display = 'block';
-            document.getElementById('tab-fy').classList.add('active');
-        } else if(tabName === 'all-apps') {
-            document.getElementById('main-grid').style.display = 'block';
-            document.getElementById('tab-all-apps').classList.add('active');
-        } else if(tabName === 'bustarain') {
-            document.getElementById('bustarain-container').style.display = 'block';
-            document.getElementById('tab-bustarain').classList.add('active');
-        } else if(tabName === 'option') {
-            document.getElementById('option-container').style.display = 'block';
-            document.getElementById('tab-option').classList.add('active');
-        } else if(tabName === 'notification') {
-            document.getElementById('notification-container').style.display = 'block';
-            document.getElementById('tab-notification').classList.add('active');
-            
-            // 通知を開いたのでバッジを消す
-            document.getElementById('notif-badge').style.display = 'none';
-            document.getElementById('notif-badge').innerText = "0";
-            
-            // 現在の総数を「既読数」として保存
-            if(currentTotalPosts > 0) {
-                localStorage.setItem('last_viewed_posts_count', currentTotalPosts);
-            }
-            
-            fetchPosts();
-        }
-    }
-
-    // --- アコーディオン機能 ---
-    function toggleAccordion(header) {
-        const item = header.parentElement;
-        const isActive = item.classList.contains('active');
-        if(!isActive) {
-            item.classList.add('active');
-            const iframe = item.querySelector('.accordion-iframe');
-            if(iframe && !iframe.getAttribute('src')) {
-                iframe.setAttribute('src', iframe.getAttribute('data-src'));
-            }
-        } else {
-            item.classList.remove('active');
-        }
-    }
-
-    // --- サブタブ切り替え (Bustarain内) ---
-    function switchSubTab(contentId) {
-        const buttons = document.querySelectorAll('.sub-tab-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        event.target.closest('.sub-tab-btn').classList.add('active');
-
-        document.getElementById('train-content').classList.add('hidden');
-        document.getElementById('bus-content').classList.add('hidden');
-        document.getElementById('other-content').classList.add('hidden');
-        document.getElementById(contentId).classList.remove('hidden');
-    }
-
-    // --- 速度テストリロード ---
-    function reloadSpeedTest() {
-        const container = document.querySelector('.header-speed-test iframe');
-        container.src = container.src;
-    }
-
-    // --- Notification Logic ---
-    const GITHUB_USER = "SuperTasu";
-    const GITHUB_REPO = "Call-Answered-";
-    const GITHUB_PATH = "image/";
-    const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
-    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
-    
-    let isPostsLoaded = false;
-    let currentTotalPosts = 0; // 現在のサーバー上の投稿総数
-
-    // 1. 新着チェック（バッジ表示用）
-    async function checkNewPosts() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) return; // 静かに失敗させる
-            const files = await response.json();
-            
-            // メッセージファイルのみカウント
-            const messageFiles = files.filter(file => file.name.endsWith('_message.json'));
-            currentTotalPosts = messageFiles.length;
-
-            // ローカルストレージから前回見た数を取得
-            const lastViewed = parseInt(localStorage.getItem('last_viewed_posts_count') || "0");
-            
-            // 差分計算
-            const newCount = currentTotalPosts - lastViewed;
-
-            if (newCount > 0) {
-                const badge = document.getElementById('notif-badge');
-                badge.innerText = newCount;
-                badge.style.display = 'block'; // バッジ表示
-            }
-        } catch (err) {
-            console.error("Background check failed:", err);
-        }
-    }
-
-    // 2. 投稿一覧取得（表示用）
-    async function fetchPosts() {
-        if(isPostsLoaded) return; 
-
-        const container = document.getElementById('posts-list-area');
-        const loading = document.getElementById('loading-msg');
-        container.innerHTML = '';
-        loading.style.display = 'block';
-
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error("API Limit or Network Error");
-            const files = await response.json();
-
-            const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
-            jsonFiles.sort((a, b) => b.name.localeCompare(a.name)); // 新しい順
-
-            if (jsonFiles.length === 0) {
-                loading.innerText = "投稿が見つかりませんでした。";
-                return;
-            }
-
-            loading.style.display = 'none';
-
-            for (const file of jsonFiles) {
-                await loadAndDisplayPost(file.download_url, container);
-            }
-            isPostsLoaded = true;
-
-        } catch (err) {
-            loading.innerText = "エラーが発生しました: " + err.message;
-        }
-    }
-
-    async function loadAndDisplayPost(jsonUrl, container) {
-        try {
-            const res = await fetch(jsonUrl);
-            const data = await res.json();
-            const card = document.createElement('div');
-            card.className = 'post-card';
-            const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
-
-            let imagesHtml = '';
-            if (data.uploadedFiles && data.uploadedFiles.length > 0) {
-                imagesHtml = `<div class="image-grid">`;
-                data.uploadedFiles.forEach(fileName => {
-                    const imageUrl = PAGES_BASE_URL + fileName;
-                    imagesHtml += `<a href="${imageUrl}" target="_blank">
-                        <img src="${imageUrl}" class="post-image" loading="lazy">
-                    </a>`;
-                });
-                imagesHtml += `</div>`;
-            }
-
-            card.innerHTML = `
-                <div class="post-header">
-                    <span class="post-id">ID: ${data.id}</span>
-                    <span class="post-date">${dateStr}</span>
-                </div>
-                <div class="post-message">${escapeHtml(data.message || '（メッセージなし）')}</div>
-                ${imagesHtml}
-            `;
-            container.appendChild(card);
-        } catch (e) { console.error(e); }
-    }
-
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>"']/g, function(match) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
-        });
-    }
-
-    function toggleEditMode() {
-        alert("並び替え機能は現在未実装です");
-    }
-</script>
+<script src="script.js"></script>
 </body>
 </html>
