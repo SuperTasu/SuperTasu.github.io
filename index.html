@@ -207,6 +207,7 @@
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     /* --- Nekotuti (Git通知) 用スタイル --- */
+    /* .api-limit-display と #limit-overlay は、親要素 #nekotuti-container が非表示なら一緒に消えるよう配置 */
     .api-limit-display { position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-family: monospace; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     #limit-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     .timer-box { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #ddd; color: #333; }
@@ -356,7 +357,7 @@
                     <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
                 </div>
             </div>
-            <!-- ID重複を修正しました (tr-3 -> bs-ikuei) -->
+            <!-- 重複していたID(tr-3)を修正 -->
             <div class="accordion-item" data-id="bs-ikuei" data-title="locate育英高校前">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span> Locate育英高校前 </span>
@@ -436,9 +437,9 @@
     <!-- Optionコンテナ -->
     <div id="option-container"></div>
 
-    <!-- 猫通知コンテナ (HTML構造を追加) -->
+    <!-- 猫通知コンテナ -->
     <div id="nekotuti-container">
-        <!-- API残り回数表示 -->
+        <!-- API残り回数表示 (このdivの中に置くことで、タブ切り替え時に非表示になります) -->
         <div id="api-limit-display" class="api-limit-display">API確認中...</div>
 
         <!-- 制限時のオーバーレイ -->
