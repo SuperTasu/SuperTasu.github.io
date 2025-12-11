@@ -329,7 +329,7 @@
         <div id="fy-content-area"></div>
     </div>
 
-    <!-- Apps コンテナ (ここが消えていたので修正しました) -->
+    <!-- Apps コンテナ (ここを元のコードから復元) -->
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
         <div id="all-apps-container">
@@ -505,22 +505,18 @@
 
 <!-- ★タブ切り替え機能の上書き -->
 <script>
-    // script.jsのactivateTabを上書きして、nekotutiコンテナも制御できるようにする
     window.activateTab = function(tabName) {
-        // 1. すべてのタブから active クラスを削除
         document.querySelectorAll('.tab-item').forEach(item => {
             item.classList.remove('active');
         });
         
-        // 2. クリックされたタブに active クラスを追加
         const activeBtn = document.getElementById('tab-' + tabName);
         if(activeBtn) activeBtn.classList.add('active');
 
-        // 3. 親コンテナを非表示にする（ここを修正しました）
-        // all-apps-containerはmain-gridの中にあるので、ここには含めない
+        // 表示エリアをすべて非表示
         const containers = [
             'fy-container', 
-            'main-grid', 
+            'main-grid',  // Appsのコンテナ
             'bustarain-container', 
             'option-container', 
             'nekotuti-container'
@@ -531,7 +527,7 @@
             if(el) el.style.display = 'none';
         });
 
-        // 4. 選択されたコンテナを表示する
+        // 選択されたコンテナを表示
         if (tabName === 'fy') {
             document.getElementById('fy-container').style.display = 'block';
         } else if (tabName === 'all-apps') {
@@ -544,7 +540,6 @@
             document.getElementById('nekotuti-container').style.display = 'block';
         }
         
-        // ローカルストレージに保存（もし既存機能にあれば）
         try {
             localStorage.setItem('activeTab', tabName);
         } catch(e) {}
