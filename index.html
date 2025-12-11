@@ -207,7 +207,6 @@
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     /* --- Nekotuti (Git通知) 用スタイル --- */
-    
     #nekotuti-container {
         position: relative;
         min-height: 300px; 
@@ -330,6 +329,7 @@
         <div id="fy-content-area"></div>
     </div>
 
+    <!-- Apps コンテナ (ここが消えていたので修正しました) -->
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
         <div id="all-apps-container">
@@ -503,7 +503,7 @@
 <!-- 猫通知JS -->
 <script src="Option/nekotuti.js"></script>
 
-<!-- ★タブ切り替え機能の上書き（ここを追加） -->
+<!-- ★タブ切り替え機能の上書き -->
 <script>
     // script.jsのactivateTabを上書きして、nekotutiコンテナも制御できるようにする
     window.activateTab = function(tabName) {
@@ -516,10 +516,10 @@
         const activeBtn = document.getElementById('tab-' + tabName);
         if(activeBtn) activeBtn.classList.add('active');
 
-        // 3. すべてのコンテナを非表示にする
+        // 3. 親コンテナを非表示にする（ここを修正しました）
+        // all-apps-containerはmain-gridの中にあるので、ここには含めない
         const containers = [
             'fy-container', 
-            'all-apps-container', // 修正: コンテナIDの不一致対策（念のため）
             'main-grid', 
             'bustarain-container', 
             'option-container', 
@@ -541,7 +541,6 @@
         } else if (tabName === 'option') {
             document.getElementById('option-container').style.display = 'block';
         } else if (tabName === 'nekotuti') {
-            // ここで Git通知コンテナを表示
             document.getElementById('nekotuti-container').style.display = 'block';
         }
         
