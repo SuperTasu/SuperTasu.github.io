@@ -1,243 +1,1067 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投稿一覧</title>
-    <style>
-        body {
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            /* ボタンを絶対配置するための基準点 */
-            position: relative;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            color: #24292e;
-            margin-top: 10px;
-        }
-        
-        /* --- 追加: 右上のGitHubボタンのデザイン --- */
-        .github-btn {
-            position: absolute; /* 絶対配置 */
-            top: 20px;          /* 上から20px */
-            right: 20px;        /* 右から20px */
-            background-color: #24292e; /* GitHubっぽい色 */
-            color: white;
-            text-decoration: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: background-color 0.2s;
-            z-index: 100; /* 他の要素より手前に表示 */
-        }
-        .github-btn:hover {
-            background-color: #444d56; /* ホバー時の色 */
-        }
+  <meta charset="UTF-8">
+  <title>Link First</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+   
+  <style>
+    /* --- CSS変数 --- */
+    :root {
+      --bg-color: #ffffff;
+      --text-color-primary: #333333;
+      --text-color-secondary: #666;
+      --custom-bg-image: none; 
+      
+      --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      --card-border-color: rgba(0,0,0,0.05);
+      --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      --icon-bg: #fff;
+      --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      --tab-active-text: #ffffff;
+      --input-bg: #e9ecef;
+      
+      --grid-line-color: rgba(0, 0, 0, 0.1);      
+      --swap-select-color: rgba(33, 150, 243, 0.2); 
+      --slot-hover-color: rgba(0, 0, 0, 0.03);    
+    }
+    body.dark-theme {
+      --bg-color: #434343;
+      --text-color-primary: #f5f5f5;
+      --text-color-secondary: #aaa;
+      --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
+      --card-border-color: rgba(255,255,255,0.1);
+      --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      --icon-bg: #555;
+      --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      --tab-active-text: #ffffff;
+      --input-bg: #3a3a3a;
+      
+      --grid-line-color: rgba(255, 255, 255, 0.1); 
+      --swap-select-color: rgba(100, 181, 246, 0.3);
+      --slot-hover-color: rgba(255, 255, 255, 0.05);
+    }
 
-        /* スマホ向けの調整: 画面幅が600px以下のときは配置を変える */
-        @media (max-width: 600px) {
-            .github-btn {
-                position: static; /* 絶対配置を解除 */
-                display: block;
-                width: fit-content;
-                margin: 0 auto 15px auto; /* 中央寄せ */
-                text-align: center;
-            }
-        }
-        /* --------------------------------------- */
+    body { 
+      margin: 0; 
+      background-color: var(--bg-color); 
+      color: var(--text-color-primary); 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      transition: background-color 0.3s, color 0.3s; 
+      padding: 0; 
+      box-sizing: border-box; 
+      min-height: 100vh;
+    }
 
-        /* 投稿カードのデザイン */
-        .post-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .post-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .post-id {
-            font-weight: bold;
-            color: #0366d6;
-            font-family: monospace;
-        }
-        .post-date {
-            font-size: 0.9em;
-            color: #666;
-        }
-        .post-message {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            white-space: pre-wrap; /* 改行を反映 */
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; 
+      background-image: var(--custom-bg-image);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      pointer-events: none; 
+      transition: background-image 0.5s ease;
+    }
 
-        /* 画像グリッド */
-        .image-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-        }
-        .post-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .post-image:hover {
-            opacity: 0.8;
-        }
+    /* 固定ヘッダー */
+    .fixed-top-wrapper {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+      background-color: #000000; color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; padding: 5px 0;
+      font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+    }
+    .clock-area { width: 100%; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; }
+    .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px; }
+    .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
+    #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
+    #countdown { color: #88aaff; }
+    
+    .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
+    #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 16px; }
+    #speed-test-refresh-button:hover { color: #fff; }
+    .header-controls { display: flex; align-items: center; gap: 15px; margin-left: 15px; }
+    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 20px; transition: color 0.3s; }
+    .control-icon:hover { color: #ffffff; }
+    .theme-switcher { display: flex; gap: 8px; }
+    .theme-dot { width: 14px; height: 14px; border-radius: 50%; cursor: pointer; border: 1px solid #888; }
+    .theme-dot.light { background-color: #fff; }
+    .theme-dot.dark { background-color: #444; }
 
-        /* 読み込み中の表示 */
-        #loading {
-            text-align: center;
-            margin-top: 50px;
-            font-weight: bold;
-            color: #666;
-        }
-    </style>
+    /* メインコンテンツ */
+    .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
+    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container, #notification-container { position: relative; z-index: 1; }
+    .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); padding: 10px; }
+    
+    .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; position: relative; }
+    
+    .search-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 5px; }
+    .search-container { display: flex; align-items: center; padding: 0 15px; background-color: var(--input-bg); border-radius: 20px; border: 1px solid rgba(0,0,0,0.1); width: 100%; max-width: 600px; height: 40px; }
+    .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
+    #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
+    #clearSearchBtn { cursor: pointer; color: #999; }
+    
+    .tab-item { padding: 10px 25px; color: var(--text-color-secondary); font-weight: bold; font-size: 14px; cursor: pointer; border-radius: 20px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+    .tab-item:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; transform: translateY(-2px); }
+    .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
+    .fy-icon { color: #ffc107; }
+
+    /* 通知タブ用のスタイル */
+    .tab-item.notification-btn { margin-left: auto; padding: 10px 15px; background: transparent; border: 1px solid var(--card-border-color); position: relative; }
+    .tab-item.notification-btn.active { background: #ff4444; color: white; border-color: #ff4444; }
+    .notif-badge { position: absolute; top: -5px; right: -5px; background-color: #ff0000; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: none; animation: popIn 0.3s ease-out; }
+    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+    /* Appsグリッド */
+    .main-grid { margin-top: 20px; }
+    .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
+
+    .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; border-radius: 10px; transition: all 0.2s; z-index: 2; }
+    .icon-item .fav-btn { position: absolute !important; top: -5px !important; right: -5px !important; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: #ccc; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
+    .icon-item .fav-btn.active { color: #ffc107; }
+    .icon-item .fav-btn:hover { transform: scale(1.2); }
+    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+    .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
+    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+    body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
+    /* FYグリッドシステム */
+    #fy-content-area {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 0; padding: 5px;
+    }
+    
+    .grid-slot {
+        aspect-ratio: 1 / 1.25; 
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+        border: 1px solid transparent; 
+        border-radius: 8px;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    
+    /* Takatoriウィジェット用 */
+    .grid-slot.takatori-size {
+        grid-column: span 13;
+        grid-row: span 3;
+        aspect-ratio: auto;
+        padding: 5px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 5;
+    }
+    @media (max-width: 1200px) {
+        .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
+    }
+
+    .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
+    .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
+    .edit-mode .grid-slot.selected-slot { background-color: var(--swap-select-color); border: 1px solid #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); }
+
+    @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
+    
+    .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
+    .edit-mode .grid-slot.takatori-size .takatori-display-board { pointer-events: none; opacity: 0.7; }
+
+    .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
+    .edit-mode .icon-link { pointer-events: none; }
+    .edit-mode .fav-btn { display: none; }
+
+    .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
+    .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
+    .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
+
+    #bustarain-container, #option-container, #fy-container, #notification-container { display: none; margin-top: 20px; }
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
+    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; } 
+    .sub-tab-btn.active { background: #667eea; color: white; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); }
+    
+    .accordion-item { border: 1px solid var(--card-border-color); border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); box-shadow: var(--card-shadow); overflow: hidden; } 
+    .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .accordion-header:hover { background-color: rgba(0,0,0,0.02); }
+    .accordion-header .acc-fav-btn { margin-left: auto; margin-right: 15px; color: #ccc; font-size: 18px; transition: transform 0.2s; }
+    .accordion-header .acc-fav-btn.active { color: #ffc107; }
+    .accordion-header .acc-fav-btn:hover { transform: scale(1.2); }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; } 
+    .accordion-item.active .accordion-content { max-height: 1200px; } 
+    .accordion-iframe { width: 100%; height: 600px; border: none; }
+    .hidden { display: none !important; }
+    
+    .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
+    .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+
+    /* Notification Tab CSS */
+    .notif-header-row { position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .github-link-btn { background-color: var(--input-bg); color: var(--text-color-primary); text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 14px; font-weight: bold; box-shadow: var(--card-shadow); transition: background-color 0.2s; border: 1px solid var(--card-border-color); }
+    .github-link-btn:hover { background-color: rgba(102, 126, 234, 0.1); color: #667eea; }
+    .post-card { background: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid var(--card-border-color); }
+    .post-header { border-bottom: 1px solid var(--grid-line-color); padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .post-id { font-weight: bold; color: #667eea; font-family: monospace; }
+    .post-date { font-size: 0.9em; color: var(--text-color-secondary); }
+    .post-message { font-size: 16px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; color: var(--text-color-primary); }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .post-image { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; border: 1px solid var(--card-border-color); cursor: pointer; transition: opacity 0.2s; }
+    .post-image:hover { opacity: 0.8; }
+    #loading-msg { text-align: center; margin-top: 50px; font-weight: bold; color: var(--text-color-secondary); }
+
+    /* 背景選択用のスタイル */
+    .bg-preset-container { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .bg-preset-btn { width: 50px; height: 50px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .bg-preset-btn:hover { transform: scale(1.1); }
+    .bg-input-row { display: flex; gap: 10px; margin-top: 15px; }
+    .bg-input-row input { flex-grow: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: var(--input-bg); color: var(--text-color-primary); }
+
+    @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
+    @media (max-width: 768px) { 
+        .fixed-top-wrapper { padding: 10px 0; } 
+        .clock-main-row { flex-wrap: wrap; justify-content: center; } 
+        .datetime-row { justify-content: center; width: 100%; gap: 15px; } 
+        .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } 
+        .page-container { padding-top: 180px; } 
+        .tab-menu { justify-content: space-between; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- 追加: GitHubへのリンクボタン -->
-<a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-btn">
-    GitHub画像フォルダを見る
-</a>
+<div class="fixed-top-wrapper">
+    <div class="clock-area">
+        <div class="clock-main-row">
+            <div class="datetime-row">
+                <div id="date"></div>
+                <div id="clock"></div>
+                <div id="countdown"></div>
+                
+                <div class="header-speed-test">
+                    <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
+                    <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
+                        <i class="fas fa-redo"></i> 
+                    </div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="theme-switcher">
+                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
+                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
+                </div>
+                <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div class="container">
-    <h1>受信ボックス</h1>
-    <div id="loading">データを読み込んでいます...</div>
-    <div id="posts-container"></div>
+<div class="page-container">
+    <div class="tab-container">
+        <div class="search-wrapper">
+            <div class="search-container"> 
+                <i class="fas fa-search"></i> 
+                <input type="text" id="appSearchInput" placeholder="検索..."> 
+                <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+            </div>
+        </div>
+        
+        <div class="tab-menu">
+            <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
+                <i class="fas fa-star fy-icon"></i> FY☆ 
+            </div>
+            <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> 
+                <i class="fas fa-th-large"></i> Apps 
+            </div>
+            <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
+                <i class="fas fa-bus"></i> Bustarain 
+            </div>
+            <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
+                <i class="fas fa-cog"></i> Option 
+            </div>
+            
+            <div class="tab-item notification-btn" id="tab-notification" onclick="activateTab('notification')" title="通知">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge" id="notif-badge">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FY コンテナ -->
+    <div id="fy-container">
+        <div class="fy-header-row">
+            <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
+            <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
+        </div>
+        <div id="fy-content-area"></div>
+    </div>
+
+    <!-- Apps グリッド -->
+    <div class="main-grid" id="main-grid">
+      <div class="apps-area">
+        <div id="all-apps-container">
+            <h3 class="section-title">すべてのアプリ</h3>
+            <div class="grid-container" id="gridContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bustarain コンテナ -->
+    <div id="bustarain-container">
+        <div class="sub-tab-menu">
+            <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
+        </div>
+        
+        <div id="train-content" class="sub-tab-content">
+            <div class="accordion-item" data-id="tr-1" data-title="和田岬">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>和田岬</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>帰）板宿新長田経由海岸線</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅（山陽電車）</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div id="bus-content" class="sub-tab-content hidden">
+            <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>バスロケーション</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-ikuei" data-title="Locate育英高校前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span> Locate育英高校前 </span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-3" data-title="今出在家">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>今出在家</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>夢野町3丁目</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-takatori" data-title="高取団地前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>高取団地前</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/takatori.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-itayado" data-title="板宿駅">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/itayado-bus.html"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div id="other-content" class="sub-tab-content hidden">
+             <p style="text-align:center; padding:20px;">その他情報はありません。</p>
+        </div>
+    </div>
+
+    <!-- Notification コンテナ -->
+    <div id="notification-container">
+        <div class="notif-header-row">
+            <h3 class="section-title" style="margin:0;">受信ボックス</h3>
+            <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-link-btn">
+                <i class="fab fa-github"></i> 画像フォルダ
+            </a>
+        </div>
+        <div id="loading-msg">データを読み込んでいます...</div>
+        <div id="posts-list-area"></div>
+    </div>
+
+    <!-- Option コンテナ -->
+    <div id="option-container">
+        <h3 class="section-title">設定</h3>
+        <div class="option-card">
+            <h4>テーマ設定</h4>
+            <p><span onclick="setTheme('light')" style="cursor:pointer; text-decoration:underline;">ライト</span> / <span onclick="setTheme('dark')" style="cursor:pointer; text-decoration:underline;">ダーク</span></p>
+            
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--grid-line-color);">
+            
+            <h4>背景画像の変更</h4>
+            <div class="bg-preset-container">
+                <div class="bg-preset-btn" style="background: #fff; border: 1px solid #ddd;" onclick="saveBackground('none')" title="デフォルト"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);" onclick="saveBackground('linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)')" title="Blue Gradient"></div>
+                <div class="bg-preset-btn" style="background: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);" onclick="saveBackground('linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)')" title="Grey Gradient"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="saveBackground('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80')" title="Landscape"></div>
+                <div class="bg-preset-btn" style="background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80'); background-size: cover;" onclick="saveBackground('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80')" title="Space"></div>
+            </div>
+            <div class="bg-input-row">
+                <input type="text" id="customBgUrl" placeholder="画像のURLを入力...">
+                <button class="edit-btn" onclick="saveBackground(document.getElementById('customBgUrl').value)">適用</button>
+                <button class="edit-btn" style="background:#ffcccc;" onclick="resetBackground()">リセット</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // --- 設定 ---
-    const GITHUB_USER = "SuperTasu";
-    const GITHUB_REPO = "Call-Answered-";
-    const GITHUB_PATH = "image/";
+// --- DOM要素 ---
+const mainGrid = document.getElementById('main-grid');
+const bustarainContainer = document.getElementById('bustarain-container');
+const optionContainer = document.getElementById('option-container');
+const fyContainer = document.getElementById('fy-container');
+const fyContentArea = document.getElementById('fy-content-area');
+const gridContainer = document.getElementById('gridContainer');
+const searchInput = document.getElementById('appSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const fyEditBtn = document.getElementById('fy-edit-btn'); 
+
+const dateElement = document.getElementById('date');
+const clockElement = document.getElementById('clock');
+const countdownElement = document.getElementById('countdown');
+
+// --- データ ---
+const schedule = [{name:"1限",start:"08:50",end:"09:40"},{name:"休憩",start:"09:40",end:"09:50"},{name:"2限",start:"09:50",end:"10:40"},{name:"休憩",start:"10:40",end:"10:50"},{name:"3限",start:"10:50",end:"11:40"},{name:"休憩",start:"11:40",end:"11:50"},{name:"4限",start:"11:50",end:"12:40"},{name:"昼休み",start:"12:40",end:"13:20"},{name:"5限",start:"13:20",end:"14:10"},{name:"休憩",start:"14:10",end:"14:20"},{name:"6限",start:"14:20",end:"15:10"},{name:"休憩",start:"15:10",end:"15:20"},{name:"7,8限",start:"15:20",end:"17:00"}];
+
+const initialAppData = [
+    {id:1,label:"Google",url:"https://www.google.com",icon:"https://www.google.com/favicon.ico",searchText:"Google グーグル"},
+    {id:2,label:"Gmail",url:"https://mail.google.com",icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico",searchText:"Gmail Google Mail メール"},
+    {id:35,label:"Chat",url:"https://chat.google.com",icon:"https://ssl.gstatic.com/dynamite/images/favicon/chat_2020q4_192.png",searchText:"Google Chat チャット"},
+    {id:3,label:"Calendar",url:"https://calendar.google.com",icon:"https://ssl.gstatic.com/calendar/images/dynamiclogo_2020q4/calendar_3_2x.png",searchText:"Google Calendar カレンダー"},
+    {id:4,label:"Photos",url:"https://photos.google.com",icon:"https://ssl.gstatic.com/images/branding/product/1x/photos_48dp.png",searchText:"Google Photos フォト 写真"},
+    {id:5,label:"Drive",url:"https://drive.google.com",icon:"https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",searchText:"Google Drive ドライブ"},
+    {id:33,label:"Google Sites",url:"https://sites.google.com/new",icon:"https://ssl.gstatic.com/images/branding/product/1x/sites_48dp.png",searchText:"Google Sites サイト作成"},
+    {id:44,label:"Docs",url:"https://docs.google.com/document/u/0/",icon:"https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023q4.ico",searchText:"Google Documents ドキュメント"},
+    {id:45,label:"Analytics",url:"https://analytics.google.com/analytics/web/",icon:"https://www.google.com/analytics/favicon.ico",searchText:"Google Analytics アナリティクス"},
+    {id:46,label:"App Script",url:"https://script.google.com/home",icon:"https://ssl.gstatic.com/script/images/favicon.png",searchText:"Google App Script GAS"},
+    {id:47,label:"Google翻訳",url:"https://translate.google.co.jp/",icon:"https://www.google.com/images/icons/product/translate-32.png",searchText:"Google Translate 翻訳"},
+    {id:40,label:"Family Club",url:"https://www.fc-member.familyclub.jp",icon:"https://www.familyclub.jp/img/common/favicon.ico",searchText:"Family Club ファンクラブ"},
+    {id:38,label:"SixTONES",url:"https://www.sixtones.jp",icon:"https://www.sixtones.jp/favicon.ico",searchText:"SixTONES ジャニーズ"},
+    {id:39,label:"ART-PUT",url:"https://art-put.com",icon:"https://art-put.com/favicon.ico",searchText:"ART-PUT アート"},
+    {id:42,label:"Number i",url:"https://tobe-official.jp/artists/number_i",icon:"https://tobe-official.jp/favicon.ico",searchText:"Number i tobe"},
+    {id:41,label:"H. Kitayama",url:"https://tobe-official.jp/artists/hiromitsukitayama",icon:"https://tobe-official.jp/favicon.ico",searchText:"Hiromitsu Kitayama tobe"},
+    {id:22,label:"ChatGPT",url:"https://chatgpt.com",icon:"https://chat.openai.com/favicon.ico",searchText:"ChatGPT AI"},
+    {id:24,label:"Claude AI",url:"https://claude.ai",icon:"https://claude.ai/favicon.ico",searchText:"Claude AI クロード"},
+    {id:23,label:"Google AI",url:"https://aistudio.google.com/prompts/new_chat",icon:"https://aistudio.google.com/favicon.ico",searchText:"Google AI Studio Gemini"},
+    {id:75,label:"Perplexity",url:"https://www.perplexity.ai",icon:"https://www.perplexity.ai/favicon.ico",searchText:"Perplexity AI パープレキシティ"},
+    {id:76,label:"Gemini",url:"https://gemini.google.com/app",icon:"https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030da8.png",searchText:"Google Gemini ジェミニ"},
+    {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",searchText:"Microsoft Copilot コパイロット Bing"},
+    {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",searchText:"X Twitter ツイッター"},
+    {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",searchText:"Instagram インスタグラム"},
+    {id:9,label:"YouTube",url:"https://www.youtube.com/feed/subscriptions",icon:"https://www.youtube.com/favicon.ico",searchText:"YouTube ユーチューブ"},
+    {id:10,label:"YT Shorts",url:"https://www.youtube.com/feed/subscriptions/shorts",icon:"https://www.youtube.com/favicon.ico",searchText:"YT Shorts YouTube ショート"},
+    {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",searchText:"TikTok ティックトック"},
+    {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",searchText:"Twitch ツイッチ"},
+    {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",searchText:"Discord ディスコード"},
+    {id:14,label:"Abema",url:"https://abema.tv/",icon:"https://abema.tv/favicon.ico",searchText:"Abema アベマ"},
+    {id:16,label:"Spotify",url:"https://open.spotify.com/intl-ja",icon:"https://open.spotify.com/favicon.ico",searchText:"Spotify スポティファイ"},
+    {id:36,label:"U-NEXT",url:"https://video.unext.jp/",icon:"https://video.unext.jp/favicon.ico",searchText:"U-NEXT ユーネクスト"},
+    {id:71,label:"Pinterest",url:"https://jp.pinterest.com",icon:"https://jp.pinterest.com/favicon.ico",searchText:"Pinterest ピンタレスト 画像"},
+    {id:57,label:"Apex Status",url:"https://apexlegendsstatus.com/current-map",icon:"https://apexlegendsstatus.com/favicon-32x32.png",searchText:"Apex Legends Status"},
+    {id:58,label:"Splatoon Map",url:"https://www.splatoon3-schedule.net",icon:"https://www.splatoon3-schedule.net/favicon.ico",searchText:"Splatoon 3 スプラトゥーン マップ"},
+    {id:59,label:"Splatoon Note",url:"https://support.nintendo.com/jp/switch/software_support/av5ja/1010.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"Splatoon 3 パッチノート"},
+    {id:60,label:"MKBuilder",url:"https://mk8dxbuilder.com",icon:"https://mk8dxbuilder.com/favicon.ico",searchText:"MK8DX Builder マリオカート"},
+    {id:61,label:"MK Lounge",url:"https://lounge.mkcentral.com/mk8dx",icon:"https://lounge.mkcentral.com/favicon.ico",searchText:"MK8DX Lounge Status"},
+    {id:62,label:"MK Blog",url:"https://japan-mk.blog.jp",icon:"https://japan-mk.blog.jp/favicon.ico",searchText:"MK Blog マリオカート"},
+    {id:63,label:"MK Central",url:"https://mkcentral.com/en-us",icon:"https://mkcentral.com/favicon.ico",searchText:"MK Central"},
+    {id:64,label:"MK Overlay",url:"https://statsoverlay.prismillon.com/",icon:"https://statsoverlay.prismillon.com/assets/icon.png",searchText:"MK8DX Overlay"},
+    {id:65,label:"MK8DX Note",url:"https://support-jp.nintendo.com/app/answers/detail/a_id/34464",icon:"https://support.nintendo.com/favicon.ico",searchText:"MK8DX パッチノート"},
+    {id:66,label:"MKWD Note",url:"https://support.nintendo.com/jp/switch2/software_support/aaaaa/index.html",icon:"https://support.nintendo.com/favicon.ico",searchText:"MKWD パッチノート"},
+    {id:17,label:"Y2mate",url:"https://www-y2mate.com/ja23/",icon:"https://www-y2mate.com/themes/images/logo_y2mate.png",searchText:"y2mate ダウンロード"},
+    {id:18,label:"SpotiDown",url:"https://spotidownloader.com/jp",icon:"https://spotidownloader.com/favicon.ico",searchText:"Spotify Downloader ダウンロード"},
+    {id:19,label:"SpotiMate",url:"https://spotimate.io/",icon:"https://spotimate.io/favicon.ico",searchText:"Spotify mate ダウンロード"},
+    {id:6,label:"Yahoo!",url:"https://www.yahoo.co.jp",icon:"https://www.yahoo.co.jp/favicon.ico",searchText:"Yahoo! ヤフー"},
+    {id:48,label:"知恵袋",url:"https://chiebukuro.yahoo.co.jp/notification",icon:"https://s.yimg.jp/c/icon/s/bsc/2.0/favicon.ico",searchText:"Yahoo 知恵袋"},
+    {id:11,label:"Remote It",url:"https://app.remote.it",icon:"https://app.remote.it/favicon.ico",searchText:"Remote It リモート"},
+    {id:20,label:"神戸市交通局",url:"https://kotsu.city.kobe.lg.jp/",icon:"https://kotsu.city.kobe.lg.jp/common/img/favicon.ico",searchText:"神戸市交通局 地下鉄 バス"},
+    {id:21,label:"GigaFile",url:"https://gigafile.nu/",icon:"https://gigafile.nu/favicon.ico",searchText:"GigaFile ギガファイル便"},
+    {id:49,label:"Deepl翻訳",url:"https://www.deepl.com/translator",icon:"https://www.deepl.com/img/favicon/deepl_favicon_32x32.png",searchText:"Deepl 翻訳"},
+    {id:25,label:"BUSTARAIN",url:"https://sites.google.com/view/bustar/home",icon:"https://sites.google.com/favicon.ico",searchText:"BUSTARAIN バスタレイン"},
+    {id:26,label:"Answer I",url:"https://sites.google.com/view/answer-i/home",icon:"https://sites.google.com/favicon.ico",searchText:"Answer I アンサー"},
+    {id:27,label:"Rawkuro",url:"https://rawkuro.net/manga/bururokku004/di285hua",icon:"https://rawkuro.net/favicon.ico",searchText:"Rawkuro ブルーロック 漫画"},
+    {id:28,label:"Manga4U",url:"https://mn4u.net/tgm-84/",icon:"https://mn4u.net/favicon.ico",searchText:"MN4U ブルーロック 漫画"},
+    {id:29,label:"マガポケ",url:"https://pocket.shonenmagazine.com/title/00617/episode/426754",icon:"https://kmanga.kodansha.com/favicon.ico",searchText:"講談社 ブルーロック 漫画"},
+    {id:30,label:"メルカリ",url:"https://www.mercari.com/jp/",icon:"https://mercari.com/favicon.ico",searchText:"メルカリ フリマ"},
+    {id:31,label:"Yahoo!フリマ",url:"https://paypayfleamarket.yahoo.co.jp/",icon:"https://paypayfleamarket.yahoo.co.jp/favicon.ico",searchText:"Yahoo!フリマ ヤフー"},
+    {id:37,label:"Amazon",url:"https://www.amazon.co.jp/",icon:"https://www.amazon.co.jp/favicon.ico",searchText:"Amazon アマゾン"},
+    {id:32,label:"ヤマト運輸",url:"https://www.kuronekoyamato.co.jp/",icon:"https://www.kuronekoyamato.co.jp/favicon.ico",searchText:"ヤマト運輸 宅急便"},
+    {id:34,label:"GitHub",url:"https://github.com",icon:"https://github.com/favicon.ico",searchText:"GitHub ギットハブ"},
+    {id:43,label:"AMEFURASSHI",url:"https://amefurasshi.jp",icon:"https://amefurasshi.jp/wp-content/themes/amefurasshi/assets/images/favicon.ico",searchText:"AMEFURASSHI"},
+    {id:50,label:"画像圧縮",url:"https://www.iloveimg.com/ja/compress-image",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg compress"},
+    {id:51,label:"PDF圧縮",url:"https://www.ilovepdf.com/ja/compress_pdf",icon:"https://www.ilovepdf.com/img/favicons/favicon-32x32.png",searchText:"ilovepdf compress"},
+    {id:52,label:"enHack",url:"https://enhack.app/app/#!/index/you/home/",icon:"https://enhack.app/favicon.ico",searchText:"enHack"},
+    {id:53,label:"Scribd",url:"https://www.scribd.com",icon:"https://www.scribd.com/favicon.ico",searchText:"Scribd"},
+    {id:54,label:"背景透過",url:"https://www.iloveimg.com/ja/remove-background",icon:"https://www.iloveimg.com/img/favicons/favicon-32x32.png",searchText:"iloveimg remove background"},
+    {id:55,label:"便利ツール",url:"https://jp.piliapp.com",icon:"https://jp.piliapp.com/favicon.ico",searchText:"piliapp 工具"},
+    {id:56,label:"QR作成",url:"https://qr.quel.jp/url.php",icon:"https://qr.quel.jp/favicon.ico",searchText:"QRコード作成 quel"},
+    {id:67,label:"方眼ノート",url:"https://houganshi.net/note.php",icon:"https://houganshi.net/favicon.ico",searchText:"ノート作成 houganshi"},
+    {id:68,label:"マナビジョン",url:"https://manabi.benesse.ne.jp",icon:"https://manabi.benesse.ne.jp/favicon.ico",searchText:"Benesse ベネッセ"},
+    {id:69, label:"兵庫県警報・注意報", url:"https://weathernews.jp/onebox/warn/hyogo/2810000/", icon:"https://weathernews.jp/favicon.ico", searchText:"警報 注意報 天気 兵庫 weathernews"},
+    {id:70, label:"文字数カウント", url:"https://sundryst.com/convenienttool/strcount.html", icon:"https://sundryst.com/favicon.ico", searchText:"文字数 カウント tool"},
+    {id:72,label:"UKARO",url:"https://www.ucaro.net",icon:"https://www.ucaro.net/favicon.ico",searchText:"UKARO ウカロ 受験 大学"},
+    {id:73,label:"Wordpress",url:"https://wordpress.com/home/answeri.wordpress.com",icon:"https://s1.wp.com/i/favicon.ico",searchText:"Wordpress ワードプレス ブログ answeri"},
+    {id:74,label:"受かる英語",url:"https://ukaru-eigo.com",icon:"https://ukaru-eigo.com/favicon.ico",searchText:"受かる英語 英語学習"},
+    {id:78,label:"背景透過2",url:"https://www.remove.bg/ja",icon:"https://www.remove.bg/favicon.ico",searchText:"remove.bg 背景透過 removebg"},
+    {id:79,label:"Microsoft Form",url:"https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=Marketing",icon:"https://forms.office.com/favicon.ico",searchText:"Microsoft Forms フォーム アンケート"},
+    {id:80,label:"PDF圧縮2",url:"https://tools.pdf24.org/ja/compress-pdf",icon:"https://tools.pdf24.org/favicon.ico",searchText:"PDF24 compress 圧縮"},
+    {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",searchText:"imguma アッシュクマ 画像圧縮"},
+];
+
+// Bustarainのデータマップ
+const bustarainData = {
+    "tr-1": { label: "和田岬", icon: "fas fa-train" },
+    "tr-2": { label: "帰）板宿新長田経由", icon: "fas fa-train" },
+    "tr-3": { label: "板宿駅（山陽）", icon: "fas fa-train" },
+    "bs-1": { label: "バスロケ", icon: "fas fa-bus" },
+    "bs-ikuei": { label: "Locate育英", icon: "fas fa-bus" },
+    "bs-2": { label: "行き帰り", icon: "fas fa-bus" },
+    "bs-3": { label: "今出在家", icon: "fas fa-bus" },
+    "bs-4": { label: "夢野町3", icon: "fas fa-bus" },
+    "bs-takatori": { label: "高取団地前", icon: "fas fa-bus" },
+    "bs-itayado": { label: "板宿駅(Bus)", icon: "fas fa-bus" }
+};
+
+const FAV_KEY = 'myLinkAppFavorites';
+const BG_KEY = 'user_custom_bg'; 
+const TAB_KEY = 'myLinkAppLastTab';
+const TEXT_COLOR_KEY = 'myLinkAppTextColor';
+
+let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+if (favorites.length < 60) {
+    const padding = new Array(60 - favorites.length).fill(null);
+    favorites = favorites.concat(padding);
+}
+
+let isEditMode = false; 
+let selectedSlotIndex = null; 
+
+// --- 初期化 ---
+window.onload = function() {
+    updateClock();
+    setInterval(updateClock, 1000);
     
-    // GitHub PagesのベースURL（画像を表示するために使用）
-    const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
+    // テーマの復元
+    // bodyクラスはCSSで定義済み、必要ならここで再設定
+    
+    loadBackground();
+    loadTextColor(); 
 
-    // GitHub APIのエンドポイント（ファイル一覧取得用）
-    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+    renderGrid(initialAppData);
+    initBustarain();
 
-    async function fetchPosts() {
-        const container = document.getElementById('posts-container');
-        const loading = document.getElementById('loading');
+    const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
+    activateTab(lastTab);
 
-        try {
-            // 1. フォルダ内のファイル一覧を取得
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error("API Limit or Network Error");
-            const files = await response.json();
+    if (document.getElementById('tab-fy').classList.contains('active')) {
+        renderFavoritesPage();
+    }
 
-            // 2. "_message.json" で終わるファイルだけをフィルタリング
-            const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
+    // 検索機能
+    searchInput.addEventListener('input', handleSearch);
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        handleSearch();
+    });
 
-            // 3. 新しい順（降順）に並び替え
-            // ファイル名が "yyyyMMdd-HHmmss..." なので名前でソートすれば時系列になる
-            jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+    // 通知の新着チェック
+    checkNewPosts();
+};
 
-            if (jsonFiles.length === 0) {
-                loading.innerText = "投稿が見つかりませんでした。";
-                return;
-            }
+// --- テーマ設定 ---
+function setTheme(mode) {
+    if(mode === 'dark') {
+        document.body.classList.add('dark-theme');
+    } else {
+        document.body.classList.remove('dark-theme');
+    }
+}
 
-            // 4. 各JSONファイルの中身を取得して表示
-            // ※大量にあると遅くなるため、最新20件だけ取得するなどの制限をかけても良い
-            for (const file of jsonFiles) {
-                await loadAndDisplayPost(file.download_url, container);
-            }
+// --- 背景画像管理 ---
+function saveBackground(urlData) {
+    if (urlData && urlData !== 'none') {
+        // url()形式でなければラップする (プリセットは既にラップ済みの場合あり)
+        const finalVal = urlData.startsWith('url(') || urlData.startsWith('linear-gradient') ? urlData : `url('${urlData}')`;
+        localStorage.setItem(BG_KEY, finalVal);
+        applyBackground(finalVal);
+    } else {
+        localStorage.setItem(BG_KEY, 'none');
+        applyBackground('none');
+    }
+}
+function loadBackground() {
+    const savedBg = localStorage.getItem(BG_KEY);
+    if (savedBg) applyBackground(savedBg);
+}
+function applyBackground(val) {
+    document.documentElement.style.setProperty('--custom-bg-image', val);
+}
+function resetBackground() {
+    localStorage.removeItem(BG_KEY);
+    applyBackground('none');
+}
 
-            loading.style.display = 'none';
+// --- テキスト色管理 (簡易実装) ---
+function loadTextColor() {
+    // 必要ならここで実装
+}
 
-        } catch (err) {
-            loading.innerText = "エラーが発生しました: " + err.message;
-            console.error(err);
+// --- タブ切り替え ---
+function activateTab(tabName) {
+    document.getElementById('fy-container').style.display = 'none';
+    document.getElementById('main-grid').style.display = 'none';
+    document.getElementById('bustarain-container').style.display = 'none';
+    document.getElementById('option-container').style.display = 'none';
+    document.getElementById('notification-container').style.display = 'none';
+
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+    if(tabName === 'fy') {
+        document.getElementById('fy-container').style.display = 'block';
+        document.getElementById('tab-fy').classList.add('active');
+        renderFavoritesPage();
+    } else if(tabName === 'all-apps') {
+        document.getElementById('main-grid').style.display = 'block';
+        document.getElementById('tab-all-apps').classList.add('active');
+    } else if(tabName === 'bustarain') {
+        document.getElementById('bustarain-container').style.display = 'block';
+        document.getElementById('tab-bustarain').classList.add('active');
+    } else if(tabName === 'option') {
+        document.getElementById('option-container').style.display = 'block';
+        document.getElementById('tab-option').classList.add('active');
+    } else if(tabName === 'notification') {
+        document.getElementById('notification-container').style.display = 'block';
+        document.getElementById('tab-notification').classList.add('active');
+        // バッジクリア
+        document.getElementById('notif-badge').style.display = 'none';
+        document.getElementById('notif-badge').innerText = "0";
+        if(currentTotalPosts > 0) localStorage.setItem('last_viewed_posts_count', currentTotalPosts);
+        fetchPosts();
+    }
+    
+    if(tabName !== 'notification') {
+        localStorage.setItem(TAB_KEY, tabName);
+    }
+}
+
+// --- 時計 ---
+function updateClock() {
+    const now = new Date();
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} (${days[now.getDay()]})`;
+    const timeStr = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    
+    if(dateElement) dateElement.textContent = dateStr;
+    if(clockElement) clockElement.textContent = timeStr;
+
+    // 時間割ロジック
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    let msg = "本日の予定は終了";
+    for (let item of schedule) {
+        const [sh, sm] = item.start.split(':').map(Number);
+        const [eh, em] = item.end.split(':').map(Number);
+        const sMin = sh * 60 + sm;
+        const eMin = eh * 60 + em;
+        if (nowMin >= sMin && nowMin < eMin) {
+            const totalDuration = eMin - sMin;
+            const elapsed = nowMin - sMin;
+            const percentage = Math.floor((elapsed / totalDuration) * 100);
+            msg = `${item.name} ${item.start} 〜 ${item.end} (${percentage}%)`;
+            break;
+        } else if (nowMin < sMin) {
+            msg = `次は ${item.name} (${item.start}〜)`;
+            break;
         }
     }
+    if(countdownElement) countdownElement.textContent = msg;
+}
 
-    async function loadAndDisplayPost(jsonUrl, container) {
-        try {
-            // JSONの中身を取得（Rawデータ）
-            const res = await fetch(jsonUrl);
-            const data = await res.json();
+// --- Apps 検索 ---
+function handleSearch() {
+    const term = searchInput.value.toLowerCase();
+    const items = gridContainer.querySelectorAll('.icon-item');
+    
+    if(term.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+    } else {
+        clearSearchBtn.classList.add('hidden');
+    }
 
-            // カードのHTMLを作成
-            const card = document.createElement('div');
-            card.className = 'post-card';
-
-            // 日付のフォーマット整形（簡易的）
-            const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
-
-            // 画像HTMLの生成
-            let imagesHtml = '';
-            if (data.uploadedFiles && data.uploadedFiles.length > 0) {
-                imagesHtml = `<div class="image-grid">`;
-                data.uploadedFiles.forEach(fileName => {
-                    // 画像のURLは GitHub Pages のURLを使用する
-                    const imageUrl = PAGES_BASE_URL + fileName;
-                    // クリックで原寸表示するためのリンク
-                    imagesHtml += `<a href="${imageUrl}" target="_blank">
-                        <img src="${imageUrl}" class="post-image" loading="lazy">
-                    </a>`;
-                });
-                imagesHtml += `</div>`;
+    initialAppData.forEach((app, index) => {
+        const item = items[index]; 
+        // インデックスがずれる可能性があるため、再生成するかIDで管理するのがベターだが今回は簡易的に
+        if(item) {
+            if(app.searchText.toLowerCase().includes(term)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
             }
+        }
+    });
+}
 
-            card.innerHTML = `
-                <div class="post-header">
-                    <span class="post-id">ID: ${data.id}</span>
-                    <span class="post-date">${dateStr}</span>
-                </div>
-                <div class="post-message">${escapeHtml(data.message || '（メッセージなし）')}</div>
-                ${imagesHtml}
-            `;
+// --- Apps グリッド描画 ---
+function renderGrid(data) {
+    gridContainer.innerHTML = '';
+    data.forEach(app => {
+        const item = createIconItem(app);
+        gridContainer.appendChild(item);
+    });
+}
 
-            container.appendChild(card);
+function createIconItem(app) {
+    const div = document.createElement('div');
+    div.className = 'icon-item';
+    const a = document.createElement('a');
+    a.href = app.url;
+    a.className = 'icon-link';
+    a.target = '_blank';
+    const img = document.createElement('img');
+    let domain = 'google.com';
+    try { domain = new URL(app.url).hostname; } catch(e){}
+    img.src = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    img.className = 'icon-img';
+    img.onerror = () => { img.src = 'https://via.placeholder.com/32?text=?'; };
+    a.appendChild(img);
 
-        } catch (e) {
-            console.error("個別の投稿読み込みエラー", e);
+    const star = document.createElement('i');
+    const isFav = favorites.includes(app.id);
+    star.className = isFav ? 'fas fa-star fav-btn active' : 'far fa-star fav-btn';
+    star.onclick = (e) => {
+        e.preventDefault(); 
+        toggleFavorite(app.id);
+    };
+
+    const label = document.createElement('div');
+    label.className = 'label-text';
+    label.textContent = app.label;
+
+    div.appendChild(star);
+    div.appendChild(a);
+    div.appendChild(label);
+    return div;
+}
+
+// --- Bustarain初期化 ---
+function initBustarain() {
+    const items = document.querySelectorAll('#bustarain-container .accordion-item');
+    items.forEach(item => {
+        const id = item.dataset.id;
+        const star = item.querySelector('.acc-fav-btn');
+        if(!star) return;
+        if(favorites.includes(id)) {
+            star.className = 'fas fa-star acc-fav-btn active';
+        } else {
+            star.className = 'far fa-star acc-fav-btn';
+        }
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+        };
+    });
+}
+function toggleAccordion(header) {
+    const item = header.parentElement;
+    item.classList.toggle('active');
+    if(item.classList.contains('active')) {
+        const iframe = item.querySelector('.accordion-iframe');
+        if(iframe && !iframe.getAttribute('src')) iframe.setAttribute('src', iframe.getAttribute('data-src'));
+    }
+}
+function switchSubTab(contentId) {
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.sub-tab-btn').classList.add('active');
+    document.querySelectorAll('#bustarain-container .sub-tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(contentId).classList.remove('hidden');
+}
+
+// --- お気に入りロジック ---
+function toggleFavorite(id) {
+    const existingIndex = favorites.indexOf(id);
+    if (existingIndex !== -1) {
+        favorites[existingIndex] = null;
+    } else {
+        const emptyIndex = favorites.indexOf(null);
+        if (emptyIndex !== -1) {
+            favorites[emptyIndex] = id;
+        } else {
+            favorites.push(id);
         }
     }
-
-    // XSS対策用エスケープ関数
-    function escapeHtml(str) {
-        if(!str) return '';
-        return str.replace(/[&<>"']/g, function(match) {
-            return {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[match];
-        });
+    saveFavorites();
+    renderGrid(initialAppData); // Appsの星更新
+    initBustarain(); // Bustarainの星更新
+    if (document.getElementById('tab-fy').classList.contains('active')) {
+        renderFavoritesPage();
     }
+}
+function saveFavorites() {
+    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+}
 
-    // 実行
-    fetchPosts();
+// --- FY (Favorites) 表示 ---
+function renderFavoritesPage() {
+    fyContentArea.innerHTML = '';
+    
+    favorites.forEach((favId, index) => {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'grid-slot';
+        
+        // Takatori特殊サイズ対応
+        if (favId === 'bs-takatori') {
+            slotDiv.classList.add('takatori-size');
+        }
+
+        // 編集モード時のクリックイベント
+        slotDiv.onclick = () => {
+            if (isEditMode) handleSlotClick(index);
+        };
+
+        if (favId) {
+            // AppかBustarainかを判別
+            const app = initialAppData.find(a => a.id === favId);
+            const busData = bustarainData[favId];
+
+            if (app) {
+                // 通常アプリの表示
+                const clonedItem = createIconItem(app);
+                // FY内では星ボタンを隠す等の調整が必要ならここで行う
+                // 今回はそのまま表示（星を押せば解除される）
+                slotDiv.appendChild(clonedItem);
+            } else if (busData) {
+                // Bustarain項目の表示
+                const div = document.createElement('div');
+                div.className = 'icon-item';
+                // タップでBustarainタブへ遷移し、該当を開くロジックも組めるが、今回はリンクとして機能させるなら
+                // 単純なアイコン表示にする
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'icon-link';
+                linkDiv.style.cursor = 'pointer';
+                linkDiv.onclick = () => {
+                    if(isEditMode) return;
+                    activateTab('bustarain');
+                    // 少し待ってから開く（簡易実装）
+                    setTimeout(() => {
+                        const accItem = document.querySelector(`.accordion-item[data-id="${favId}"]`);
+                        if(accItem) {
+                            // 親タブを開く
+                            if(favId.startsWith('bs-')) switchSubTab('bus-content');
+                            else switchSubTab('train-content');
+                            // アコーディオンを開く
+                            if(!accItem.classList.contains('active')) toggleAccordion(accItem.querySelector('.accordion-header'));
+                            accItem.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }, 100);
+                };
+                
+                const icon = document.createElement('i');
+                icon.className = busData.icon + ' fa-2x';
+                linkDiv.appendChild(icon);
+
+                // 解除用星
+                const star = document.createElement('i');
+                star.className = 'fas fa-star fav-btn active';
+                star.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
+
+                const label = document.createElement('div');
+                label.className = 'label-text';
+                label.textContent = busData.label;
+
+                div.appendChild(star);
+                div.appendChild(linkDiv);
+                div.appendChild(label);
+                
+                // Takatoriの場合は特殊表示（iframeを埋め込むなど）も可能だが、
+                // ここではアイコン表示 + クリックでジャンプとする
+                // もしiframeを直接表示したい場合は別途実装が必要
+                
+                slotDiv.appendChild(div);
+            }
+        }
+        
+        // 編集モードのスタイル適用
+        if (isEditMode) {
+             if (selectedSlotIndex === index) slotDiv.classList.add('selected-slot');
+        }
+
+        fyContentArea.appendChild(slotDiv);
+    });
+}
+
+// --- 編集モード（並び替え） ---
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    selectedSlotIndex = null;
+    fyEditBtn.classList.toggle('editing');
+    fyEditBtn.innerText = isEditMode ? '完了' : '並び替え';
+    document.body.classList.toggle('edit-mode');
+    renderFavoritesPage();
+}
+
+function handleSlotClick(index) {
+    if (selectedSlotIndex === null) {
+        selectedSlotIndex = index;
+    } else {
+        // Swap
+        const temp = favorites[selectedSlotIndex];
+        favorites[selectedSlotIndex] = favorites[index];
+        favorites[index] = temp;
+        selectedSlotIndex = null;
+        saveFavorites();
+    }
+    renderFavoritesPage();
+}
+
+// --- 通知機能 ---
+const GITHUB_USER = "SuperTasu";
+const GITHUB_REPO = "Call-Answered-";
+const GITHUB_PATH = "image/";
+const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
+let currentTotalPosts = 0;
+let isPostsLoaded = false;
+
+async function checkNewPosts() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) return;
+        const files = await response.json();
+        const messageFiles = files.filter(file => file.name.endsWith('_message.json'));
+        currentTotalPosts = messageFiles.length;
+
+        const lastViewed = parseInt(localStorage.getItem('last_viewed_posts_count') || "0");
+        const newCount = currentTotalPosts - lastViewed;
+
+        if (newCount > 0) {
+            const badge = document.getElementById('notif-badge');
+            badge.innerText = newCount;
+            badge.style.display = 'block';
+        }
+    } catch (err) { console.error(err); }
+}
+
+async function fetchPosts() {
+    if(isPostsLoaded) return;
+    const container = document.getElementById('posts-list-area');
+    const loading = document.getElementById('loading-msg');
+    container.innerHTML = '';
+    loading.style.display = 'block';
+
+    try {
+        const response = await fetch(API_URL);
+        const files = await response.json();
+        const jsonFiles = files.filter(file => file.name.endsWith('_message.json'));
+        jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+        loading.style.display = 'none';
+        if(jsonFiles.length === 0) { container.innerHTML = '<p>投稿なし</p>'; return; }
+
+        for (const file of jsonFiles) {
+            await loadAndDisplayPost(file.download_url, container);
+        }
+        isPostsLoaded = true;
+    } catch (err) {
+        loading.innerText = "エラー: " + err.message;
+    }
+}
+
+async function loadAndDisplayPost(jsonUrl, container) {
+    try {
+        const res = await fetch(jsonUrl);
+        const data = await res.json();
+        const card = document.createElement('div');
+        card.className = 'post-card';
+        const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '---';
+        
+        let imagesHtml = '';
+        if (data.uploadedFiles && data.uploadedFiles.length > 0) {
+            imagesHtml = `<div class="image-grid">`;
+            data.uploadedFiles.forEach(fileName => {
+                imagesHtml += `<a href="${PAGES_BASE_URL + fileName}" target="_blank"><img src="${PAGES_BASE_URL + fileName}" class="post-image" loading="lazy"></a>`;
+            });
+            imagesHtml += `</div>`;
+        }
+        
+        card.innerHTML = `
+            <div class="post-header"><span class="post-id">${data.id}</span><span class="post-date">${dateStr}</span></div>
+            <div class="post-message">${escapeHtml(data.message)}</div>
+            ${imagesHtml}
+        `;
+        container.appendChild(card);
+    } catch(e){}
+}
+function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+function reloadSpeedTest() {
+    const f = document.querySelector('.header-speed-test iframe');
+    f.src = f.src;
+}
 </script>
-
 </body>
 </html>
