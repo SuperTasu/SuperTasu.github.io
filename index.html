@@ -108,7 +108,15 @@
 
     /* メインコンテンツ */
     .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
-    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container { position: relative; z-index: 1; }
+    
+    /* コンテナの基本設定 */
+    .tab-container, .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container { 
+        position: relative; 
+        z-index: 1; 
+        width: 100%; /* 横幅いっぱいに */
+        box-sizing: border-box;
+    }
+
     .tab-container { background: var(--card-bg); box-shadow: var(--card-shadow); margin-top: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border-color); padding: 10px; }
     .tab-menu { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
     .search-wrapper { display: flex; justify-content: center; width: 100%; margin-bottom: 5px; }
@@ -189,11 +197,14 @@
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     /* =========================================
-       Git通知 (Git Notify) 専用スタイル
+       Git通知 (Git Notify) 専用スタイル - 調整版
        ========================================= */
     #git-notify-container {
-        position: relative;
+        /* タブの下に適切に配置 */
+        margin-top: 25px;
+        padding: 0 10px;
     }
+    
     .git-header-area {
         display: flex;
         justify-content: space-between;
@@ -201,7 +212,10 @@
         margin-bottom: 20px;
         flex-wrap: wrap;
         gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--card-border-color);
     }
+
     .github-btn {
         background-color: #24292e;
         color: white;
@@ -275,6 +289,8 @@
         box-shadow: var(--card-shadow);
         border: 1px solid var(--card-border-color);
         transition: transform 0.2s;
+        width: 100%;
+        box-sizing: border-box;
     }
     .post-card:hover { transform: translateY(-2px); }
 
@@ -309,7 +325,8 @@
     .image-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 8px;
+        gap: 10px;
+        width: 100%;
     }
     .post-image {
         width: 100%;
@@ -388,8 +405,8 @@
             <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
                 <i class="fas fa-cog"></i> Option 
             </div>
-            <!-- Git通知タブ: クリックでGitデータを読み込む処理を追加 -->
-            <div class="tab-item" id="tab-git-notify" onclick="activateTab('git-notify'); initGitNotify();"> 
+            <!-- 重要: Git通知タブの onclick を変更。独自の関数を呼び出して強制的に切り替える -->
+            <div class="tab-item" id="tab-git-notify" onclick="openGitTab()"> 
                 <i class="fas fa-cat"></i> Git通知 
             </div>
         </div>
@@ -433,7 +450,6 @@
                     <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
                 </div>
             </div>
-            <!-- 他のアイテムは省略せずにそのまま保持 -->
             <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>帰）板宿新長田経由海岸線</span>
@@ -593,11 +609,37 @@
 
     let isGitLoaded = false; // 重複ロード防止フラグ
 
-    // タブクリック時に呼ばれる関数
-    function initGitNotify() {
-        if (isGitLoaded) return; // すでにロード済みなら何もしない
-        isGitLoaded = true;
-        fetchPosts();
+    // ★重要: タブを手動で切り替える関数
+    // script.jsのactivateTabがGitタブを知らないため、ここで強制的に処理します
+    function openGitTab() {
+        // 1. タブの見た目を切り替え
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-git-notify').classList.add('active');
+
+        // 2. 他のコンテンツをすべて非表示にする
+        // (script.jsで制御されている要素を強制的に隠す)
+        const containersToHide = [
+            '#fy-container',
+            '.main-grid', 
+            '#bustarain-container',
+            '#option-container'
+        ];
+        containersToHide.forEach(selector => {
+            const el = document.querySelector(selector);
+            if(el) el.style.display = 'none';
+        });
+
+        // 3. Gitコンテナを表示する
+        const gitContainer = document.getElementById('git-notify-container');
+        if(gitContainer) {
+            gitContainer.style.display = 'block';
+        }
+
+        // 4. データ読み込み（初回のみ）
+        if (!isGitLoaded) {
+            isGitLoaded = true;
+            fetchPosts();
+        }
     }
 
     async function fetchPosts() {
