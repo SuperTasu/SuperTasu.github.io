@@ -129,6 +129,29 @@
     .tab-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: var(--tab-active-text); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transform: translateY(-2px); }
     .fy-icon { color: #ffc107; }
 
+    /* 通知バッジ用スタイル (追加) */
+    .badge {
+        background-color: #ff4444;
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        margin-left: 6px;
+        font-weight: bold;
+        display: inline-block;
+        vertical-align: text-bottom;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+    }
+    .badge.hidden {
+        display: none;
+    }
+    /* タブがアクティブな時はバッジを目立たせる */
+    .tab-item.active .badge {
+        background-color: #ffffff;
+        color: #ff4444;
+    }
+
     /* Appsグリッド */
     .main-grid { margin-top: 20px; }
     .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
@@ -405,9 +428,9 @@
             <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
                 <i class="fas fa-cog"></i> Option 
             </div>
-            <!-- 重要: Git通知タブの onclick を変更。独自の関数を呼び出して強制的に切り替える -->
+            <!-- Git通知タブ: バッジ用のspanを追加 -->
             <div class="tab-item" id="tab-git-notify" onclick="openGitTab()"> 
-                <i class="fas fa-cat"></i> Git通知 
+                <i class="fas fa-cat"></i> Git通知 <span id="git-badge" class="badge hidden"></span>
             </div>
         </div>
     </div>
@@ -608,6 +631,45 @@
     const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
 
     let isGitLoaded = false; // 重複ロード防止フラグ
+
+    /* --- バッジ更新機能 --- */
+    async function updateGitBadge() {
+        const badge = document.getElementById('git-badge');
+        
+        try {
+            // ファイル一覧を取得
+            const response = await fetch(API_URL);
+            
+            // API制限チェック (API残数が0の場合はバッジ更新をスキップ)
+            const remaining = response.headers.get('x-ratelimit-remaining');
+            if (response.status === 403 && remaining === '0') {
+                console.warn("API Limit reached, skipping badge update.");
+                return;
+            }
+
+            if (!response.ok) return;
+
+            const files = await response.json();
+
+            // "_message.json" で終わるファイルをカウント
+            const count = files.filter(file => file.name.endsWith('_message.json')).length;
+
+            if (count > 0) {
+                // 99件を超える場合は "99+" と表示
+                badge.innerText = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+        } catch (e) {
+            console.error("Badge update failed:", e);
+        }
+    }
+
+    // ページ読み込み時にバッジ更新を実行
+    document.addEventListener('DOMContentLoaded', updateGitBadge);
+
 
     // ★重要: タブを手動で切り替える関数
     // script.jsのactivateTabがGitタブを知らないため、ここで強制的に処理します
