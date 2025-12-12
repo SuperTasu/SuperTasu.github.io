@@ -30,6 +30,10 @@
       --grid-line-color: rgba(0, 0, 0, 0.1);      
       --swap-select-color: rgba(33, 150, 243, 0.2); 
       --slot-hover-color: rgba(0, 0, 0, 0.03);    
+
+      /* Git通知用追加変数 */
+      --git-card-bg: #ffffff;
+      --git-link-color: #0366d6;
     }
     body.dark-theme {
       --bg-color: #434343;
@@ -48,6 +52,10 @@
       --grid-line-color: rgba(255, 255, 255, 0.1); 
       --swap-select-color: rgba(100, 181, 246, 0.3);
       --slot-hover-color: rgba(255, 255, 255, 0.05);
+
+      /* Git通知用追加変数 */
+      --git-card-bg: #3c3c3c;
+      --git-link-color: #58a6ff;
     }
 
     body { 
@@ -134,7 +142,6 @@
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
         gap: 0; padding: 5px;
     }
-    
     .grid-slot {
         aspect-ratio: 1 / 1.25; 
         display: flex; align-items: center; justify-content: center;
@@ -143,53 +150,26 @@
         border-radius: 8px;
         transition: border-color 0.2s, background-color 0.2s;
     }
-    
-    /* ▼▼▼ Takatori (13x3) & Memo サイズ定義 ▼▼▼ */
     .grid-slot.takatori-size {
-        grid-column: span 13;
-        grid-row: span 3;
-        aspect-ratio: auto;
-        padding: 5px;
-        background-color: #ffffff; /* 背景白 */
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        z-index: 5; /* 少し浮かせる */
+        grid-column: span 13; grid-row: span 3; aspect-ratio: auto; padding: 5px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 5;
     }
-    /* スマホなどで13列ない場合は全幅にする */
-    @media (max-width: 1200px) {
-        .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; }
-    }
-
-    .grid-slot.memo-size {
-        grid-column: span 4;
-        grid-row: span 2;
-        aspect-ratio: auto;
-        padding: 5px;
-    }
-    @media (max-width: 600px) {
-        .grid-slot.memo-size { grid-column: span 2; grid-row: span 2; }
-    }
-
+    @media (max-width: 1200px) { .grid-slot.takatori-size { grid-column: 1 / -1; grid-row: auto; } }
+    .grid-slot.memo-size { grid-column: span 4; grid-row: span 2; aspect-ratio: auto; padding: 5px; }
+    @media (max-width: 600px) { .grid-slot.memo-size { grid-column: span 2; grid-row: span 2; } }
     .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
     .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
     .edit-mode .grid-slot.selected-slot { background-color: var(--swap-select-color); border: 1px solid #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); }
-
     @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
-    
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
-    /* 大きなウィジェットは揺らさない */
-    .edit-mode .grid-slot.takatori-size .takatori-display-board,
-    .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
-
+    .edit-mode .grid-slot.takatori-size .takatori-display-board, .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
     .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
     .edit-mode .icon-link { pointer-events: none; }
     .edit-mode .fav-btn { display: none; }
-
     .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
     .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
     .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
 
-    /* Git通知コンテナも非表示にする */
+    /* コンテナ非表示設定 */
     #bustarain-container, #option-container, #fy-container, #git-notify-container { display: none; margin-top: 20px; }
     
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
@@ -207,6 +187,148 @@
     .hidden { display: none !important; }
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
+
+    /* =========================================
+       Git通知 (Git Notify) 専用スタイル
+       ========================================= */
+    #git-notify-container {
+        position: relative;
+    }
+    .git-header-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .github-btn {
+        background-color: #24292e;
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: background-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .github-btn:hover { background-color: #444d56; color: #fff; }
+
+    .api-limit-display {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-family: monospace;
+        z-index: 999;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        pointer-events: none;
+    }
+
+    #limit-overlay {
+        display: none; /* 通常は非表示 */
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 2000;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #333;
+    }
+    body.dark-theme #limit-overlay {
+        background: rgba(40, 40, 40, 0.95);
+        color: #f5f5f5;
+    }
+
+    .timer-box {
+        background: var(--git-card-bg);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        border: 1px solid var(--card-border-color);
+        max-width: 90%;
+    }
+    .timer-count {
+        font-size: 48px;
+        font-weight: bold;
+        color: #d73a49;
+        margin: 20px 0;
+        font-family: monospace;
+    }
+
+    /* 投稿カード */
+    .post-card {
+        background: var(--git-card-bg);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        transition: transform 0.2s;
+    }
+    .post-card:hover { transform: translateY(-2px); }
+
+    .post-header {
+        border-bottom: 1px solid var(--card-border-color);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 5px;
+    }
+    .post-id {
+        font-weight: bold;
+        color: var(--git-link-color);
+        font-family: monospace;
+        font-size: 14px;
+    }
+    .post-date {
+        font-size: 0.85em;
+        color: var(--text-color-secondary);
+    }
+    .post-message {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: var(--text-color-primary);
+    }
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+    }
+    .post-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--card-border-color);
+        cursor: pointer;
+        transition: opacity 0.2s;
+        background-color: var(--input-bg);
+    }
+    .post-image:hover { opacity: 0.8; }
+    
+    #status-message {
+        text-align: center;
+        margin-top: 50px;
+        font-weight: bold;
+        color: var(--text-color-secondary);
+    }
 
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) { .fixed-top-wrapper { padding: 10px 0; } .clock-main-row { flex-wrap: wrap; justify-content: center; } .datetime-row { justify-content: center; width: 100%; gap: 15px; } .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; } .page-container { padding-top: 180px; } }
@@ -266,8 +388,8 @@
             <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
                 <i class="fas fa-cog"></i> Option 
             </div>
-            <!-- Git通知タブを追加 -->
-            <div class="tab-item" id="tab-git-notify" onclick="activateTab('git-notify')"> 
+            <!-- Git通知タブ: クリックでGitデータを読み込む処理を追加 -->
+            <div class="tab-item" id="tab-git-notify" onclick="activateTab('git-notify'); initGitNotify();"> 
                 <i class="fas fa-cat"></i> Git通知 
             </div>
         </div>
@@ -279,10 +401,10 @@
             <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
             <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
         </div>
-        <!-- グリッド表示エリア -->
         <div id="fy-content-area"></div>
     </div>
 
+    <!-- Appsグリッド -->
     <div class="main-grid" id="main-grid">
       <div class="apps-area">
         <div id="all-apps-container">
@@ -292,6 +414,7 @@
       </div>
     </div>
 
+    <!-- Bustarain コンテナ -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
@@ -310,6 +433,7 @@
                     <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
                 </div>
             </div>
+            <!-- 他のアイテムは省略せずにそのまま保持 -->
             <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span>帰）板宿新長田経由海岸線</span>
@@ -343,7 +467,7 @@
                     <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
                 </div>
             </div>
-                      <div class="accordion-item" data-id="tr-3" data-title="locate育英高校前">
+             <div class="accordion-item" data-id="tr-3" data-title="locate育英高校前">
                 <div class="accordion-header" onclick="toggleAccordion(this)">
                     <span> Locate育英高校前 </span>
                     <i class="fas fa-star acc-fav-btn"></i>
@@ -423,7 +547,30 @@
     <div id="option-container"></div>
     
     <!-- Git通知 コンテナ -->
-    <div id="git-notify-container"></div>
+    <div id="git-notify-container">
+        <!-- API残り回数表示 -->
+        <div id="api-limit-display" class="api-limit-display">API確認中...</div>
+        
+        <!-- 制限時のオーバーレイ（タイマー） -->
+        <div id="limit-overlay">
+            <div class="timer-box">
+                <h2>⚠️ API制限がかかりました</h2>
+                <p>GitHub APIの利用上限に達しました。<br>以下の時間が経過すると自動的に解除されます。</p>
+                <div id="timer-countdown" class="timer-count">00:00:00</div>
+                <p><small>※この画面を開いたままお待ちいただくか、時間をおいてリロードしてください。</small></p>
+            </div>
+        </div>
+
+        <div class="git-header-area">
+            <h3 class="section-title" style="margin:0; border:none;">受信ボックス</h3>
+            <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-btn">
+                <i class="fab fa-github"></i> 画像フォルダ
+            </a>
+        </div>
+        
+        <div id="status-message">データを読み込んでいます...</div>
+        <div id="posts-container"></div>
+    </div>
 
 </div>
 
@@ -433,5 +580,185 @@
 <script src="Option/main.js"></script>
 <script src="Option/nekotuti.js"></script>
 <script src="script.js"></script>
+
+<!-- Git通知用スクリプト -->
+<script>
+    // --- Git通知設定 ---
+    const GITHUB_USER = "SuperTasu";
+    const GITHUB_REPO = "Call-Answered-";
+    const GITHUB_PATH = "image/";
+    
+    const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
+    const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
+
+    let isGitLoaded = false; // 重複ロード防止フラグ
+
+    // タブクリック時に呼ばれる関数
+    function initGitNotify() {
+        if (isGitLoaded) return; // すでにロード済みなら何もしない
+        isGitLoaded = true;
+        fetchPosts();
+    }
+
+    async function fetchPosts() {
+        const container = document.getElementById('posts-container');
+        const statusMsg = document.getElementById('status-message');
+        const limitDisplay = document.getElementById('api-limit-display');
+
+        statusMsg.style.display = 'block';
+        statusMsg.innerText = 'データを読み込んでいます...';
+
+        try {
+            // 1. ファイル一覧を取得
+            const response = await fetch(API_URL);
+
+            // --- API制限情報の取得と表示 ---
+            const limit = response.headers.get('x-ratelimit-limit');
+            const remaining = response.headers.get('x-ratelimit-remaining');
+            const resetTime = response.headers.get('x-ratelimit-reset'); // リセット時刻(UNIXタイムスタンプ)
+
+            if (limit && remaining) {
+                limitDisplay.innerText = `API残り: ${remaining} / ${limit}`;
+                
+                // 残りが少ないときは色を変える（赤くする）
+                if (parseInt(remaining) === 0) {
+                    limitDisplay.style.backgroundColor = "#d73a49";
+                } else {
+                    limitDisplay.style.backgroundColor = "rgba(0,0,0,0.8)";
+                }
+            }
+
+            // --- 403エラー（制限到達）の処理 ---
+            if (response.status === 403 && parseInt(remaining) === 0) {
+                startCountdown(resetTime); // タイマー開始
+                throw new Error("API Limit Reached"); // 処理中断
+            }
+
+            if (!response.ok) {
+                throw new Error(`データ取得エラー: ${response.status}`);
+            }
+
+            const files = await response.json();
+
+            // 2. "_message.json" ファイルのみ抽出・ソート
+            const jsonFiles = files
+                .filter(file => file.name.endsWith('_message.json'))
+                .sort((a, b) => b.name.localeCompare(a.name));
+
+            if (jsonFiles.length === 0) {
+                statusMsg.innerText = "投稿が見つかりませんでした。";
+                return;
+            }
+
+            // 3. 最新20件を取得（並列処理）
+            const fetchLimit = 20;
+            const targetFiles = jsonFiles.slice(0, fetchLimit);
+
+            const postsData = await Promise.all(targetFiles.map(async (file) => {
+                try {
+                    const res = await fetch(file.download_url);
+                    return res.ok ? await res.json() : null;
+                } catch (e) {
+                    return null;
+                }
+            }));
+
+            // 4. 表示
+            statusMsg.style.display = 'none';
+            postsData.forEach(data => {
+                if (data) {
+                    container.insertAdjacentHTML('beforeend', createPostCard(data));
+                }
+            });
+
+            if (jsonFiles.length > fetchLimit) {
+                const moreMsg = document.createElement('div');
+                moreMsg.style.textAlign = 'center';
+                moreMsg.style.color = 'var(--text-color-secondary)';
+                moreMsg.style.margin = '20px 0';
+                moreMsg.innerText = `※最新の${fetchLimit}件を表示しています`;
+                container.appendChild(moreMsg);
+            }
+
+        } catch (err) {
+            if (err.message !== "API Limit Reached") {
+                statusMsg.innerText = "エラーが発生しました: " + err.message;
+            }
+        }
+    }
+
+    // --- カウントダウンタイマー機能 ---
+    function startCountdown(resetTimestamp) {
+        const overlay = document.getElementById('limit-overlay');
+        const countdownEl = document.getElementById('timer-countdown');
+        const statusMsg = document.getElementById('status-message');
+
+        // 表示を切り替え
+        overlay.style.display = 'flex';
+        statusMsg.style.display = 'none';
+
+        // リセット時刻（秒）をミリ秒に変換
+        const resetTimeMs = parseInt(resetTimestamp, 10) * 1000;
+
+        const timerInterval = setInterval(() => {
+            const now = Date.now();
+            const diff = resetTimeMs - now;
+
+            if (diff <= 0) {
+                clearInterval(timerInterval);
+                countdownEl.innerText = "解除されました！";
+                // ページをリロードして再取得
+                setTimeout(() => location.reload(), 2000);
+                return;
+            }
+
+            // 残り時間の計算
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // ゼロ埋めして表示
+            countdownEl.innerText = 
+                `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
+
+        }, 1000);
+    }
+
+    // --- カード生成関数 ---
+    function createPostCard(data) {
+        const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
+        const safeMessage = escapeHtml(data.message || '（メッセージなし）');
+        let imagesHtml = '';
+
+        if (data.uploadedFiles && Array.isArray(data.uploadedFiles) && data.uploadedFiles.length > 0) {
+            imagesHtml = `<div class="image-grid">`;
+            data.uploadedFiles.forEach(fileName => {
+                const imageUrl = PAGES_BASE_URL + fileName;
+                imagesHtml += `
+                    <a href="${imageUrl}" target="_blank">
+                        <img src="${imageUrl}" class="post-image" loading="lazy">
+                    </a>`;
+            });
+            imagesHtml += `</div>`;
+        }
+
+        return `
+            <div class="post-card">
+                <div class="post-header">
+                    <span class="post-id">ID: ${escapeHtml(data.id)}</span>
+                    <span class="post-date">${dateStr}</span>
+                </div>
+                <div class="post-message">${safeMessage}</div>
+                ${imagesHtml}
+            </div>
+        `;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[m]);
+    }
+</script>
 </body>
 </html>
