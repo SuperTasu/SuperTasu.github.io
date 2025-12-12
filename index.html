@@ -631,6 +631,7 @@
     const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
 
     let isGitLoaded = false; // 重複ロード防止フラグ
+    let currentTotalGitFiles = 0; // 現在のファイル総数を保持する変数
 
     /* --- バッジ更新機能 --- */
     async function updateGitBadge() {
@@ -640,7 +641,7 @@
             // ファイル一覧を取得
             const response = await fetch(API_URL);
             
-            // API制限チェック (API残数が0の場合はバッジ更新をスキップ)
+            // API制限チェック
             const remaining = response.headers.get('x-ratelimit-remaining');
             if (response.status === 403 && remaining === '0') {
                 console.warn("API Limit reached, skipping badge update.");
@@ -653,10 +654,23 @@
 
             // "_message.json" で終わるファイルをカウント
             const count = files.filter(file => file.name.endsWith('_message.json')).length;
+            
+            // グローバル変数に最新の総数を保存
+            currentTotalGitFiles = count;
 
-            if (count > 0) {
+            // ローカルストレージから「前回見た時の数」を取得
+            // ユーザー要望：日時の保存も行うが、未読判定は「数の差分」で行うのが最も確実かつAPIに優しい
+            const lastReadCount = parseInt(localStorage.getItem('git_read_count') || '0', 10);
+            
+            // 未読数 = 現在の総数 - 前回見た時の数
+            let unreadCount = count - lastReadCount;
+            
+            // ファイルが削除された場合などでマイナスになるのを防ぐ
+            if (unreadCount < 0) unreadCount = 0;
+
+            if (unreadCount > 0) {
                 // 99件を超える場合は "99+" と表示
-                badge.innerText = count > 99 ? '99+' : count;
+                badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
@@ -672,14 +686,12 @@
 
 
     // ★重要: タブを手動で切り替える関数
-    // script.jsのactivateTabがGitタブを知らないため、ここで強制的に処理します
     function openGitTab() {
         // 1. タブの見た目を切り替え
         document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-git-notify').classList.add('active');
 
         // 2. 他のコンテンツをすべて非表示にする
-        // (script.jsで制御されている要素を強制的に隠す)
         const containersToHide = [
             '#fy-container',
             '.main-grid', 
@@ -695,6 +707,18 @@
         const gitContainer = document.getElementById('git-notify-container');
         if(gitContainer) {
             gitContainer.style.display = 'block';
+        }
+
+        // --- 追加: バッジを消す（既読にする）処理 ---
+        const badge = document.getElementById('git-badge');
+        if (badge) badge.classList.add('hidden');
+
+        // 現在のファイル数が取得できていれば保存する（次回の差分計算用）
+        // ※「日時を保存」という要望に応えるため、日時もLocalStorageに入れますが、
+        //   ロジック自体はカウンターの差分で判定します（API負荷軽減のため）
+        if (currentTotalGitFiles > 0) {
+            localStorage.setItem('git_read_count', currentTotalGitFiles);
+            localStorage.setItem('git_read_date', new Date().toISOString());
         }
 
         // 4. データ読み込み（初回のみ）
@@ -723,8 +747,6 @@
 
             if (limit && remaining) {
                 limitDisplay.innerText = `API残り: ${remaining} / ${limit}`;
-                
-                // 残りが少ないときは色を変える（赤くする）
                 if (parseInt(remaining) === 0) {
                     limitDisplay.style.backgroundColor = "#d73a49";
                 } else {
@@ -748,6 +770,13 @@
             const jsonFiles = files
                 .filter(file => file.name.endsWith('_message.json'))
                 .sort((a, b) => b.name.localeCompare(a.name));
+
+            // ★ここで最新のファイル数を再取得し、LocalStorageを更新（念のため）
+            currentTotalGitFiles = jsonFiles.length;
+            if (currentTotalGitFiles > 0) {
+                localStorage.setItem('git_read_count', currentTotalGitFiles);
+                localStorage.setItem('git_read_date', new Date().toISOString());
+            }
 
             if (jsonFiles.length === 0) {
                 statusMsg.innerText = "投稿が見つかりませんでした。";
