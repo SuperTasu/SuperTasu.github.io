@@ -5,7 +5,6 @@
   <title>Link First</title>
   
   <!-- ▼ ファビコン設定 ▼ -->
-  <!-- icon.png を自動的にリサイズして表示します -->
   <link rel="icon" href="./icon.png" type="image/png">
   <link rel="apple-touch-icon" href="./icon.png">
   <!-- ▲ ファビコン設定 ▲ -->
@@ -96,17 +95,16 @@
     .clock-area { width: 100%; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; }
     .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px; }
 
-    /* ▼ ロゴ用CSS (サイズ調整部分) ▼ */
+    /* ▼ ロゴ用CSS ▼ */
     .site-logo {
-        height: 45px; /* ここで高さを固定して、横幅は自動調整させます */
+        height: 45px;
         width: auto;
         margin-right: 15px;
-        object-fit: contain; /* アスペクト比を崩さず表示 */
+        object-fit: contain;
         vertical-align: middle;
-        border-radius: 10px; /* 画像の角丸に合わせて少し丸くする */
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); /* ほんのり光らせる */
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
-    /* ▲ ロゴ用CSS ▲ */
 
     .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
     #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
@@ -305,7 +303,6 @@
 </div>
 
 <div class="page-container">
-    <!-- 以下、コンテンツの変更はありません -->
     <div class="tab-container">
         <div class="search-wrapper">
             <div class="search-container"> 
@@ -519,8 +516,36 @@
 <script src="Option/nekotuti.js"></script>
 <script src="script.js"></script>
 
-<!-- Git通知用スクリプト -->
+<!-- Git通知・サブタブ保存用スクリプト -->
 <script>
+    // --- サブタブ切り替え・保存機能（ここを追加） ---
+    
+    // サブタブ切り替え関数（保存機能付き）
+    function switchSubTab(contentId) {
+        // 1. ローカルストレージに選択したタブIDを保存
+        localStorage.setItem('active_sub_tab', contentId);
+
+        // 2. すべてのコンテンツを非表示にする
+        const contents = document.querySelectorAll('.sub-tab-content');
+        contents.forEach(el => el.classList.add('hidden'));
+
+        // 3. 選択したコンテンツを表示する
+        const target = document.getElementById(contentId);
+        if (target) {
+            target.classList.remove('hidden');
+        }
+
+        // 4. ボタンのActiveクラスを切り替える
+        const buttons = document.querySelectorAll('.sub-tab-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            // onclick属性にcontentIdが含まれているボタンを探してactiveにする
+            if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(contentId)) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
     // --- Git通知設定 ---
     const GITHUB_USER = "SuperTasu";
     const GITHUB_REPO = "Call-Answered-";
@@ -568,7 +593,18 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', updateGitBadge);
+    // --- DOMContentLoadedイベント（バッジ更新とサブタブ復元） ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Gitバッジ更新
+        updateGitBadge();
+
+        // ★ サブタブの状態復元処理（ここを追加） ★
+        const savedSubTab = localStorage.getItem('active_sub_tab');
+        if (savedSubTab) {
+            // 保存されたタブがあれば、それを開く
+            switchSubTab(savedSubTab);
+        }
+    });
 
 
     function openGitTab() {
