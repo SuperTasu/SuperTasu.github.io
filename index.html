@@ -22,7 +22,7 @@
       --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
       --icon-bg: #fff;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      --tab-active-text: #667eea; /* 下部タブ用のアクティブ色変更 */
+      --tab-active-text: #667eea;
       --input-bg: #e9ecef;
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
@@ -107,10 +107,41 @@
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
-    #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
-    #countdown { color: #88aaff; }
+    .datetime-row { 
+      display: flex; 
+      align-items: center; /* 検索バーと高さを合わせるためcenterに変更 */
+      gap: 20px; 
+      flex-grow: 1; 
+      flex-wrap: wrap; 
+    }
+    #date, #clock { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
+    /* #countdown は削除済み */
     #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
+    
+    /* ▼▼▼ ヘッダー内検索ボックス ▼▼▼ */
+    .header-search-container {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        background-color: #ffffff; /* ヘッダー内なので白背景で見やすく */
+        border-radius: 20px;
+        width: 100%;
+        max-width: 300px; /* 少しコンパクトに */
+        height: 35px;
+        margin-left: 10px;
+    }
+    .header-search-container i.fa-search { color: #666; margin-right: 8px; font-size: 14px; }
+    #appSearchInput { 
+        border: none; 
+        background: transparent; 
+        outline: none; 
+        width: 100%; 
+        font-size: 14px; 
+        color: #333; 
+        font-family: inherit;
+    }
+    #clearSearchBtn { cursor: pointer; color: #999; font-size: 14px; }
+    
     .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
     #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 16px; }
@@ -133,30 +164,6 @@
       width: 100%;
       box-sizing: border-box;
     }
-
-    /* 検索バーエリア（ヘッダー下） */
-    .search-wrapper { 
-        display: flex; 
-        justify-content: center; 
-        width: 100%; 
-        margin-top: 20px; 
-        margin-bottom: 20px; 
-    }
-    .search-container { 
-        display: flex; 
-        align-items: center; 
-        padding: 0 15px; 
-        background-color: var(--input-bg); 
-        border-radius: 20px; 
-        border: 1px solid rgba(0,0,0,0.1); 
-        width: 100%; 
-        max-width: 600px; 
-        height: 45px; 
-        box-shadow: var(--card-shadow);
-    }
-    .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
-    #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
-    #clearSearchBtn { cursor: pointer; color: #999; }
 
     /* ▼▼▼ 下部固定ナビゲーション ▼▼▼ */
     .bottom-nav {
@@ -326,7 +333,9 @@
     @media (max-width: 768px) {
       .fixed-top-wrapper { padding: 10px 0; }
       .clock-main-row { flex-wrap: wrap; justify-content: center; }
-      .datetime-row { justify-content: center; width: 100%; gap: 15px; }
+      .datetime-row { justify-content: center; width: 100%; gap: 10px; }
+      /* スマホ時は検索ボックスを改行して幅広に */
+      .header-search-container { order: 10; width: 100%; max-width: 100%; margin: 5px 0 0 0; }
       .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
       .page-container { padding-top: 180px; }
       /* スマホ時のロゴ調整 */
@@ -339,15 +348,21 @@
   <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            <!-- ▼ ロゴ画像 (サイズ調整CSS適用済み) ▼ -->
+            <!-- ▼ ロゴ画像 ▼ -->
             <img src="./icon.png" alt="Link First Logo" class="site-logo">
-            <!-- ▲ ロゴ画像 ▲ -->
-
+            
             <div class="datetime-row">
                 <div id="date"></div>
                 <div id="clock"></div>
-                <div id="countdown"></div>
+                <!-- カウントダウン削除済み -->
                 <div id="offline-status">OFFLINE</div>
+                
+                <!-- ▼▼▼ ヘッダー内検索ボックス（限目表示があった場所へ） ▼▼▼ -->
+                <div class="header-search-container"> 
+                    <i class="fas fa-search"></i> 
+                    <input type="text" id="appSearchInput" placeholder="検索..."> 
+                    <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+                </div>
             </div>
 
             <div class="header-speed-test">
@@ -370,14 +385,7 @@
   </div>
 
   <div class="page-container">
-      <!-- 検索バー（上部固定ではないが、コンテンツの最上部に配置） -->
-      <div class="search-wrapper">
-          <div class="search-container"> 
-              <i class="fas fa-search"></i> 
-              <input type="text" id="appSearchInput" placeholder="検索..."> 
-              <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-          </div>
-      </div>
+      <!-- 元の検索ボックスがあった場所は削除済み -->
 
       <!-- FY コンテナ -->
       <div id="fy-container">
@@ -553,7 +561,7 @@
       </div>
   </div>
 
-  <!-- 下部固定ナビゲーション（bodyの最後に配置） -->
+  <!-- 下部固定ナビゲーション -->
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
           <i class="fas fa-star fy-icon"></i> 
@@ -589,24 +597,19 @@
   <script>
       // --- サブタブ切り替え・保存機能 ---
       function switchSubTab(contentId) {
-          // 1. ローカルストレージに選択したタブIDを保存
           localStorage.setItem('active_sub_tab', contentId);
           
-          // 2. すべてのコンテンツを非表示にする
           const contents = document.querySelectorAll('.sub-tab-content');
           contents.forEach(el => el.classList.add('hidden'));
 
-          // 3. 選択したコンテンツを表示する
           const target = document.getElementById(contentId);
           if (target) {
               target.classList.remove('hidden');
           }
 
-          // 4. ボタンのActiveクラスを切り替える
           const buttons = document.querySelectorAll('.sub-tab-btn');
           buttons.forEach(btn => {
               btn.classList.remove('active');
-              // onclick属性にcontentIdが含まれているボタンを探してactiveにする
               if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(contentId)) {
                   btn.classList.add('active');
               }
@@ -630,7 +633,6 @@
           
           try {
               const response = await fetch(API_URL);
-              
               const remaining = response.headers.get('x-ratelimit-remaining');
               if (response.status === 403 && remaining === '0') {
                   console.warn("API Limit reached, skipping badge update.");
@@ -660,15 +662,11 @@
           }
       }
 
-      // --- DOMContentLoadedイベント（バッジ更新とサブタブ復元） ---
+      // --- DOMContentLoadedイベント ---
       document.addEventListener('DOMContentLoaded', () => {
-          // Gitバッジ更新
           updateGitBadge();
-          
-          // ★ サブタブの状態復元処理 ★
           const savedSubTab = localStorage.getItem('active_sub_tab');
           if (savedSubTab) {
-              // 保存されたタブがあれば、それを開く
               switchSubTab(savedSubTab);
           }
       });
@@ -853,11 +851,4 @@
 
       function escapeHtml(str) {
           if (!str) return '';
-          return String(str).replace(/[&<>"']/g, m => ({
-              '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-          })[m]);
-      }
-  </script>
-
-</body>
-</html>
+          return
