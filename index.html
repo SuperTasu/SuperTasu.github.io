@@ -107,43 +107,10 @@
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
 
-    /* ヘッダー内検索ボックス（新規追加） */
-    .header-search-box {
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 5px 12px;
-        margin: 0 10px;
-        min-width: 150px;
-        flex-grow: 1;
-        max-width: 300px;
-        transition: all 0.3s ease;
-    }
-    .header-search-box:focus-within {
-        background: rgba(255, 255, 255, 0.25);
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-    }
-    .header-search-box i { color: rgba(255, 255, 255, 0.8); font-size: 14px; }
-    .header-search-box input {
-        border: none;
-        background: transparent;
-        color: white;
-        width: 100%;
-        margin-left: 8px;
-        outline: none;
-        font-size: 14px;
-        font-family: 'Segoe UI', sans-serif; /* 検索文字は明朝体にしない */
-    }
-    .header-search-box input::placeholder { color: rgba(255, 255, 255, 0.6); }
-    #clearSearchBtn { cursor: pointer; }
-
-    .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
-    #date, #clock { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
-    /* countdown CSSは削除済み */
+    .datetime-row { display: flex; align-items: baseline; gap: 20px; flex-grow: 1; flex-wrap: wrap; }
+    #date, #clock, #countdown { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
+    #countdown { color: #88aaff; }
     #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
-    
     .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
     #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 16px; }
@@ -157,7 +124,7 @@
     .theme-dot.dark { background-color: #444; }
 
     /* メインコンテンツ */
-    .page-container { max-width: 1200px; margin: 0 auto; padding: 70px 20px 20px 20px; /* 検索バー移動に伴い上部padding調整 */ }
+    .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
 
     /* コンテナの基本設定 */
     .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container {
@@ -167,8 +134,29 @@
       box-sizing: border-box;
     }
 
-    /* 古い検索バーエリア（削除するため非表示または削除） */
-    .search-wrapper { display: none; } 
+    /* 検索バーエリア（ヘッダー下） */
+    .search-wrapper { 
+        display: flex; 
+        justify-content: center; 
+        width: 100%; 
+        margin-top: 20px; 
+        margin-bottom: 20px; 
+    }
+    .search-container { 
+        display: flex; 
+        align-items: center; 
+        padding: 0 15px; 
+        background-color: var(--input-bg); 
+        border-radius: 20px; 
+        border: 1px solid rgba(0,0,0,0.1); 
+        width: 100%; 
+        max-width: 600px; 
+        height: 45px; 
+        box-shadow: var(--card-shadow);
+    }
+    .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
+    #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
+    #clearSearchBtn { cursor: pointer; color: #999; }
 
     /* ▼▼▼ 下部固定ナビゲーション ▼▼▼ */
     .bottom-nav {
@@ -243,6 +231,8 @@
        border: 1px solid #fff;
     }
     .tab-item { position: relative; }
+
+    /* ▲▲▲ 下部固定ナビゲーション終了 ▲▲▲ */
 
     /* Appsグリッド */
     .main-grid { margin-top: 10px; }
@@ -335,17 +325,12 @@
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
       .fixed-top-wrapper { padding: 10px 0; }
-      /* スマホ時は折り返しを許可して検索バーを表示 */
-      .clock-main-row { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
-      .datetime-row { justify-content: center; width: auto; gap: 10px; order: 2; }
-      /* 検索ボックスをロゴの横や下の見やすい位置に */
-      .header-search-box { order: 3; width: 100%; max-width: 90%; margin: 5px auto; }
-      .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; order: 4; }
-      
-      .page-container { padding-top: 130px; /* ヘッダーの高さが変わるため調整 */ }
+      .clock-main-row { flex-wrap: wrap; justify-content: center; }
+      .datetime-row { justify-content: center; width: 100%; gap: 15px; }
+      .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
+      .page-container { padding-top: 180px; }
       /* スマホ時のロゴ調整 */
-      .site-logo { height: 35px; margin-bottom: 5px; order: 1; }
-      .header-controls { order: 1; margin-left: auto; }
+      .site-logo { height: 35px; margin-bottom: 5px; }
     }
   </style>
 
@@ -354,23 +339,16 @@
   <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            <!-- ▼ ロゴ画像 ▼ -->
+            <!-- ▼ ロゴ画像 (サイズ調整CSS適用済み) ▼ -->
             <img src="./icon.png" alt="Link First Logo" class="site-logo">
-            
-            <!-- ▼ 日付・時計エリア ▼ -->
+            <!-- ▲ ロゴ画像 ▲ -->
+
             <div class="datetime-row">
                 <div id="date"></div>
                 <div id="clock"></div>
+                <div id="countdown"></div>
                 <div id="offline-status">OFFLINE</div>
             </div>
-
-            <!-- ▼▼▼ 検索ボックス (限目表示の代わりにここに配置) ▼▼▼ -->
-            <div class="header-search-box">
-                <i class="fas fa-search"></i> 
-                <input type="text" id="appSearchInput" placeholder="検索..."> 
-                <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-            </div>
-            <!-- ▲▲▲ 検索ボックス終了 ▲▲▲ -->
 
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
@@ -378,22 +356,29 @@
                     <i class="fas fa-redo"></i> 
                 </div>
             </div>
-
-            <div class="header-controls">
-                <div class="theme-switcher">
-                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
-                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
-                </div>
-                <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i> 
-                </div>
+        </div>
+        <div class="header-controls">
+            <div class="theme-switcher">
+                <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
+                <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
+            </div>
+            <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i> 
             </div>
         </div>
     </div>
   </div>
 
   <div class="page-container">
-      
+      <!-- 検索バー（上部固定ではないが、コンテンツの最上部に配置） -->
+      <div class="search-wrapper">
+          <div class="search-container"> 
+              <i class="fas fa-search"></i> 
+              <input type="text" id="appSearchInput" placeholder="検索..."> 
+              <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+          </div>
+      </div>
+
       <!-- FY コンテナ -->
       <div id="fy-container">
           <div class="fy-header-row">
