@@ -22,7 +22,7 @@
       --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
       --icon-bg: #fff;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      --tab-active-text: #667eea;
+      --tab-active-text: #667eea; /* 下部タブ用のアクティブ色変更 */
       --input-bg: #e9ecef;
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
@@ -107,40 +107,42 @@
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { 
-      display: flex; 
-      align-items: center; /* 検索バーと高さを合わせるためcenterに変更 */
-      gap: 20px; 
-      flex-grow: 1; 
-      flex-wrap: wrap; 
-    }
-    #date, #clock { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
-    /* #countdown は削除済み */
-    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
-    
-    /* ▼▼▼ ヘッダー内検索ボックス ▼▼▼ */
-    .header-search-container {
+    /* ヘッダー内検索ボックス（新規追加） */
+    .header-search-box {
         display: flex;
         align-items: center;
-        padding: 0 10px;
-        background-color: #ffffff; /* ヘッダー内なので白背景で見やすく */
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 20px;
+        padding: 5px 12px;
+        margin: 0 10px;
+        min-width: 150px;
+        flex-grow: 1;
+        max-width: 300px;
+        transition: all 0.3s ease;
+    }
+    .header-search-box:focus-within {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+    .header-search-box i { color: rgba(255, 255, 255, 0.8); font-size: 14px; }
+    .header-search-box input {
+        border: none;
+        background: transparent;
+        color: white;
         width: 100%;
-        max-width: 300px; /* 少しコンパクトに */
-        height: 35px;
-        margin-left: 10px;
+        margin-left: 8px;
+        outline: none;
+        font-size: 14px;
+        font-family: 'Segoe UI', sans-serif; /* 検索文字は明朝体にしない */
     }
-    .header-search-container i.fa-search { color: #666; margin-right: 8px; font-size: 14px; }
-    #appSearchInput { 
-        border: none; 
-        background: transparent; 
-        outline: none; 
-        width: 100%; 
-        font-size: 14px; 
-        color: #333; 
-        font-family: inherit;
-    }
-    #clearSearchBtn { cursor: pointer; color: #999; font-size: 14px; }
+    .header-search-box input::placeholder { color: rgba(255, 255, 255, 0.6); }
+    #clearSearchBtn { cursor: pointer; }
+
+    .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-wrap: wrap; }
+    #date, #clock { color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 24px; line-height: 1.2; }
+    /* countdown CSSは削除済み */
+    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 24px; }
     
     .header-speed-test { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .header-speed-test iframe { width: 120px; height: 35px; border: none; border-radius: 4px; background: #fff; }
@@ -155,7 +157,7 @@
     .theme-dot.dark { background-color: #444; }
 
     /* メインコンテンツ */
-    .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
+    .page-container { max-width: 1200px; margin: 0 auto; padding: 70px 20px 20px 20px; /* 検索バー移動に伴い上部padding調整 */ }
 
     /* コンテナの基本設定 */
     .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container {
@@ -164,6 +166,9 @@
       width: 100%;
       box-sizing: border-box;
     }
+
+    /* 古い検索バーエリア（削除するため非表示または削除） */
+    .search-wrapper { display: none; } 
 
     /* ▼▼▼ 下部固定ナビゲーション ▼▼▼ */
     .bottom-nav {
@@ -238,8 +243,6 @@
        border: 1px solid #fff;
     }
     .tab-item { position: relative; }
-
-    /* ▲▲▲ 下部固定ナビゲーション終了 ▲▲▲ */
 
     /* Appsグリッド */
     .main-grid { margin-top: 10px; }
@@ -332,14 +335,17 @@
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
       .fixed-top-wrapper { padding: 10px 0; }
-      .clock-main-row { flex-wrap: wrap; justify-content: center; }
-      .datetime-row { justify-content: center; width: 100%; gap: 10px; }
-      /* スマホ時は検索ボックスを改行して幅広に */
-      .header-search-container { order: 10; width: 100%; max-width: 100%; margin: 5px 0 0 0; }
-      .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
-      .page-container { padding-top: 180px; }
+      /* スマホ時は折り返しを許可して検索バーを表示 */
+      .clock-main-row { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
+      .datetime-row { justify-content: center; width: auto; gap: 10px; order: 2; }
+      /* 検索ボックスをロゴの横や下の見やすい位置に */
+      .header-search-box { order: 3; width: 100%; max-width: 90%; margin: 5px auto; }
+      .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; order: 4; }
+      
+      .page-container { padding-top: 130px; /* ヘッダーの高さが変わるため調整 */ }
       /* スマホ時のロゴ調整 */
-      .site-logo { height: 35px; margin-bottom: 5px; }
+      .site-logo { height: 35px; margin-bottom: 5px; order: 1; }
+      .header-controls { order: 1; margin-left: auto; }
     }
   </style>
 
@@ -351,19 +357,20 @@
             <!-- ▼ ロゴ画像 ▼ -->
             <img src="./icon.png" alt="Link First Logo" class="site-logo">
             
+            <!-- ▼ 日付・時計エリア ▼ -->
             <div class="datetime-row">
                 <div id="date"></div>
                 <div id="clock"></div>
-                <!-- カウントダウン削除済み -->
                 <div id="offline-status">OFFLINE</div>
-                
-                <!-- ▼▼▼ ヘッダー内検索ボックス（限目表示があった場所へ） ▼▼▼ -->
-                <div class="header-search-container"> 
-                    <i class="fas fa-search"></i> 
-                    <input type="text" id="appSearchInput" placeholder="検索..."> 
-                    <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-                </div>
             </div>
+
+            <!-- ▼▼▼ 検索ボックス (限目表示の代わりにここに配置) ▼▼▼ -->
+            <div class="header-search-box">
+                <i class="fas fa-search"></i> 
+                <input type="text" id="appSearchInput" placeholder="検索..."> 
+                <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+            </div>
+            <!-- ▲▲▲ 検索ボックス終了 ▲▲▲ -->
 
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
@@ -371,22 +378,22 @@
                     <i class="fas fa-redo"></i> 
                 </div>
             </div>
-        </div>
-        <div class="header-controls">
-            <div class="theme-switcher">
-                <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
-                <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
-            </div>
-            <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
-                <i class="fas fa-sync-alt"></i> 
+
+            <div class="header-controls">
+                <div class="theme-switcher">
+                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
+                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
+                </div>
+                <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> 
+                </div>
             </div>
         </div>
     </div>
   </div>
 
   <div class="page-container">
-      <!-- 元の検索ボックスがあった場所は削除済み -->
-
+      
       <!-- FY コンテナ -->
       <div id="fy-container">
           <div class="fy-header-row">
@@ -561,7 +568,7 @@
       </div>
   </div>
 
-  <!-- 下部固定ナビゲーション -->
+  <!-- 下部固定ナビゲーション（bodyの最後に配置） -->
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
           <i class="fas fa-star fy-icon"></i> 
@@ -597,19 +604,24 @@
   <script>
       // --- サブタブ切り替え・保存機能 ---
       function switchSubTab(contentId) {
+          // 1. ローカルストレージに選択したタブIDを保存
           localStorage.setItem('active_sub_tab', contentId);
           
+          // 2. すべてのコンテンツを非表示にする
           const contents = document.querySelectorAll('.sub-tab-content');
           contents.forEach(el => el.classList.add('hidden'));
 
+          // 3. 選択したコンテンツを表示する
           const target = document.getElementById(contentId);
           if (target) {
               target.classList.remove('hidden');
           }
 
+          // 4. ボタンのActiveクラスを切り替える
           const buttons = document.querySelectorAll('.sub-tab-btn');
           buttons.forEach(btn => {
               btn.classList.remove('active');
+              // onclick属性にcontentIdが含まれているボタンを探してactiveにする
               if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(contentId)) {
                   btn.classList.add('active');
               }
@@ -633,6 +645,7 @@
           
           try {
               const response = await fetch(API_URL);
+              
               const remaining = response.headers.get('x-ratelimit-remaining');
               if (response.status === 403 && remaining === '0') {
                   console.warn("API Limit reached, skipping badge update.");
@@ -662,11 +675,15 @@
           }
       }
 
-      // --- DOMContentLoadedイベント ---
+      // --- DOMContentLoadedイベント（バッジ更新とサブタブ復元） ---
       document.addEventListener('DOMContentLoaded', () => {
+          // Gitバッジ更新
           updateGitBadge();
+          
+          // ★ サブタブの状態復元処理 ★
           const savedSubTab = localStorage.getItem('active_sub_tab');
           if (savedSubTab) {
+              // 保存されたタブがあれば、それを開く
               switchSubTab(savedSubTab);
           }
       });
@@ -851,4 +868,11 @@
 
       function escapeHtml(str) {
           if (!str) return '';
-          return
+          return String(str).replace(/[&<>"']/g, m => ({
+              '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+          })[m]);
+      }
+  </script>
+
+</body>
+</html>
