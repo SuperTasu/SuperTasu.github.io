@@ -90,8 +90,12 @@
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; padding: 5px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
+      padding: 5px 0 10px 0; /* 下部パディング追加 */
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
     .clock-area { width: 100%; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; }
     .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px; }
@@ -124,7 +128,11 @@
     .theme-dot.dark { background-color: #444; }
 
     /* メインコンテンツ */
-    .page-container { max-width: 1200px; margin: 0 auto; padding: 90px 20px 20px 20px; }
+    .page-container { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: 130px 20px 20px 20px; /* ヘッダー分（検索BOX含む）の高さを確保 */
+    }
 
     /* コンテナの基本設定 */
     .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container {
@@ -134,29 +142,39 @@
       box-sizing: border-box;
     }
 
-    /* 検索バーエリア（ヘッダー下） */
+    /* 検索バーエリア（ヘッダー内用調整） */
     .search-wrapper { 
         display: flex; 
         justify-content: center; 
         width: 100%; 
-        margin-top: 20px; 
-        margin-bottom: 20px; 
+        margin-top: 5px; 
+        margin-bottom: 0;
+        padding: 0 10px;
+        box-sizing: border-box;
     }
     .search-container { 
         display: flex; 
         align-items: center; 
         padding: 0 15px; 
-        background-color: var(--input-bg); 
+        background-color: rgba(255, 255, 255, 0.9); /* 黒背景でも見やすいように白系固定 */
         border-radius: 20px; 
-        border: 1px solid rgba(0,0,0,0.1); 
+        border: none;
         width: 100%; 
         max-width: 600px; 
-        height: 45px; 
-        box-shadow: var(--card-shadow);
+        height: 38px; /* 少しコンパクトに */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    .search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; }
-    #appSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 16px; color: var(--text-color-primary); }
-    #clearSearchBtn { cursor: pointer; color: #999; }
+    .search-container i.fa-search { color: #555; margin-right: 8px; }
+    #appSearchInput { 
+        border: none; 
+        background: transparent; 
+        outline: none; 
+        width: 100%; 
+        font-size: 16px; 
+        color: #333; /* 文字色は黒固定 */
+    }
+    #appSearchInput::placeholder { color: #777; }
+    #clearSearchBtn { cursor: pointer; color: #777; }
 
     /* ▼▼▼ 下部固定ナビゲーション ▼▼▼ */
     .bottom-nav {
@@ -324,11 +342,12 @@
 
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
-      .fixed-top-wrapper { padding: 10px 0; }
+      .fixed-top-wrapper { padding: 10px 0 10px 0; }
       .clock-main-row { flex-wrap: wrap; justify-content: center; }
       .datetime-row { justify-content: center; width: 100%; gap: 15px; }
       .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
-      .page-container { padding-top: 180px; }
+      /* スマホ時はヘッダーが縦に伸びるので、本文のパディングを増やす */
+      .page-container { padding-top: 220px; }
       /* スマホ時のロゴ調整 */
       .site-logo { height: 35px; margin-bottom: 5px; }
     }
@@ -367,18 +386,21 @@
             </div>
         </div>
     </div>
+
+    <!-- ★★★ 検索バー（ヘッダー内に移動） ★★★ -->
+    <div class="search-wrapper">
+        <div class="search-container"> 
+            <i class="fas fa-search"></i> 
+            <input type="text" id="appSearchInput" placeholder="検索..."> 
+            <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+        </div>
+    </div>
+    <!-- ★★★ 検索バー移動完了 ★★★ -->
+
   </div>
 
   <div class="page-container">
-      <!-- 検索バー（上部固定ではないが、コンテンツの最上部に配置） -->
-      <div class="search-wrapper">
-          <div class="search-container"> 
-              <i class="fas fa-search"></i> 
-              <input type="text" id="appSearchInput" placeholder="検索..."> 
-              <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-          </div>
-      </div>
-
+      
       <!-- FY コンテナ -->
       <div id="fy-container">
           <div class="fy-header-row">
@@ -585,8 +607,22 @@
   <script src="Option/nekotuti.js"></script>
   <script src="script.js"></script>
   
-  <!-- Git通知・サブタブ保存用スクリプト -->
+  <!-- Git通知・サブタブ保存用スクリプト・検索自動切り替え用 -->
   <script>
+      // --- ★★★ 検索ボックス自動タブ切り替え機能 ★★★ ---
+      document.addEventListener('DOMContentLoaded', () => {
+          const searchInput = document.getElementById('appSearchInput');
+          if (searchInput) {
+              searchInput.addEventListener('input', (e) => {
+                  // 入力があり、かつ現在「Apps」タブが開いていない場合
+                  if (e.target.value.length > 0 && !document.getElementById('tab-all-apps').classList.contains('active')) {
+                      activateTab('all-apps');
+                  }
+              });
+          }
+      });
+      // ----------------------------------------------------
+
       // --- サブタブ切り替え・保存機能 ---
       function switchSubTab(contentId) {
           // 1. ローカルストレージに選択したタブIDを保存
