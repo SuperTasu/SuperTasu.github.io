@@ -149,7 +149,7 @@
         margin-bottom: 0;
         padding: 0 10px;
         box-sizing: border-box;
-        position: relative; /* ドロップダウンの基準 */
+        position: relative;
     }
     .search-container { 
         display: flex; 
@@ -165,7 +165,6 @@
     }
     .search-container i.fa-search { color: #555; margin-right: 8px; }
     
-    /* 検索ボックスのIDを変更して外部スクリプトの干渉を回避 */
     #globalSearchInput { 
         border: none; 
         background: transparent; 
@@ -180,17 +179,17 @@
     /* ▼▼▼ 検索結果ドロップダウン用CSS ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        top: 45px; /* 検索ボックスの直下 */
+        top: 45px;
         left: 0;
         right: 0;
         margin: 0 auto;
         width: 100%;
-        max-width: 600px; /* 検索ボックスの幅に合わせる */
-        background-color: var(--card-bg); /* テーマに合わせた背景色 */
+        max-width: 600px;
+        background-color: var(--card-bg);
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         z-index: 5000;
-        max-height: 60vh; /* 画面の高さの60%まで */
+        max-height: 60vh;
         overflow-y: auto;
         padding: 5px;
         backdrop-filter: blur(10px);
@@ -199,7 +198,6 @@
     }
     .search-results-dropdown.hidden { display: none; }
     
-    /* ドロップダウン内のアイテム */
     .search-result-item {
         display: flex;
         align-items: center;
@@ -210,7 +208,7 @@
         cursor: pointer;
         transition: background-color 0.2s;
         color: var(--text-color-primary);
-        text-decoration: none; /* リンクの下線を消す */
+        text-decoration: none;
         user-select: none;
     }
     body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.3); }
@@ -233,7 +231,70 @@
         color: var(--text-color-secondary);
         font-size: 14px;
     }
-    /* ▲▲▲ 検索結果ドロップダウン用CSS終了 ▲▲▲ */
+
+    /* ▼▼▼ リンク確認モーダル用CSS (新規追加) ▼▼▼ */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 6000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .modal-overlay.hidden { display: none; }
+    
+    .modal-box {
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border: 1px solid var(--card-border-color);
+        text-align: center;
+        animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .modal-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: var(--text-color-primary);
+    }
+    .modal-desc {
+        font-size: 14px;
+        color: var(--text-color-secondary);
+        margin-bottom: 25px;
+    }
+    .modal-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .modal-btn {
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 15px;
+        transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .modal-btn:hover { opacity: 0.8; }
+    .btn-same { background: #667eea; color: white; }
+    .btn-new { background: #28a745; color: white; }
+    .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
+    /* ▲▲▲ モーダル用CSS終了 ▲▲▲ */
+
 
     /* 下部固定ナビゲーション */
     .bottom-nav {
@@ -425,7 +486,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 検索バー（IDを globalSearchInput に変更） ★★★ -->
+    <!-- ★★★ 検索バー ★★★ -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
@@ -642,6 +703,26 @@
       </div>
   </nav>
 
+  <!-- ▼▼▼ リンク遷移確認用モーダル ▼▼▼ -->
+  <div id="link-confirm-overlay" class="modal-overlay hidden">
+      <div class="modal-box">
+          <div id="modal-title" class="modal-title">確認</div>
+          <div id="modal-desc" class="modal-desc">どちらで開きますか？</div>
+          <div class="modal-buttons">
+              <button id="btn-same-tab" class="modal-btn btn-same">
+                  <i class="fas fa-arrow-circle-right"></i> このページで開く
+              </button>
+              <button id="btn-new-tab" class="modal-btn btn-new">
+                  <i class="fas fa-external-link-alt"></i> 新しいタブで開く
+              </button>
+              <button id="btn-cancel-modal" class="modal-btn btn-cancel">
+                  キャンセル
+              </button>
+          </div>
+      </div>
+  </div>
+  <!-- ▲▲▲ モーダル終了 ▲▲▲ -->
+
   <!-- JS読み込み -->
   <script src="Option/takatori.js"></script>
   <script src="Option/memo.js"></script>
@@ -650,27 +731,33 @@
   <script src="script.js"></script>
   
   <script>
-      // --- ★★★ 全タブ対応：検索ドロップダウン機能 ★★★ ---
+      // --- ★★★ 全タブ対応：検索＆リンク確認機能 ★★★ ---
       document.addEventListener('DOMContentLoaded', () => {
-          // IDを globalSearchInput に変更して取得
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
           const resultsContainer = document.getElementById('searchResults');
 
-          if (!searchInput || !resultsContainer) return;
+          // モーダル要素の取得
+          const modalOverlay = document.getElementById('link-confirm-overlay');
+          const btnSame = document.getElementById('btn-same-tab');
+          const btnNew = document.getElementById('btn-new-tab');
+          const btnCancel = document.getElementById('btn-cancel-modal');
+          const modalTitle = document.getElementById('modal-title');
+          const modalDesc = document.getElementById('modal-desc');
 
+          let currentTargetUrl = "";
           let appListCache = [];
 
-          // ページ内のすべてのアイコン情報を収集する関数
+          if (!searchInput || !resultsContainer) return;
+
+          // アプリ情報収集
           function gatherAllApps() {
               const apps = [];
               const items = document.querySelectorAll('.icon-item');
-              
               items.forEach(item => {
                   const linkEl = item.querySelector('.icon-link');
                   const imgEl = item.querySelector('.icon-img');
                   const labelEl = item.querySelector('.label-text');
-
                   if (linkEl && labelEl) {
                       apps.push({
                           name: labelEl.innerText.trim(),
@@ -682,6 +769,37 @@
               });
               return apps;
           }
+
+          // モーダルを開く処理
+          function openConfirmationModal(url, name) {
+              currentTargetUrl = url;
+              modalTitle.innerText = name;
+              modalDesc.innerText = `「${name}」をどのように開きますか？`;
+              modalOverlay.classList.remove('hidden');
+          }
+
+          // モーダルを閉じる処理
+          function closeConfirmationModal() {
+              modalOverlay.classList.add('hidden');
+              currentTargetUrl = "";
+          }
+
+          // モーダルのボタンイベント
+          btnSame.addEventListener('click', () => {
+              if(currentTargetUrl) window.location.href = currentTargetUrl;
+              closeConfirmationModal();
+          });
+          btnNew.addEventListener('click', () => {
+              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
+              closeConfirmationModal();
+          });
+          btnCancel.addEventListener('click', () => {
+              closeConfirmationModal();
+          });
+          // 背景クリックで閉じる
+          modalOverlay.addEventListener('click', (e) => {
+              if (e.target === modalOverlay) closeConfirmationModal();
+          });
 
           // 検索実行処理
           function performSearch(query) {
@@ -696,20 +814,15 @@
 
               clearBtn.classList.remove('hidden');
               
-              // 入力時に最新のDOM状態から収集
               appListCache = gatherAllApps();
-
-              // 名前でフィルタリング
               const matches = appListCache.filter(app => app.name.toLowerCase().includes(q));
 
               if (matches.length > 0) {
                   resultsContainer.classList.remove('hidden');
                   matches.forEach(app => {
-                      // リンクタグを作成（クリックで遷移するように）
                       const itemLink = document.createElement('a');
                       itemLink.className = 'search-result-item';
                       itemLink.href = app.url; 
-                      // 必要であれば外部サイト用に target="_blank" の判定を追加してください
                       
                       const img = document.createElement('img');
                       img.src = app.img || './icon.png';
@@ -724,12 +837,17 @@
                       itemLink.appendChild(span);
                       itemLink.appendChild(icon);
 
-                      // クリック時のUI掃除
-                      itemLink.addEventListener('click', () => {
-                          // aタグのhrefへの遷移はブラウザが処理するので、ここはUIを閉じるだけ
+                      // ★ クリック時のイベントリスナー変更 ★
+                      itemLink.addEventListener('click', (e) => {
+                          e.preventDefault(); // 即座の遷移を防止
+                          
+                          // 検索結果を閉じてからモーダルを表示
                           resultsContainer.classList.add('hidden');
                           searchInput.value = '';
                           clearBtn.classList.add('hidden');
+                          
+                          // 確認モーダルを表示
+                          openConfirmationModal(app.url, app.name);
                       });
 
                       resultsContainer.appendChild(itemLink);
@@ -772,14 +890,11 @@
       // --- サブタブ切り替え・保存機能 ---
       function switchSubTab(contentId) {
           localStorage.setItem('active_sub_tab', contentId);
-          
           const contents = document.querySelectorAll('.sub-tab-content');
           contents.forEach(el => el.classList.add('hidden'));
 
           const target = document.getElementById(contentId);
-          if (target) {
-              target.classList.remove('hidden');
-          }
+          if (target) target.classList.remove('hidden');
 
           const buttons = document.querySelectorAll('.sub-tab-btn');
           buttons.forEach(btn => {
@@ -803,19 +918,14 @@
 
       async function updateGitBadge() {
           const badge = document.getElementById('git-badge');
-          
           try {
               const response = await fetch(API_URL);
               const remaining = response.headers.get('x-ratelimit-remaining');
-              if (response.status === 403 && remaining === '0') {
-                  console.warn("API Limit reached, skipping badge update.");
-                  return;
-              }
+              if (response.status === 403 && remaining === '0') return;
               if (!response.ok) return;
 
               const files = await response.json();
               const count = files.filter(file => file.name.endsWith('_message.json')).length;
-              
               currentTotalGitFiles = count;
 
               const lastReadCount = parseInt(localStorage.getItem('git_read_count') || '0', 10);
@@ -828,7 +938,6 @@
               } else {
                   badge.classList.add('hidden');
               }
-
           } catch (e) {
               console.error("Badge update failed:", e);
           }
@@ -837,9 +946,7 @@
       document.addEventListener('DOMContentLoaded', () => {
           updateGitBadge();
           const savedSubTab = localStorage.getItem('active_sub_tab');
-          if (savedSubTab) {
-              switchSubTab(savedSubTab);
-          }
+          if (savedSubTab) switchSubTab(savedSubTab);
       });
 
       function openGitTab() {
@@ -847,10 +954,7 @@
           document.getElementById('tab-git-notify').classList.add('active');
           
           const containersToHide = [
-              '#fy-container',
-              '.main-grid', 
-              '#bustarain-container',
-              '#option-container'
+              '#fy-container', '.main-grid', '#bustarain-container', '#option-container'
           ];
           containersToHide.forEach(selector => {
               const el = document.querySelector(selector);
@@ -858,9 +962,7 @@
           });
 
           const gitContainer = document.getElementById('git-notify-container');
-          if(gitContainer) {
-              gitContainer.style.display = 'block';
-          }
+          if(gitContainer) gitContainer.style.display = 'block';
 
           const badge = document.getElementById('git-badge');
           if (badge) badge.classList.add('hidden');
@@ -886,7 +988,6 @@
 
           try {
               const response = await fetch(API_URL);
-
               const limit = response.headers.get('x-ratelimit-limit');
               const remaining = response.headers.get('x-ratelimit-remaining');
               const resetTime = response.headers.get('x-ratelimit-reset');
@@ -905,12 +1006,9 @@
                   throw new Error("API Limit Reached");
               }
 
-              if (!response.ok) {
-                  throw new Error(`データ取得エラー: ${response.status}`);
-              }
+              if (!response.ok) throw new Error(`データ取得エラー: ${response.status}`);
 
               const files = await response.json();
-
               const jsonFiles = files
                   .filter(file => file.name.endsWith('_message.json'))
                   .sort((a, b) => b.name.localeCompare(a.name));
@@ -940,9 +1038,7 @@
 
               statusMsg.style.display = 'none';
               postsData.forEach(data => {
-                  if (data) {
-                      container.insertAdjacentHTML('beforeend', createPostCard(data));
-                  }
+                  if (data) container.insertAdjacentHTML('beforeend', createPostCard(data));
               });
 
               if (jsonFiles.length > fetchLimit) {
@@ -974,20 +1070,15 @@
           const timerInterval = setInterval(() => {
               const now = Date.now();
               const diff = resetTimeMs - now;
-
               if (diff <= 0) {
                   clearInterval(timerInterval);
                   countdownEl.innerText = "解除されました！";
                   setTimeout(() => location.reload(), 2000);
                   return;
               }
-
               const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
               const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-              countdownEl.innerText = 
-                  `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
-
+              countdownEl.innerText = `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
           }, 1000);
       }
 
