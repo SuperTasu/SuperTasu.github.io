@@ -84,75 +84,90 @@
       pointer-events: none;
     }
 
-    /* 固定ヘッダー */
+    /* ★★★ 固定ヘッダー（統合・スリム化） ★★★ */
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
-      padding: 5px 0 10px 0;
+      padding: 5px 0; /* 上下の余白を最小限に */
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      align-items: center; /* 全体を中央揃え */
+      gap: 2px; /* 上段と下段の隙間をほぼ無くす */
     }
+
+    /* 上段（時計・ロゴエリア） */
     .clock-area { 
         width: 100%; 
         padding: 0 15px; 
         box-sizing: border-box; 
         display: flex; 
         align-items: center; 
-        position: relative; /* 速度テストの基準 */
+        /* 速度テストの基準点にはしない（全体基準にするため） */
+        height: 30px; /* 高さを固定してコンパクトに */
     }
+    
     .clock-main-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; gap: 10px; }
 
     .site-logo {
-      height: 30px; 
+      height: 26px; /* さらに少し小さく */
       width: auto;
-      margin-right: 10px;
+      margin-right: 5px;
       object-fit: contain;
       vertical-align: middle;
-      border-radius: 6px;
+      border-radius: 4px;
       box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-grow: 0; flex-wrap: nowrap; }
+    .datetime-row { display: flex; align-items: baseline; gap: 10px; flex-grow: 0; flex-wrap: nowrap; }
     #date, #clock, #countdown { 
         color: #ffffff; 
         font-weight: bold; 
         white-space: nowrap; 
-        font-size: 16px; 
-        line-height: 1.1; 
+        font-size: 14px; 
+        line-height: 1; 
     }
     #countdown { color: #88aaff; }
-    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 16px; }
+    #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 14px; }
 
-    /* ★★★ 速度テスト（はみ出し・大型化） ★★★ */
+    /* コントロール（更新・テーマ切り替え） */
+    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
+    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; }
+    .control-icon:hover { color: #ffffff; }
+    .theme-switcher { display: flex; gap: 5px; }
+    .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
+    .theme-dot.light { background-color: #fff; }
+    .theme-dot.dark { background-color: #444; }
+
+    /* ★★★ 速度テスト（絶対配置・大型・オーバーレイ） ★★★ */
     .header-speed-test { 
-        position: absolute; /* 自由に配置 */
+        position: absolute; 
         right: 10px;
         top: 5px;
         display: flex; 
         align-items: flex-start; 
         gap: 5px; 
         z-index: 6000; /* 検索バーより手前 */
+        pointer-events: none; /* iframe以外はクリック透過 */
     }
     .header-speed-test iframe { 
-        width: 250px; /* 横幅を大きく */
-        height: 90px; /* 高さを大きく（検索バーにはみ出るサイズ） */
+        pointer-events: auto; /* iframeは操作可能 */
+        width: 250px; 
+        height: 80px; 
         border: none; 
         border-radius: 8px; 
         background: #fff; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 浮いている感を出す */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
     }
-    /* スマホで大きすぎる場合の調整 */
     @media (max-width: 450px) {
         .header-speed-test iframe { 
             width: 140px; 
-            height: 70px; 
+            height: 60px; 
         }
     }
-    
     #speed-test-refresh-button { 
+        pointer-events: auto;
         color: #aaaaaa; 
         cursor: pointer; 
         font-size: 16px; 
@@ -163,21 +178,12 @@
         display: flex; align-items: center; justify-content: center;
     }
     #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
-    
-    /* コントロールアイコンは左寄せの時計の横などへ */
-    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 20px; }
-    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 16px; transition: color 0.3s; }
-    .control-icon:hover { color: #ffffff; }
-    .theme-switcher { display: flex; gap: 6px; }
-    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
-    .theme-dot.light { background-color: #fff; }
-    .theme-dot.dark { background-color: #444; }
 
     /* メインコンテンツ */
     .page-container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        padding: 110px 20px 20px 20px; 
+        padding: 100px 20px 20px 20px; /* ヘッダー高さに合わせて調整 */
     }
 
     .main-grid, #bustarain-container, #option-container, #fy-container {
@@ -187,13 +193,12 @@
         box-sizing: border-box;
     }
 
-    /* ★★★ 検索バーエリア ★★★ */
+    /* ★★★ 検索バーエリア（センタリング・統合） ★★★ */
     .search-wrapper { 
         display: flex; 
-        justify-content: flex-start; /* 左寄せにして速度テストと被らないように調整も可能 */
+        justify-content: center; /* 完全に中央揃え */
         width: 100%; 
-        margin-top: 5px;
-        margin-bottom: 0;
+        margin-top: 0; /* 上の行とくっつける */
         padding: 0 10px;
         box-sizing: border-box;
         position: relative;
@@ -204,49 +209,51 @@
         align-items: center; 
         padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 25px; 
+        border-radius: 20px; 
         border: none;
         
-        /* 速度テスト(右側)と被らないように右余白を開ける */
-        width: calc(100% - 160px); /* 速度テストの分を引く（PC向け） */
-        max-width: 600px; 
-        height: 40px; 
+        /* サイズ調整 */
+        width: 80%; /* 中央に配置しつつ適度な幅 */
+        max-width: 500px; 
+        height: 36px; /* 高さをコンパクトに */
         
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         transition: width 0.3s ease;
     }
     @media (max-width: 450px) {
         .search-container {
-             width: calc(100% - 110px); /* スマホ版の速度テストサイズ考慮 */
+             width: 90%; /* スマホでは広めに */
         }
     }
     
-    .search-container i.fa-search { color: #555; margin-right: 10px; font-size: 1em; }
+    .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
     
     #globalSearchInput { 
         border: none; 
         background: transparent; 
         outline: none; 
         width: 100%; 
-        font-size: 16px; 
+        font-size: 15px; 
         color: #333;
     }
-    #globalSearchInput::placeholder { color: #888; font-size: 14px; }
-    #clearSearchBtn { cursor: pointer; color: #777; font-size: 1em; }
+    #globalSearchInput::placeholder { color: #888; font-size: 13px; }
+    #clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
 
     /* ▼▼▼ 検索結果ドロップダウン ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        top: 48px;
-        left: 10px; /* 左端合わせ */
+        top: 40px; /* 検索バー直下 */
+        left: 0;
+        right: 0;
+        margin: 0 auto; /* 中央揃え */
         
-        width: calc(100% - 20px);
-        max-width: 600px;
+        width: 85%; /* 検索バーより少し広く */
+        max-width: 550px;
         
         background-color: var(--card-bg);
         border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        z-index: 5500; /* 速度テスト(6000)よりは下 */
+        z-index: 5500; 
         max-height: 60vh;
         overflow-y: auto;
         padding: 5px; 
@@ -260,8 +267,8 @@
     .search-result-item {
         display: flex;
         align-items: center;
-        padding: 10px 15px; 
-        margin-bottom: 5px;
+        padding: 8px 12px; 
+        margin-bottom: 4px;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.6);
         cursor: pointer;
@@ -279,26 +286,26 @@
     }
     
     .search-result-item img {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        margin-right: 15px;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        margin-right: 12px;
         object-fit: contain;
         background-color: #fff;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .search-result-item span {
         font-weight: bold;
-        font-size: 15px;
+        font-size: 14px;
         flex-grow: 1;
     }
     .search-result-item i {
         color: var(--text-color-secondary);
-        font-size: 14px;
+        font-size: 12px;
     }
     .result-tag {
-        font-size: 10px;
-        padding: 2px 6px;
+        font-size: 9px;
+        padding: 2px 5px;
         border-radius: 4px;
         margin-right: 8px;
         color: #fff;
@@ -307,7 +314,7 @@
     .tag-app { background-color: #667eea; }
     .tag-traffic { background-color: #28a745; }
 
-    /* ▼▼▼ リンク確認モーダル用CSS ▼▼▼ */
+    /* ▼▼▼ リンク確認モーダル ▼▼▼ */
     .modal-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -474,8 +481,7 @@
       .fixed-top-wrapper { padding: 5px 0 10px 0; }
       .clock-main-row { flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
       .datetime-row { justify-content: flex-start; gap: 10px; }
-      .header-speed-test { top: 40px; } /* スマホでは位置を少し下げる */
-      .page-container { padding-top: 200px; }
+      .page-container { padding-top: 180px; }
     }
   </style>
 
@@ -505,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- ★★★ 速度テスト（絶対配置・大型化・はみ出しOK） ★★★ -->
+            <!-- ★★★ 速度テスト（絶対配置・大型・オーバーレイ） ★★★ -->
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
@@ -515,7 +521,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 検索バー ★★★ -->
+    <!-- ★★★ 検索バー（中央揃え・統合） ★★★ -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
