@@ -164,7 +164,9 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
     .search-container i.fa-search { color: #555; margin-right: 8px; }
-    #appSearchInput { 
+    
+    /* 検索ボックスのIDを変更して外部スクリプトの干渉を回避 */
+    #globalSearchInput { 
         border: none; 
         background: transparent; 
         outline: none; 
@@ -172,7 +174,7 @@
         font-size: 16px; 
         color: #333;
     }
-    #appSearchInput::placeholder { color: #777; }
+    #globalSearchInput::placeholder { color: #777; }
     #clearSearchBtn { cursor: pointer; color: #777; }
 
     /* ▼▼▼ 検索結果ドロップダウン用CSS ▼▼▼ */
@@ -197,6 +199,7 @@
     }
     .search-results-dropdown.hidden { display: none; }
     
+    /* ドロップダウン内のアイテム */
     .search-result-item {
         display: flex;
         align-items: center;
@@ -207,7 +210,8 @@
         cursor: pointer;
         transition: background-color 0.2s;
         color: var(--text-color-primary);
-        text-decoration: none;
+        text-decoration: none; /* リンクの下線を消す */
+        user-select: none;
     }
     body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.3); }
     .search-result-item:hover { background-color: var(--swap-select-color); }
@@ -421,18 +425,19 @@
         </div>
     </div>
 
-    <!-- ★★★ 検索バー（ヘッダー内に移動・ドロップダウン追加） ★★★ -->
+    <!-- ★★★ 検索バー（IDを globalSearchInput に変更） ★★★ -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
-            <input type="text" id="appSearchInput" placeholder="検索..." autocomplete="off"> 
+            <!-- IDを変更して、外部JSによるアイコン絞り込みを回避 -->
+            <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
         <!-- ▼ 検索結果表示用エリア ▼ -->
         <div id="searchResults" class="search-results-dropdown hidden"></div>
         <!-- ▲ 検索結果表示用エリア ▲ -->
     </div>
-    <!-- ★★★ 検索バー移動完了 ★★★ -->
+    <!-- ★★★ 検索バー完了 ★★★ -->
 
   </div>
 
@@ -647,7 +652,8 @@
   <script>
       // --- ★★★ 全タブ対応：検索ドロップダウン機能 ★★★ ---
       document.addEventListener('DOMContentLoaded', () => {
-          const searchInput = document.getElementById('appSearchInput');
+          // IDを globalSearchInput に変更して取得
+          const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
           const resultsContainer = document.getElementById('searchResults');
 
@@ -699,9 +705,11 @@
               if (matches.length > 0) {
                   resultsContainer.classList.remove('hidden');
                   matches.forEach(app => {
+                      // リンクタグを作成（クリックで遷移するように）
                       const itemLink = document.createElement('a');
                       itemLink.className = 'search-result-item';
-                      itemLink.href = app.url;
+                      itemLink.href = app.url; 
+                      // 必要であれば外部サイト用に target="_blank" の判定を追加してください
                       
                       const img = document.createElement('img');
                       img.src = app.img || './icon.png';
@@ -716,7 +724,9 @@
                       itemLink.appendChild(span);
                       itemLink.appendChild(icon);
 
+                      // クリック時のUI掃除
                       itemLink.addEventListener('click', () => {
+                          // aタグのhrefへの遷移はブラウザが処理するので、ここはUIを閉じるだけ
                           resultsContainer.classList.add('hidden');
                           searchInput.value = '';
                           clearBtn.classList.add('hidden');
