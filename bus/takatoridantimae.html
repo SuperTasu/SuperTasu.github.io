@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>バス電光掲示板</title>
+    <!-- PWA用設定 -->
+    <meta name="theme-color" content="#0066cc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>バス電光掲示板 (Offline)</title>
     <style>
         body {
-            font-family: 'MS Gothic', monospace;
+            /* フォントスタックを修正してスマホやMacでも見やすく */
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             background-color: #f4f4f4;
             color: #333;
             margin: 0;
@@ -104,6 +109,7 @@
             background-color: rgba(255,255,255,0.9);
             padding: 4px 8px;
             border-radius: 5px;
+            font-family: 'MS Gothic', monospace; /* 時計だけは等幅フォント推奨 */
         }
 
         .schedule-type {
@@ -151,7 +157,6 @@
                 gap: 0;
             }
             
-            /* ★★★ 変更点: 先発バス詳細(背景)とオーバーレイ詳細のスタイルを定義 ★★★ */
             #pcFirstDepartureDetail {
                 position: absolute;
                 top: 0;
@@ -269,7 +274,7 @@
         .next-departure-time { display: flex; align-items: center; gap: 15px; }
         @media (max-width: 768px) { .next-departure-time { flex-direction: column; gap: 8px; } }
 
-        .next-departure-clock { font-size: 24px; font-weight: bold; color: #cc0000; }
+        .next-departure-clock { font-size: 24px; font-weight: bold; color: #cc0000; font-family: 'MS Gothic', monospace; }
         .next-departure-remaining { font-size: 20px; font-weight: bold; color: #009900; }
         @media (max-width: 768px) {
             .next-departure-clock { font-size: 28px; }
@@ -294,7 +299,6 @@
             border-radius: 8px; overflow: hidden; background-color: #fff;
             flex-grow: 1; display: flex; flex-direction: column;
         }
-        /* ★★★ 変更点: 先発詳細の枠線を追加 ★★★ */
         #pcFirstDepartureDetail .departure-detail-embedded {
             border: 2px solid #0066cc;
         }
@@ -305,6 +309,40 @@
             min-height: initial; flex-grow: 1;
         }
         @media (max-width: 768px) { .departure-detail-embedded iframe { min-height: 250px; } }
+        
+        /* ★★★ オフライン表示用スタイル ★★★ */
+        .offline-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f8f8;
+            color: #666;
+            height: 100%;
+            min-height: 200px;
+            padding: 20px;
+            text-align: center;
+        }
+        .offline-message {
+            font-weight: bold;
+        }
+        .offline-sub {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .network-status {
+            display: none;
+            background-color: #cc0000;
+            color: white;
+            text-align: center;
+            font-size: 12px;
+            padding: 2px;
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 2000;
+        }
+        .network-status.offline { display: block; }
+
 
         .expand-iframe-btn {
             position: absolute; top: 5px; right: 5px; z-index: 10;
@@ -348,7 +386,7 @@
         .time-remaining-section { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
         @media (max-width: 768px) { .time-remaining-section { flex-direction: column; order: 3; width: 100%; align-items: center; gap: 8px; margin-top: 5px; } }
 
-        .departure-time { color: #cc0000; font-size: 18px; text-align: center; }
+        .departure-time { color: #cc0000; font-size: 18px; text-align: center; font-family: 'MS Gothic', monospace; }
         @media (max-width: 768px) { .departure-time { font-size: 20px; font-weight: bold; } }
 
         .remaining-time { color: #009900; font-size: 16px; font-weight: bold; }
@@ -362,8 +400,10 @@
             border-radius: 3px; font-size: 12px; cursor: pointer; text-decoration: none;
             display: inline-block; font-family: inherit;
         }
+        .detail-button:disabled { background-color: #ccc; cursor: not-allowed; }
+        
         @media (max-width: 768px) { .detail-button { padding: 5px 10px; font-size: 14px; margin: 2px; } }
-        .detail-button:hover { background-color: #0052a3; }
+        .detail-button:not(:disabled):hover { background-color: #0052a3; }
         
         #pcNextDepartureInfo .detail-button {
              margin-left: 15px; padding: 5px 12px; font-size: 14px;
@@ -524,6 +564,7 @@
     </style>
 </head>
 <body>
+    <div id="networkStatus" class="network-status">⚠️ オフライン: 詳細情報は表示できません</div>
     <div class="display-board">
         <div class="header-container">
             <div class="direction-controls">
@@ -566,7 +607,6 @@
         <!-- PC Layout -->
         <div class="pc-container">
             <div class="left-column">
-                <!-- ★★★ 変更点: HTML構造を変更。先発用とオーバーレイ用に分離 ★★★ -->
                 <div id="pcFirstDepartureDetail"></div>
                 <div id="pcOverlayDetail"></div>
             </div>
@@ -739,6 +779,21 @@
     function getCurrentDateTime() {
         return customDateTime || new Date();
     }
+    
+    // ★★★ ネットワーク状態のチェック関数 ★★★
+    function isOnline() {
+        return navigator.onLine;
+    }
+    
+    // ★★★ ネットワーク状態UIの更新 ★★★
+    function updateNetworkStatus() {
+        const statusEl = document.getElementById('networkStatus');
+        if (isOnline()) {
+            statusEl.classList.remove('offline');
+        } else {
+            statusEl.classList.add('offline');
+        }
+    }
 
     function updateTime() {
         const now = getCurrentDateTime();
@@ -864,7 +919,12 @@
         if (recentlyDeparted.length > 0) {
             recentlyDeparted.forEach(dep => {
                 const timeStr = `${String(dep.date.getHours()).padStart(2, '0')}:${String(dep.date.getMinutes()).padStart(2, '0')}`;
-                let detailButtonHtml = dep.detailUrl ? `<button class="detail-button" data-url="${dep.detailUrl}">詳細</button>` : '';
+                let detailButtonHtml = '';
+                if (dep.detailUrl) {
+                    // ★★★ オフライン時はボタンを無効化するか、アラートを出すように変更も可能だが、
+                    // ここではクリック時にオフラインメッセージを出すようにイベントハンドラ側で制御する
+                    detailButtonHtml = `<button class="detail-button" data-url="${dep.detailUrl}">詳細</button>`;
+                }
                 htmlContent += `
                     <div class="just-departed-info">
                         <span>
@@ -879,14 +939,13 @@
         pcSection.innerHTML = htmlContent;
     }
 
-    // ★★★ 変更点: updateNextDepartureのロジックを更新 ★★★
     function updateNextDeparture(allDepartures) {
         const mobileContent = document.getElementById('mobileNextDepartureContent');
         const pcNextInfo = document.getElementById('pcNextDepartureInfo');
         const pcFirstDetailContainer = document.getElementById('pcFirstDepartureDetail');
         const now = getCurrentDateTime();
 
-        hidePcOverlayPanel(); // 更新時にオーバーレイは必ず隠す
+        hidePcOverlayPanel();
 
         const upcomingDepartures = allDepartures.filter(dep => dep.date >= now);
         
@@ -926,12 +985,24 @@
 
         let mobileDetailContentHtml = '';
         if (nextDeparture.detailUrl) {
-            mobileDetailContentHtml = `
-                <div class="departure-detail-embedded">
-                    <button class="expand-iframe-btn" title="拡大表示">↗</button>
-                    <iframe src="${nextDeparture.detailUrl}" width="100%" frameborder="0"></iframe>
-                </div>`;
+            // ★★★ モバイル埋め込み：オフラインチェック ★★★
+            if (isOnline()) {
+                mobileDetailContentHtml = `
+                    <div class="departure-detail-embedded">
+                        <button class="expand-iframe-btn" title="拡大表示">↗</button>
+                        <iframe src="${nextDeparture.detailUrl}" width="100%" frameborder="0"></iframe>
+                    </div>`;
+            } else {
+                mobileDetailContentHtml = `
+                    <div class="departure-detail-embedded offline-placeholder">
+                        <div class="offline-message">
+                            <span>⚠️ オフライン</span>
+                            <p class="offline-sub">詳細情報はインターネット接続が必要です</p>
+                        </div>
+                    </div>`;
+            }
         }
+        
         const mobileNextDepartureInfoHtml = `
             <div class="next-departure-content">
                 <div class="next-departure-route">
@@ -1028,6 +1099,7 @@
     }
     
     function updateDisplay() {
+        updateNetworkStatus(); // ネットワーク状態更新
         const allDepartures = getAllDepartures();
         updateTime();
         updateJustDeparted(allDepartures);
@@ -1045,9 +1117,22 @@
         document.getElementById('yoshidacho-btn').classList.toggle('active', direction === 'yoshidacho');
     }
 
-    // ★★★ 変更点: 新しいヘルパー関数とパネル操作関数 ★★★
+    // ★★★ HTML生成時のオフライン対応 ★★★
     function createDetailHtml(url, isOverlay) {
         const closeButton = isOverlay ? `<button class="close-detail-panel" title="閉じる">&times;</button>` : '';
+        
+        if (!isOnline()) {
+             return `
+                ${closeButton}
+                <div class="departure-detail-embedded offline-placeholder">
+                    <div class="offline-message">
+                        <span>⚠️ オフライン</span>
+                        <p class="offline-sub">詳細情報はインターネット接続が必要です</p>
+                    </div>
+                </div>
+            `;
+        }
+
         return `
             ${closeButton}
             <div class="departure-detail-embedded">
@@ -1085,6 +1170,11 @@
 
 
     document.addEventListener('DOMContentLoaded', function() {
+        // ★★★ ネットワーク状態の監視 ★★★
+        window.addEventListener('online', updateDisplay);
+        window.addEventListener('offline', updateDisplay);
+        updateNetworkStatus();
+
         initializeDateTimeInputs();
         createRouteCheckboxes();
         updateDisplay();
@@ -1153,11 +1243,15 @@
             iframeModalContainer.innerHTML = '';
         };
         const openIframeModal = (url) => {
+            // ★★★ モーダル表示時もオフラインチェック ★★★
+            if (!isOnline()) {
+                alert('オフラインのため詳細を表示できません');
+                return;
+            }
             iframeModalContainer.innerHTML = `<iframe src="${url}"></iframe>`;
             iframeModalOverlay.classList.add('visible');
         };
         
-        // ★★★ 変更点: クリックイベントのハンドリングを更新 ★★★
         document.addEventListener('click', (e) => {
             // オーバーレイパネルの閉じるボタン
             const closePanelBtn = e.target.closest('.close-detail-panel');
@@ -1177,12 +1271,15 @@
             // 詳細ボタン
             const detailButton = e.target.closest('.detail-button');
             if (detailButton && detailButton.dataset.url) {
+                // ★★★ ボタンクリック時のオフラインチェック ★★★
+                if (!isOnline()) {
+                    alert('オフラインのため詳細を表示できません');
+                    return;
+                }
                 const url = detailButton.dataset.url;
                 if (window.innerWidth >= 769) {
-                    // PC表示: オーバーレイパネルを表示
                     showPcOverlayPanel(url);
                 } else {
-                    // モバイル表示: 全画面モーダル
                     openIframeModal(url);
                 }
                 return;
@@ -1192,6 +1289,56 @@
         document.getElementById('closeIframeModal').addEventListener('click', closeIframeModal);
         iframeModalOverlay.addEventListener('click', e => { if (e.target === iframeModalOverlay) closeIframeModal(); });
     });
+</script>
+
+<!-- ★★★ PWA用 Service Worker 登録スクリプト ★★★ -->
+<!-- このスクリプトにより、このHTMLファイル自体がブラウザにキャッシュされ、オフラインでも起動可能になります -->
+<script>
+if ('serviceWorker' in navigator) {
+    // インラインでService Workerを作成（外部ファイルsw.jsを使わず単一ファイルで完結させるため）
+    const swContent = `
+        const CACHE_NAME = 'bus-schedule-v1';
+        
+        self.addEventListener('install', (event) => {
+            event.waitUntil(self.skipWaiting());
+        });
+
+        self.addEventListener('activate', (event) => {
+            event.waitUntil(self.clients.claim());
+        });
+
+        self.addEventListener('fetch', (event) => {
+            // iframeなどの外部リクエストはキャッシュせずネットワークへ
+            if (event.request.url.includes('its-mo.com')) {
+                return;
+            }
+            
+            event.respondWith(
+                caches.match(event.request).then((response) => {
+                    return response || fetch(event.request).then((newRes) => {
+                        // 自分自身(HTML)をキャッシュする
+                        if(newRes && newRes.status === 200 && newRes.type === 'basic') {
+                             const resClone = newRes.clone();
+                             caches.open(CACHE_NAME).then((cache) => {
+                                 cache.put(event.request, resClone);
+                             });
+                        }
+                        return newRes;
+                    });
+                })
+            );
+        });
+    `;
+
+    const blob = new Blob([swContent], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register(swUrl)
+            .then(reg => console.log('Service Worker Registered!', reg))
+            .catch(err => console.log('Service Worker Failed', err));
+    });
+}
 </script>
 </body>
 </html>
