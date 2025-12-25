@@ -84,17 +84,17 @@
       pointer-events: none;
     }
 
-    /* ★★★ 固定ヘッダー（統合・スリム化） ★★★ */
+    /* ★★★ 固定ヘッダー ★★★ */
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
-      padding: 5px 0; /* 上下の余白を最小限に */
+      padding: 5px 0;
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
       display: flex;
       flex-direction: column;
-      align-items: center; /* 全体を中央揃え */
-      gap: 2px; /* 上段と下段の隙間をほぼ無くす */
+      align-items: center; 
+      gap: 2px;
     }
 
     /* 上段（時計・ロゴエリア） */
@@ -104,14 +104,13 @@
         box-sizing: border-box; 
         display: flex; 
         align-items: center; 
-        /* 速度テストの基準点にはしない（全体基準にするため） */
-        height: 30px; /* 高さを固定してコンパクトに */
+        height: 30px; 
     }
     
     .clock-main-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; gap: 10px; }
 
     .site-logo {
-      height: 26px; /* さらに少し小さく */
+      height: 26px; 
       width: auto;
       margin-right: 5px;
       object-fit: contain;
@@ -140,7 +139,7 @@
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-    /* ★★★ 速度テスト（絶対配置・大型・オーバーレイ） ★★★ */
+    /* ★★★ 速度テスト（サイズ調整済み） ★★★ */
     .header-speed-test { 
         position: absolute; 
         right: 10px;
@@ -148,13 +147,13 @@
         display: flex; 
         align-items: flex-start; 
         gap: 5px; 
-        z-index: 6000; /* 検索バーより手前 */
-        pointer-events: none; /* iframe以外はクリック透過 */
+        z-index: 6000;
+        pointer-events: none;
     }
     .header-speed-test iframe { 
-        pointer-events: auto; /* iframeは操作可能 */
-        width: 250px; 
-        height: 80px; 
+        pointer-events: auto;
+        width: 180px;  /* 250pxから縮小 */
+        height: 60px;  /* 80pxから縮小 */
         border: none; 
         border-radius: 8px; 
         background: #fff; 
@@ -162,8 +161,8 @@
     }
     @media (max-width: 450px) {
         .header-speed-test iframe { 
-            width: 140px; 
-            height: 60px; 
+            width: 120px; 
+            height: 50px; 
         }
     }
     #speed-test-refresh-button { 
@@ -183,7 +182,7 @@
     .page-container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        padding: 100px 20px 20px 20px; /* ヘッダー高さに合わせて調整 */
+        padding: 100px 20px 20px 20px;
     }
 
     .main-grid, #bustarain-container, #option-container, #fy-container {
@@ -193,12 +192,12 @@
         box-sizing: border-box;
     }
 
-    /* ★★★ 検索バーエリア（センタリング・統合） ★★★ */
+    /* ★★★ 検索バーエリア（強制表示 !important 追加） ★★★ */
     .search-wrapper { 
-        display: flex; 
-        justify-content: center; /* 完全に中央揃え */
+        display: flex !important; /* JSによるdisplay:noneを上書きして強制表示 */
+        justify-content: center;
         width: 100%; 
-        margin-top: 0; /* 上の行とくっつける */
+        margin-top: 0;
         padding: 0 10px;
         box-sizing: border-box;
         position: relative;
@@ -212,17 +211,16 @@
         border-radius: 20px; 
         border: none;
         
-        /* サイズ調整 */
-        width: 80%; /* 中央に配置しつつ適度な幅 */
+        width: 80%; 
         max-width: 500px; 
-        height: 36px; /* 高さをコンパクトに */
+        height: 36px; 
         
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         transition: width 0.3s ease;
     }
     @media (max-width: 450px) {
         .search-container {
-             width: 90%; /* スマホでは広めに */
+             width: 90%;
         }
     }
     
@@ -242,12 +240,12 @@
     /* ▼▼▼ 検索結果ドロップダウン ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        top: 40px; /* 検索バー直下 */
+        top: 40px;
         left: 0;
         right: 0;
-        margin: 0 auto; /* 中央揃え */
+        margin: 0 auto;
         
-        width: 85%; /* 検索バーより少し広く */
+        width: 85%;
         max-width: 550px;
         
         background-color: var(--card-bg);
@@ -476,7 +474,7 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
-    @media (max-width: 900px) { .header-speed-test iframe { width: 180px; } .datetime-row { gap: 10px; } }
+    @media (max-width: 900px) { .header-speed-test iframe { width: 150px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
       .fixed-top-wrapper { padding: 5px 0 10px 0; }
       .clock-main-row { flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
@@ -511,7 +509,7 @@
                 </div>
             </div>
 
-            <!-- ★★★ 速度テスト（絶対配置・大型・オーバーレイ） ★★★ -->
+            <!-- ★★★ 速度テスト（絶対配置・縮小済み） ★★★ -->
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
@@ -521,7 +519,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 検索バー（中央揃え・統合） ★★★ -->
+    <!-- ★★★ 検索バー（強制表示 !important 対応） ★★★ -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
