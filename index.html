@@ -47,7 +47,6 @@
       --icon-bg: #555;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
       
-      /* ダークモード時のアクティブタブ */
       --tab-active-bg: #88aaff;
       --tab-active-text: #ffffff;
 
@@ -71,7 +70,7 @@
       padding: 0;
       box-sizing: border-box;
       min-height: 100vh;
-      padding-bottom: 80px; /* 下部ナビの高さに合わせて調整 */
+      padding-bottom: 80px; 
     }
 
     body::before {
@@ -86,23 +85,22 @@
       pointer-events: none;
     }
 
-    /* 固定ヘッダー（全体的にスリム化） */
+    /* 固定ヘッダー */
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
-      padding: 5px 0 8px 0; /* 上下のパディングを極小に */
+      padding: 5px 0 8px 0;
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
       display: flex;
       flex-direction: column;
-      gap: 5px; /* 行間の隙間を狭く */
+      gap: 5px;
     }
     .clock-area { width: 100%; padding: 0 15px; box-sizing: border-box; display: flex; align-items: center; }
     .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
 
-    /* ロゴの小型化 */
     .site-logo {
-      height: 30px; /* 45px -> 30px */
+      height: 30px; 
       width: auto;
       margin-right: 10px;
       object-fit: contain;
@@ -111,23 +109,21 @@
       box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    /* 時刻文字の小型化 */
     .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-grow: 1; flex-wrap: wrap; }
     #date, #clock, #countdown { 
         color: #ffffff; 
         font-weight: bold; 
         white-space: nowrap; 
-        font-size: 16px; /* 24px -> 16px */
+        font-size: 16px; 
         line-height: 1.1; 
     }
     #countdown { color: #88aaff; }
     #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 16px; }
 
-    /* 速度テストの小型化 */
     .header-speed-test { display: flex; align-items: center; gap: 5px; margin-left: auto; }
     .header-speed-test iframe { 
         width: 90px; 
-        height: 24px; /* 35px -> 24px */
+        height: 24px; 
         border: none; 
         border-radius: 3px; 
         background: #fff; 
@@ -138,7 +134,7 @@
     .control-icon { color: #aaaaaa; cursor: pointer; font-size: 16px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
     .theme-switcher { display: flex; gap: 6px; }
-    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } /* ドットも小さく */
+    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
@@ -146,8 +142,7 @@
     .page-container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        /* ヘッダーの高さが減ったのでパディングも調整 */
-        padding: 120px 20px 20px 20px; 
+        padding: 110px 20px 20px 20px; /* 検索バー縮小に合わせて調整 */
     }
 
     .main-grid, #bustarain-container, #option-container, #fy-container {
@@ -157,95 +152,79 @@
       box-sizing: border-box;
     }
 
-    /* ★★★ 検索バーエリア（サイズ拡大・PC幅広対応） ★★★ */
+    /* ★★★ 検索バーエリア（サイズ縮小調整） ★★★ */
     .search-wrapper { 
         display: flex; 
         justify-content: center; 
         width: 100%; 
-        margin-top: 2px; /* 少し隙間 */
+        margin-top: 2px;
         margin-bottom: 0;
         padding: 0 10px;
         box-sizing: border-box;
-        position: relative; /* ドロップダウンの基準点 */
-        z-index: 5000; /* ヘッダー内で一番手前に */
+        position: relative;
+        z-index: 5000;
     }
     .search-container { 
         display: flex; 
         align-items: center; 
-        padding: 0 20px; 
+        padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 30px;
+        border-radius: 25px; /* 少し角丸を緩める */
         border: none;
         
-        /* スマホ向け: 95% */
-        width: 95%; 
-        height: 50px; /* 高さ拡大 */
+        /* サイズ縮小 */
+        width: 90%; 
+        max-width: 600px; /* 最大幅も制限 */
+        height: 40px; /* 50px -> 40px */
         
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         transition: width 0.3s ease;
     }
-    /* PC向け: 80% */
-    @media (min-width: 768px) {
-        .search-container {
-            width: 80%;
-            max-width: 1000px;
-            height: 55px; /* PCはさらに高く */
-        }
-    }
-
-    .search-container i.fa-search { color: #555; margin-right: 12px; font-size: 1.2em; }
+    
+    .search-container i.fa-search { color: #555; margin-right: 10px; font-size: 1em; }
     
     #globalSearchInput { 
         border: none; 
         background: transparent; 
         outline: none; 
         width: 100%; 
-        font-size: 18px; /* 文字拡大 */
+        font-size: 16px; /* 文字サイズ標準に戻す */
         color: #333;
     }
-    #globalSearchInput::placeholder { color: #888; font-size: 16px; }
-    #clearSearchBtn { cursor: pointer; color: #777; font-size: 1.2em; }
+    #globalSearchInput::placeholder { color: #888; font-size: 14px; }
+    #clearSearchBtn { cursor: pointer; color: #777; font-size: 1em; }
 
-    /* ▼▼▼ 検索結果ドロップダウン（表示修正・大型化） ▼▼▼ */
+    /* ▼▼▼ 検索結果ドロップダウン ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        /* 入力欄の高さ + マージン分下に配置 */
-        top: 60px; 
+        top: 48px; /* 検索バー(40px) + マージン */
         left: 0;
         right: 0;
         margin: 0 auto;
         
-        /* コンテナと同じ幅感 */
-        width: 95%;
+        width: 90%;
+        max-width: 600px;
         
         background-color: var(--card-bg);
-        border-radius: 16px;
+        border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        z-index: 6000; /* inputよりさらに手前に */
-        max-height: 65vh;
+        z-index: 6000;
+        max-height: 60vh;
         overflow-y: auto;
-        padding: 10px;
+        padding: 5px; /* 余白を少し詰める */
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--card-border-color);
-        
-        /* 初期状態で非表示にするが、クラス制御のみで行う */
         display: block; 
-    }
-    @media (min-width: 768px) {
-        .search-results-dropdown {
-            width: 80%;
-            max-width: 1000px;
-        }
     }
     .search-results-dropdown.hidden { display: none !important; }
     
     .search-result-item {
         display: flex;
         align-items: center;
-        padding: 15px 20px; /* タッチしやすいサイズ */
-        margin-bottom: 8px;
-        border-radius: 12px;
+        padding: 10px 15px; /* 標準的なサイズ */
+        margin-bottom: 5px;
+        border-radius: 8px;
         background: rgba(255, 255, 255, 0.6);
         cursor: pointer;
         transition: all 0.2s;
@@ -262,30 +241,41 @@
     }
     
     .search-result-item img {
-        width: 42px; /* アイコン拡大 */
-        height: 42px;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
-        margin-right: 20px;
+        margin-right: 15px;
         object-fit: contain;
         background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .search-result-item span {
         font-weight: bold;
-        font-size: 18px; /* 文字拡大 */
+        font-size: 15px;
         flex-grow: 1;
     }
     .search-result-item i {
         color: var(--text-color-secondary);
-        font-size: 18px;
+        font-size: 14px;
     }
+    /* 種類ラベル（アプリか交通か） */
+    .result-tag {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-right: 8px;
+        color: #fff;
+        font-weight: bold;
+    }
+    .tag-app { background-color: #667eea; }
+    .tag-traffic { background-color: #28a745; }
 
     /* ▼▼▼ リンク確認モーダル用CSS ▼▼▼ */
     .modal-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 7000; /* 最前面 */
+        z-index: 7000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -322,7 +312,7 @@
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
 
 
-    /* ★★★ 下部固定ナビゲーション（極限までスリム化） ★★★ */
+    /* ★★★ 下部固定ナビゲーション ★★★ */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -335,16 +325,14 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        /* パディングを極小に */
         padding: 5px 10px; 
         padding-bottom: calc(5px + env(safe-area-inset-bottom));
         z-index: 2000;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-        height: auto; /* 高さは内容なり */
+        height: auto;
     }
 
     .tab-item { 
-        /* 上下パディングを狭く */
         padding: 6px 0; 
         color: var(--text-color-secondary); 
         font-weight: bold; 
@@ -354,7 +342,6 @@
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        /* アイコンと文字の間隔を狭く */
         gap: 2px; 
         flex: 1;
         background: transparent;
@@ -452,7 +439,7 @@
       .clock-main-row { flex-wrap: wrap; justify-content: center; gap: 5px; }
       .datetime-row { justify-content: center; width: 100%; gap: 10px; }
       .header-speed-test { margin: 2px auto 0; width: 100%; justify-content: center; }
-      .page-container { padding-top: 200px; } /* ヘッダーが小さくなったので調整 */
+      .page-container { padding-top: 190px; }
     }
   </style>
 
@@ -494,10 +481,10 @@
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
-            <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
+            <input type="text" id="globalSearchInput" placeholder="アプリ、交通情報を検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
-        <!-- ▼ 検索結果表示用エリア（CSS調整済み） ▼ -->
+        <!-- ▼ 検索結果表示用エリア ▼ -->
         <div id="searchResults" class="search-results-dropdown hidden"></div>
         <!-- ▲ 検索結果表示用エリア ▲ -->
     </div>
@@ -656,7 +643,7 @@
       <div id="option-container"></div>
   </div>
 
-  <!-- 下部固定ナビゲーション（Notifyタブ削除済み・超スリム化） -->
+  <!-- 下部固定ナビゲーション -->
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
           <i class="fas fa-star fy-icon"></i> 
@@ -704,7 +691,7 @@
   <script src="script.js"></script>
   
   <script>
-      // --- ★★★ 全タブ対応：検索＆リンク確認機能 ★★★ ---
+      // --- ★★★ 全コンテンツ対象検索＆リンク確認機能 ★★★ ---
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
@@ -719,28 +706,46 @@
           const modalDesc = document.getElementById('modal-desc');
 
           let currentTargetUrl = "";
-          let appListCache = [];
+          let allContentCache = [];
 
           if (!searchInput || !resultsContainer) return;
 
-          // アプリ情報収集
-          function gatherAllApps() {
-              const apps = [];
-              const items = document.querySelectorAll('.icon-item');
-              items.forEach(item => {
+          // ★ 全コンテンツ収集関数（アプリ＋交通アコーディオン）
+          function gatherAllSearchableContent() {
+              const content = [];
+
+              // 1. アプリ（アイコン）の収集
+              const icons = document.querySelectorAll('.icon-item');
+              icons.forEach(item => {
                   const linkEl = item.querySelector('.icon-link');
                   const imgEl = item.querySelector('.icon-img');
                   const labelEl = item.querySelector('.label-text');
                   if (linkEl && labelEl) {
-                      apps.push({
+                      content.push({
+                          type: 'app',
                           name: labelEl.innerText.trim(),
                           url: linkEl.getAttribute('href'),
-                          img: imgEl ? imgEl.getAttribute('src') : '',
-                          originalElement: item
+                          img: imgEl ? imgEl.getAttribute('src') : './icon.png'
                       });
                   }
               });
-              return apps;
+
+              // 2. 交通情報（アコーディオン）の収集
+              const accordions = document.querySelectorAll('.accordion-item');
+              accordions.forEach(acc => {
+                  const headerSpan = acc.querySelector('.accordion-header span');
+                  const iframe = acc.querySelector('.accordion-iframe');
+                  if (headerSpan && iframe && iframe.getAttribute('data-src')) {
+                      content.push({
+                          type: 'traffic',
+                          name: headerSpan.innerText.trim(),
+                          url: iframe.getAttribute('data-src'),
+                          img: './icon.png' // デフォルトアイコン
+                      });
+                  }
+              });
+
+              return content;
           }
 
           // モーダルを開く処理
@@ -769,7 +774,6 @@
           btnCancel.addEventListener('click', () => {
               closeConfirmationModal();
           });
-          // 背景クリックで閉じる
           modalOverlay.addEventListener('click', (e) => {
               if (e.target === modalOverlay) closeConfirmationModal();
           });
@@ -787,38 +791,46 @@
 
               clearBtn.classList.remove('hidden');
               
-              appListCache = gatherAllApps();
-              const matches = appListCache.filter(app => app.name.toLowerCase().includes(q));
+              // 入力時にDOMから全コンテンツを再収集（動的変化に対応）
+              allContentCache = gatherAllSearchableContent();
+
+              // フィルタリング（重複は簡易的にURLで除外すると綺麗だが、今回はそのまま表示）
+              const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
 
               if (matches.length > 0) {
                   resultsContainer.classList.remove('hidden');
-                  matches.forEach(app => {
+                  matches.forEach(item => {
                       const itemLink = document.createElement('a');
                       itemLink.className = 'search-result-item';
-                      itemLink.href = app.url; 
+                      itemLink.href = item.url; 
                       
                       const img = document.createElement('img');
-                      img.src = app.img || './icon.png';
+                      img.src = item.img || './icon.png';
                       
                       const span = document.createElement('span');
-                      span.innerText = app.name;
+                      span.innerText = item.name;
 
+                      // 種類バッジの作成
+                      const tag = document.createElement('span');
+                      tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
+                      tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
+                      // タグは名前の前に入れるために一旦保持、でもCSSでFlexなので順番通り追加
+                      
                       const icon = document.createElement('i');
                       icon.className = 'fas fa-chevron-right';
 
                       itemLink.appendChild(img);
                       itemLink.appendChild(span);
+                      itemLink.appendChild(tag); // バッジ追加
                       itemLink.appendChild(icon);
 
-                      // ★ クリック時のイベントリスナー ★
+                      // クリックイベント
                       itemLink.addEventListener('click', (e) => {
                           e.preventDefault(); 
-                          
                           resultsContainer.classList.add('hidden');
                           searchInput.value = '';
                           clearBtn.classList.add('hidden');
-                          
-                          openConfirmationModal(app.url, app.name);
+                          openConfirmationModal(item.url, item.name);
                       });
 
                       resultsContainer.appendChild(itemLink);
