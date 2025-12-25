@@ -22,7 +22,11 @@
       --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
       --icon-bg: #fff;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      --tab-active-text: #667eea;
+      
+      /* タブのアクティブ色（背景用） */
+      --tab-active-bg: #667eea;
+      --tab-active-text: #ffffff;
+      
       --input-bg: #e9ecef;
       --bus-board-bg: #e8f5e8;
       --bus-card-bg: #fff;
@@ -30,12 +34,8 @@
       --grid-line-color: rgba(0, 0, 0, 0.1);
       --swap-select-color: rgba(33, 150, 243, 0.2);
       --slot-hover-color: rgba(0, 0, 0, 0.03);
-
-      /* Git通知用追加変数 */
-      --git-card-bg: #ffffff;
-      --git-link-color: #0366d6;
       
-      --nav-bg: rgba(255, 255, 255, 0.95);
+      --nav-bg: rgba(255, 255, 255, 0.98);
     }
     body.dark-theme {
       --bg-color: #434343;
@@ -46,7 +46,11 @@
       --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
       --icon-bg: #555;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      --tab-active-text: #88aaff;
+      
+      /* ダークモード時のアクティブタブ */
+      --tab-active-bg: #88aaff;
+      --tab-active-text: #ffffff;
+
       --input-bg: #3a3a3a;
       --bus-board-bg: #2a3a2a;
       --bus-card-bg: #3c4c3c;
@@ -54,12 +58,8 @@
       --grid-line-color: rgba(255, 255, 255, 0.1);
       --swap-select-color: rgba(100, 181, 246, 0.3);
       --slot-hover-color: rgba(255, 255, 255, 0.05);
-
-      /* Git通知用追加変数 */
-      --git-card-bg: #3c3c3c;
-      --git-link-color: #58a6ff;
       
-      --nav-bg: rgba(50, 50, 50, 0.95);
+      --nav-bg: rgba(50, 50, 50, 0.98);
     }
 
     body {
@@ -91,11 +91,11 @@
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
-      padding: 5px 0 10px 0;
+      padding: 5px 0 15px 0; /* 下部余白を少し増やす */
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 10px;
     }
     .clock-area { width: 100%; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; }
     .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 15px; }
@@ -130,17 +130,17 @@
     .page-container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        padding: 130px 20px 20px 20px;
+        padding: 150px 20px 20px 20px; /* 検索バーが大きくなったので上部余白を調整 */
     }
 
-    .main-grid, #bustarain-container, #option-container, #fy-container, #git-notify-container {
+    .main-grid, #bustarain-container, #option-container, #fy-container {
       position: relative;
       z-index: 1;
       width: 100%;
       box-sizing: border-box;
     }
 
-    /* 検索バーエリア */
+    /* ★★★ 検索バーエリア（サイズ調整） ★★★ */
     .search-wrapper { 
         display: flex; 
         justify-content: center; 
@@ -154,85 +154,111 @@
     .search-container { 
         display: flex; 
         align-items: center; 
-        padding: 0 15px; 
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 20px; 
+        padding: 0 20px; 
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 30px; /* より丸く */
         border: none;
-        width: 100%; 
-        max-width: 600px; 
-        height: 38px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        
+        /* スマホ向けデフォルト: 幅広に */
+        width: 95%; 
+        height: 50px; /* 高さを拡大 (38px -> 50px) */
+        
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: width 0.3s ease;
     }
-    .search-container i.fa-search { color: #555; margin-right: 8px; }
+    /* PC向け: さらに横幅を使う */
+    @media (min-width: 768px) {
+        .search-container {
+            width: 80%; /* PCでは80%まで広げる */
+            max-width: 1000px; /* 最大幅も拡大 */
+            height: 55px; /* PCではさらに少し高く */
+        }
+    }
+
+    .search-container i.fa-search { color: #555; margin-right: 12px; font-size: 1.2em; }
     
     #globalSearchInput { 
         border: none; 
         background: transparent; 
         outline: none; 
         width: 100%; 
-        font-size: 16px; 
+        font-size: 18px; /* 文字サイズ拡大 */
         color: #333;
     }
-    #globalSearchInput::placeholder { color: #777; }
-    #clearSearchBtn { cursor: pointer; color: #777; }
+    #globalSearchInput::placeholder { color: #888; font-size: 16px; }
+    #clearSearchBtn { cursor: pointer; color: #777; font-size: 1.2em; }
 
-    /* ▼▼▼ 検索結果ドロップダウン用CSS ▼▼▼ */
+    /* ▼▼▼ 検索結果ドロップダウン（サイズ調整） ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        top: 45px;
+        top: 60px; /* 検索ボックスの高さに合わせて調整 */
         left: 0;
         right: 0;
         margin: 0 auto;
-        width: 100%;
-        max-width: 600px;
+        
+        /* コンテナと同じ幅感に合わせる */
+        width: 95%;
+        
         background-color: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         z-index: 5000;
-        max-height: 60vh;
+        max-height: 65vh;
         overflow-y: auto;
-        padding: 5px;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        padding: 10px;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--card-border-color);
+    }
+    @media (min-width: 768px) {
+        .search-results-dropdown {
+            width: 80%;
+            max-width: 1000px;
+        }
     }
     .search-results-dropdown.hidden { display: none; }
     
     .search-result-item {
         display: flex;
         align-items: center;
-        padding: 10px 15px;
-        margin-bottom: 5px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.5);
+        padding: 15px 20px; /* 余白を拡大 */
+        margin-bottom: 8px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: all 0.2s;
         color: var(--text-color-primary);
         text-decoration: none;
         user-select: none;
+        border: 1px solid transparent;
     }
-    body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.3); }
-    .search-result-item:hover { background-color: var(--swap-select-color); }
+    body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
+    
+    .search-result-item:hover { 
+        background-color: var(--swap-select-color); 
+        transform: scale(1.01);
+    }
     
     .search-result-item img {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        margin-right: 15px;
+        width: 42px; /* アイコン拡大 */
+        height: 42px;
+        border-radius: 8px;
+        margin-right: 20px;
         object-fit: contain;
         background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     .search-result-item span {
         font-weight: bold;
-        font-size: 14px;
+        font-size: 18px; /* 文字サイズ拡大 */
         flex-grow: 1;
     }
     .search-result-item i {
         color: var(--text-color-secondary);
-        font-size: 14px;
+        font-size: 18px; /* 矢印拡大 */
     }
 
-    /* ▼▼▼ リンク確認モーダル用CSS (新規追加) ▼▼▼ */
+    /* ▼▼▼ リンク確認モーダル用CSS ▼▼▼ */
     .modal-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -293,10 +319,9 @@
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
-    /* ▲▲▲ モーダル用CSS終了 ▲▲▲ */
 
 
-    /* 下部固定ナビゲーション */
+    /* ★★★ 下部固定ナビゲーション（デザイン改良） ★★★ */
     .bottom-nav {
         position: fixed;
         bottom: 0;
@@ -307,19 +332,19 @@
         -webkit-backdrop-filter: blur(10px);
         border-top: 1px solid var(--card-border-color);
         display: flex;
-        justify-content: space-around;
+        justify-content: space-around; /* 均等配置 */
         align-items: center;
-        padding: 8px 0;
-        padding-bottom: calc(8px + env(safe-area-inset-bottom));
+        padding: 10px 10px; /* 余白調整 */
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
         z-index: 2000;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
     }
 
     .tab-item { 
-        padding: 5px 0; 
+        padding: 8px 0; 
         color: var(--text-color-secondary); 
         font-weight: bold; 
-        font-size: 10px; 
+        font-size: 11px; 
         cursor: pointer; 
         transition: all 0.2s ease; 
         display: flex; 
@@ -328,30 +353,35 @@
         gap: 4px; 
         flex: 1;
         background: transparent;
-        border-radius: 0;
+        border-radius: 12px; /* 角丸追加 */
+        margin: 0 5px; /* ボタン同士の間隔 */
+        max-width: 100px; /* ボタンの最大幅制限 */
     }
-    .tab-item i { font-size: 20px; margin-bottom: 2px; }
-    .tab-item:hover { color: var(--tab-active-text); transform: translateY(-2px); background: transparent; }
-    .tab-item.active { background: transparent; color: var(--tab-active-text); box-shadow: none; transform: none; }
-    .tab-item.active i { transform: scale(1.1); }
+    .tab-item i { font-size: 22px; margin-bottom: 2px; }
+    
+    .tab-item:hover { 
+        background-color: rgba(0,0,0,0.05); /* ホバー時の薄い背景 */
+        transform: translateY(-2px); 
+    }
+    
+    /* アクティブ時のデザインを強化 */
+    .tab-item.active { 
+        background-color: var(--tab-active-bg); /* 背景色をつける */
+        color: var(--tab-active-text); /* 文字色を白に */
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transform: none; 
+    }
+    .tab-item.active:hover {
+        transform: none;
+        background-color: var(--tab-active-bg);
+    }
+    .tab-item.active i {
+        transform: scale(1.1);
+        color: var(--tab-active-text);
+    }
+    /* FYアイコンの特別色対応（アクティブ時は白にする） */
     .fy-icon { color: #ffc107; }
-
-    .badge {
-      background-color: #ff4444;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 5px;
-      font-size: 10px;
-      position: absolute;
-      top: 5px;
-      margin-left: 15px;
-      font-weight: bold;
-      display: inline-block;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .badge.hidden { display: none; }
-    .tab-item.active .badge { border: 1px solid #fff; }
-    .tab-item { position: relative; }
+    .tab-item.active .fy-icon { color: #fff; }
 
     /* Appsグリッド */
     .main-grid { margin-top: 10px; }
@@ -402,7 +432,7 @@
     .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
 
     /* コンテナ非表示設定 */
-    #bustarain-container, #option-container, #fy-container, #git-notify-container { display: none; margin-top: 20px; }
+    #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
 
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; border-bottom: none; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
@@ -420,34 +450,13 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
-    /* Git通知スタイル */
-    #git-notify-container { margin-top: 25px; padding: 0 10px; }
-    .git-header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--card-border-color); }
-    .github-btn { background-color: #24292e; color: white; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.2s; display: inline-flex; align-items: center; gap: 5px; }
-    .github-btn:hover { background-color: #444d56; color: #fff; }
-    .api-limit-display { position: fixed; bottom: 80px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-family: monospace; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.2); pointer-events: none; }
-    #limit-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 3000; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #333; }
-    body.dark-theme #limit-overlay { background: rgba(40, 40, 40, 0.95); color: #f5f5f5; }
-    .timer-box { background: var(--git-card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--card-border-color); max-width: 90%; }
-    .timer-count { font-size: 48px; font-weight: bold; color: #d73a49; margin: 20px 0; font-family: monospace; }
-    .post-card { background: var(--git-card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid var(--card-border-color); transition: transform 0.2s; width: 100%; box-sizing: border-box; }
-    .post-card:hover { transform: translateY(-2px); }
-    .post-header { border-bottom: 1px solid var(--card-border-color); padding-bottom: 10px; margin-bottom: 10px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 5px; }
-    .post-id { font-weight: bold; color: var(--git-link-color); font-family: monospace; font-size: 14px; }
-    .post-date { font-size: 0.85em; color: var(--text-color-secondary); }
-    .post-message { font-size: 16px; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; word-wrap: break-word; color: var(--text-color-primary); }
-    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; width: 100%; }
-    .post-image { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid var(--card-border-color); cursor: pointer; transition: opacity 0.2s; background-color: var(--input-bg); }
-    .post-image:hover { opacity: 0.8; }
-    #status-message { text-align: center; margin-top: 50px; font-weight: bold; color: var(--text-color-secondary); }
-
     @media (max-width: 900px) { .header-speed-test iframe { width: 100px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
-      .fixed-top-wrapper { padding: 10px 0 10px 0; }
+      .fixed-top-wrapper { padding: 10px 0 15px 0; }
       .clock-main-row { flex-wrap: wrap; justify-content: center; }
       .datetime-row { justify-content: center; width: 100%; gap: 15px; }
       .header-speed-test { margin: 5px auto 0; width: 100%; justify-content: center; }
-      .page-container { padding-top: 220px; }
+      .page-container { padding-top: 240px; /* ヘッダーが大きくなったので調整 */ }
       .site-logo { height: 35px; margin-bottom: 5px; }
     }
   </style>
@@ -490,7 +499,6 @@
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
-            <!-- IDを変更して、外部JSによるアイコン絞り込みを回避 -->
             <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
@@ -651,34 +659,9 @@
 
       <!-- Optionコンテナ -->
       <div id="option-container"></div>
-
-      <!-- Git通知 コンテナ -->
-      <div id="git-notify-container">
-          <!-- API残り回数表示 -->
-          <div id="api-limit-display" class="api-limit-display">API確認中...</div>
-          
-          <!-- 制限時のオーバーレイ（タイマー） -->
-          <div id="limit-overlay">
-              <div class="timer-box">
-                  <h2>⚠️ API制限がかかりました</h2>
-                  <p>GitHub APIの利用上限に達しました。<br>以下の時間が経過すると自動的に解除されます。</p>
-                  <div id="timer-countdown" class="timer-count">00:00:00</div>
-                  <p><small>※この画面を開いたままお待ちいただくか、時間をおいてリロードしてください。</small></p>
-              </div>
-          </div>
-
-          <div class="git-header-area">
-              <h3 class="section-title" style="margin:0; border:none;">受信ボックス</h3>
-              <a href="https://github.com/SuperTasu/Call-Answered-/tree/main/image" target="_blank" class="github-btn">
-                  <i class="fab fa-github"></i> 画像フォルダ
-              </a>
-          </div>
-          <div id="status-message">データを読み込んでいます...</div>
-          <div id="posts-container"></div>
-      </div>
   </div>
 
-  <!-- 下部固定ナビゲーション（bodyの最後に配置） -->
+  <!-- 下部固定ナビゲーション（Notifyタブ削除済み） -->
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> 
           <i class="fas fa-star fy-icon"></i> 
@@ -691,11 +674,6 @@
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
           <i class="fas fa-bus"></i> 
           <span>Traffic</span>
-      </div>
-      <div class="tab-item" id="tab-git-notify" onclick="openGitTab()"> 
-          <i class="fas fa-cat"></i> 
-          <span>Notify</span>
-          <span id="git-badge" class="badge hidden"></span>
       </div>
       <div class="tab-item" id="tab-option" onclick="activateTab('option')"> 
           <i class="fas fa-cog"></i> 
@@ -815,309 +793,4 @@
               clearBtn.classList.remove('hidden');
               
               appListCache = gatherAllApps();
-              const matches = appListCache.filter(app => app.name.toLowerCase().includes(q));
-
-              if (matches.length > 0) {
-                  resultsContainer.classList.remove('hidden');
-                  matches.forEach(app => {
-                      const itemLink = document.createElement('a');
-                      itemLink.className = 'search-result-item';
-                      itemLink.href = app.url; 
-                      
-                      const img = document.createElement('img');
-                      img.src = app.img || './icon.png';
-                      
-                      const span = document.createElement('span');
-                      span.innerText = app.name;
-
-                      const icon = document.createElement('i');
-                      icon.className = 'fas fa-chevron-right';
-
-                      itemLink.appendChild(img);
-                      itemLink.appendChild(span);
-                      itemLink.appendChild(icon);
-
-                      // ★ クリック時のイベントリスナー変更 ★
-                      itemLink.addEventListener('click', (e) => {
-                          e.preventDefault(); // 即座の遷移を防止
-                          
-                          // 検索結果を閉じてからモーダルを表示
-                          resultsContainer.classList.add('hidden');
-                          searchInput.value = '';
-                          clearBtn.classList.add('hidden');
-                          
-                          // 確認モーダルを表示
-                          openConfirmationModal(app.url, app.name);
-                      });
-
-                      resultsContainer.appendChild(itemLink);
-                  });
-              } else {
-                  resultsContainer.classList.remove('hidden');
-                  const noRes = document.createElement('div');
-                  noRes.style.padding = '15px';
-                  noRes.style.textAlign = 'center';
-                  noRes.style.color = 'var(--text-color-secondary)';
-                  noRes.innerText = '見つかりませんでした';
-                  resultsContainer.appendChild(noRes);
-              }
-          }
-
-          searchInput.addEventListener('input', (e) => {
-              performSearch(e.target.value);
-          });
-
-          clearBtn.addEventListener('click', () => {
-              searchInput.value = '';
-              performSearch('');
-              searchInput.focus();
-          });
-
-          document.addEventListener('click', (e) => {
-              if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                  resultsContainer.classList.add('hidden');
-              }
-          });
-          
-          searchInput.addEventListener('focus', () => {
-              if (searchInput.value.trim().length > 0) {
-                  performSearch(searchInput.value);
-              }
-          });
-      });
-      // ----------------------------------------------------
-
-      // --- サブタブ切り替え・保存機能 ---
-      function switchSubTab(contentId) {
-          localStorage.setItem('active_sub_tab', contentId);
-          const contents = document.querySelectorAll('.sub-tab-content');
-          contents.forEach(el => el.classList.add('hidden'));
-
-          const target = document.getElementById(contentId);
-          if (target) target.classList.remove('hidden');
-
-          const buttons = document.querySelectorAll('.sub-tab-btn');
-          buttons.forEach(btn => {
-              btn.classList.remove('active');
-              if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(contentId)) {
-                  btn.classList.add('active');
-              }
-          });
-      }
-
-      // --- Git通知設定 ---
-      const GITHUB_USER = "SuperTasu";
-      const GITHUB_REPO = "Call-Answered-";
-      const GITHUB_PATH = "image/";
-
-      const PAGES_BASE_URL = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${GITHUB_PATH}`;
-      const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
-
-      let isGitLoaded = false;
-      let currentTotalGitFiles = 0;
-
-      async function updateGitBadge() {
-          const badge = document.getElementById('git-badge');
-          try {
-              const response = await fetch(API_URL);
-              const remaining = response.headers.get('x-ratelimit-remaining');
-              if (response.status === 403 && remaining === '0') return;
-              if (!response.ok) return;
-
-              const files = await response.json();
-              const count = files.filter(file => file.name.endsWith('_message.json')).length;
-              currentTotalGitFiles = count;
-
-              const lastReadCount = parseInt(localStorage.getItem('git_read_count') || '0', 10);
-              let unreadCount = count - lastReadCount;
-              if (unreadCount < 0) unreadCount = 0;
-
-              if (unreadCount > 0) {
-                  badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
-                  badge.classList.remove('hidden');
-              } else {
-                  badge.classList.add('hidden');
-              }
-          } catch (e) {
-              console.error("Badge update failed:", e);
-          }
-      }
-
-      document.addEventListener('DOMContentLoaded', () => {
-          updateGitBadge();
-          const savedSubTab = localStorage.getItem('active_sub_tab');
-          if (savedSubTab) switchSubTab(savedSubTab);
-      });
-
-      function openGitTab() {
-          document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-          document.getElementById('tab-git-notify').classList.add('active');
-          
-          const containersToHide = [
-              '#fy-container', '.main-grid', '#bustarain-container', '#option-container'
-          ];
-          containersToHide.forEach(selector => {
-              const el = document.querySelector(selector);
-              if(el) el.style.display = 'none';
-          });
-
-          const gitContainer = document.getElementById('git-notify-container');
-          if(gitContainer) gitContainer.style.display = 'block';
-
-          const badge = document.getElementById('git-badge');
-          if (badge) badge.classList.add('hidden');
-
-          if (currentTotalGitFiles > 0) {
-              localStorage.setItem('git_read_count', currentTotalGitFiles);
-              localStorage.setItem('git_read_date', new Date().toISOString());
-          }
-
-          if (!isGitLoaded) {
-              isGitLoaded = true;
-              fetchPosts();
-          }
-      }
-
-      async function fetchPosts() {
-          const container = document.getElementById('posts-container');
-          const statusMsg = document.getElementById('status-message');
-          const limitDisplay = document.getElementById('api-limit-display');
-          
-          statusMsg.style.display = 'block';
-          statusMsg.innerText = 'データを読み込んでいます...';
-
-          try {
-              const response = await fetch(API_URL);
-              const limit = response.headers.get('x-ratelimit-limit');
-              const remaining = response.headers.get('x-ratelimit-remaining');
-              const resetTime = response.headers.get('x-ratelimit-reset');
-
-              if (limit && remaining) {
-                  limitDisplay.innerText = `API残り: ${remaining} / ${limit}`;
-                  if (parseInt(remaining) === 0) {
-                      limitDisplay.style.backgroundColor = "#d73a49";
-                  } else {
-                      limitDisplay.style.backgroundColor = "rgba(0,0,0,0.8)";
-                  }
-              }
-
-              if (response.status === 403 && parseInt(remaining) === 0) {
-                  startCountdown(resetTime);
-                  throw new Error("API Limit Reached");
-              }
-
-              if (!response.ok) throw new Error(`データ取得エラー: ${response.status}`);
-
-              const files = await response.json();
-              const jsonFiles = files
-                  .filter(file => file.name.endsWith('_message.json'))
-                  .sort((a, b) => b.name.localeCompare(a.name));
-
-              currentTotalGitFiles = jsonFiles.length;
-              if (currentTotalGitFiles > 0) {
-                  localStorage.setItem('git_read_count', currentTotalGitFiles);
-                  localStorage.setItem('git_read_date', new Date().toISOString());
-              }
-
-              if (jsonFiles.length === 0) {
-                  statusMsg.innerText = "投稿が見つかりませんでした。";
-                  return;
-              }
-
-              const fetchLimit = 20;
-              const targetFiles = jsonFiles.slice(0, fetchLimit);
-
-              const postsData = await Promise.all(targetFiles.map(async (file) => {
-                  try {
-                      const res = await fetch(file.download_url);
-                      return res.ok ? await res.json() : null;
-                  } catch (e) {
-                      return null;
-                  }
-              }));
-
-              statusMsg.style.display = 'none';
-              postsData.forEach(data => {
-                  if (data) container.insertAdjacentHTML('beforeend', createPostCard(data));
-              });
-
-              if (jsonFiles.length > fetchLimit) {
-                  const moreMsg = document.createElement('div');
-                  moreMsg.style.textAlign = 'center';
-                  moreMsg.style.color = 'var(--text-color-secondary)';
-                  moreMsg.style.margin = '20px 0';
-                  moreMsg.innerText = `※最新の${fetchLimit}件を表示しています`;
-                  container.appendChild(moreMsg);
-              }
-
-          } catch (err) {
-              if (err.message !== "API Limit Reached") {
-                  statusMsg.innerText = "エラーが発生しました: " + err.message;
-              }
-          }
-      }
-
-      function startCountdown(resetTimestamp) {
-          const overlay = document.getElementById('limit-overlay');
-          const countdownEl = document.getElementById('timer-countdown');
-          const statusMsg = document.getElementById('status-message');
-          
-          overlay.style.display = 'flex';
-          statusMsg.style.display = 'none';
-
-          const resetTimeMs = parseInt(resetTimestamp, 10) * 1000;
-
-          const timerInterval = setInterval(() => {
-              const now = Date.now();
-              const diff = resetTimeMs - now;
-              if (diff <= 0) {
-                  clearInterval(timerInterval);
-                  countdownEl.innerText = "解除されました！";
-                  setTimeout(() => location.reload(), 2000);
-                  return;
-              }
-              const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-              const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-              countdownEl.innerText = `${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒`;
-          }, 1000);
-      }
-
-      function createPostCard(data) {
-          const dateStr = data.date ? new Date(data.date).toLocaleString('ja-JP') : '日付不明';
-          const safeMessage = escapeHtml(data.message || '（メッセージなし）');
-          let imagesHtml = '';
-          
-          if (data.uploadedFiles && Array.isArray(data.uploadedFiles) && data.uploadedFiles.length > 0) {
-              imagesHtml = `<div class="image-grid">`;
-              data.uploadedFiles.forEach(fileName => {
-                  const imageUrl = PAGES_BASE_URL + fileName;
-                  imagesHtml += `
-                      <a href="${imageUrl}" target="_blank">
-                          <img src="${imageUrl}" class="post-image" loading="lazy">
-                      </a>`;
-              });
-              imagesHtml += `</div>`;
-          }
-
-          return `
-              <div class="post-card">
-                  <div class="post-header">
-                      <span class="post-id">ID: ${escapeHtml(data.id)}</span>
-                      <span class="post-date">${dateStr}</span>
-                  </div>
-                  <div class="post-message">${safeMessage}</div>
-                  ${imagesHtml}
-              </div>
-          `;
-      }
-
-      function escapeHtml(str) {
-          if (!str) return '';
-          return String(str).replace(/[&<>"']/g, m => ({
-              '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-          })[m]);
-      }
-  </script>
-
-</body>
-</html>
+              const matches
