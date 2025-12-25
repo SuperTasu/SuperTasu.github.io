@@ -23,7 +23,6 @@
       --icon-bg: #fff;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
       
-      /* タブのアクティブ色 */
       --tab-active-bg: #667eea;
       --tab-active-text: #ffffff;
       
@@ -90,14 +89,21 @@
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
-      padding: 5px 0 8px 0;
+      padding: 5px 0 10px 0;
       font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-    .clock-area { width: 100%; padding: 0 15px; box-sizing: border-box; display: flex; align-items: center; }
-    .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
+    .clock-area { 
+        width: 100%; 
+        padding: 0 15px; 
+        box-sizing: border-box; 
+        display: flex; 
+        align-items: center; 
+        position: relative; /* 速度テストの基準 */
+    }
+    .clock-main-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; gap: 10px; }
 
     .site-logo {
       height: 30px; 
@@ -109,7 +115,7 @@
       box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-grow: 1; flex-wrap: wrap; }
+    .datetime-row { display: flex; align-items: baseline; gap: 15px; flex-grow: 0; flex-wrap: nowrap; }
     #date, #clock, #countdown { 
         color: #ffffff; 
         font-weight: bold; 
@@ -120,17 +126,46 @@
     #countdown { color: #88aaff; }
     #offline-status { color: #ff4444; font-weight: bold; display: none; font-size: 16px; }
 
-    .header-speed-test { display: flex; align-items: center; gap: 5px; margin-left: auto; }
-    .header-speed-test iframe { 
-        width: 90px; 
-        height: 24px; 
-        border: none; 
-        border-radius: 3px; 
-        background: #fff; 
+    /* ★★★ 速度テスト（はみ出し・大型化） ★★★ */
+    .header-speed-test { 
+        position: absolute; /* 自由に配置 */
+        right: 10px;
+        top: 5px;
+        display: flex; 
+        align-items: flex-start; 
+        gap: 5px; 
+        z-index: 6000; /* 検索バーより手前 */
     }
-    #speed-test-refresh-button { color: #aaaaaa; cursor: pointer; font-size: 14px; }
+    .header-speed-test iframe { 
+        width: 250px; /* 横幅を大きく */
+        height: 90px; /* 高さを大きく（検索バーにはみ出るサイズ） */
+        border: none; 
+        border-radius: 8px; 
+        background: #fff; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 浮いている感を出す */
+    }
+    /* スマホで大きすぎる場合の調整 */
+    @media (max-width: 450px) {
+        .header-speed-test iframe { 
+            width: 140px; 
+            height: 70px; 
+        }
+    }
     
-    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 10px; }
+    #speed-test-refresh-button { 
+        color: #aaaaaa; 
+        cursor: pointer; 
+        font-size: 16px; 
+        margin-top: 5px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        width: 24px; height: 24px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
+    
+    /* コントロールアイコンは左寄せの時計の横などへ */
+    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 20px; }
     .control-icon { color: #aaaaaa; cursor: pointer; font-size: 16px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
     .theme-switcher { display: flex; gap: 6px; }
@@ -142,22 +177,22 @@
     .page-container { 
         max-width: 1200px; 
         margin: 0 auto; 
-        padding: 110px 20px 20px 20px; /* 検索バー縮小に合わせて調整 */
+        padding: 110px 20px 20px 20px; 
     }
 
     .main-grid, #bustarain-container, #option-container, #fy-container {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      box-sizing: border-box;
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    /* ★★★ 検索バーエリア（サイズ縮小調整） ★★★ */
+    /* ★★★ 検索バーエリア ★★★ */
     .search-wrapper { 
         display: flex; 
-        justify-content: center; 
+        justify-content: flex-start; /* 左寄せにして速度テストと被らないように調整も可能 */
         width: 100%; 
-        margin-top: 2px;
+        margin-top: 5px;
         margin-bottom: 0;
         padding: 0 10px;
         box-sizing: border-box;
@@ -169,16 +204,21 @@
         align-items: center; 
         padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 25px; /* 少し角丸を緩める */
+        border-radius: 25px; 
         border: none;
         
-        /* サイズ縮小 */
-        width: 90%; 
-        max-width: 600px; /* 最大幅も制限 */
-        height: 40px; /* 50px -> 40px */
+        /* 速度テスト(右側)と被らないように右余白を開ける */
+        width: calc(100% - 160px); /* 速度テストの分を引く（PC向け） */
+        max-width: 600px; 
+        height: 40px; 
         
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         transition: width 0.3s ease;
+    }
+    @media (max-width: 450px) {
+        .search-container {
+             width: calc(100% - 110px); /* スマホ版の速度テストサイズ考慮 */
+        }
     }
     
     .search-container i.fa-search { color: #555; margin-right: 10px; font-size: 1em; }
@@ -188,7 +228,7 @@
         background: transparent; 
         outline: none; 
         width: 100%; 
-        font-size: 16px; /* 文字サイズ標準に戻す */
+        font-size: 16px; 
         color: #333;
     }
     #globalSearchInput::placeholder { color: #888; font-size: 14px; }
@@ -197,21 +237,19 @@
     /* ▼▼▼ 検索結果ドロップダウン ▼▼▼ */
     .search-results-dropdown {
         position: absolute;
-        top: 48px; /* 検索バー(40px) + マージン */
-        left: 0;
-        right: 0;
-        margin: 0 auto;
+        top: 48px;
+        left: 10px; /* 左端合わせ */
         
-        width: 90%;
+        width: calc(100% - 20px);
         max-width: 600px;
         
         background-color: var(--card-bg);
         border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        z-index: 6000;
+        z-index: 5500; /* 速度テスト(6000)よりは下 */
         max-height: 60vh;
         overflow-y: auto;
-        padding: 5px; /* 余白を少し詰める */
+        padding: 5px; 
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--card-border-color);
@@ -222,7 +260,7 @@
     .search-result-item {
         display: flex;
         align-items: center;
-        padding: 10px 15px; /* 標準的なサイズ */
+        padding: 10px 15px; 
         margin-bottom: 5px;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.6);
@@ -258,7 +296,6 @@
         color: var(--text-color-secondary);
         font-size: 14px;
     }
-    /* 種類ラベル（アプリか交通か） */
     .result-tag {
         font-size: 10px;
         padding: 2px 6px;
@@ -310,7 +347,6 @@
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
-
 
     /* ★★★ 下部固定ナビゲーション ★★★ */
     .bottom-nav {
@@ -433,13 +469,13 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
     .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
-    @media (max-width: 900px) { .header-speed-test iframe { width: 80px; } .datetime-row { gap: 10px; } }
+    @media (max-width: 900px) { .header-speed-test iframe { width: 180px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
       .fixed-top-wrapper { padding: 5px 0 10px 0; }
-      .clock-main-row { flex-wrap: wrap; justify-content: center; gap: 5px; }
-      .datetime-row { justify-content: center; width: 100%; gap: 10px; }
-      .header-speed-test { margin: 2px auto 0; width: 100%; justify-content: center; }
-      .page-container { padding-top: 190px; }
+      .clock-main-row { flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
+      .datetime-row { justify-content: flex-start; gap: 10px; }
+      .header-speed-test { top: 40px; } /* スマホでは位置を少し下げる */
+      .page-container { padding-top: 200px; }
     }
   </style>
 
@@ -459,20 +495,22 @@
                 <div id="offline-status">OFFLINE</div>
             </div>
 
+             <div class="header-controls">
+                <div class="theme-switcher">
+                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
+                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
+                </div>
+                <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> 
+                </div>
+            </div>
+
+            <!-- ★★★ 速度テスト（絶対配置・大型化・はみ出しOK） ★★★ -->
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
                     <i class="fas fa-redo"></i> 
                 </div>
-            </div>
-        </div>
-        <div class="header-controls">
-            <div class="theme-switcher">
-                <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
-                <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
-            </div>
-            <div class="control-icon" id="refresh-button" title="再読み込み" onclick="location.reload()">
-                <i class="fas fa-sync-alt"></i> 
             </div>
         </div>
     </div>
@@ -481,7 +519,7 @@
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
-            <input type="text" id="globalSearchInput" placeholder="アプリ、交通情報を検索..." autocomplete="off"> 
+            <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
         <!-- ▼ 検索結果表示用エリア ▼ -->
@@ -740,7 +778,7 @@
                           type: 'traffic',
                           name: headerSpan.innerText.trim(),
                           url: iframe.getAttribute('data-src'),
-                          img: './icon.png' // デフォルトアイコン
+                          img: './icon.png'
                       });
                   }
               });
@@ -791,10 +829,8 @@
 
               clearBtn.classList.remove('hidden');
               
-              // 入力時にDOMから全コンテンツを再収集（動的変化に対応）
               allContentCache = gatherAllSearchableContent();
 
-              // フィルタリング（重複は簡易的にURLで除外すると綺麗だが、今回はそのまま表示）
               const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
 
               if (matches.length > 0) {
@@ -810,21 +846,18 @@
                       const span = document.createElement('span');
                       span.innerText = item.name;
 
-                      // 種類バッジの作成
                       const tag = document.createElement('span');
                       tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
                       tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
-                      // タグは名前の前に入れるために一旦保持、でもCSSでFlexなので順番通り追加
                       
                       const icon = document.createElement('i');
                       icon.className = 'fas fa-chevron-right';
 
                       itemLink.appendChild(img);
                       itemLink.appendChild(span);
-                      itemLink.appendChild(tag); // バッジ追加
+                      itemLink.appendChild(tag);
                       itemLink.appendChild(icon);
 
-                      // クリックイベント
                       itemLink.addEventListener('click', (e) => {
                           e.preventDefault(); 
                           resultsContainer.classList.add('hidden');
