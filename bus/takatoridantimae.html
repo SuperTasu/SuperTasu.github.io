@@ -508,6 +508,24 @@
         .reset-button { background-color: #666; }
         @media (max-width: 768px) { .search-button, .reset-button { padding: 10px 20px; font-size: 16px; margin: 5px; } }
 
+        /* ★★★ 特別休日表示用のスタイル追加 ★★★ */
+        .special-holiday-section {
+            margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; text-align: center;
+        }
+        .special-holiday-title {
+            font-size: 14px; font-weight: bold; color: #cc0000; margin-bottom: 8px;
+        }
+        .special-holiday-list {
+            font-size: 12px; list-style: none; padding: 0; margin: 0; color: #333; text-align: center;
+        }
+        .special-holiday-list li {
+            margin-bottom: 4px; padding: 2px;
+        }
+        @media (max-width: 768px) {
+            .special-holiday-title { font-size: 16px; }
+            .special-holiday-list { font-size: 14px; }
+        }
+
         .header-icon-button {
             background-color: #f0f0f0; border: 2px solid #333; width: 38px; height: 38px;
             border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
@@ -593,6 +611,13 @@
                                 <button id="resetBtn" class="reset-button">現在時刻</button>
                             </div>
                         </div>
+                        <!-- ★★★ 特別休日ダイヤ一覧表示セクション ★★★ -->
+                        <div class="special-holiday-section">
+                            <div class="special-holiday-title">特別休日ダイヤ適用日</div>
+                            <ul class="special-holiday-list" id="specialHolidayList">
+                                <!-- JSで動的に生成 -->
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <button id="refresh-btn" class="header-icon-button" title="更新">↻</button>
@@ -655,7 +680,7 @@
 
 
 <script>
-    // 時刻表データ（省略）
+    // 時刻表データ
     const timetables = {
         shinkaichi: {
             route11: {
@@ -770,6 +795,16 @@
             }
         }
     };
+
+    // ★★★ 特別休日ダイヤの日程定義 ★★★
+    const specialScheduleDates = [
+        { date: '2025-08-15', name: 'お盆' },
+        { date: '2025-12-30', name: '年末年始' },
+        { date: '2025-12-31', name: '年末年始' },
+        { date: '2026-01-01', name: '元日' },
+        { date: '2026-01-02', name: '年末年始' },
+        { date: '2026-01-03', name: '年末年始' }
+    ];
     
     let currentDirection = 'yoshidacho';
     let customDateTime = null;
@@ -821,13 +856,32 @@
         }
     }
 
+    // ★★★ 修正: 特別休日を含む休日判定ロジック ★★★
     function isHoliday(date) {
         const day = date.getDay();
-        const month = date.getMonth() + 1;
-        const dateNum = date.getDate();
         const year = date.getFullYear();
-        if (year === 2025 && month === 8 && dateNum === 15) return true;
+        // 月は0始まりなので+1し、2桁0埋め
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${d}`;
+
+        // 特別休日リストに含まれているかチェック
+        if (specialScheduleDates.some(item => item.date === dateStr)) {
+            return true;
+        }
+
+        // 通常の土日
         return day === 0 || day === 6;
+    }
+
+    // ★★★ 追加: 特別休日リストを表示設定パネルに描画する関数 ★★★
+    function renderSpecialHolidayList() {
+        const listEl = document.getElementById('specialHolidayList');
+        let html = '';
+        specialScheduleDates.forEach(item => {
+            html += `<li>${item.date} (${item.name})</li>`;
+        });
+        listEl.innerHTML = html;
     }
 
     function toggleOperationPanel() {
@@ -1177,6 +1231,10 @@
 
         initializeDateTimeInputs();
         createRouteCheckboxes();
+        
+        // ★★★ 特別休日一覧の描画実行 ★★★
+        renderSpecialHolidayList();
+
         updateDisplay();
         
         setInterval(() => { if (!customDateTime) updateTime(); }, 1000);
