@@ -585,4 +585,399 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="accordion-content">
-                    <iframe class
+                    <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-3" data-title="今出在家">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>今出在家</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>夢野町3丁目</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>高取団地前</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
+                </div>
+            </div>
+        </div>
+        <div id="other-content" class="sub-tab-content hidden">
+            <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>ノエビアスタジアム イベント情報</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optionコンテナ (独立) -->
+    <div id="option-container"></div>
+  </div>
+
+  <!-- 下部固定ナビゲーション（グループ化） -->
+  <nav class="bottom-nav">
+      <!-- FYとAppsをくっつけるためのグループ -->
+      <div class="nav-group">
+          <div class="tab-item active" id="tab-fy" onclick="handleNavClick('fy')"> 
+              <i class="fas fa-star fy-icon"></i> 
+              <span>FY☆</span>
+          </div>
+          <div class="tab-item" id="tab-all-apps" onclick="handleNavClick('all-apps')"> 
+              <i class="fas fa-th-large"></i> 
+              <span>Apps</span>
+          </div>
+      </div>
+      
+      <!-- Traffic -->
+      <div class="tab-item" id="tab-bustarain" onclick="handleNavClick('bustarain')"> 
+          <i class="fas fa-bus"></i> 
+          <span>Traffic</span>
+      </div>
+      <!-- Option -->
+      <div class="tab-item" id="tab-option" onclick="handleNavClick('option')"> 
+          <i class="fas fa-cog"></i> 
+          <span>Option</span>
+      </div>
+  </nav>
+
+  <!-- ▼▼▼ リンク遷移確認用モーダル ▼▼▼ -->
+  <div id="link-confirm-overlay" class="modal-overlay hidden">
+      <div class="modal-box">
+          <div id="modal-title" class="modal-title">確認</div>
+          <div id="modal-desc" class="modal-desc">どちらで開きますか？</div>
+          <div class="modal-buttons">
+              <button id="btn-same-tab" class="modal-btn btn-same">
+                  <i class="fas fa-arrow-circle-right"></i> このページで開く
+              </button>
+              <button id="btn-new-tab" class="modal-btn btn-new">
+                  <i class="fas fa-external-link-alt"></i> 新しいタブで開く
+              </button>
+              <button id="btn-cancel-modal" class="modal-btn btn-cancel">
+                  キャンセル
+              </button>
+          </div>
+      </div>
+  </div>
+
+  <!-- JS読み込み -->
+  <script src="Option/takatori.js"></script>
+  <script src="Option/memo.js"></script>
+  <script src="Option/main.js"></script>
+  <script src="Option/nekotuti.js"></script>
+  <script src="script.js"></script>
+  <script>
+      // --- ★★★ 検索＆リンク確認機能 ★★★ ---
+      document.addEventListener('DOMContentLoaded', () => {
+          const searchInput = document.getElementById('globalSearchInput');
+          const clearBtn = document.getElementById('clearSearchBtn');
+          const resultsContainer = document.getElementById('searchResults');
+          const modalOverlay = document.getElementById('link-confirm-overlay');
+          const btnSame = document.getElementById('btn-same-tab');
+          const btnNew = document.getElementById('btn-new-tab');
+          const btnCancel = document.getElementById('btn-cancel-modal');
+          const modalTitle = document.getElementById('modal-title');
+          const modalDesc = document.getElementById('modal-desc');
+
+          let currentTargetUrl = "";
+          let allContentCache = [];
+
+          if (!searchInput || !resultsContainer) return;
+
+          function gatherAllSearchableContent() {
+              const content = [];
+              const icons = document.querySelectorAll('.icon-item');
+              icons.forEach(item => {
+                  const linkEl = item.querySelector('.icon-link');
+                  const imgEl = item.querySelector('.icon-img');
+                  const labelEl = item.querySelector('.label-text');
+                  if (linkEl && labelEl) {
+                      content.push({
+                          type: 'app',
+                          name: labelEl.innerText.trim(),
+                          url: linkEl.getAttribute('href'),
+                          img: imgEl ? imgEl.getAttribute('src') : './icon.png'
+                      });
+                  }
+              });
+              const accordions = document.querySelectorAll('.accordion-item');
+              accordions.forEach(acc => {
+                  const headerSpan = acc.querySelector('.accordion-header span');
+                  const iframe = acc.querySelector('.accordion-iframe');
+                  if (headerSpan && iframe && iframe.getAttribute('data-src')) {
+                      content.push({
+                          type: 'traffic',
+                          name: headerSpan.innerText.trim(),
+                          url: iframe.getAttribute('data-src'),
+                          img: './icon.png'
+                      });
+                  }
+              });
+              return content;
+          }
+
+          function openConfirmationModal(url, name) {
+              currentTargetUrl = url;
+              modalTitle.innerText = name;
+              modalDesc.innerText = `「${name}」をどのように開きますか？`;
+              modalOverlay.classList.remove('hidden');
+          }
+
+          function closeConfirmationModal() {
+              modalOverlay.classList.add('hidden');
+              currentTargetUrl = "";
+          }
+
+          btnSame.addEventListener('click', () => {
+              if(currentTargetUrl) window.location.href = currentTargetUrl;
+              closeConfirmationModal();
+          });
+          btnNew.addEventListener('click', () => {
+              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
+              closeConfirmationModal();
+          });
+          btnCancel.addEventListener('click', () => {
+              closeConfirmationModal();
+          });
+          modalOverlay.addEventListener('click', (e) => {
+              if (e.target === modalOverlay) closeConfirmationModal();
+          });
+
+          function performSearch(query) {
+              const q = query.toLowerCase().trim();
+              resultsContainer.innerHTML = ''; 
+              if (q.length === 0) {
+                  resultsContainer.classList.add('hidden');
+                  clearBtn.classList.add('hidden');
+                  return;
+              }
+              clearBtn.classList.remove('hidden');
+              allContentCache = gatherAllSearchableContent();
+              const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
+
+              if (matches.length > 0) {
+                  resultsContainer.classList.remove('hidden');
+                  matches.forEach(item => {
+                      const itemLink = document.createElement('a');
+                      itemLink.className = 'search-result-item';
+                      itemLink.href = item.url; 
+                      const img = document.createElement('img');
+                      img.src = item.img || './icon.png';
+                      const span = document.createElement('span');
+                      span.innerText = item.name;
+                      const tag = document.createElement('span');
+                      tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
+                      tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
+                      const icon = document.createElement('i');
+                      icon.className = 'fas fa-chevron-right';
+                      itemLink.appendChild(img);
+                      itemLink.appendChild(span);
+                      itemLink.appendChild(tag);
+                      itemLink.appendChild(icon);
+
+                      itemLink.addEventListener('click', (e) => {
+                          e.preventDefault(); 
+                          resultsContainer.classList.add('hidden');
+                          searchInput.value = '';
+                          clearBtn.classList.add('hidden');
+                          openConfirmationModal(item.url, item.name);
+                      });
+                      resultsContainer.appendChild(itemLink);
+                  });
+              } else {
+                  resultsContainer.classList.remove('hidden');
+                  const noRes = document.createElement('div');
+                  noRes.style.padding = '15px';
+                  noRes.style.textAlign = 'center';
+                  noRes.style.color = 'var(--text-color-secondary)';
+                  noRes.innerText = '見つかりませんでした';
+                  resultsContainer.appendChild(noRes);
+              }
+          }
+
+          searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+          clearBtn.addEventListener('click', () => {
+              searchInput.value = '';
+              performSearch('');
+              searchInput.focus();
+          });
+          document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                  resultsContainer.classList.add('hidden');
+              }
+          });
+          searchInput.addEventListener('focus', () => {
+              if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
+          });
+      });
+
+      // --- サブタブ切り替え・保存機能 ---
+      function switchSubTab(contentId) {
+          localStorage.setItem('active_sub_tab', contentId);
+          const contents = document.querySelectorAll('.sub-tab-content');
+          contents.forEach(el => el.classList.add('hidden'));
+          const target = document.getElementById(contentId);
+          if (target) target.classList.remove('hidden');
+          const buttons = document.querySelectorAll('.sub-tab-btn');
+          buttons.forEach(btn => {
+              btn.classList.remove('active');
+              if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(contentId)) {
+                  btn.classList.add('active');
+              }
+          });
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+          const savedSubTab = localStorage.getItem('active_sub_tab');
+          if (savedSubTab) switchSubTab(savedSubTab);
+      });
+
+      // --- ★★★ 新・タブ＆スワイプ制御ロジック ★★★ ---
+      let currentView = 'swipe'; // swipe (fy/apps), bustarain, option
+      let swipeIndex = 0; // 0: FY, 1: Apps
+
+      // 初期化
+      document.addEventListener('DOMContentLoaded', () => {
+        // localStorageから最後のタブを復元する場合はここに記述
+        // デフォルトはFY
+        updateView();
+      });
+
+      function handleNavClick(tabId) {
+          if (tabId === 'fy') {
+              currentView = 'swipe';
+              swipeIndex = 0;
+          } else if (tabId === 'all-apps') {
+              currentView = 'swipe';
+              swipeIndex = 1;
+          } else {
+              currentView = tabId; // 'bustarain' or 'option'
+          }
+          updateView();
+      }
+
+      function updateView() {
+          const swipeWrapper = document.getElementById('swipe-view-wrapper');
+          const swipeTrack = document.getElementById('swipe-track');
+          const bustarain = document.getElementById('bustarain-container');
+          const option = document.getElementById('option-container');
+          
+          // タブの見た目更新
+          document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+          
+          if (currentView === 'swipe') {
+              swipeWrapper.style.display = 'block';
+              bustarain.style.display = 'none';
+              option.style.display = 'none';
+              
+              // スライド位置更新
+              swipeTrack.style.transform = `translateX(-${swipeIndex * 50}%)`;
+              
+              // アクティブタブ更新 (グループ内)
+              if (swipeIndex === 0) document.getElementById('tab-fy').classList.add('active');
+              else document.getElementById('tab-all-apps').classList.add('active');
+              
+          } else {
+              swipeWrapper.style.display = 'none';
+              if (currentView === 'bustarain') {
+                  bustarain.style.display = 'block';
+                  option.style.display = 'none';
+                  document.getElementById('tab-bustarain').classList.add('active');
+              } else if (currentView === 'option') {
+                  bustarain.style.display = 'none';
+                  option.style.display = 'block';
+                  document.getElementById('tab-option').classList.add('active');
+              }
+          }
+      }
+
+      // --- スワイプイベント処理 ---
+      const track = document.getElementById('swipe-track');
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+
+      track.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          isDragging = true;
+      }, { passive: true });
+
+      track.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          // 横スクロールを検知したら縦スクロールをブロックしたい場合は、
+          // ここで preventDefault を呼ぶ必要があるが、{passive: true}だとできない。
+          // 簡易実装として、スワイプ判定は touchend で行う。
+      }, { passive: true });
+
+      track.addEventListener('touchend', (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+          
+          const endX = e.changedTouches[0].clientX;
+          const endY = e.changedTouches[0].clientY;
+          
+          const diffX = startX - endX;
+          const diffY = startY - endY;
+
+          // 横移動が縦移動より大きく、かつ一定距離以上の場合のみスワイプとみなす
+          if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+              if (diffX > 0) {
+                  // 右へスワイプ (指は左へ) -> 次へ
+                  if (swipeIndex === 0) {
+                      swipeIndex = 1;
+                      updateView();
+                  }
+              } else {
+                  // 左へスワイプ (指は右へ) -> 前へ
+                  if (swipeIndex === 1) {
+                      swipeIndex = 0;
+                      updateView();
+                  }
+              }
+          }
+      });
+  </script>
+</body>
+</html>
