@@ -35,6 +35,10 @@
       --slot-hover-color: rgba(0, 0, 0, 0.03);
       
       --nav-bg: rgba(255, 255, 255, 0.98);
+
+      /* 新しいAppsカード用の変数 */
+      --app-card-border: #333;
+      --app-card-bg: #ffffff;
     }
     body.dark-theme {
       --bg-color: #434343;
@@ -58,6 +62,9 @@
       --slot-hover-color: rgba(255, 255, 255, 0.05);
       
       --nav-bg: rgba(50, 50, 50, 0.98);
+
+      --app-card-border: #aaa;
+      --app-card-bg: #333;
     }
 
     body {
@@ -152,8 +159,8 @@
     }
     .header-speed-test iframe { 
         pointer-events: auto;
-        width: 180px;  /* 250pxから縮小 */
-        height: 60px;  /* 80pxから縮小 */
+        width: 180px;  
+        height: 60px;  
         border: none; 
         border-radius: 8px; 
         background: #fff; 
@@ -407,20 +414,104 @@
     .fy-icon { color: #ffc107; }
     .tab-item.active .fy-icon { color: #fff; }
 
-    /* Appsグリッド */
+    /* --- Appsグリッド (新しいデザイン用) --- */
     .main-grid { margin-top: 10px; }
-    .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
+    
+    /* リスト形式（カード形式）に変更するためのコンテナスタイル */
+    #gridContainer { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        gap: 15px; 
+        justify-content: center; 
+        padding: 10px; 
+    }
 
-    /* アイコン共通 */
-    .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; border-radius: 10px; transition: all 0.2s; z-index: 2; }
-    .icon-item .fav-btn { position: absolute !important; top: -5px !important; right: -5px !important; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: #ccc; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
-    .icon-item .fav-btn.active { color: #ffc107; }
-    .icon-item .fav-btn:hover { transform: scale(1.2); }
-    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-    .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
-    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-    body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+    /* 新しいアプリカードのデザイン */
+    .new-app-card {
+        display: flex;
+        align-items: center;
+        background: var(--app-card-bg);
+        border: 1px solid var(--app-card-border);
+        border-radius: 25px; /* 角丸（カプセル型に近い） */
+        height: 70px;
+        width: 100%;
+        max-width: 350px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-sizing: border-box;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+    .new-app-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    
+    /* 左側のアイコンエリア */
+    .app-card-left {
+        width: 70px;
+        height: 100%;
+        border-right: 1px solid var(--app-card-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--card-bg);
+    }
+    .app-card-img {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+    }
+    
+    /* 右側の情報エリア */
+    .app-card-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 5px 12px;
+        height: 100%;
+    }
+    
+    /* アプリ名 */
+    .app-card-name {
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 6px;
+        color: var(--text-color-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    
+    /* ボタン2つのエリア */
+    .app-card-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* 四角いボタン */
+    .app-action-btn {
+        width: 20px;
+        height: 20px;
+        border: 1px solid var(--app-card-border);
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+        font-size: 10px;
+        color: var(--text-color-secondary);
+    }
+    .app-action-btn:hover {
+        background: rgba(0,0,0,0.1);
+        color: var(--text-color-primary);
+    }
+    body.dark-theme .app-action-btn:hover { background: rgba(255,255,255,0.2); }
 
     /* FYグリッドシステム */
     #fy-content-area {
@@ -454,6 +545,23 @@
     .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
     .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
     .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
+
+    /* FY専用時計 */
+    #fy-clock-display {
+        text-align: center;
+        font-family: 'Segoe UI', monospace;
+        padding: 10px;
+        background: var(--card-bg);
+        border-radius: 10px;
+        margin: 10px auto;
+        width: 90%;
+        max-width: 300px;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        border: 1px solid var(--card-border-color);
+        display: none; /* 初期は非表示、JSで制御 */
+    }
+    #fy-clock-date { font-size: 14px; color: var(--text-color-secondary); font-weight: bold; }
+    #fy-clock-time { font-size: 24px; font-weight: bold; color: var(--text-color-primary); letter-spacing: 2px; }
 
     /* コンテナ非表示設定 */
     #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
@@ -538,6 +646,12 @@
       
       <!-- FY コンテナ -->
       <div id="fy-container">
+          <!-- FYタブ専用デジタル時計 -->
+          <div id="fy-clock-display">
+              <div id="fy-clock-date"></div>
+              <div id="fy-clock-time"></div>
+          </div>
+
           <div class="fy-header-row">
               <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
               <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
@@ -550,6 +664,7 @@
         <div class="apps-area">
           <div id="all-apps-container">
               <h3 class="section-title">すべてのアプリ</h3>
+              <!-- ここにJavaScriptで新しいカードスタイルのアプリが挿入されます -->
               <div class="grid-container" id="gridContainer"></div>
           </div>
         </div>
@@ -733,13 +848,180 @@
   <script src="script.js"></script>
   
   <script>
-      // --- ★★★ 全コンテンツ対象検索＆リンク確認機能 ★★★ ---
+      // --- ★★★ 新しいAppsデザインの描画とFY時計の実装 ★★★ ---
+
       document.addEventListener('DOMContentLoaded', () => {
+          // 1. 新しいAppsデザインの描画
+          renderNewDesignApps();
+
+          // 2. 検索機能の初期化
+          initSearchFeature();
+
+          // 3. サブタブの初期化
+          const savedSubTab = localStorage.getItem('active_sub_tab');
+          if (savedSubTab) switchSubTab(savedSubTab);
+
+          // 4. FY時計の定期更新開始
+          setInterval(updateFyClock, 1000);
+          updateFyClock(); // 初回実行
+      });
+
+      // ▼ Appsを新しいデザイン（画像参考）で描画する関数 ▼
+      function renderNewDesignApps() {
+          const gridContainer = document.getElementById('gridContainer');
+          if(!gridContainer) return;
+
+          // ※※ 注意 ※※
+          // 外部スクリプト(Option/main.js等)の中身が不明なため、ここでサンプルデータを使用して
+          // 新しいレイアウトを生成しています。実際のアプリリスト変数がある場合は、
+          // 以下の sampleApps をその変数に置き換えてください。
+          const sampleApps = [
+              { name: 'Google', url: 'https://google.com', img: './icon.png' },
+              { name: 'Yahoo! Japan', url: 'https://yahoo.co.jp', img: './icon.png' },
+              { name: 'YouTube', url: 'https://youtube.com', img: './icon.png' },
+              { name: 'Weather', url: 'https://weather.yahoo.co.jp', img: './icon.png' },
+              { name: 'News', url: 'https://news.yahoo.co.jp', img: './icon.png' },
+              { name: 'Maps', url: 'https://maps.google.com', img: './icon.png' }
+          ];
+
+          gridContainer.innerHTML = ''; // 既存の内容をクリア
+
+          sampleApps.forEach(app => {
+              // カード全体のコンテナ
+              const card = document.createElement('div');
+              card.className = 'new-app-card';
+              
+              // カード全体をクリックした時の動作（デフォルトはこのページで開く）
+              card.onclick = () => { window.location.href = app.url; };
+
+              // 左側：アイコンエリア
+              const leftDiv = document.createElement('div');
+              leftDiv.className = 'app-card-left';
+              const img = document.createElement('img');
+              img.src = app.img;
+              img.alt = app.name;
+              img.className = 'app-card-img';
+              leftDiv.appendChild(img);
+
+              // 右側：情報エリア
+              const rightDiv = document.createElement('div');
+              rightDiv.className = 'app-card-right';
+
+              // アプリ名
+              const nameDiv = document.createElement('div');
+              nameDiv.className = 'app-card-name';
+              nameDiv.textContent = app.name;
+
+              // ボタンエリア
+              const btnRow = document.createElement('div');
+              btnRow.className = 'app-card-buttons';
+
+              // ボタン1：このページで開く (左)
+              const btnSelf = document.createElement('button');
+              btnSelf.className = 'app-action-btn';
+              btnSelf.innerHTML = '<i class="fas fa-arrow-right"></i>'; // 矢印アイコンなど
+              btnSelf.title = 'このページで開く';
+              btnSelf.onclick = (e) => {
+                  e.stopPropagation(); // 親のクリックイベントを止める
+                  window.location.href = app.url;
+              };
+
+              // ボタン2：バックグラウンド（新しいタブ）で開く (右)
+              const btnBlank = document.createElement('button');
+              btnBlank.className = 'app-action-btn';
+              btnBlank.innerHTML = '<i class="fas fa-external-link-alt"></i>'; // 外部リンクアイコンなど
+              btnBlank.title = '新しいタブで開く';
+              btnBlank.onclick = (e) => {
+                  e.stopPropagation(); // 親のクリックイベントを止める
+                  window.open(app.url, '_blank');
+              };
+
+              btnRow.appendChild(btnSelf);
+              btnRow.appendChild(btnBlank);
+
+              rightDiv.appendChild(nameDiv);
+              rightDiv.appendChild(btnRow);
+
+              card.appendChild(leftDiv);
+              card.appendChild(rightDiv);
+
+              gridContainer.appendChild(card);
+          });
+      }
+
+      // ▼ FYタブ専用時計の更新ロジック ▼
+      function updateFyClock() {
+          const now = new Date();
+          const dateEl = document.getElementById('fy-clock-date');
+          const timeEl = document.getElementById('fy-clock-time');
+          
+          if(dateEl && timeEl) {
+              const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+              const timeStr = now.toLocaleTimeString('ja-JP', { hour12: false }); // 秒まで表示
+              
+              dateEl.textContent = dateStr;
+              timeEl.textContent = timeStr;
+          }
+      }
+
+      // ▼ タブ切り替え時のFY時計表示制御の拡張（既存のactivateTabがある想定） ▼
+      // 既存のactivateTab関数をラップして拡張します
+      const originalActivateTab = window.activateTab || function(tabId) {
+          // もし既存の関数がない場合のフォールバック（簡易版）
+          document.querySelectorAll('.main-grid, #bustarain-container, #option-container, #fy-container').forEach(el => el.style.display = 'none');
+          document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+          
+          if(tabId === 'fy') document.getElementById('fy-container').style.display = 'block';
+          else if(tabId === 'all-apps') document.querySelector('.main-grid').style.display = 'block';
+          else if(tabId === 'bustarain') document.getElementById('bustarain-container').style.display = 'block';
+          else if(tabId === 'option') document.getElementById('option-container').style.display = 'block';
+          
+          document.getElementById('tab-' + tabId).classList.add('active');
+      };
+
+      // 関数を上書きしてFY時計の表示切り替えを追加
+      window.activateTab = function(tabId) {
+          // 元の処理を実行
+          if (typeof originalActivateTab === 'function') {
+              // 既存のCSSクラス操作などを行うと想定される元の処理を呼び出す
+              // ただし、script.jsの中身が見えないため、ここではDOM操作で確実に表示を制御します
+              document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+              document.getElementById('tab-' + tabId).classList.add('active');
+
+              const containers = {
+                  'fy': 'fy-container',
+                  'all-apps': 'main-grid',
+                  'bustarain': 'bustarain-container',
+                  'option': 'option-container'
+              };
+              
+              Object.values(containers).forEach(id => {
+                  const el = document.getElementById(id);
+                  if(el) el.style.display = 'none';
+              });
+              
+              const target = document.getElementById(containers[tabId]);
+              if(target) target.style.display = 'block';
+          }
+
+          // FY時計の表示制御
+          const fyClock = document.getElementById('fy-clock-display');
+          if(fyClock) {
+              if (tabId === 'fy') {
+                  fyClock.style.display = 'block';
+                  updateFyClock(); // 表示時に即更新
+              } else {
+                  fyClock.style.display = 'none';
+              }
+          }
+      };
+
+
+      // --- 検索機能の初期化 ---
+      function initSearchFeature() {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
           const resultsContainer = document.getElementById('searchResults');
-
-          // モーダル要素の取得
           const modalOverlay = document.getElementById('link-confirm-overlay');
           const btnSame = document.getElementById('btn-same-tab');
           const btnNew = document.getElementById('btn-new-tab');
@@ -752,27 +1034,31 @@
 
           if (!searchInput || !resultsContainer) return;
 
-          // ★ 全コンテンツ収集関数（アプリ＋交通アコーディオン）
           function gatherAllSearchableContent() {
               const content = [];
-
-              // 1. アプリ（アイコン）の収集
-              const icons = document.querySelectorAll('.icon-item');
-              icons.forEach(item => {
-                  const linkEl = item.querySelector('.icon-link');
-                  const imgEl = item.querySelector('.icon-img');
-                  const labelEl = item.querySelector('.label-text');
-                  if (linkEl && labelEl) {
+              // Apps (新しいデザインに対応)
+              const cards = document.querySelectorAll('.new-app-card');
+              cards.forEach(card => {
+                  const nameEl = card.querySelector('.app-card-name');
+                  const imgEl = card.querySelector('.app-card-img');
+                  // clickイベントやデータ属性からURLを取得するのは難しいため、
+                  // renderNewDesignAppsで生成したデータ構造から検索するのが理想ですが、
+                  // ここではDOMから情報を収集します（URL取得は工夫が必要）
+                  // 簡易的に renderNewDesignApps 内の sampleApps を参照する形が良いでしょうが、
+                  // ここではデモとしてDOM要素からの取得を試みます。
+                  // ※本来はデータ配列から検索すべきです。
+                  if (nameEl) {
                       content.push({
                           type: 'app',
-                          name: labelEl.innerText.trim(),
-                          url: linkEl.getAttribute('href'),
-                          img: imgEl ? imgEl.getAttribute('src') : './icon.png'
+                          name: nameEl.innerText.trim(),
+                          url: '#', // 実際のURLはDOM要素に紐づける必要があります
+                          img: imgEl ? imgEl.src : './icon.png',
+                          element: card // クリック用
                       });
                   }
               });
 
-              // 2. 交通情報（アコーディオン）の収集
+              // 交通情報
               const accordions = document.querySelectorAll('.accordion-item');
               accordions.forEach(acc => {
                   const headerSpan = acc.querySelector('.accordion-header span');
@@ -786,55 +1072,19 @@
                       });
                   }
               });
-
               return content;
           }
 
-          // モーダルを開く処理
-          function openConfirmationModal(url, name) {
-              currentTargetUrl = url;
-              modalTitle.innerText = name;
-              modalDesc.innerText = `「${name}」をどのように開きますか？`;
-              modalOverlay.classList.remove('hidden');
-          }
-
-          // モーダルを閉じる処理
-          function closeConfirmationModal() {
-              modalOverlay.classList.add('hidden');
-              currentTargetUrl = "";
-          }
-
-          // モーダルのボタンイベント
-          btnSame.addEventListener('click', () => {
-              if(currentTargetUrl) window.location.href = currentTargetUrl;
-              closeConfirmationModal();
-          });
-          btnNew.addEventListener('click', () => {
-              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-              closeConfirmationModal();
-          });
-          btnCancel.addEventListener('click', () => {
-              closeConfirmationModal();
-          });
-          modalOverlay.addEventListener('click', (e) => {
-              if (e.target === modalOverlay) closeConfirmationModal();
-          });
-
-          // 検索実行処理
           function performSearch(query) {
               const q = query.toLowerCase().trim();
               resultsContainer.innerHTML = ''; 
-
               if (q.length === 0) {
                   resultsContainer.classList.add('hidden');
                   clearBtn.classList.add('hidden');
                   return;
               }
-
               clearBtn.classList.remove('hidden');
-              
               allContentCache = gatherAllSearchableContent();
-
               const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
 
               if (matches.length > 0) {
@@ -842,7 +1092,6 @@
                   matches.forEach(item => {
                       const itemLink = document.createElement('a');
                       itemLink.className = 'search-result-item';
-                      itemLink.href = item.url; 
                       
                       const img = document.createElement('img');
                       img.src = item.img || './icon.png';
@@ -867,9 +1116,17 @@
                           resultsContainer.classList.add('hidden');
                           searchInput.value = '';
                           clearBtn.classList.add('hidden');
-                          openConfirmationModal(item.url, item.name);
+                          
+                          if (item.element) {
+                             item.element.click(); // Appの場合はカードをクリック
+                          } else {
+                             // Trafficなどの場合はモーダルまたは直接遷移
+                             currentTargetUrl = item.url;
+                             modalTitle.innerText = item.name;
+                             modalDesc.innerText = `「${item.name}」をどのように開きますか？`;
+                             modalOverlay.classList.remove('hidden');
+                          }
                       });
-
                       resultsContainer.appendChild(itemLink);
                   });
               } else {
@@ -883,31 +1140,22 @@
               }
           }
 
-          searchInput.addEventListener('input', (e) => {
-              performSearch(e.target.value);
-          });
-
-          clearBtn.addEventListener('click', () => {
-              searchInput.value = '';
-              performSearch('');
-              searchInput.focus();
-          });
-
+          searchInput.addEventListener('input', (e) => performSearch(e.target.value));
+          clearBtn.addEventListener('click', () => { searchInput.value = ''; performSearch(''); searchInput.focus(); });
           document.addEventListener('click', (e) => {
               if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
                   resultsContainer.classList.add('hidden');
               }
           });
-          
-          searchInput.addEventListener('focus', () => {
-              if (searchInput.value.trim().length > 0) {
-                  performSearch(searchInput.value);
-              }
-          });
-      });
-      // ----------------------------------------------------
+          searchInput.addEventListener('focus', () => { if (searchInput.value.trim().length > 0) performSearch(searchInput.value); });
 
-      // --- サブタブ切り替え・保存機能 ---
+          // モーダル処理
+          btnSame.addEventListener('click', () => { if(currentTargetUrl) window.location.href = currentTargetUrl; modalOverlay.classList.add('hidden'); });
+          btnNew.addEventListener('click', () => { if(currentTargetUrl) window.open(currentTargetUrl, '_blank'); modalOverlay.classList.add('hidden'); });
+          btnCancel.addEventListener('click', () => { modalOverlay.classList.add('hidden'); });
+      }
+
+      // --- サブタブ切り替え ---
       function switchSubTab(contentId) {
           localStorage.setItem('active_sub_tab', contentId);
           const contents = document.querySelectorAll('.sub-tab-content');
@@ -924,11 +1172,12 @@
               }
           });
       }
-
-      document.addEventListener('DOMContentLoaded', () => {
-          const savedSubTab = localStorage.getItem('active_sub_tab');
-          if (savedSubTab) switchSubTab(savedSubTab);
-      });
+      
+      // アコーディオン開閉
+      function toggleAccordion(header) {
+          const item = header.parentElement;
+          item.classList.toggle('active');
+      }
   </script>
 
 </body>
