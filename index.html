@@ -3,865 +3,693 @@
 <head>
   <meta charset="UTF-8">
   <title>Link First</title>
-  <!-- ▼ ファビコン設定 (お手持ちの画像がある前提ですが、なければ空でも動作します) ▼ -->
   <link rel="icon" href="./icon.png" type="image/png">
   <link rel="apple-touch-icon" href="./icon.png">
-  <!-- ▲ ファビコン設定 ▲ -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  
-  <!-- Font Awesome & Google Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
-  
   <style>
-    /* --- CSS変数設定 --- */
+    /* --- CSS変数 --- */
     :root {
-      --bg-color: #f4f6f9;
+      --bg-color: #ffffff;
       --text-color-primary: #333333;
-      --text-color-secondary: #666666;
-      --card-bg: #ffffff;
-      --card-border-color: rgba(0,0,0,0.08);
-      --card-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      
-      --nav-bg: rgba(255, 255, 255, 0.95);
-      --tab-active-color: #667eea;
-      
-      --btn-bg: #f0f2f5;
-      --btn-hover: #e4e6eb;
-      
-      /* アプリカード用 */
-      --app-card-border: #e0e0e0;
-      --app-card-radius: 16px;
+      --text-color-secondary: #666;
+      --card-bg: #fff;
+      --card-border: 1px solid #ccc;
+      --card-radius: 20px;
+      --btn-bg: #f0f0f0;
+      --btn-hover: #e0e0e0;
+      --accent-color: #667eea;
+      --nav-bg: rgba(255, 255, 255, 0.98);
+      --clock-color: #333;
     }
-    
     body.dark-theme {
-      --bg-color: #1e1e1e;
-      --text-color-primary: #e0e0e0;
-      --text-color-secondary: #a0a0a0;
-      --card-bg: #2d2d2d;
-      --card-border-color: rgba(255,255,255,0.1);
-      --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      
-      --nav-bg: rgba(40, 40, 40, 0.95);
-      --tab-active-color: #88aaff;
-
+      --bg-color: #1a1a1a;
+      --text-color-primary: #f5f5f5;
+      --text-color-secondary: #aaa;
+      --card-bg: #2c2c2c;
+      --card-border: 1px solid #444;
       --btn-bg: #3a3a3a;
-      --btn-hover: #4a4a4a;
-      
-      --app-card-border: #444;
+      --btn-hover: #555;
+      --accent-color: #88aaff;
+      --nav-bg: rgba(30, 30, 30, 0.98);
+      --clock-color: #fff;
     }
 
-    /* --- 基本スタイル --- */
     body {
       margin: 0;
       background-color: var(--bg-color);
       color: var(--text-color-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      transition: background-color 0.3s, color 0.3s;
-      padding-top: 100px; /* ヘッダー + 検索バーの高さ分 */
-      padding-bottom: 80px; /* 下部ナビの高さ分 */
+      font-family: 'Segoe UI', sans-serif;
+      padding-bottom: 90px; /* ナビゲーション分の余白 */
       overflow-x: hidden; /* 横スクロール防止 */
-      -webkit-tap-highlight-color: transparent;
     }
 
-    /* --- 1. 固定ヘッダーエリア --- */
+    /* ★★★ 固定ヘッダー ★★★ */
     .fixed-top-wrapper {
-      position: fixed;
-      top: 0; left: 0; width: 100%;
-      z-index: 2000;
-      background-color: #000000;
-      color: #ffffff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+      background-color: #000000; color: #ffffff;
+      padding: 5px 0;
+      display: flex; flex-direction: column; gap: 5px;
     }
-
-    /* 上段: 時計・ロゴ・コントロール */
     .header-top-row {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      padding: 0 10px;
-      position: relative;
+      display: flex; align-items: center; padding: 0 15px; height: 30px; position: relative;
     }
-
-    .site-logo {
-      height: 24px;
-      width: auto;
-      margin-right: 10px;
-      border-radius: 4px;
-    }
-
-    .header-info {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: bold;
-    }
-    #header-time { font-family: monospace; font-size: 14px; }
-    #header-date { color: #ccc; font-size: 12px; }
-
-    .header-controls {
-      margin-left: 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .control-icon { cursor: pointer; color: #aaa; font-size: 14px; }
-    .control-icon:hover { color: #fff; }
-    
-    .theme-switcher { display: flex; gap: 6px; }
-    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #666; }
+    .site-logo { height: 26px; margin-right: 10px; border-radius: 4px; }
+    .header-controls { margin-left: auto; display: flex; gap: 15px; align-items: center; margin-right: 60px; } /* Speed test用の余白 */
+    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #888; display: inline-block; margin-left: 5px;}
     .theme-dot.light { background: #fff; }
-    .theme-dot.dark { background: #333; }
+    .theme-dot.dark { background: #444; }
 
-    /* スピードテスト (右上に配置) */
-    .speed-test-wrapper {
-        position: absolute;
-        right: 10px; top: 5px;
-        display: flex; align-items: center; gap: 5px;
+    /* Speed Test (iframe) */
+    .header-speed-test {
+      position: absolute; right: 10px; top: 5px; z-index: 1100;
     }
-    .speed-test-wrapper iframe {
-        width: 100px; height: 30px;
-        border: none; border-radius: 4px; background: #fff;
+    .header-speed-test iframe {
+      width: 100px; height: 30px; border: none; background: #fff; border-radius: 4px; pointer-events: none;
     }
-    .speed-reload-btn {
-        width: 20px; height: 20px; border-radius: 50%;
-        background: rgba(255,255,255,0.2);
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer; font-size: 10px; color: #fff;
-    }
-
-    /* --- 2. 検索バー (常駐) --- */
+    
+    /* ★★★ 検索バー (常時表示) ★★★ */
     .search-wrapper {
-      position: fixed;
-      top: 40px; /* header-top-rowの下 */
-      left: 0; width: 100%;
-      height: 50px;
-      background: rgba(255,255,255,0.0); /* 背景透過 */
-      z-index: 1900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none; /* 入力エリア以外はクリック透過 */
+      width: 100%; display: flex; justify-content: center; padding: 5px 10px; box-sizing: border-box;
+      background: #000; /* ヘッダーの一部として黒背景 */
+      padding-bottom: 10px;
     }
     .search-container {
-      pointer-events: auto;
-      width: 90%; max-width: 600px;
-      height: 38px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      display: flex; align-items: center;
-      padding: 0 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      border: 1px solid rgba(0,0,0,0.1);
+      width: 95%; max-width: 600px; background: rgba(255,255,255,0.95);
+      border-radius: 20px; display: flex; align-items: center; padding: 0 15px; height: 36px;
     }
-    .dark-theme .search-container {
-        background: rgba(50, 50, 50, 0.95);
-        border: 1px solid #555;
-    }
-
     #globalSearchInput {
-      flex: 1; border: none; background: transparent;
-      font-size: 16px; color: #333; outline: none;
+      border: none; background: transparent; outline: none; flex-grow: 1; font-size: 15px; margin-left: 8px;
     }
-    .dark-theme #globalSearchInput { color: #fff; }
     
-    #clearSearchBtn { cursor: pointer; color: #999; display: none; }
-    #clearSearchBtn.show { display: block; }
-
     /* 検索結果ドロップダウン */
-    .search-results {
-      position: absolute;
-      top: 45px; left: 50%; transform: translateX(-50%);
-      width: 90%; max-width: 600px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      max-height: 60vh; overflow-y: auto;
-      z-index: 5000;
+    .search-results-dropdown {
+      position: fixed; top: 85px; left: 50%; transform: translateX(-50%);
+      width: 90%; max-width: 550px; background: var(--card-bg);
+      border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 2000; max-height: 60vh; overflow-y: auto;
+      border: var(--card-border);
       display: none;
-      pointer-events: auto;
     }
-    .search-results.show { display: block; }
-    .result-item {
-        padding: 12px; border-bottom: 1px solid var(--card-border-color);
-        display: flex; align-items: center; gap: 10px;
-        cursor: pointer; color: var(--text-color-primary);
-        text-decoration: none;
+    .search-results-dropdown.active { display: block; }
+    .search-result-item {
+      padding: 10px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center;
+      text-decoration: none; color: var(--text-color-primary);
     }
-    .result-item:hover { background: var(--btn-bg); }
-    .result-item img { width: 24px; height: 24px; border-radius: 4px; object-fit: contain; }
+    .search-result-item:hover { background: var(--btn-bg); }
 
-    /* --- 3. メインコンテンツエリア --- */
-    .main-container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 10px;
-      overflow: hidden; /* スワイプ用にはみ出しを隠す */
+    /* ★★★ メインコンテンツエリア ★★★ */
+    .main-content-wrapper {
+      padding-top: 100px; /* ヘッダー+検索バーの高さ分 */
+      width: 100%; max-width: 1200px; margin: 0 auto;
+      position: relative;
+      min-height: 80vh;
     }
 
-    /* スワイプコンテナ (FY + Apps) */
-    .swipe-wrapper {
-      display: flex;
-      width: 200%; /* 2画面分 */
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-      will-change: transform;
+    /* --- スワイプエリア (FY & Apps) --- */
+    .swipe-viewport {
+      width: 100%; overflow: hidden; position: relative;
     }
-    .swipe-slide {
-        width: 50%;
-        padding: 5px;
-        box-sizing: border-box;
+    .swipe-track {
+      display: flex; width: 200%; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     }
-
+    .swipe-page {
+      width: 50%; flex-shrink: 0; padding: 10px; box-sizing: border-box;
+    }
+    
     /* FY専用時計 */
-    .fy-clock-panel {
-        text-align: center;
-        padding: 15px;
-        margin-bottom: 15px;
-        background: var(--card-bg);
-        border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        border: 1px solid var(--card-border-color);
+    #fy-clock-container {
+      text-align: center; margin-bottom: 15px; padding: 10px;
+      background: var(--btn-bg); border-radius: 15px;
+      width: fit-content; margin-left: auto; margin-right: auto;
+      border: 1px solid var(--text-color-secondary);
     }
-    .fy-date { font-size: 14px; color: var(--text-color-secondary); margin-bottom: 5px; }
-    .fy-time { font-size: 32px; font-weight: bold; font-family: monospace; letter-spacing: 1px; color: var(--tab-active-color); line-height: 1; }
+    .fy-date { font-size: 0.9em; font-weight: bold; color: var(--text-color-secondary); margin-bottom: 2px; }
+    .fy-time { font-size: 1.8em; font-weight: 700; color: var(--clock-color); font-family: 'Courier New', monospace; letter-spacing: 1px; }
 
-    /* グリッドレイアウト (カードリスト) */
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 12px;
-        padding-bottom: 20px;
+    /* --- カードデザイン (Apps & FY) --- */
+    /* グリッドレイアウト */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      padding-bottom: 20px;
     }
 
-    /* --- 4. アプリカードデザイン (重要) --- */
+    /* カード本体 */
     .app-card {
-        background: var(--card-bg);
-        border: 1px solid var(--app-card-border);
-        border-radius: var(--app-card-radius);
-        padding: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: var(--card-shadow);
-        transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .app-card:active { transform: scale(0.98); }
-
-    /* 左側：アイコン */
-    .app-icon-area {
-        width: 64px; height: 64px;
-        flex-shrink: 0;
-        border-radius: 12px;
-        overflow: hidden;
-        cursor: pointer;
-        background: #fff; /* アイコン背景 */
-        border: 1px solid rgba(0,0,0,0.05);
-        display: flex; align-items: center; justify-content: center;
-    }
-    .app-icon-area img {
-        width: 100%; height: 100%; object-fit: contain;
+      background: var(--card-bg);
+      border: 2px solid var(--text-color-primary); /* 手書き風の枠線を意識 */
+      border-radius: 25px; /* 丸みを強く */
+      display: flex;
+      height: 100px;
+      position: relative;
+      box-shadow: 2px 4px 0px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
 
-    /* 右側：情報＆ボタン */
-    .app-info-area {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 64px; /* アイコンと高さを揃える */
+    /* 左側：アイコンエリア */
+    .card-left {
+      width: 35%;
+      border-right: 1px solid #ccc; /* 中央の仕切り線 */
+      display: flex; align-items: center; justify-content: center;
+      background: transparent;
+    }
+    .card-icon-img {
+      width: 60px; height: 60px; object-fit: contain;
+      border-radius: 12px;
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .card-icon-img:active { transform: scale(0.95); }
+
+    /* 右側：情報＆ボタンエリア */
+    .card-right {
+      width: 65%;
+      display: flex; flex-direction: column;
+      padding: 8px 12px;
+      justify-content: space-between;
     }
 
-    .app-name {
-        font-size: 16px;
-        font-weight: bold;
-        color: var(--text-color-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-bottom: 4px;
+    /* アプリ名 */
+    .card-name-area {
+      position: relative;
+      margin-top: 5px;
+    }
+    .card-name {
+      font-size: 16px; font-weight: bold;
+      color: var(--text-color-primary);
+      display: inline-block;
+      border-bottom: 2px solid var(--text-color-primary); /* 下線 */
+      padding-bottom: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
     }
 
-    .app-actions {
-        display: flex;
-        gap: 8px;
+    /* ボタンエリア (3つの四角) */
+    .card-actions {
+      display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 5px;
     }
-
     .action-btn {
-        flex: 1;
-        height: 32px;
-        border: 1px solid var(--card-border-color);
-        background: var(--btn-bg);
-        border-radius: 6px;
-        color: var(--text-color-primary);
-        font-size: 14px;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        transition: background 0.2s;
+      width: 32px; height: 32px;
+      border: 2px solid var(--text-color-primary);
+      background: transparent;
+      border-radius: 4px; /* 四角形に近い形 */
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px;
+      color: var(--text-color-primary);
+      transition: background 0.2s;
+      padding: 0;
     }
-    .action-btn:hover { background: var(--btn-hover); }
+    .action-btn:hover { background: rgba(0,0,0,0.05); }
+    .action-btn i { pointer-events: none; }
     
     /* お気に入りボタンのアクティブ状態 */
-    .action-btn.fav-btn.active {
-        background: #fff8e1;
-        color: #ffc107;
-        border-color: #ffc107;
-    }
-    .dark-theme .action-btn.fav-btn.active {
-        background: #443300;
-        color: #ffd54f;
+    .action-btn.fav-active {
+      background: #fff3cd; color: #ffc107; border-color: #ffc107;
     }
 
-    /* --- 5. Traffic / Option コンテナ (初期非表示) --- */
-    .content-section {
-        display: none;
-        padding: 10px;
-        animation: fadeIn 0.3s ease;
-    }
-    .content-section.active { display: block; }
+    /* --- Bustarain / Option (初期非表示) --- */
+    .tab-view-content { display: none; padding: 15px; }
+    .tab-view-content.active { display: block; }
     
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* アコーディオン (Bustarain用) */
+    .accordion-item {
+      border: 1px solid var(--card-border); background: var(--card-bg);
+      border-radius: 8px; margin-bottom: 10px; overflow: hidden;
+    }
+    .accordion-header {
+      padding: 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between;
+    }
+    .accordion-content { display: none; }
+    .accordion-content.open { display: block; }
+    .accordion-iframe { width: 100%; height: 500px; border: none; }
+    
+    /* Bustarainサブタブ */
+    .sub-tab-menu { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+    .sub-tab-btn {
+      padding: 8px 16px; border-radius: 20px; border: 1px solid #ccc; background: var(--bg-color); color: var(--text-color-primary);
+    }
+    .sub-tab-btn.active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
 
-    /* サブタブ (Traffic内) */
-    .sub-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-    .sub-tab-pill {
-        padding: 8px 20px; border-radius: 20px; border: none;
-        background: var(--btn-bg); color: var(--text-color-secondary);
-        font-weight: bold; cursor: pointer;
-    }
-    .sub-tab-pill.active {
-        background: var(--tab-active-color); color: #fff;
-    }
-
-    /* アコーディオン */
-    .accordion {
-        background: var(--card-bg);
-        border-radius: 12px;
-        margin-bottom: 10px;
-        border: 1px solid var(--card-border-color);
-        overflow: hidden;
-    }
-    .acc-header {
-        padding: 15px;
-        font-weight: bold;
-        display: flex; justify-content: space-between; align-items: center;
-        cursor: pointer;
-    }
-    .acc-header:hover { background: var(--btn-bg); }
-    .acc-content {
-        max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
-    }
-    .acc-content iframe { width: 100%; height: 500px; border: none; display: block; }
-    .accordion.open .acc-content { max-height: 1000px; }
-
-    /* --- 6. 下部固定ナビゲーション --- */
+    /* ★★★ 下部ナビゲーション ★★★ */
     .bottom-nav {
-        position: fixed;
-        bottom: 0; left: 0; width: 100%;
-        height: 60px;
-        background: var(--nav-bg);
-        border-top: 1px solid var(--card-border-color);
-        display: flex; justify-content: space-around; align-items: center;
-        z-index: 2000;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding-bottom: env(safe-area-inset-bottom);
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      background-color: var(--nav-bg);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(0,0,0,0.1);
+      display: flex; height: 60px; z-index: 2000;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
+    /* グループ化: FYとAppsをくっつける */
+    .nav-group-swipe {
+      flex: 2; /* 幅を広めに */
+      display: flex;
+      border-right: 1px solid rgba(0,0,0,0.1);
+    }
     .nav-item {
-        flex: 1;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%;
-        color: var(--text-color-secondary);
-        font-size: 10px;
-        cursor: pointer;
-        gap: 4px;
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #999; cursor: pointer; transition: all 0.2s; position: relative;
     }
-    .nav-item i { font-size: 20px; }
-    .nav-item.active { color: var(--tab-active-color); }
-    .nav-item.active i { transform: scale(1.1); transition: transform 0.2s; }
-
-    /* ユーティリティ */
-    .hidden { display: none !important; }
+    .nav-item.active { color: var(--accent-color); }
+    .nav-item.active::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent-color);
+    }
+    .nav-item i { font-size: 20px; margin-bottom: 4px; }
+    .nav-item span { font-size: 10px; font-weight: bold; }
 
   </style>
 </head>
-<body>
+<body class="light-theme">
 
-  <!-- 固定ヘッダー -->
+  <!-- ヘッダー -->
   <div class="fixed-top-wrapper">
     <div class="header-top-row">
-      <!-- ロゴ -->
-      <img src="./icon.png" alt="Logo" class="site-logo" onerror="this.style.display='none'">
-      
-      <!-- ヘッダー時計 -->
-      <div class="header-info">
-        <span id="header-date">--/--</span>
-        <span id="header-time">--:--</span>
-      </div>
-
-      <!-- コントロール -->
+      <img src="./icon.png" alt="Logo" class="site-logo">
       <div class="header-controls">
-        <div class="theme-switcher">
-          <div class="theme-dot light" onclick="setTheme('light')" title="Light"></div>
-          <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark"></div>
+        <i class="fas fa-sync-alt" style="cursor:pointer;" onclick="location.reload()"></i>
+        <div>
+            <span class="theme-dot light" onclick="setTheme('light')"></span>
+            <span class="theme-dot dark" onclick="setTheme('dark')"></span>
         </div>
-        <i class="fas fa-sync-alt control-icon" onclick="location.reload()" title="Reload"></i>
       </div>
-
-      <!-- スピードテスト -->
-      <div class="speed-test-wrapper">
-         <iframe src="https://fast.com/ja/" scrolling="no" title="SpeedTest"></iframe>
-         <div class="speed-reload-btn" onclick="reloadSpeedTest()">
-             <i class="fas fa-redo"></i>
-         </div>
+      <!-- Speed Test -->
+      <div class="header-speed-test">
+        <iframe src="https://fast.com/ja/" scrolling="no"></iframe>
+      </div>
+    </div>
+    
+    <!-- 検索バー -->
+    <div class="search-wrapper">
+      <div class="search-container">
+        <i class="fas fa-search" style="color:#888;"></i>
+        <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off">
+        <i class="fas fa-times" id="clearSearchBtn" style="color:#888; cursor:pointer; display:none;" onclick="clearSearch()"></i>
       </div>
     </div>
   </div>
-
-  <!-- 常駐検索バー -->
-  <div class="search-wrapper">
-    <div class="search-container">
-      <i class="fas fa-search" style="color:#888; margin-right:8px;"></i>
-      <input type="text" id="globalSearchInput" placeholder="アプリを検索..." autocomplete="off">
-      <i class="fas fa-times" id="clearSearchBtn"></i>
-    </div>
-    <!-- 検索結果表示エリア -->
-    <div id="searchResults" class="search-results"></div>
-  </div>
+  
+  <!-- 検索結果表示エリア -->
+  <div id="searchResults" class="search-results-dropdown"></div>
 
   <!-- メインコンテンツ -->
-  <div class="main-container">
-    
-    <!-- ★ FY & Apps スワイプエリア ★ -->
-    <div id="swipe-view-section" class="content-section active" style="padding:0;">
-        <div class="swipe-wrapper" id="swipeWrapper">
-            
-            <!-- 左画面: FY (Favorites) -->
-            <div class="swipe-slide" id="fy-slide">
-                <!-- FY専用時計 -->
-                <div class="fy-clock-panel">
-                    <div class="fy-date" id="fy-full-date">YYYY/MM/DD</div>
-                    <div class="fy-time" id="fy-full-time">00:00:00</div>
-                </div>
+  <div class="main-content-wrapper">
 
-                <div class="cards-grid" id="favorites-list">
-                    <!-- JSでカードが挿入されます -->
-                    <div style="grid-column:1/-1; text-align:center; padding:20px; color:#999;">
-                        お気に入りがありません。<br>Appsタブから★ボタンを押して追加してください。
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右画面: All Apps -->
-            <div class="swipe-slide" id="apps-slide">
-                <h3 style="padding-left:10px; margin:10px 0;">All Apps</h3>
-                <div class="cards-grid" id="apps-list">
-                    <!-- JSでカードが挿入されます -->
-                </div>
-            </div>
-
+    <!-- 1. スワイプエリア (FY & Apps) -->
+    <div id="swipe-container" class="swipe-viewport">
+      <div class="swipe-track" id="swipeTrack">
+        
+        <!-- FY ページ (Index 0) -->
+        <div class="swipe-page" id="page-fy">
+          <!-- FY用デジタル時計 -->
+          <div id="fy-clock-container">
+            <div class="fy-date" id="fy-date-text">----/--/--</div>
+            <div class="fy-time" id="fy-time-text">--:--:--</div>
+          </div>
+          
+          <div class="card-grid" id="fy-grid">
+            <!-- FYカードがここに生成されます -->
+          </div>
+          <div id="fy-empty-msg" style="text-align:center; color:#999; display:none;">
+            お気に入りがありません。<br>Appsタブで☆を押して追加してください。
+          </div>
         </div>
+
+        <!-- Apps ページ (Index 1) -->
+        <div class="swipe-page" id="page-apps">
+          <h3 style="margin:0 0 15px 10px; border-left:5px solid var(--accent-color); padding-left:10px;">すべてのアプリ</h3>
+          <div class="card-grid" id="apps-grid">
+            <!-- Appsカードがここに生成されます -->
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <!-- ★ Traffic (Bustarain) Section ★ -->
-    <div id="traffic-section" class="content-section">
-        <div class="sub-tabs">
-            <button class="sub-tab-pill active" onclick="switchTrafficSubTab('train')"><i class="fas fa-train"></i> Train</button>
-            <button class="sub-tab-pill" onclick="switchTrafficSubTab('bus')"><i class="fas fa-bus"></i> Bus</button>
-        </div>
-
-        <div id="train-content">
-            <!-- 和田岬 -->
-            <div class="accordion">
-                <div class="acc-header" onclick="toggleAccordion(this)">
-                    <span>和田岬</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="acc-content">
-                    <iframe data-src="train/wadmisaki-train.html"></iframe>
-                </div>
-            </div>
-            <!-- 板宿駅 -->
-            <div class="accordion">
-                <div class="acc-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅（山陽電車）</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="acc-content">
-                    <iframe data-src="train/Itayado-sannyou.html"></iframe>
-                </div>
-            </div>
-        </div>
-
-        <div id="bus-content" class="hidden">
-            <!-- バスロケ -->
-            <div class="accordion">
-                <div class="acc-header" onclick="toggleAccordion(this)">
-                    <span>バスロケーション</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="acc-content">
-                    <iframe data-src="bus/Buslocation.html"></iframe>
-                </div>
-            </div>
-            <!-- 高取団地前 -->
-            <div class="accordion">
-                <div class="acc-header" onclick="toggleAccordion(this)">
-                    <span>高取団地前</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="acc-content">
-                    <iframe data-src="bus/takatoridantimae.html"></iframe>
-                </div>
-            </div>
-        </div>
+    <!-- 2. Bustarain (Traffic) エリア -->
+    <div id="view-bustarain" class="tab-view-content">
+       <div class="sub-tab-menu">
+         <button class="sub-tab-btn active" onclick="showTrafficTab('train')">Train</button>
+         <button class="sub-tab-btn" onclick="showTrafficTab('bus')">Bus</button>
+       </div>
+       <!-- Train Content -->
+       <div id="traffic-train">
+           <div class="accordion-item">
+               <div class="accordion-header" onclick="toggleAcc(this)">和田岬 <i class="fas fa-chevron-down"></i></div>
+               <div class="accordion-content"><iframe class="accordion-iframe" src="about:blank" data-src="train/wadmisaki-train.html"></iframe></div>
+           </div>
+           <div class="accordion-item">
+               <div class="accordion-header" onclick="toggleAcc(this)">板宿駅（山陽） <i class="fas fa-chevron-down"></i></div>
+               <div class="accordion-content"><iframe class="accordion-iframe" src="about:blank" data-src="train/Itayado-sannyou.html"></iframe></div>
+           </div>
+       </div>
+       <!-- Bus Content -->
+       <div id="traffic-bus" style="display:none;">
+           <div class="accordion-item">
+               <div class="accordion-header" onclick="toggleAcc(this)">バスロケーション <i class="fas fa-chevron-down"></i></div>
+               <div class="accordion-content"><iframe class="accordion-iframe" src="about:blank" data-src="bus/Buslocation.html"></iframe></div>
+           </div>
+           <div class="accordion-item">
+               <div class="accordion-header" onclick="toggleAcc(this)">高取団地前 <i class="fas fa-chevron-down"></i></div>
+               <div class="accordion-content"><iframe class="accordion-iframe" src="about:blank" data-src="bus/takatoridantimae.html"></iframe></div>
+           </div>
+       </div>
     </div>
 
-    <!-- ★ Option Section ★ -->
-    <div id="option-section" class="content-section">
-        <h3 style="padding:10px;">Options</h3>
-        <div class="app-card" style="display:block;">
-            <p>設定・データ管理</p>
-            <button class="action-btn" onclick="resetData()" style="width:100%; background:#ffebee; color:#d32f2f; border-color:#ffcdd2;">
-                お気に入りデータをリセット
-            </button>
+    <!-- 3. Option エリア -->
+    <div id="view-option" class="tab-view-content">
+        <h2>Option</h2>
+        <div style="background:var(--btn-bg); padding:20px; border-radius:10px;">
+            <p>設定項目がここに表示されます。</p>
+            <button onclick="localStorage.clear(); location.reload();" style="padding:10px; background:#ff4444; color:white; border:none; border-radius:5px;">データをリセット</button>
         </div>
     </div>
 
   </div>
 
-  <!-- 下部固定ナビゲーション -->
+  <!-- 下部ナビゲーション -->
   <nav class="bottom-nav">
-    <div class="nav-item" id="nav-fy" onclick="switchToTab('fy')">
-      <i class="fas fa-star" style="color: #ffc107;"></i>
-      <span>FY☆</span>
+    <!-- グループ: FYとApps (横並びで切り替え) -->
+    <div class="nav-group-swipe">
+      <div class="nav-item" id="nav-fy" onclick="switchToSwipeTab(0)">
+        <i class="fas fa-star"></i>
+        <span>FY☆</span>
+      </div>
+      <div class="nav-item active" id="nav-apps" onclick="switchToSwipeTab(1)">
+        <i class="fas fa-th-large"></i>
+        <span>Apps</span>
+      </div>
     </div>
-    <div class="nav-item active" id="nav-apps" onclick="switchToTab('apps')">
-      <i class="fas fa-th-large"></i>
-      <span>Apps</span>
-    </div>
-    <div class="nav-item" id="nav-traffic" onclick="switchToTab('traffic')">
+    
+    <!-- 独立ボタン: Traffic -->
+    <div class="nav-item" id="nav-traffic" onclick="switchToView('bustarain')" style="flex:1; border-right:1px solid rgba(0,0,0,0.1);">
       <i class="fas fa-bus"></i>
       <span>Traffic</span>
     </div>
-    <div class="nav-item" id="nav-option" onclick="switchToTab('option')">
+    
+    <!-- 独立ボタン: Option -->
+    <div class="nav-item" id="nav-option" onclick="switchToView('option')" style="flex:1;">
       <i class="fas fa-cog"></i>
       <span>Option</span>
     </div>
   </nav>
 
-  <!-- JavaScript -->
   <script>
-    // --- 1. アプリデータ定義 (ここを編集してアプリを追加してください) ---
-    // iconはURLまたは相対パス。画像がない場合は適当なデフォルト画像が表示されます。
+    /* 
+     * --- データ定義 (実際の運用では外部ファイルなどから読み込んでください) ---
+     */
     const appsData = [
-      { id: 'google', name: 'Google', url: 'https://www.google.com', icon: 'https://www.google.com/favicon.ico' },
-      { id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com', icon: 'https://www.youtube.com/favicon.ico' },
-      { id: 'yahoo', name: 'Yahoo! JAPAN', url: 'https://www.yahoo.co.jp', icon: 'https://s.yimg.jp/c/icon/s/32/yahoo.ico' },
-      { id: 'amazon', name: 'Amazon', url: 'https://www.amazon.co.jp', icon: 'https://www.amazon.co.jp/favicon.ico' },
-      { id: 'weather', name: 'Yahoo! 天気', url: 'https://weather.yahoo.co.jp/weather/', icon: 'https://s.yimg.jp/images/weather/general/common/favicon.ico' },
-      { id: 'maps', name: 'Google Maps', url: 'https://maps.google.com', icon: 'https://www.google.com/images/branding/product/ico/maps15/v1/32dp.png' },
-      { id: 'github', name: 'GitHub', url: 'https://github.com', icon: 'https://github.com/fluidicon.png' },
-      { id: 'chatgpt', name: 'ChatGPT', url: 'https://chat.openai.com', icon: 'https://chat.openai.com/favicon.ico' },
-      { id: 'navitime', name: 'NAVITIME', url: 'https://www.navitime.co.jp/', icon: '' }, // アイコンなしテスト
-      { id: 'jorudan', name: 'ジョルダン', url: 'https://www.jorudan.co.jp/', icon: '' },
-      { id: 'twitter', name: 'X (Twitter)', url: 'https://twitter.com', icon: 'https://abs.twimg.com/favicons/twitter.3.ico' },
-      { id: 'instagram', name: 'Instagram', url: 'https://www.instagram.com', icon: 'https://static.cdninstagram.com/rsrc.php/v3/yG/r/De-DwpJB5US.png' }
+      { id: 'app1', name: 'Google', url: 'https://www.google.co.jp', icon: 'https://www.google.com/s2/favicons?domain=google.co.jp&sz=64' },
+      { id: 'app2', name: 'YouTube', url: 'https://www.youtube.com', icon: 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64' },
+      { id: 'app3', name: 'X (Twitter)', url: 'https://twitter.com', icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=64' },
+      { id: 'app4', name: 'Instagram', url: 'https://www.instagram.com', icon: 'https://www.google.com/s2/favicons?domain=instagram.com&sz=64' },
+      { id: 'app5', name: 'Amazon', url: 'https://www.amazon.co.jp', icon: 'https://www.google.com/s2/favicons?domain=amazon.co.jp&sz=64' },
+      { id: 'app6', name: 'Yahoo!', url: 'https://www.yahoo.co.jp', icon: 'https://www.google.com/s2/favicons?domain=yahoo.co.jp&sz=64' },
+      { id: 'app7', name: 'Weather News', url: 'https://weathernews.jp', icon: 'https://www.google.com/s2/favicons?domain=weathernews.jp&sz=64' },
+      { id: 'app8', name: 'Maps', url: 'https://maps.google.com', icon: 'https://www.google.com/s2/favicons?domain=maps.google.com&sz=64' },
+      { id: 'app9', name: 'Chat GPT', url: 'https://chat.openai.com', icon: 'https://www.google.com/s2/favicons?domain=openai.com&sz=64' },
     ];
 
-    // お気に入りデータ (localStorageから読み込み)
-    let myFavorites = JSON.parse(localStorage.getItem('lf_favorites')) || [];
+    // お気に入りデータの読み込み
+    let favorites = JSON.parse(localStorage.getItem('myFavorites')) || [];
 
-    // --- 2. 初期化処理 ---
+    /* 
+     * --- 初期化処理 ---
+     */
     document.addEventListener('DOMContentLoaded', () => {
-        // テーマ復元
-        const savedTheme = localStorage.getItem('lf_theme');
-        if (savedTheme === 'dark') document.body.classList.add('dark-theme');
-
-        // アプリ一覧描画
-        renderApps();
-        renderFavorites();
-
-        // 時計開始
-        updateClock();
-        setInterval(updateClock, 1000);
-
-        // 初期タブ設定 (Apps)
-        switchToTab('apps');
-        
-        // スワイプイベント設定
-        setupSwipeListeners();
+      renderAllApps();
+      renderFavorites();
+      setupSwipe();
+      setupClock();
+      
+      // デフォルトはAppsタブ(Index 1)を表示
+      switchToSwipeTab(1); 
+      
+      // テーマ初期化
+      if(localStorage.getItem('theme') === 'dark') {
+          document.body.classList.add('dark-theme');
+          document.body.classList.remove('light-theme');
+      }
     });
 
-    // --- 3. 描画ロジック (カード生成) ---
+    /* 
+     * --- 描画ロジック ---
+     */
+    // カードHTML生成関数
     function createCardHTML(app) {
-        const isFav = myFavorites.includes(app.id);
-        const iconSrc = app.icon ? app.icon : './icon.png'; // アイコンがない場合のフォールバック
-
-        return `
-        <div class="app-card" id="card-${app.id}">
-            <!-- 左: アイコン (クリックで遷移) -->
-            <div class="app-icon-area" onclick="window.location.href='${app.url}'" title="開く">
-                <img src="${iconSrc}" alt="${app.name}" onerror="this.src='./icon.png'">
+      const isFav = favorites.includes(app.id);
+      const favClass = isFav ? 'fav-active' : '';
+      const favIcon = isFav ? 'fas fa-star' : 'far fa-star';
+      
+      return `
+        <div class="app-card" data-id="${app.id}" data-name="${app.name}">
+          <!-- 左：アイコン (クリックでページ遷移) -->
+          <a href="${app.url}" class="card-left">
+            <img src="${app.icon}" class="card-icon-img" alt="${app.name}" onerror="this.src='./icon.png'">
+          </a>
+          
+          <!-- 右：情報とボタン -->
+          <div class="card-right">
+            <div class="card-name-area">
+              <span class="card-name">${app.name}</span>
             </div>
             
-            <!-- 右: 情報とボタン -->
-            <div class="app-info-area">
-                <div class="app-name" title="${app.name}">${app.name}</div>
-                <div class="app-actions">
-                    <!-- 1. このページで開く -->
-                    <button class="action-btn" onclick="window.location.href='${app.url}'" title="このページで開く">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                    <!-- 2. バックグラウンド(新規タブ)で開く -->
-                    <button class="action-btn" onclick="window.open('${app.url}', '_blank')" title="新しいタブで開く">
-                        <i class="fas fa-external-link-alt"></i>
-                    </button>
-                    <!-- 3. お気に入り -->
-                    <button class="action-btn fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${app.id}')" title="お気に入り">
-                        <i class="${isFav ? 'fas' : 'far'} fa-star"></i>
-                    </button>
-                </div>
+            <div class="card-actions">
+              <!-- ボタン1: このページで開く -->
+              <button class="action-btn" title="このページで開く" onclick="window.location.href='${app.url}'">
+                <i class="fas fa-arrow-circle-right"></i>
+              </button>
+              
+              <!-- ボタン2: 別タブで開く -->
+              <button class="action-btn" title="新しいタブで開く" onclick="window.open('${app.url}', '_blank')">
+                <i class="fas fa-external-link-alt"></i>
+              </button>
+              
+              <!-- ボタン3: お気に入り -->
+              <button class="action-btn ${favClass}" title="お気に入り" onclick="toggleFavorite('${app.id}', this)">
+                <i class="${favIcon}"></i>
+              </button>
             </div>
+          </div>
         </div>
-        `;
+      `;
     }
 
-    function renderApps() {
-        const container = document.getElementById('apps-list');
-        container.innerHTML = appsData.map(app => createCardHTML(app)).join('');
+    // Appsタブ描画
+    function renderAllApps() {
+      const container = document.getElementById('apps-grid');
+      container.innerHTML = appsData.map(app => createCardHTML(app)).join('');
     }
 
+    // FYタブ描画
     function renderFavorites() {
-        const container = document.getElementById('favorites-list');
-        const favApps = appsData.filter(app => myFavorites.includes(app.id));
-
-        if (favApps.length === 0) {
-            container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-color-secondary);">
-                <i class="far fa-star" style="font-size:40px; margin-bottom:10px;"></i><br>
-                お気に入りはまだありません
-            </div>`;
-        } else {
-            container.innerHTML = favApps.map(app => createCardHTML(app)).join('');
-        }
+      const container = document.getElementById('fy-grid');
+      const emptyMsg = document.getElementById('fy-empty-msg');
+      
+      // お気に入りIDに基づいてデータをフィルタリング
+      const favApps = appsData.filter(app => favorites.includes(app.id));
+      
+      if (favApps.length === 0) {
+        container.innerHTML = '';
+        emptyMsg.style.display = 'block';
+      } else {
+        emptyMsg.style.display = 'none';
+        container.innerHTML = favApps.map(app => createCardHTML(app)).join('');
+      }
     }
 
-    // お気に入り切り替え
-    function toggleFavorite(appId) {
-        if (myFavorites.includes(appId)) {
-            myFavorites = myFavorites.filter(id => id !== appId);
-        } else {
-            myFavorites.push(appId);
-        }
-        localStorage.setItem('lf_favorites', JSON.stringify(myFavorites));
+    // お気に入りトグル処理
+    function toggleFavorite(appId, btnElement) {
+      const index = favorites.indexOf(appId);
+      if (index === -1) {
+        favorites.push(appId);
+        btnElement.classList.add('fav-active');
+        btnElement.querySelector('i').className = 'fas fa-star';
+      } else {
+        favorites.splice(index, 1);
+        btnElement.classList.remove('fav-active');
+        btnElement.querySelector('i').className = 'far fa-star';
+      }
+      localStorage.setItem('myFavorites', JSON.stringify(favorites));
+      
+      // FYタブを再描画（Appsタブのボタン状態も更新する必要があるため、全再描画が理想だが簡易的に）
+      renderFavorites();
+      renderAllApps(); // Apps側の☆の状態も同期させるため再描画
+    }
+
+    /* 
+     * --- ナビゲーション & スワイプ処理 ---
+     */
+    let currentSwipeIndex = 1; // 0: FY, 1: Apps
+
+    // スワイプタブへの切り替え (FY or Apps)
+    function switchToSwipeTab(index) {
+      currentSwipeIndex = index;
+      
+      // ビューの表示制御
+      document.getElementById('swipe-container').style.display = 'block';
+      document.getElementById('view-bustarain').classList.remove('active');
+      document.getElementById('view-option').classList.remove('active');
+      
+      // トラックの移動 (横スライド)
+      const track = document.getElementById('swipeTrack');
+      track.style.transform = `translateX(-${index * 50}%)`; // 2枚なので50%ずつ
+      
+      // ナビゲーションのアクティブ更新
+      updateNavHighlight(index === 0 ? 'nav-fy' : 'nav-apps');
+    }
+
+    // 独立ビューへの切り替え (Traffic or Option)
+    function switchToView(viewName) {
+      // スワイプエリアを非表示
+      document.getElementById('swipe-container').style.display = 'none';
+      
+      // 全ビュー非アクティブ
+      document.querySelectorAll('.tab-view-content').forEach(el => el.classList.remove('active'));
+      
+      // 指定ビューを表示
+      document.getElementById(`view-${viewName}`).classList.add('active');
+      
+      // ナビゲーションのアクティブ更新
+      updateNavHighlight(`nav-${viewName}`);
+    }
+
+    function updateNavHighlight(activeId) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(activeId).classList.add('active');
+    }
+
+    // タッチスワイプの実装
+    function setupSwipe() {
+      const container = document.getElementById('swipe-container');
+      let startX = 0;
+      let isDragging = false;
+
+      container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+      }, {passive: true});
+
+      container.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        const endX = e.changedTouches[0].clientX;
+        const diff = startX - endX;
         
-        // 再描画 (Appsリストの★状態更新 & FYリスト更新)
-        renderApps();
-        renderFavorites();
-    }
-
-    function resetData() {
-        if(confirm('お気に入りをすべて削除しますか？')) {
-            localStorage.removeItem('lf_favorites');
-            location.reload();
+        // 感度（50px以上の移動で判定）
+        if (diff > 50) {
+          // 左へスワイプ -> 次へ (FY -> Apps)
+          if (currentSwipeIndex === 0) switchToSwipeTab(1);
+        } else if (diff < -50) {
+          // 右へスワイプ -> 前へ (Apps -> FY)
+          if (currentSwipeIndex === 1) switchToSwipeTab(0);
         }
+        isDragging = false;
+      }, {passive: true});
     }
 
-    // --- 4. ナビゲーション & スワイプ制御 ---
-    let currentTab = 'apps';
-
-    function switchToTab(tabName) {
-        currentTab = tabName;
-
-        // 下部ナビの見た目更新
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        const navTarget = document.getElementById('nav-' + (tabName === 'fy' || tabName === 'apps' ? tabName : tabName));
-        if(navTarget) navTarget.classList.add('active');
-
-        // ビューの切り替え
-        const swipeSection = document.getElementById('swipe-view-section');
-        const trafficSection = document.getElementById('traffic-section');
-        const optionSection = document.getElementById('option-section');
-
-        // 全て隠す
-        swipeSection.classList.remove('active');
-        trafficSection.classList.remove('active');
-        optionSection.classList.remove('active');
-
-        // 対象を表示
-        if (tabName === 'fy' || tabName === 'apps') {
-            swipeSection.classList.add('active');
-            const wrapper = document.getElementById('swipeWrapper');
-            // FY=0%, Apps=-50% (幅200%のため)
-            if (tabName === 'fy') {
-                wrapper.style.transform = 'translateX(0%)';
-                document.getElementById('nav-fy').classList.add('active');
-                document.getElementById('nav-apps').classList.remove('active');
-            } else {
-                wrapper.style.transform = 'translateX(-50%)';
-                document.getElementById('nav-apps').classList.add('active');
-                document.getElementById('nav-fy').classList.remove('active');
-            }
-        } else if (tabName === 'traffic') {
-            trafficSection.classList.add('active');
-        } else if (tabName === 'option') {
-            optionSection.classList.add('active');
-        }
-        
-        // タブ切り替え時にトップへスクロール
-        window.scrollTo(0, 0);
-    }
-
-    // スワイプイベント設定
-    function setupSwipeListeners() {
-        const wrapper = document.getElementById('swipeWrapper');
-        let startX = 0;
-        let isSwiping = false;
-
-        wrapper.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            isSwiping = true;
-        }, {passive: true});
-
-        wrapper.addEventListener('touchend', (e) => {
-            if (!isSwiping) return;
-            const endX = e.changedTouches[0].clientX;
-            const diff = startX - endX;
-
-            // 50px以上の移動でスワイプ判定
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    // 左へスワイプ (FY -> Apps)
-                    if (currentTab === 'fy') switchToTab('apps');
-                } else {
-                    // 右へスワイプ (Apps -> FY)
-                    if (currentTab === 'apps') switchToTab('fy');
-                }
-            }
-            isSwiping = false;
-        }, {passive: true});
-    }
-
-    // --- 5. 時計機能 ---
-    function updateClock() {
+    /* 
+     * --- FY 時計処理 ---
+     */
+    function setupClock() {
+      const dateEl = document.getElementById('fy-date-text');
+      const timeEl = document.getElementById('fy-time-text');
+      
+      function update() {
         const now = new Date();
-        const days = ['日', '月', '火', '水', '木', '金', '土'];
+        const y = now.getFullYear();
+        const m = (now.getMonth() + 1).toString().padStart(2, '0');
+        const d = now.getDate().toString().padStart(2, '0');
+        const day = ['日','月','火','水','木','金','土'][now.getDay()];
         
-        // ヘッダー用 (短い)
-        const hTime = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-        const hDate = `${now.getMonth() + 1}/${now.getDate()}`;
-        document.getElementById('header-time').textContent = hTime;
-        document.getElementById('header-date').textContent = hDate;
-
-        // FYタブ用 (詳細・秒付き)
-        // ゼロ埋めヘルパー
-        const pad = (n) => n.toString().padStart(2, '0');
-        const fyDateStr = `${now.getFullYear()}年${pad(now.getMonth() + 1)}月${pad(now.getDate())}日 (${days[now.getDay()]})`;
-        const fyTimeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const h = now.getHours().toString().padStart(2, '0');
+        const min = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
         
-        document.getElementById('fy-full-date').textContent = fyDateStr;
-        document.getElementById('fy-full-time').textContent = fyTimeStr;
+        dateEl.textContent = `${y}/${m}/${d} (${day})`;
+        timeEl.textContent = `${h}:${min}:${s}`;
+      }
+      
+      setInterval(update, 1000);
+      update();
     }
 
-    // --- 6. 検索機能 ---
+    /* 
+     * --- 検索機能 ---
+     */
     const searchInput = document.getElementById('globalSearchInput');
     const searchResults = document.getElementById('searchResults');
-    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const clearBtn = document.getElementById('clearSearchBtn');
 
     searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
+      const val = e.target.value.toLowerCase();
+      if (val.length > 0) {
+        clearBtn.style.display = 'block';
+        searchResults.classList.add('active');
         
-        if (!query) {
-            searchResults.classList.remove('show');
-            clearSearchBtn.classList.remove('show');
-            return;
-        }
-
-        clearSearchBtn.classList.add('show');
-        searchResults.classList.add('show');
-
-        // 検索実行
-        const hits = appsData.filter(app => 
-            app.name.toLowerCase().includes(query)
-        );
-
-        if (hits.length === 0) {
-            searchResults.innerHTML = `<div style="padding:15px; text-align:center; color:#888;">見つかりません</div>`;
+        // 検索ロジック
+        const hits = appsData.filter(app => app.name.toLowerCase().includes(val));
+        
+        if (hits.length > 0) {
+          searchResults.innerHTML = hits.map(app => `
+            <a href="${app.url}" class="search-result-item">
+              <img src="${app.icon}" style="width:24px; height:24px; margin-right:10px; border-radius:4px;">
+              <span>${app.name}</span>
+            </a>
+          `).join('');
         } else {
-            searchResults.innerHTML = hits.map(app => `
-                <a href="${app.url}" class="result-item">
-                    <img src="${app.icon || './icon.png'}" onerror="this.src='./icon.png'">
-                    <span style="flex:1; font-weight:bold;">${app.name}</span>
-                    <i class="fas fa-chevron-right" style="font-size:12px; color:#ccc;"></i>
-                </a>
-            `).join('');
+          searchResults.innerHTML = '<div style="padding:10px; color:#999; text-align:center;">見つかりませんでした</div>';
         }
+      } else {
+        clearSearch();
+      }
     });
 
-    // 検索クリアボタン
-    clearSearchBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        searchResults.classList.remove('show');
-        clearSearchBtn.classList.remove('show');
-        searchInput.focus();
-    });
+    function clearSearch() {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      searchResults.classList.remove('active');
+    }
 
-    // 検索ボックス外クリックで閉じる
+    // 検索エリア外クリックで閉じる
     document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target) && !clearSearchBtn.contains(e.target)) {
-            searchResults.classList.remove('show');
-        }
+      if (!e.target.closest('.search-container') && !e.target.closest('.search-results-dropdown')) {
+        searchResults.classList.remove('active');
+      }
     });
 
-    // --- 7. その他機能 (テーマ、Traffic制御など) ---
+    /* 
+     * --- その他 (テーマ切り替えなど) ---
+     */
     function setTheme(mode) {
-        if (mode === 'dark') {
-            document.body.classList.add('dark-theme');
-            localStorage.setItem('lf_theme', 'dark');
-        } else {
-            document.body.classList.remove('dark-theme');
-            localStorage.setItem('lf_theme', 'light');
+      document.body.className = mode === 'dark' ? 'dark-theme' : 'light-theme';
+      localStorage.setItem('theme', mode);
+    }
+    
+    // Trafficタブのアコーディオン制御
+    function toggleAcc(header) {
+      const content = header.nextElementSibling;
+      const iframe = content.querySelector('iframe');
+      
+      // 開閉トグル
+      const isOpen = content.classList.contains('open');
+      document.querySelectorAll('.accordion-content').forEach(el => el.classList.remove('open')); // 他を閉じる
+      
+      if (!isOpen) {
+        content.classList.add('open');
+        // srcが空ならロード（遅延読み込み）
+        if (iframe.getAttribute('src') === 'about:blank') {
+          iframe.src = iframe.getAttribute('data-src');
         }
+      }
     }
-
-    function reloadSpeedTest() {
-        const iframe = document.querySelector('.speed-test-wrapper iframe');
-        iframe.src = iframe.src;
-    }
-
-    // Trafficタブ内の切り替え
-    function switchTrafficSubTab(type) {
-        const buttons = document.querySelectorAll('.sub-tab-pill');
-        buttons.forEach(btn => btn.classList.remove('active'));
+    
+    function showTrafficTab(type) {
+        document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
         
-        // クリックされたボタンをActiveに (eventを使用)
-        // eventが取れない場合のガード
-        if(event && event.target) {
-             // アイコンをクリックした場合の対応
-             const target = event.target.tagName === 'BUTTON' ? event.target : event.target.closest('button');
-             if(target) target.classList.add('active');
-        }
-
-        const trainDiv = document.getElementById('train-content');
-        const busDiv = document.getElementById('bus-content');
-
-        if (type === 'train') {
-            trainDiv.classList.remove('hidden');
-            busDiv.classList.add('hidden');
-        } else {
-            trainDiv.classList.add('hidden');
-            busDiv.classList.remove('hidden');
-        }
-    }
-
-    // アコーディオン開閉
-    function toggleAccordion(header) {
-        const item = header.parentElement;
-        item.classList.toggle('open');
-        
-        // 開いたときだけiframeをロード（遅延読み込み）
-        const iframe = item.querySelector('iframe');
-        if (item.classList.contains('open') && iframe && !iframe.src && iframe.dataset.src) {
-            iframe.src = iframe.dataset.src;
-        }
+        document.getElementById('traffic-train').style.display = (type === 'train') ? 'block' : 'none';
+        document.getElementById('traffic-bus').style.display = (type === 'bus') ? 'block' : 'none';
     }
 
   </script>
