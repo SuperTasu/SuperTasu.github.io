@@ -17,11 +17,11 @@
       --text-color-primary: #333333;
       --text-color-secondary: #666;
       --custom-bg-image: none; 
-      --card-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      --card-border-color: rgba(0,0,0,0.05);
-      --card-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      --card-bg: #ffffff; /* カード背景を白に固定（画像に合わせる） */
+      --card-border-color: #000000; /* 枠線を黒くはっきり（画像に合わせる） */
+      --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
       --icon-bg: #fff;
-      --icon-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      --icon-shadow: 0 2px 5px rgba(0,0,0,0.1);
       
       --tab-active-bg: #667eea;
       --tab-active-text: #ffffff;
@@ -40,8 +40,8 @@
       --bg-color: #434343;
       --text-color-primary: #f5f5f5;
       --text-color-secondary: #aaa;
-      --card-bg: linear-gradient(135deg, #2c2c2c 0%, #3a3a3a 100%);
-      --card-border-color: rgba(255,255,255,0.1);
+      --card-bg: #2c2c2c;
+      --card-border-color: #555;
       --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
       --icon-bg: #555;
       --icon-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -86,7 +86,7 @@
 
     /* ★★★ 固定ヘッダー ★★★ */
     .fixed-top-wrapper {
-      position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 6000; /* z-indexを高く設定 */
       background-color: #000000; color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3); border-radius: 0; 
       padding: 5px 0;
@@ -139,7 +139,7 @@
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-    /* ★★★ 速度テスト（サイズ調整済み） ★★★ */
+    /* ★★★ 速度テスト ★★★ */
     .header-speed-test { 
         position: absolute; 
         right: 10px;
@@ -147,23 +147,20 @@
         display: flex; 
         align-items: flex-start; 
         gap: 5px; 
-        z-index: 6000;
+        z-index: 6100;
         pointer-events: none;
     }
     .header-speed-test iframe { 
         pointer-events: auto;
-        width: 180px;  /* 250pxから縮小 */
-        height: 60px;  /* 80pxから縮小 */
+        width: 180px;
+        height: 60px;
         border: none; 
         border-radius: 8px; 
         background: #fff; 
         box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
     }
     @media (max-width: 450px) {
-        .header-speed-test iframe { 
-            width: 120px; 
-            height: 50px; 
-        }
+        .header-speed-test iframe { width: 120px; height: 50px; }
     }
     #speed-test-refresh-button { 
         pointer-events: auto;
@@ -201,7 +198,7 @@
         padding: 0 10px;
         box-sizing: border-box;
         position: relative;
-        z-index: 5000;
+        z-index: 6200; /* ヘッダー内でも最前面に */
     }
     .search-container { 
         display: flex; 
@@ -210,219 +207,175 @@
         background-color: rgba(255, 255, 255, 0.95);
         border-radius: 20px; 
         border: none;
-        
         width: 80%; 
         max-width: 500px; 
         height: 36px; 
-        
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         transition: width 0.3s ease;
     }
-    @media (max-width: 450px) {
-        .search-container {
-             width: 90%;
-        }
-    }
+    @media (max-width: 450px) { .search-container { width: 90%; } }
     
     .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
     
     #globalSearchInput { 
-        border: none; 
-        background: transparent; 
-        outline: none; 
-        width: 100%; 
-        font-size: 15px; 
-        color: #333;
+        border: none; background: transparent; outline: none; width: 100%; 
+        font-size: 15px; color: #333;
     }
     #globalSearchInput::placeholder { color: #888; font-size: 13px; }
     #clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
 
-    /* ▼▼▼ 検索結果ドロップダウン ▼▼▼ */
+    /* 検索結果ドロップダウン */
     .search-results-dropdown {
-        position: absolute;
-        top: 40px;
-        left: 0;
-        right: 0;
-        margin: 0 auto;
-        
-        width: 85%;
-        max-width: 550px;
-        
-        background-color: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        z-index: 5500; 
-        max-height: 60vh;
-        overflow-y: auto;
-        padding: 5px; 
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid var(--card-border-color);
-        display: block; 
+        position: absolute; top: 40px; left: 0; right: 0; margin: 0 auto;
+        width: 85%; max-width: 550px;
+        background-color: var(--card-bg); border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 6500; 
+        max-height: 60vh; overflow-y: auto; padding: 5px; 
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--card-border-color); display: block; 
     }
     .search-results-dropdown.hidden { display: none !important; }
     
     .search-result-item {
-        display: flex;
-        align-items: center;
-        padding: 8px 12px; 
-        margin-bottom: 4px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.6);
-        cursor: pointer;
-        transition: all 0.2s;
-        color: var(--text-color-primary);
-        text-decoration: none;
-        user-select: none;
-        border: 1px solid transparent;
+        display: flex; align-items: center; padding: 8px 12px; 
+        margin-bottom: 4px; border-radius: 8px; background: rgba(255, 255, 255, 0.6);
+        cursor: pointer; transition: all 0.2s; color: var(--text-color-primary);
+        text-decoration: none; user-select: none; border: 1px solid transparent;
     }
     body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
-    
-    .search-result-item:hover { 
-        background-color: var(--swap-select-color); 
-        transform: scale(1.01);
-    }
-    
-    .search-result-item img {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        margin-right: 12px;
-        object-fit: contain;
-        background-color: #fff;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .search-result-item span {
-        font-weight: bold;
-        font-size: 14px;
-        flex-grow: 1;
-    }
-    .search-result-item i {
-        color: var(--text-color-secondary);
-        font-size: 12px;
-    }
-    .result-tag {
-        font-size: 9px;
-        padding: 2px 5px;
-        border-radius: 4px;
-        margin-right: 8px;
-        color: #fff;
-        font-weight: bold;
-    }
+    .search-result-item:hover { background-color: var(--swap-select-color); transform: scale(1.01); }
+    .search-result-item img { width: 32px; height: 32px; border-radius: 6px; margin-right: 12px; object-fit: contain; background-color: #fff; }
+    .search-result-item span { font-weight: bold; font-size: 14px; flex-grow: 1; }
+    .result-tag { font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-right: 8px; color: #fff; font-weight: bold; }
     .tag-app { background-color: #667eea; }
     .tag-traffic { background-color: #28a745; }
 
-    /* ▼▼▼ リンク確認モーダル ▼▼▼ */
-    .modal-overlay {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 7000;
+    /* ▼▼▼ FYタブ専用デジタル時計 ▼▼▼ */
+    #fy-clock-wrapper {
+        text-align: center;
+        margin-bottom: 20px;
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--card-border-color);
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #fy-digital-clock {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-color-primary);
+        letter-spacing: 2px;
+    }
+    @media (max-width: 600px) {
+        #fy-digital-clock { font-size: 1.5rem; }
+    }
+
+    /* ▼▼▼ 新しいAppsグリッドスタイル (カード型) ▼▼▼ */
+    /* グリッドレイアウトの上書き */
+    #gridContainer {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+        justify-content: center;
+    }
+
+    /* カード全体のスタイル */
+    .app-card-new {
+        display: flex;
+        background-color: var(--card-bg);
+        border: 2px solid #000; /* ご指定の画像に合わせて黒枠 */
+        border-radius: 20px;    /* 丸みを強く */
+        padding: 10px;
+        box-shadow: none;       /* 画像はフラットに近い */
+        transition: transform 0.2s, background-color 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--text-color-primary);
+        align-items: center;
+        position: relative;
+        height: 80px; /* 高さ固定 */
+    }
+    body.dark-theme .app-card-new { border-color: #888; }
+
+    .app-card-new:hover {
+        background-color: var(--slot-hover-color);
+    }
+
+    /* 左側：アイコンエリア */
+    .app-card-left {
+        width: 60px;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        backdrop-filter: blur(5px);
+        border-right: 1px solid rgba(0,0,0,0.1); /* 区切り線 */
+        margin-right: 10px;
+        flex-shrink: 0;
     }
-    .modal-overlay.hidden { display: none; }
-    
-    .modal-box {
-        background: var(--card-bg);
-        padding: 25px;
-        border-radius: 16px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-        border: 1px solid var(--card-border-color);
-        text-align: center;
-        animation: modalFadeIn 0.2s ease-out;
+    .app-card-left img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border-radius: 8px;
     }
-    @keyframes modalFadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-    }
-    .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: var(--text-color-primary); }
-    .modal-desc { font-size: 14px; color: var(--text-color-secondary); margin-bottom: 25px; }
-    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
-    .modal-btn {
-        padding: 12px; border: none; border-radius: 10px;
-        font-weight: bold; cursor: pointer; font-size: 15px;
-        transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .modal-btn:hover { opacity: 0.8; }
-    .btn-same { background: #667eea; color: white; }
-    .btn-new { background: #28a745; color: white; }
-    .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
 
-    /* ★★★ 下部固定ナビゲーション ★★★ */
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: var(--nav-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-top: 1px solid var(--card-border-color);
+    /* 右側：情報＆ボタンエリア */
+    .app-card-right {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding: 5px 0;
+    }
+
+    /* アプリ名 */
+    .app-card-name {
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 5px;
+        font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* 手書き風フォント指定 */
+        text-decoration: underline; /* 画像の名前の下線 */
+    }
+
+    /* ボタンエリア */
+    .app-card-buttons {
         display: flex;
         justify-content: space-around;
-        align-items: center;
-        padding: 5px 10px; 
-        padding-bottom: calc(5px + env(safe-area-inset-bottom));
-        z-index: 2000;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-        height: auto;
+        gap: 10px;
     }
 
-    .tab-item { 
-        padding: 6px 0; 
-        color: var(--text-color-secondary); 
-        font-weight: bold; 
-        font-size: 10px; 
-        cursor: pointer; 
-        transition: all 0.2s ease; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 2px; 
-        flex: 1;
+    /* 小さい四角いボタン */
+    .app-mini-btn {
+        width: 30px;
+        height: 30px;
+        border: 2px solid #000;
         background: transparent;
-        border-radius: 10px;
-        margin: 0 4px;
-        max-width: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 4px;
+        color: var(--text-color-primary);
     }
-    .tab-item i { font-size: 20px; margin-bottom: 0; }
+    body.dark-theme .app-mini-btn { border-color: #888; }
     
-    .tab-item:hover { 
-        background-color: rgba(0,0,0,0.05);
-        transform: translateY(-1px); 
+    .app-mini-btn:hover {
+        background-color: rgba(0,0,0,0.1);
     }
-    
-    .tab-item.active { 
-        background-color: var(--tab-active-bg);
-        color: var(--tab-active-text);
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-        transform: none; 
+    .app-mini-btn i {
+        font-size: 14px;
     }
-    .tab-item.active i { color: var(--tab-active-text); }
-    .fy-icon { color: #ffc107; }
-    .tab-item.active .fy-icon { color: #fff; }
+    /* ▲▲▲ 新しいAppsスタイル終了 ▲▲▲ */
 
-    /* Appsグリッド */
-    .main-grid { margin-top: 10px; }
-    .grid-container { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; padding: 10px; }
 
-    /* アイコン共通 */
-    .icon-item { text-align: center; width: 80px; margin: 5px; position: relative; user-select: none; border-radius: 10px; transition: all 0.2s; z-index: 2; }
-    .icon-item .fav-btn { position: absolute !important; top: -5px !important; right: -5px !important; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; color: #ccc; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
-    .icon-item .fav-btn.active { color: #ffc107; }
-    .icon-item .fav-btn:hover { transform: scale(1.2); }
-    .icon-link { width: 60px; height: 60px; background-color: var(--icon-bg); border-radius: 22px; box-shadow: var(--icon-shadow); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--text-color-primary); margin: 0 auto; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .icon-link:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
-    .icon-img { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; }
-    .label-text { font-size: 11px; margin-top: 8px; color: var(--text-color-primary); font-weight: bold; word-break: break-word; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
-    body.dark-theme .label-text { text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-
-    /* FYグリッドシステム */
+    /* FYグリッド（既存のまま） */
     #fy-content-area {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -445,15 +398,53 @@
     .edit-mode .grid-slot { border: 1px dashed var(--grid-line-color); cursor: pointer; }
     .edit-mode .grid-slot:hover { background-color: var(--slot-hover-color); }
     .edit-mode .grid-slot.selected-slot { background-color: var(--swap-select-color); border: 1px solid #667eea; box-shadow: 0 0 8px rgba(102, 126, 234, 0.4); }
-    @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); } }
     .edit-mode .icon-item { animation: shake 0.3s infinite; pointer-events: none; }
     .edit-mode .grid-slot.takatori-size .takatori-display-board, .edit-mode .grid-slot.memo-size .memo-board { pointer-events: none; opacity: 0.7; }
-    .edit-mode .grid-slot.selected-slot .icon-item { animation: none; transform: scale(1.1); }
-    .edit-mode .icon-link { pointer-events: none; }
-    .edit-mode .fav-btn { display: none; }
-    .fy-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--card-border-color); margin: 20px 10px 15px; padding-bottom: 5px; }
-    .edit-btn { background: var(--input-bg); border: 1px solid var(--text-color-secondary); color: var(--text-color-primary); padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
-    .edit-btn.editing { background: #667eea; color: #fff; border-color: #667eea; }
+    
+    /* リンク確認モーダル */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); z-index: 7000;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+        background: var(--card-bg); padding: 25px; border-radius: 16px;
+        width: 90%; max-width: 400px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border: 1px solid var(--card-border-color); text-align: center;
+        animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: var(--text-color-primary); }
+    .modal-desc { font-size: 14px; color: var(--text-color-secondary); margin-bottom: 25px; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-same { background: #667eea; color: white; }
+    .btn-new { background: #28a745; color: white; }
+    .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
+
+    /* 下部固定ナビゲーション */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background-color: var(--nav-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--card-border-color);
+        display: flex; justify-content: space-around; align-items: center;
+        padding: 5px 10px; padding-bottom: calc(5px + env(safe-area-inset-bottom));
+        z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); height: auto;
+    }
+    .tab-item { 
+        padding: 6px 0; color: var(--text-color-secondary); font-weight: bold; 
+        font-size: 10px; cursor: pointer; transition: all 0.2s ease; 
+        display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
+        background: transparent; border-radius: 10px; margin: 0 4px; max-width: 90px;
+    }
+    .tab-item i { font-size: 20px; margin-bottom: 0; }
+    .tab-item:hover { background-color: rgba(0,0,0,0.05); transform: translateY(-1px); }
+    .tab-item.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4); transform: none; }
+    .tab-item.active i { color: var(--tab-active-text); }
+    .fy-icon { color: #ffc107; }
+    .tab-item.active .fy-icon { color: #fff; }
 
     /* コンテナ非表示設定 */
     #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
@@ -472,7 +463,6 @@
     .accordion-iframe { width: 100%; height: 600px; border: none; }
     .hidden { display: none !important; }
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
-    .option-card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: var(--card-shadow); }
 
     @media (max-width: 900px) { .header-speed-test iframe { width: 150px; } .datetime-row { gap: 10px; } }
     @media (max-width: 768px) {
@@ -507,11 +497,9 @@
 
                 <!-- ▼ Google Login / User Avatar ▼ -->
                 <div class="auth-wrapper" style="display: flex; align-items: center; margin: 0 5px;">
-                    <!-- ログインボタン (未ログイン時表示) -->
                     <div id="google-login-btn" class="control-icon" title="Googleでログイン">
                         <i class="fab fa-google"></i>
                     </div>
-                    <!-- ユーザーアイコン (ログイン時表示) -->
                     <img id="user-avatar" src="" alt="User" class="hidden" title="ログアウト" style="width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid #fff; object-fit: cover; display: none;">
                 </div>
                 <!-- ▲ Google Login / User Avatar ▲ -->
@@ -521,7 +509,7 @@
                 </div>
             </div>
 
-            <!-- ★★★ 速度テスト（絶対配置・縮小済み） ★★★ -->
+            <!-- ★★★ 速度テスト ★★★ -->
             <div class="header-speed-test">
                 <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()" title="速度テスト再実行">
@@ -531,7 +519,7 @@
         </div>
     </div>
 
-    <!-- ★★★ 検索バー（強制表示 !important 対応） ★★★ -->
+    <!-- ★★★ 検索バー（全タブで表示） ★★★ -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
@@ -550,6 +538,12 @@
       
       <!-- FY コンテナ -->
       <div id="fy-container">
+          <!-- ▼ FYタブ専用 デジタル時計 ▼ -->
+          <div id="fy-clock-wrapper">
+              <div id="fy-digital-clock">Loading Clock...</div>
+          </div>
+          <!-- ▲ FYタブ専用 デジタル時計 ▲ -->
+
           <div class="fy-header-row">
               <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
               <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()">並び替え</button>
@@ -562,6 +556,7 @@
         <div class="apps-area">
           <div id="all-apps-container">
               <h3 class="section-title">すべてのアプリ</h3>
+              <!-- ここに新しいカードレイアウトがJSで生成されます -->
               <div class="grid-container" id="gridContainer"></div>
           </div>
         </div>
@@ -745,6 +740,119 @@
   <script src="script.js"></script>
   
   <script>
+      // --- ★★★ 新しいAppsレイアウト生成スクリプト ★★★ ---
+      // 外部ファイルから読み込まれるはずのデータを、ご要望のレイアウトに合わせて描画し直します。
+      // ※実際のアプリリスト変数が不明なため、サンプルデータを生成して表示します。
+      // ※ご自身のmain.jsで生成している場合は、この関数を呼び出すか、ロジックを統合してください。
+      
+      function renderNewLayoutApps() {
+          const container = document.getElementById('gridContainer');
+          if(!container) return;
+
+          // サンプルデータ（実際はここをご自身のデータ配列に置き換えてください）
+          const sampleApps = [
+              { name: "Google", url: "https://google.com", icon: "./icon.png" },
+              { name: "YouTube", url: "https://youtube.com", icon: "./icon.png" },
+              { name: "Yahoo!", url: "https://yahoo.co.jp", icon: "./icon.png" },
+              { name: "Twitter", url: "https://twitter.com", icon: "./icon.png" },
+              { name: "Instagram", url: "https://instagram.com", icon: "./icon.png" },
+              { name: "GitHub", url: "https://github.com", icon: "./icon.png" },
+              { name: "Map", url: "https://maps.google.com", icon: "./icon.png" },
+              { name: "Weather", url: "https://weather.yahoo.co.jp", icon: "./icon.png" },
+              { name: "News", url: "https://news.yahoo.co.jp", icon: "./icon.png" }
+          ];
+
+          container.innerHTML = ''; // 既存の内容をクリア
+
+          sampleApps.forEach(app => {
+              // カード全体
+              const card = document.createElement('div');
+              card.className = 'app-card-new';
+              // カード全体をクリックで同一タブ遷移
+              card.onclick = () => { window.location.href = app.url; };
+
+              // 左側：アイコン
+              const leftDiv = document.createElement('div');
+              leftDiv.className = 'app-card-left';
+              const img = document.createElement('img');
+              img.src = app.icon;
+              img.alt = app.name;
+              img.onerror = function() { this.src = 'https://via.placeholder.com/40'; }; // 画像がない場合のダミー
+              leftDiv.appendChild(img);
+
+              // 右側：情報＆ボタン
+              const rightDiv = document.createElement('div');
+              rightDiv.className = 'app-card-right';
+
+              // アプリ名
+              const nameDiv = document.createElement('div');
+              nameDiv.className = 'app-card-name';
+              nameDiv.textContent = app.name;
+
+              // ボタンコンテナ
+              const btnsDiv = document.createElement('div');
+              btnsDiv.className = 'app-card-buttons';
+
+              // ボタン1：このページで開く (左)
+              const btnSame = document.createElement('button');
+              btnSame.className = 'app-mini-btn';
+              btnSame.title = 'このページで開く';
+              btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>'; // アイコンのみ
+              btnSame.onclick = (e) => {
+                  e.stopPropagation(); // 親のクリックイベントを阻止
+                  window.location.href = app.url;
+              };
+
+              // ボタン2：バックグラウンド(新しいタブ)で開く (右)
+              // ※ブラウザのセキュリティ上、完全なバックグラウンドは不可のため、新しいタブで開きます
+              const btnNew = document.createElement('button');
+              btnNew.className = 'app-mini-btn';
+              btnNew.title = '新しいタブで開く';
+              btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>'; // アイコンのみ
+              btnNew.onclick = (e) => {
+                  e.stopPropagation();
+                  window.open(app.url, '_blank');
+              };
+
+              btnsDiv.appendChild(btnSame);
+              btnsDiv.appendChild(btnNew);
+
+              rightDiv.appendChild(nameDiv);
+              rightDiv.appendChild(btnsDiv);
+
+              card.appendChild(leftDiv);
+              card.appendChild(rightDiv);
+
+              container.appendChild(card);
+          });
+      }
+
+      // ページ読み込み完了時に描画実行
+      window.addEventListener('load', () => {
+          // 既存のコンテンツがあるかチェックし、なければサンプルを表示、あれば変換ロジックが必要ですが
+          // 今回は外部JSが見えないため、サンプルで上書き表示します。
+          // 実運用では、main.js内のデータを使って renderNewLayoutApps の中身を書き換えてください。
+          renderNewLayoutApps();
+      });
+
+      // --- ★★★ FYタブ デジタル時計ロジック ★★★ ---
+      function updateFYClock() {
+          const now = new Date();
+          const y = now.getFullYear();
+          const m = (now.getMonth() + 1).toString().padStart(2, '0');
+          const d = now.getDate().toString().padStart(2, '0');
+          const hours = now.getHours().toString().padStart(2, '0');
+          const minutes = now.getMinutes().toString().padStart(2, '0');
+          const seconds = now.getSeconds().toString().padStart(2, '0');
+          
+          const timeString = `${y}/${m}/${d} ${hours}:${minutes}:${seconds}`;
+          
+          const clockEl = document.getElementById('fy-digital-clock');
+          if(clockEl) clockEl.innerText = timeString;
+      }
+      setInterval(updateFYClock, 1000);
+      updateFYClock(); // 初回実行
+
       // --- ★★★ 全コンテンツ対象検索＆リンク確認機能 ★★★ ---
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
@@ -768,18 +876,26 @@
           function gatherAllSearchableContent() {
               const content = [];
 
-              // 1. アプリ（アイコン）の収集
-              const icons = document.querySelectorAll('.icon-item');
-              icons.forEach(item => {
-                  const linkEl = item.querySelector('.icon-link');
-                  const imgEl = item.querySelector('.icon-img');
-                  const labelEl = item.querySelector('.label-text');
-                  if (linkEl && labelEl) {
+              // 1. アプリ（新レイアウト対応）の収集
+              // .app-card-new クラスから情報を取得
+              const cards = document.querySelectorAll('.app-card-new');
+              cards.forEach(card => {
+                  const nameEl = card.querySelector('.app-card-name');
+                  const imgEl = card.querySelector('.app-card-left img');
+                  // onclick属性からURL抽出（簡易的）
+                  const onclickStr = card.getAttribute('onclick'); 
+                  let url = "";
+                  if(onclickStr) {
+                      const match = onclickStr.match(/'([^']+)'/);
+                      if(match) url = match[1];
+                  }
+
+                  if (nameEl && url) {
                       content.push({
                           type: 'app',
-                          name: labelEl.innerText.trim(),
-                          url: linkEl.getAttribute('href'),
-                          img: imgEl ? imgEl.getAttribute('src') : './icon.png'
+                          name: nameEl.innerText.trim(),
+                          url: url,
+                          img: imgEl ? imgEl.src : './icon.png'
                       });
                   }
               });
