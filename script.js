@@ -1,16 +1,15 @@
 // ------------------------------------------------------------------
 // 1. Firebase Imports & Configuration
 // ------------------------------------------------------------------
+// バージョンを 10.7.1 に変更しました
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 提示されたコードに合わせて v12.7.0 を使用し、AuthとFirestoreを追加でインポート
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-
-// ★★★ 重要：ここの "" の中に、Firebaseコンソールの値を貼り付けてください ★★★
+// ★★★ 必ずご自身のAPIキーなどを入れてください（空欄だと画面は表示されてもログインできません） ★★★
 const firebaseConfig = {
-apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
+    apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
     authDomain: "linkfast--login.firebaseapp.com",
     projectId: "linkfast--login",
     storageBucket: "linkfast--login.firebasestorage.app",
@@ -18,6 +17,8 @@ apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
     appId: "1:691869871884:web:4267ca37685cfbcda7e329",
     measurementId: "G-6LK1NSY24N"
 };
+
+// ...以下、変更なし
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
