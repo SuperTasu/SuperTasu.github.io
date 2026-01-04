@@ -565,7 +565,7 @@
   <script type="module" src="script.js"></script>
 
   <script>
-      // ★★★ 検索＆モーダル機能（最初の仕様：DOM収集＋ドロップダウン） ★★★
+      // ★★★ 検索＆モーダル機能 ★★★
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
@@ -582,6 +582,69 @@
           let allContentCache = [];
 
           if (!searchInput || !resultsContainer) return;
+
+          // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
+          const kanaToRomajiMap = {
+              'あ':'a','い':'i','う':'u','え':'e','お':'o',
+              'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+              'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+              'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+              'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+              'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+              'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+              'や':'ya','ゆ':'yu','よ':'yo',
+              'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+              'わ':'wa','を':'wo','ん':'n',
+              'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+              'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+              'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+              'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+              'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+              'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+              'しゃ':'sha','しゅ':'shu','しょ':'sho',
+              'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+              'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+              'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+              'みゃ':'mya','みゅ':'myu','みょ':'myo',
+              'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
+              'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+              'じゃ':'ja','じゅ':'ju','じょ':'jo',
+              'びゃ':'bya','びゅ':'byu','びょ':'byo',
+              'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+              'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
+          };
+
+          // --- カタカナ -> ひらがな変換 ---
+          function katakanaToHiragana(src) {
+              return src.replace(/[\u30a1-\u30f6]/g, function(match) {
+                  var chr = match.charCodeAt(0) - 0x60;
+                  return String.fromCharCode(chr);
+              });
+          }
+
+          // --- 文字列(ひらがな) -> ローマ字変換 ---
+          // 簡易実装: 完全なIMEロジックではないが、先頭一致や主要な単語には対応
+          function toRomaji(text) {
+              let hira = katakanaToHiragana(text);
+              let romaji = "";
+              for (let i = 0; i < hira.length; i++) {
+                  // 2文字(きゃ、しょ等)を優先
+                  let two = hira.substr(i, 2);
+                  if (kanaToRomajiMap[two]) {
+                      romaji += kanaToRomajiMap[two];
+                      i++;
+                      continue;
+                  }
+                  // 1文字
+                  let one = hira.charAt(i);
+                  if (kanaToRomajiMap[one]) {
+                      romaji += kanaToRomajiMap[one];
+                  } else {
+                      romaji += one; // 変換できない文字はそのまま
+                  }
+              }
+              return romaji;
+          }
 
           // DOMから全コンテンツを収集（Traffic情報も含めるため）
           function gatherAllSearchableContent() {
@@ -617,7 +680,8 @@
                           type: 'app',
                           name: app.label,
                           url: app.url,
-                          img: iconUrl
+                          img: iconUrl,
+                          searchText: app.searchText || "" // 追加の検索キーワード
                       });
                   });
               }
@@ -648,6 +712,8 @@
 
           function performSearch(query) {
               const q = query.toLowerCase().trim();
+              const qRomaji = toRomaji(q); // 入力をローマ字に変換 ("ご" -> "go")
+
               resultsContainer.innerHTML = ''; 
 
               if (q.length === 0) {
@@ -658,7 +724,21 @@
 
               clearBtn.classList.remove('hidden');
               allContentCache = gatherAllSearchableContent();
-              const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
+              
+              const matches = allContentCache.filter(item => {
+                  const nameLower = item.name.toLowerCase();
+                  const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
+                  
+                  // 1. そのまま検索 (漢字、英語、ひらがな)
+                  if (nameLower.includes(q) || searchTxt.includes(q)) return true;
+                  
+                  // 2. ローマ字変換検索 ("ご" -> "go" が "google" に含まれるか)
+                  if (qRomaji.length > 0) {
+                      if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
+                  }
+                  
+                  return false;
+              });
 
               if (matches.length > 0) {
                   resultsContainer.classList.remove('hidden');
