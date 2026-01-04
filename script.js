@@ -9,13 +9,13 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 
 // ★★★ 必ずご自身のAPIキーなどを入れてください ★★★
 const firebaseConfig = {
-    apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
-    authDomain: "linkfast--login.firebaseapp.com",
-    projectId: "linkfast--login",
-    storageBucket: "linkfast--login.firebasestorage.app",
-    messagingSenderId: "691869871884",
-    appId: "1:691869871884:web:4267ca37685cfbcda7e329",
-    measurementId: "G-6LK1NSY24N"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 // Initialize Firebase
@@ -415,22 +415,17 @@ function createAppCard(app) {
         window.location.href = app.url; 
     };
 
-    // ボタン2: バックグラウンド（別タブ）で開いてフォーカスを戻す
-    const btnNew = document.createElement('button');
+    // ボタン2: リンクタグ (バックグラウンドで開けるように変更)
+    const btnNew = document.createElement('a'); // <a>タグに変更
     btnNew.className = 'card-btn';
+    btnNew.href = app.url;
+    btnNew.target = '_blank';
+    btnNew.rel = 'noopener noreferrer';
     btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>';
-    btnNew.title = "バックグラウンドで開く";
+    btnNew.title = "新しいタブで開く";
+    btnNew.style.textDecoration = 'none'; // リンクの下線を消す
     btnNew.onclick = (e) => { 
-        e.stopPropagation(); 
-        // 1. 新しいタブで開く
-        const newWin = window.open(app.url, '_blank');
-        
-        // 2. 開いた直後に、フォーカスを現在のウィンドウ（Link First）に戻そうとする
-        if (newWin) {
-            // 一部のブラウザには効く
-            newWin.blur();
-        }
-        window.focus();
+        e.stopPropagation(); // カード自体のクリックイベントを止める
     };
 
     // ボタン3: お気に入り
