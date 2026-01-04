@@ -1,4 +1,3 @@
-
 // --- DOM要素 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
