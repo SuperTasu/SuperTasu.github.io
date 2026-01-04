@@ -298,11 +298,21 @@ function adjustSpeedTestPosition() {
     }
 }
 
+// ★★★ 修正: 信頼性の高いGoogleのFavicon APIを使用 ★★★
 function getFaviconUrl(url) {
     try {
-        if (!url) return './icon.png';
-        if (!url.startsWith('http')) return './icon.png';
-        return `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(url)}&size=64`;
+        if (!url || !url.startsWith('http')) return './icon.png';
+        
+        let domain = url;
+        try {
+            // URLからドメイン部分だけを抽出
+            domain = new URL(url).hostname;
+        } catch (e) {
+            // URL解析失敗時はそのまま使う
+        }
+        
+        // GoogleのFavicon取得API (sz=128で高画質取得)
+        return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
     } catch (e) {
         return './icon.png';
     }
@@ -422,13 +432,18 @@ function createAppCard(app) {
     const left = document.createElement('div');
     left.className = 'card-left';
     
+    // ★★★ 修正: アイコン画像の読み込みロジックを強化 ★★★
     const img = document.createElement('img');
-    let iconSrc = app.icon;
-    if (!iconSrc || iconSrc.includes('google.com/s2/favicons')) {
-        iconSrc = getFaviconUrl(app.url);
-    }
-    img.src = iconSrc;
-    img.onerror = () => { img.src = './icon.png'; };
+    
+    // 優先度1: Google API (最も安定)
+    img.src = getFaviconUrl(app.url);
+    
+    img.onerror = () => {
+        // APIが失敗した場合のフォールバック
+        img.onerror = null; // 無限ループ防止
+        img.src = './icon.png';
+    };
+    
     left.appendChild(img);
 
     // --- 中央（仕切り） ---
@@ -464,18 +479,7 @@ function createAppCard(app) {
         window.location.href = app.url; 
     };
 
-    // ボタン2: バックグラウンド（別タブ）で開く（<a>タグに変更）
-    const btnNew = document.createElement('a');
-    btnNew.className = 'card-btn';
-    btnNew.href = app.url;
-    btnNew.target = '_blank';
-    btnNew.rel = 'noopener noreferrer';
-    btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>';
-    btnNew.title = "新しいタブで開く";
-    btnNew.style.textDecoration = 'none';
-    btnNew.onclick = (e) => { 
-        e.stopPropagation(); // 親のリンク反応を止める
-    };
+    // 真ん中のボタン(別タブ)は削除済み
 
     // ボタン3: お気に入り
     const btnFav = document.createElement('button');
@@ -489,7 +493,7 @@ function createAppCard(app) {
     };
 
     btnRow.appendChild(btnSame);
-    btnRow.appendChild(btnNew);
+    // btnRow.appendChild(btnNew); // 削除
     btnRow.appendChild(btnFav);
 
     right.appendChild(header);
