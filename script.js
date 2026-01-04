@@ -370,15 +370,35 @@ function updateClock() {
 }
 
 function createAppCard(app) {
+    // 1. カード自体の枠（div）
     const card = document.createElement('div');
     card.className = 'app-card';
     card.dataset.appId = app.id;
+    card.style.position = 'relative'; // 子要素の絶対配置の基準
 
+    // 2. カード全体を覆うリンク（透明なオーバーレイ）
+    // これにより、3つのボタン以外をクリックしたときは、このリンクが反応します
+    const mainLink = document.createElement('a');
+    mainLink.href = app.url;
+    // メインリンクのスタイル（カード全体を覆う）
+    Object.assign(mainLink.style, {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        zIndex: '1',            // ボタン(z-index:2)より下、他の要素より上
+        textDecoration: 'none',
+        borderRadius: '28px'    // カードの角丸に合わせる
+    });
+    // DOMに追加（他の要素の後に追加することで、視覚的には上に来る）
+    // しかしz-indexで制御するため、append順は柔軟だが、ここでは最後にappendする
+    
+    // --- 左側（アイコン） ---
     const left = document.createElement('div');
     left.className = 'card-left';
-    left.title = "このページで開く";
-    left.onclick = () => { window.location.href = app.url; };
-
+    // アイコンのクリックイベントは削除（上のmainLinkが反応するため）
+    
     const img = document.createElement('img');
     let iconSrc = app.icon;
     if (!iconSrc || iconSrc.includes('google.com/s2/favicons')) {
@@ -388,9 +408,11 @@ function createAppCard(app) {
     img.onerror = () => { img.src = './icon.png'; };
     left.appendChild(img);
 
+    // --- 中央（仕切り） ---
     const divider = document.createElement('div');
     divider.className = 'card-divider';
 
+    // --- 右側（テキストとボタン） ---
     const right = document.createElement('div');
     right.className = 'card-right';
 
@@ -402,8 +424,12 @@ function createAppCard(app) {
     title.title = app.label;
     header.appendChild(title);
 
+    // --- 3つのボタン ---
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
+    // ★重要：ボタン群をオーバーレイリンクより上に表示する設定
+    btnRow.style.position = 'relative';
+    btnRow.style.zIndex = '2'; 
 
     // ボタン1: このページで開く
     const btnSame = document.createElement('button');
@@ -411,21 +437,21 @@ function createAppCard(app) {
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
     btnSame.title = "このページで開く";
     btnSame.onclick = (e) => { 
-        e.stopPropagation(); 
+        e.stopPropagation(); // 親のリンク反応を止める
         window.location.href = app.url; 
     };
 
-    // ボタン2: リンクタグ (バックグラウンドで開けるように変更)
-    const btnNew = document.createElement('a'); // <a>タグに変更
+    // ボタン2: バックグラウンド（別タブ）で開く（<a>タグに変更）
+    const btnNew = document.createElement('a');
     btnNew.className = 'card-btn';
     btnNew.href = app.url;
     btnNew.target = '_blank';
     btnNew.rel = 'noopener noreferrer';
     btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>';
     btnNew.title = "新しいタブで開く";
-    btnNew.style.textDecoration = 'none'; // リンクの下線を消す
+    btnNew.style.textDecoration = 'none';
     btnNew.onclick = (e) => { 
-        e.stopPropagation(); // カード自体のクリックイベントを止める
+        e.stopPropagation(); // 親のリンク反応を止める
     };
 
     // ボタン3: お気に入り
@@ -435,7 +461,7 @@ function createAppCard(app) {
     btnFav.innerHTML = '<i class="fas fa-star"></i>';
     btnFav.title = isFav ? "お気に入り解除" : "お気に入り登録";
     btnFav.onclick = (e) => { 
-        e.stopPropagation(); 
+        e.stopPropagation(); // 親のリンク反応を止める
         toggleFavorite(app.id); 
     };
 
@@ -446,9 +472,12 @@ function createAppCard(app) {
     right.appendChild(header);
     right.appendChild(btnRow);
 
+    // 要素をカードに追加
+    // mainLinkを最後に追加することでDOM順序的にも上に来る（z-indexも指定済み）
     card.appendChild(left);
     card.appendChild(divider);
     card.appendChild(right);
+    card.appendChild(mainLink); // オーバーレイリンク
 
     return card;
 }
