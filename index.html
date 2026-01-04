@@ -121,17 +121,18 @@
     }
     #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
 
-    /* ★★★ 検索バー（最初の仕様） ★★★ */
+    /* ★★★ 検索バー ★★★ */
     .search-wrapper { 
         display: flex !important; 
         justify-content: center; width: 100%; margin-top: 0; padding: 0 10px; box-sizing: border-box;
-        position: relative; z-index: 5000;
+        position: relative; z-index: 5000; flex-direction: column; align-items: center;
     }
     .search-container { 
         display: flex; align-items: center; padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
         border-radius: 20px; border: none; width: 80%; max-width: 500px; height: 36px; 
         box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: width 0.3s ease;
+        z-index: 5002;
     }
     @media (max-width: 450px) { .search-container { width: 90%; } }
     
@@ -141,30 +142,58 @@
     }
     #clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
 
-    /* 検索結果ドロップダウン */
-    .search-results-dropdown {
-        position: absolute; top: 40px; left: 0; right: 0; margin: 0 auto;
-        width: 85%; max-width: 550px; background-color: var(--card-bg); border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 5500; 
-        max-height: 60vh; overflow-y: auto; padding: 5px; 
-        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-        border: 1px solid var(--card-border); display: block; 
+    /* ★★★ 検索結果 折りたたみバー (新デザイン) ★★★ */
+    .search-results-bar {
+        width: 85%; max-width: 600px;
+        background-color: var(--card-bg);
+        border-radius: 0 0 15px 15px; /* 下部のみ角丸 */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        z-index: 5001; 
+        max-height: 0; /* デフォルトで閉じる */
+        overflow-y: auto;
+        transition: max-height 0.3s ease-out, padding 0.3s ease;
+        padding: 0 10px;
+        border: 1px solid var(--card-border);
+        border-top: none;
+        margin-top: -10px; /* 検索バーと重ねる */
+        padding-top: 15px; /* 上部余白確保 */
     }
-    .search-results-dropdown.hidden { display: none !important; }
+    .search-results-bar.open {
+        max-height: 300px; /* 開いた時の最大高さ */
+        padding-bottom: 10px;
+    }
+    .search-results-bar.hidden { display: none !important; }
     
     .search-result-item {
         display: flex; align-items: center; padding: 8px 12px; margin-bottom: 4px; border-radius: 8px;
-        background: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s;
+        background: rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s;
         color: var(--text-color-primary); text-decoration: none; user-select: none;
-        border: 1px solid transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
-    body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
-    .search-result-item:hover { background-color: var(--swap-select-color); transform: scale(1.01); }
-    .search-result-item img { width: 32px; height: 32px; border-radius: 6px; margin-right: 12px; object-fit: contain; background:#fff;}
-    .search-result-item span { font-weight: bold; font-size: 14px; flex-grow: 1; }
+    .search-result-item:hover { background-color: var(--swap-select-color); }
+    .search-result-item img { width: 24px; height: 24px; border-radius: 4px; margin-right: 10px; object-fit: contain; }
+    .search-result-item span { font-weight: bold; font-size: 13px; flex-grow: 1; }
     .result-tag { font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-right: 8px; color: #fff; font-weight: bold; }
     .tag-app { background-color: #667eea; }
     .tag-traffic { background-color: #28a745; }
+
+    /* ★★★ 強調表示アニメーション (3秒間) ★★★ */
+    @keyframes highlightPulse {
+        0% { background-color: #ffeb3b; transform: scale(1.02); box-shadow: 0 0 15px #ffeb3b; border-color: #ffc107; }
+        50% { background-color: #fff9c4; transform: scale(1.02); box-shadow: 0 0 10px #ffeb3b; }
+        100% { background-color: var(--card-bg); transform: scale(1); border-color: #000; }
+    }
+    .highlight-target {
+        animation: highlightPulse 3s ease-out;
+    }
+    body.dark-theme .highlight-target {
+        animation-name: highlightPulseDark;
+    }
+    @keyframes highlightPulseDark {
+        0% { background-color: #fdd835; transform: scale(1.02); box-shadow: 0 0 15px #fdd835; border-color: #ffeb3b; color: #000; }
+        100% { background-color: var(--card-bg); transform: scale(1); color: var(--text-color-primary); border-color: #aaaaaa; }
+    }
+
 
     /* ★★★ コンテンツエリア ★★★ */
     .page-container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 20px 20px; }
@@ -183,13 +212,14 @@
     @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
 
-    /* ★ カードデザイン (画像準拠: 太い黒枠、カプセル型) ★ */
+    /* ★ カードデザイン (黒枠カプセル型) ★ */
     .app-card {
         display: flex; flex-direction: row;
         background-color: var(--card-bg);
         border: var(--card-border);
         border-radius: var(--card-radius);
         overflow: hidden; height: 90px; position: relative;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
     }
     .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
@@ -221,7 +251,7 @@
     .card-btn.fav-active { color: #ffc107; border-color: #ffc107; }
 
     /* FY編集モード */
-    .grid-slot { min-height: 90px; border-radius: var(--card-radius); }
+    .grid-slot { min-height: 90px; border-radius: var(--card-radius); transition: all 0.3s; }
     .edit-mode .grid-slot { border: 2px dashed var(--text-color-secondary); cursor: pointer; opacity: 0.8; }
     .edit-mode .grid-slot:hover { background-color: var(--swap-select-color); }
     .edit-mode .grid-slot.selected-slot { border-color: #ff4444; background-color: rgba(255, 68, 68, 0.1); }
@@ -238,7 +268,7 @@
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
     
-    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
+    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; transition: all 0.3s; }
     .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .accordion-item.active .accordion-content { max-height: 1200px; }
@@ -305,14 +335,15 @@
         </div>
     </div>
 
-    <!-- 検索バー -->
+    <!-- 検索バーと結果バー -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
             <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
-        <div id="searchResults" class="search-results-dropdown hidden"></div>
+        <!-- 折りたたみ式検索結果バー -->
+        <div id="searchResults" class="search-results-bar"></div>
     </div>
   </div>
 
@@ -469,19 +500,6 @@
       <div class="tab-item" id="tab-option" onclick="activateTab('option')"> <i class="fas fa-cog"></i> <span>Option</span> </div>
   </nav>
 
-  <!-- モーダル -->
-  <div id="link-confirm-overlay" class="modal-overlay hidden">
-      <div class="modal-box">
-          <div id="modal-title" class="modal-title">確認</div>
-          <div id="modal-desc" class="modal-desc">どちらで開きますか？</div>
-          <div class="modal-buttons">
-              <button id="btn-same-tab" class="modal-btn btn-same"><i class="fas fa-arrow-circle-right"></i> このページで開く</button>
-              <button id="btn-new-tab" class="modal-btn btn-new"><i class="fas fa-external-link-alt"></i> 新しいタブで開く</button>
-              <button id="btn-cancel-modal" class="modal-btn btn-cancel">キャンセル</button>
-          </div>
-      </div>
-  </div>
-
   <!-- JS読み込み -->
   <script src="Option/takatori.js"></script>
   <script src="Option/memo.js"></script>
@@ -490,51 +508,37 @@
   <script src="script.js"></script>
   
   <script>
-      // ★★★ 検索＆モーダル機能（最初の仕様：DOM収集＋ドロップダウン） ★★★
+      // ★★★ 検索＆強調表示ロジック ★★★
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
-          const resultsContainer = document.getElementById('searchResults');
-
-          const modalOverlay = document.getElementById('link-confirm-overlay');
-          const btnSame = document.getElementById('btn-same-tab');
-          const btnNew = document.getElementById('btn-new-tab');
-          const btnCancel = document.getElementById('btn-cancel-modal');
-          const modalTitle = document.getElementById('modal-title');
-          const modalDesc = document.getElementById('modal-desc');
-
-          let currentTargetUrl = "";
-          let allContentCache = [];
+          const resultsContainer = document.getElementById('searchResults'); // バーのコンテナ
 
           if (!searchInput || !resultsContainer) return;
 
-          // DOMから全コンテンツを収集（Traffic情報も含めるため）
+          // DOMからコンテンツを収集（Traffic情報も含めるため）
           function gatherAllSearchableContent() {
               const content = [];
-              // Apps (script.jsのinitialAppDataを使用するか、DOMから取るか。
-              // ドロップダウン用にはDOMから取るとTraffic情報も拾える)
               
               // 1. Traffic (Accordion items)
               const accordions = document.querySelectorAll('.accordion-item');
               accordions.forEach(acc => {
                   const headerSpan = acc.querySelector('.accordion-header span');
                   const iframe = acc.querySelector('.accordion-iframe');
-                  if (headerSpan && iframe && iframe.dataset.src) {
+                  if (headerSpan) {
                       content.push({
                           type: 'traffic',
                           name: headerSpan.innerText.trim(),
-                          url: iframe.dataset.src, // またはタブ切り替えのロジック
                           el: acc,
-                          img: './icon.png'
+                          img: './icon.png',
+                          id: acc.dataset.id // traffic用のID
                       });
                   }
               });
               
-              // 2. Apps (script.jsのデータを参照するのが確実だが、ここではDOM横断検索の仕様を再現)
-              // initialAppData がグローバルにある前提
+              // 2. Apps (script.jsのデータを参照)
               if(typeof initialAppData !== 'undefined') {
                   initialAppData.forEach(app => {
-                      // Favicon取得関数を使用
                       let iconUrl = './icon.png';
                       if(typeof getFaviconUrl === 'function') {
                           iconUrl = getFaviconUrl(app.url);
@@ -542,7 +546,7 @@
                       content.push({
                           type: 'app',
                           name: app.label,
-                          url: app.url,
+                          id: app.id,
                           img: iconUrl
                       });
                   });
@@ -550,46 +554,61 @@
               return content;
           }
 
-          function openConfirmationModal(url, name) {
-              currentTargetUrl = url;
-              modalTitle.innerText = name;
-              modalDesc.innerText = `「${name}」をどのように開きますか？`;
-              modalOverlay.classList.remove('hidden');
-          }
-          function closeConfirmationModal() {
-              modalOverlay.classList.add('hidden');
-              currentTargetUrl = "";
-          }
+          // ターゲットへ移動＆強調表示
+          function locateAndHighlight(item) {
+              // 1. タブ切り替え
+              if (item.type === 'app') {
+                  if(typeof activateTab === 'function') activateTab('all-apps');
+                  
+                  // Appsカードの特定 (script.jsで data-app-id を付与する前提)
+                  // カード生成まで少し待つ必要はないが、DOM更新サイクルを考慮
+                  setTimeout(() => {
+                      const targetCard = document.querySelector(`.app-card[data-app-id="${item.id}"]`);
+                      if(targetCard) {
+                           targetCard.scrollIntoView({behavior: 'smooth', block: 'center'});
+                           targetCard.classList.add('highlight-target');
+                           setTimeout(() => targetCard.classList.remove('highlight-target'), 3000);
+                      }
+                  }, 100);
 
-          btnSame.addEventListener('click', () => {
-              if(currentTargetUrl) window.location.href = currentTargetUrl;
-              closeConfirmationModal();
-          });
-          btnNew.addEventListener('click', () => {
-              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-              closeConfirmationModal();
-          });
-          btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
-          modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
+              } else if (item.type === 'traffic') {
+                  if(typeof activateTab === 'function') activateTab('bustarain');
+                  
+                  const parentId = item.el.parentElement.id;
+                  if(typeof switchSubTab === 'function') switchSubTab(parentId);
+                  
+                  if(!item.el.classList.contains('active')) {
+                      const header = item.el.querySelector('.accordion-header');
+                      if(header) header.click();
+                  }
+                  
+                  setTimeout(() => { 
+                      item.el.scrollIntoView({behavior: 'smooth', block: 'center'});
+                      item.el.classList.add('highlight-target');
+                      setTimeout(() => item.el.classList.remove('highlight-target'), 3000);
+                  }, 100);
+              }
+          }
 
           function performSearch(query) {
               const q = query.toLowerCase().trim();
               resultsContainer.innerHTML = ''; 
 
               if (q.length === 0) {
-                  resultsContainer.classList.add('hidden');
+                  resultsContainer.classList.remove('open');
                   clearBtn.classList.add('hidden');
                   return;
               }
 
               clearBtn.classList.remove('hidden');
-              allContentCache = gatherAllSearchableContent();
-              const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
+              resultsContainer.classList.add('open'); // バーを開く
+
+              const allContent = gatherAllSearchableContent();
+              const matches = allContent.filter(item => item.name.toLowerCase().includes(q));
 
               if (matches.length > 0) {
-                  resultsContainer.classList.remove('hidden');
                   matches.forEach(item => {
-                      const itemLink = document.createElement('a');
+                      const itemLink = document.createElement('div');
                       itemLink.className = 'search-result-item';
                       
                       const img = document.createElement('img');
@@ -602,41 +621,21 @@
                       tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
                       tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
                       
-                      const icon = document.createElement('i');
-                      icon.className = 'fas fa-chevron-right';
-
                       itemLink.appendChild(img);
                       itemLink.appendChild(span);
                       itemLink.appendChild(tag);
-                      itemLink.appendChild(icon);
 
-                      itemLink.addEventListener('click', (e) => {
-                          e.preventDefault(); 
-                          resultsContainer.classList.add('hidden');
+                      itemLink.onclick = () => {
+                          resultsContainer.classList.remove('open');
                           searchInput.value = '';
                           clearBtn.classList.add('hidden');
-                          
-                          if (item.type === 'traffic' && item.el) {
-                              // Trafficへのジャンプ
-                              if(typeof activateTab === 'function') activateTab('bustarain');
-                              const parentId = item.el.parentElement.id;
-                              if(typeof switchSubTab === 'function') switchSubTab(parentId);
-                              if(!item.el.classList.contains('active')) {
-                                  // toggleAccordion相当の処理
-                                  const header = item.el.querySelector('.accordion-header');
-                                  if(header) header.click();
-                              }
-                              setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-                          } else {
-                              openConfirmationModal(item.url, item.name);
-                          }
-                      });
+                          locateAndHighlight(item);
+                      };
                       resultsContainer.appendChild(itemLink);
                   });
               } else {
-                  resultsContainer.classList.remove('hidden');
                   const noRes = document.createElement('div');
-                  noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
+                  noRes.style.padding = '10px'; noRes.style.textAlign = 'center'; noRes.style.color = '#777';
                   noRes.innerText = '見つかりませんでした';
                   resultsContainer.appendChild(noRes);
               }
@@ -644,25 +643,24 @@
 
           searchInput.addEventListener('input', (e) => {
               performSearch(e.target.value);
-              // script.js側のグリッドフィルタリングも発火
-              if(typeof handleSearch === 'function') handleSearch();
           });
           
-          // フォーカス時も検索結果を表示
           searchInput.addEventListener('focus', () => {
-              if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
+              if (searchInput.value.trim().length > 0) {
+                  resultsContainer.classList.add('open');
+              }
           });
 
           clearBtn.addEventListener('click', () => {
               searchInput.value = '';
               performSearch('');
-              if(typeof handleSearch === 'function') handleSearch();
               searchInput.focus();
           });
 
+          // バーの外側クリックで閉じる
           document.addEventListener('click', (e) => {
               if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                  resultsContainer.classList.add('hidden');
+                  resultsContainer.classList.remove('open');
               }
           });
       });
