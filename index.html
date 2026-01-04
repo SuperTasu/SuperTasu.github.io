@@ -215,7 +215,15 @@
         padding-bottom: 2px; border-bottom: 2px solid var(--text-color-primary);
     }
 
-    .card-buttons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 5px; }
+    /* ボタン配置修正：右詰めにする */
+    .card-buttons { 
+        display: flex; 
+        justify-content: flex-end; /* 右詰め */
+        align-items: center; 
+        margin-bottom: 5px;
+        gap: 12px; /* ボタン間の余白 */
+        padding-right: 5px; /* 右端からの余白 */
+    }
     .card-btn {
         width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
         border: 2px solid var(--text-color-primary); border-radius: 4px; cursor: pointer;
@@ -363,7 +371,6 @@
                 </div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
             </div>
-            <!-- ★ id="header-speed-test-container" と iframeの id="speed-test-iframe" を追加 -->
             <div class="header-speed-test" id="header-speed-test-container">
                 <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
