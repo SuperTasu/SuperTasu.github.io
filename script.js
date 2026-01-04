@@ -298,21 +298,20 @@ function adjustSpeedTestPosition() {
     }
 }
 
-// ★★★ 修正: 信頼性の高いGoogleのFavicon APIを使用 ★★★
 function getFaviconUrl(url) {
     try {
         if (!url || !url.startsWith('http')) return './icon.png';
-        
-        let domain = url;
-        try {
-            // URLからドメイン部分だけを抽出
-            domain = new URL(url).hostname;
-        } catch (e) {
-            // URL解析失敗時はそのまま使う
-        }
-        
-        // GoogleのFavicon取得API (sz=128で高画質取得)
-        return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        return `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(url)}&size=128`;
+    } catch (e) {
+        return './icon.png';
+    }
+}
+
+function getDuckDuckGoFavicon(url) {
+    try {
+        if (!url || !url.startsWith('http')) return './icon.png';
+        const domain = new URL(url).hostname;
+        return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
     } catch (e) {
         return './icon.png';
     }
@@ -432,16 +431,19 @@ function createAppCard(app) {
     const left = document.createElement('div');
     left.className = 'card-left';
     
-    // ★★★ 修正: アイコン画像の読み込みロジックを強化 ★★★
     const img = document.createElement('img');
     
-    // 優先度1: Google API (最も安定)
-    img.src = getFaviconUrl(app.url);
-    
+    if (app.icon && app.icon.startsWith('http') && !app.icon.includes('google.com/s2/favicons') && !app.icon.includes('.ico')) {
+        img.src = app.icon;
+    } else {
+        img.src = getFaviconUrl(app.url);
+    }
+
     img.onerror = () => {
-        // APIが失敗した場合のフォールバック
-        img.onerror = null; // 無限ループ防止
-        img.src = './icon.png';
+        img.onerror = () => {
+            img.src = './icon.png';
+        };
+        img.src = getDuckDuckGoFavicon(app.url);
     };
     
     left.appendChild(img);
@@ -462,7 +464,7 @@ function createAppCard(app) {
     title.title = app.label;
     header.appendChild(title);
 
-    // --- 3つのボタン ---
+    // --- ボタン ---
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
     // ★重要：ボタン群をオーバーレイリンクより上に表示する設定
@@ -479,8 +481,6 @@ function createAppCard(app) {
         window.location.href = app.url; 
     };
 
-    // 真ん中のボタン(別タブ)は削除済み
-
     // ボタン3: お気に入り
     const btnFav = document.createElement('button');
     const isFav = favorites.includes(app.id);
@@ -493,7 +493,6 @@ function createAppCard(app) {
     };
 
     btnRow.appendChild(btnSame);
-    // btnRow.appendChild(btnNew); // 削除
     btnRow.appendChild(btnFav);
 
     right.appendChild(header);
@@ -586,15 +585,24 @@ function renderFavoritesPage() {
                     contentDiv = createAppCard(app);
                 }
             } else {
+                // ★★★ 修正: 交通情報の種類に応じてアイコンを切り替え ★★★
                 const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
                 if(el) {
                     const titleStr = el.dataset.title;
                     const card = document.createElement('div');
                     card.className = 'app-card';
                     
+                    // アイコン判定ロジック
+                    let iconClass = 'fa-bus'; // デフォルトはバス
+                    if (String(favId).startsWith('tr-')) {
+                        iconClass = 'fa-train'; // 電車
+                    } else if (String(favId).startsWith('ot-')) {
+                        iconClass = 'fa-info-circle'; // その他
+                    }
+
                     const left = document.createElement('div');
                     left.className = 'card-left';
-                    left.innerHTML = '<i class="fas fa-bus" style="font-size:32px; color:#555;"></i>';
+                    left.innerHTML = `<i class="fas ${iconClass}" style="font-size:32px; color:#555;"></i>`;
                     left.onclick = () => { if(!isEditMode) jumpToTraffic(favId, el); };
                     
                     const divider = document.createElement('div');
