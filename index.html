@@ -100,6 +100,14 @@
     .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
     .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
+    
+    /* Google Login Button Style */
+    #auth-btn { font-size: 16px; margin-left: 5px; }
+    #user-avatar { 
+        width: 24px; height: 24px; border-radius: 50%; object-fit: cover; 
+        cursor: pointer; margin-left: 5px; display: none; border: 2px solid #fff; 
+    }
+
     .theme-switcher { display: flex; gap: 5px; }
     .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
     .theme-dot.light { background-color: #fff; }
@@ -296,6 +304,14 @@
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
                     <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
                 </div>
+
+                <!-- Google Login Button -->
+                <div class="control-icon" id="auth-btn" onclick="window.handleAuthClick()" title="Google Login">
+                    <i class="fab fa-google"></i>
+                </div>
+                <!-- User Avatar (Hidden by default) -->
+                <img id="user-avatar" src="" onclick="window.handleAuthClick()" title="Logout / Sync info">
+
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
             </div>
             <div class="header-speed-test">
@@ -482,6 +498,122 @@
       </div>
   </div>
 
+  <!-- Firebase SDK & Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // ★★★ TODO: 以下をご自身のFirebase設定に書き換えてください ★★★
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    window.currentUser = null;
+
+    // 認証ボタンクリックハンドラ
+    window.handleAuthClick = async () => {
+      if (window.currentUser) {
+        if(confirm("ログアウトしますか？")) {
+          try {
+            await signOut(auth);
+            alert("ログアウトしました");
+            location.reload(); 
+          } catch (error) {
+            console.error("Logout Error:", error);
+          }
+        }
+      } else {
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (error) {
+          console.error("Login Error:", error);
+          alert("ログインに失敗しました: " + error.message);
+        }
+      }
+    };
+
+    // 認証状態の監視
+    onAuthStateChanged(auth, async (user) => {
+      const authBtn = document.getElementById('auth-btn');
+      const avatar = document.getElementById('user-avatar');
+
+      if (user) {
+        window.currentUser = user;
+        authBtn.style.display = 'none';
+        avatar.style.display = 'block';
+        avatar.src = user.photoURL;
+        console.log("Logged in:", user.displayName);
+        await loadUserData(user.uid);
+      } else {
+        window.currentUser = null;
+        authBtn.style.display = 'flex';
+        avatar.style.display = 'none';
+      }
+    });
+
+    // データの読み込み (Cloud -> Local)
+    async function loadUserData(uid) {
+      try {
+        const userDocRef = doc(db, "users", uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.favorites && typeof window.updateFavoritesFromCloud === 'function') {
+             window.updateFavoritesFromCloud(data.favorites);
+          }
+          if (data.theme && typeof window.setTheme === 'function') {
+             window.setTheme(data.theme, false); // false = don't save back to cloud immediately
+          }
+          if (data.bg && typeof window.applyBackground === 'function') {
+             localStorage.setItem('myLinkAppBg', data.bg);
+             window.applyBackground(data.bg);
+          }
+          console.log("Data synced from cloud.");
+        } else {
+          console.log("No cloud data. Saving local to cloud.");
+          await window.saveUserDataToCloud();
+        }
+      } catch (e) {
+        console.error("Error loading data:", e);
+      }
+    }
+
+    // データの保存 (Local -> Cloud)
+    window.saveUserDataToCloud = async () => {
+      if (!window.currentUser) return;
+      const uid = window.currentUser.uid;
+      const currentFavorites = JSON.parse(localStorage.getItem('myLinkAppFavorites')) || [];
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      const currentBg = localStorage.getItem('myLinkAppBg') || 'none';
+
+      const dataToSave = {
+        favorites: currentFavorites,
+        theme: currentTheme,
+        bg: currentBg,
+        lastUpdated: new Date()
+      };
+
+      try {
+        await setDoc(doc(db, "users", uid), dataToSave, { merge: true });
+        console.log("Saved to cloud.");
+      } catch (e) {
+        console.error("Error saving to cloud:", e);
+      }
+    };
+  </script>
+
   <!-- JS読み込み -->
   <script src="Option/takatori.js"></script>
   <script src="Option/memo.js"></script>
@@ -490,12 +622,11 @@
   <script src="script.js"></script>
   
   <script>
-      // ★★★ 検索＆モーダル機能（最初の仕様：DOM収集＋ドロップダウン） ★★★
+      // 検索機能・モーダル（DOMロード後）
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
           const resultsContainer = document.getElementById('searchResults');
-
           const modalOverlay = document.getElementById('link-confirm-overlay');
           const btnSame = document.getElementById('btn-same-tab');
           const btnNew = document.getElementById('btn-new-tab');
@@ -508,13 +639,8 @@
 
           if (!searchInput || !resultsContainer) return;
 
-          // DOMから全コンテンツを収集（Traffic情報も含めるため）
           function gatherAllSearchableContent() {
               const content = [];
-              // Apps (script.jsのinitialAppDataを使用するか、DOMから取るか。
-              // ドロップダウン用にはDOMから取るとTraffic情報も拾える)
-              
-              // 1. Traffic (Accordion items)
               const accordions = document.querySelectorAll('.accordion-item');
               accordions.forEach(acc => {
                   const headerSpan = acc.querySelector('.accordion-header span');
@@ -523,18 +649,14 @@
                       content.push({
                           type: 'traffic',
                           name: headerSpan.innerText.trim(),
-                          url: iframe.dataset.src, // またはタブ切り替えのロジック
+                          url: iframe.dataset.src, 
                           el: acc,
                           img: './icon.png'
                       });
                   }
               });
-              
-              // 2. Apps (script.jsのデータを参照するのが確実だが、ここではDOM横断検索の仕様を再現)
-              // initialAppData がグローバルにある前提
               if(typeof initialAppData !== 'undefined') {
                   initialAppData.forEach(app => {
-                      // Favicon取得関数を使用
                       let iconUrl = './icon.png';
                       if(typeof getFaviconUrl === 'function') {
                           iconUrl = getFaviconUrl(app.url);
@@ -575,13 +697,11 @@
           function performSearch(query) {
               const q = query.toLowerCase().trim();
               resultsContainer.innerHTML = ''; 
-
               if (q.length === 0) {
                   resultsContainer.classList.add('hidden');
                   clearBtn.classList.add('hidden');
                   return;
               }
-
               clearBtn.classList.remove('hidden');
               allContentCache = gatherAllSearchableContent();
               const matches = allContentCache.filter(item => item.name.toLowerCase().includes(q));
@@ -591,20 +711,15 @@
                   matches.forEach(item => {
                       const itemLink = document.createElement('a');
                       itemLink.className = 'search-result-item';
-                      
                       const img = document.createElement('img');
                       img.src = item.img || './icon.png';
-                      
                       const span = document.createElement('span');
                       span.innerText = item.name;
-
                       const tag = document.createElement('span');
                       tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
                       tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
-                      
                       const icon = document.createElement('i');
                       icon.className = 'fas fa-chevron-right';
-
                       itemLink.appendChild(img);
                       itemLink.appendChild(span);
                       itemLink.appendChild(tag);
@@ -617,12 +732,10 @@
                           clearBtn.classList.add('hidden');
                           
                           if (item.type === 'traffic' && item.el) {
-                              // Trafficへのジャンプ
                               if(typeof activateTab === 'function') activateTab('bustarain');
                               const parentId = item.el.parentElement.id;
                               if(typeof switchSubTab === 'function') switchSubTab(parentId);
                               if(!item.el.classList.contains('active')) {
-                                  // toggleAccordion相当の処理
                                   const header = item.el.querySelector('.accordion-header');
                                   if(header) header.click();
                               }
@@ -644,22 +757,17 @@
 
           searchInput.addEventListener('input', (e) => {
               performSearch(e.target.value);
-              // script.js側のグリッドフィルタリングも発火
               if(typeof handleSearch === 'function') handleSearch();
           });
-          
-          // フォーカス時も検索結果を表示
           searchInput.addEventListener('focus', () => {
               if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
           });
-
           clearBtn.addEventListener('click', () => {
               searchInput.value = '';
               performSearch('');
               if(typeof handleSearch === 'function') handleSearch();
               searchInput.focus();
           });
-
           document.addEventListener('click', (e) => {
               if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
                   resultsContainer.classList.add('hidden');
