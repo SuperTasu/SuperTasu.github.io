@@ -109,6 +109,15 @@
     #auth-btn:hover { color: #fff; }
     #user-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
 
+    /* ★ ネットワークステータス表示用スタイル ★ */
+    #network-status {
+        display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;
+        padding: 2px 6px; border-radius: 4px; transition: all 0.3s; cursor: default;
+    }
+    #network-status.online { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
+    #network-status.offline { color: #f44336; background: rgba(244, 67, 54, 0.1); }
+    #network-status i { font-size: 14px; }
+
     .header-speed-test { 
         position: absolute; right: 10px; top: 5px;
         display: flex; align-items: flex-start; gap: 5px; z-index: 6000; pointer-events: none;
@@ -369,6 +378,8 @@
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
                     <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
                 </div>
+                <!-- ★ ページ更新ボタンの隣にネットワークステータスを追加 -->
+                <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i> <span>ON</span></div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
             </div>
             <div class="header-speed-test" id="header-speed-test-container">
@@ -560,263 +571,4 @@
   <script src="Option/takatori.js"></script>
   <script src="Option/memo.js"></script>
   <script src="Option/main.js"></script>
-  <script src="Option/nekotuti.js"></script>
-  <!-- Firebase対応のため type="module" に変更 -->
-  <script type="module" src="script.js"></script>
-
-  <script>
-      // ★★★ 検索＆モーダル機能 ★★★
-      document.addEventListener('DOMContentLoaded', () => {
-          const searchInput = document.getElementById('globalSearchInput');
-          const clearBtn = document.getElementById('clearSearchBtn');
-          const resultsContainer = document.getElementById('searchResults');
-
-          const modalOverlay = document.getElementById('link-confirm-overlay');
-          const btnSame = document.getElementById('btn-same-tab');
-          const btnNew = document.getElementById('btn-new-tab');
-          const btnCancel = document.getElementById('btn-cancel-modal');
-          const modalTitle = document.getElementById('modal-title');
-          const modalDesc = document.getElementById('modal-desc');
-
-          let currentTargetUrl = "";
-          let allContentCache = [];
-
-          if (!searchInput || !resultsContainer) return;
-
-          // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
-          const kanaToRomajiMap = {
-              'あ':'a','い':'i','う':'u','え':'e','お':'o',
-              'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
-              'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
-              'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
-              'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
-              'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
-              'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
-              'や':'ya','ゆ':'yu','よ':'yo',
-              'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
-              'わ':'wa','を':'wo','ん':'n',
-              'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
-              'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
-              'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
-              'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
-              'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
-              'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
-              'しゃ':'sha','しゅ':'shu','しょ':'sho',
-              'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
-              'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
-              'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
-              'みゃ':'mya','みゅ':'myu','みょ':'myo',
-              'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
-              'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
-              'じゃ':'ja','じゅ':'ju','じょ':'jo',
-              'びゃ':'bya','びゅ':'byu','びょ':'byo',
-              'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
-              'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
-          };
-
-          // --- カタカナ -> ひらがな変換 ---
-          function katakanaToHiragana(src) {
-              return src.replace(/[\u30a1-\u30f6]/g, function(match) {
-                  var chr = match.charCodeAt(0) - 0x60;
-                  return String.fromCharCode(chr);
-              });
-          }
-
-          // --- 文字列(ひらがな) -> ローマ字変換 ---
-          // 簡易実装: 完全なIMEロジックではないが、先頭一致や主要な単語には対応
-          function toRomaji(text) {
-              let hira = katakanaToHiragana(text);
-              let romaji = "";
-              for (let i = 0; i < hira.length; i++) {
-                  // 2文字(きゃ、しょ等)を優先
-                  let two = hira.substr(i, 2);
-                  if (kanaToRomajiMap[two]) {
-                      romaji += kanaToRomajiMap[two];
-                      i++;
-                      continue;
-                  }
-                  // 1文字
-                  let one = hira.charAt(i);
-                  if (kanaToRomajiMap[one]) {
-                      romaji += kanaToRomajiMap[one];
-                  } else {
-                      romaji += one; // 変換できない文字はそのまま
-                  }
-              }
-              return romaji;
-          }
-
-          // DOMから全コンテンツを収集（Traffic情報も含めるため）
-          function gatherAllSearchableContent() {
-              const content = [];
-              // Apps (script.jsのinitialAppDataを使用するか、DOMから取るか。
-              // ドロップダウン用にはDOMから取るとTraffic情報も拾える)
-              
-              // 1. Traffic (Accordion items)
-              const accordions = document.querySelectorAll('.accordion-item');
-              accordions.forEach(acc => {
-                  const headerSpan = acc.querySelector('.accordion-header span');
-                  const iframe = acc.querySelector('.accordion-iframe');
-                  if (headerSpan && iframe && iframe.dataset.src) {
-                      content.push({
-                          type: 'traffic',
-                          name: headerSpan.innerText.trim(),
-                          url: iframe.dataset.src, // またはタブ切り替えのロジック
-                          el: acc,
-                          img: './icon.png'
-                      });
-                  }
-              });
-              
-              // 2. Apps (initialAppDataがグローバルにある前提。module化でwindow経由アクセスに変更)
-              if(typeof window.initialAppData !== 'undefined') {
-                  window.initialAppData.forEach(app => {
-                      // Favicon取得関数を使用
-                      let iconUrl = './icon.png';
-                      if(typeof window.getFaviconUrl === 'function') {
-                          iconUrl = window.getFaviconUrl(app.url);
-                      }
-                      content.push({
-                          type: 'app',
-                          name: app.label,
-                          url: app.url,
-                          img: iconUrl,
-                          searchText: app.searchText || "" // 追加の検索キーワード
-                      });
-                  });
-              }
-              return content;
-          }
-
-          function openConfirmationModal(url, name) {
-              currentTargetUrl = url;
-              modalTitle.innerText = name;
-              modalDesc.innerText = `「${name}」をどのように開きますか？`;
-              modalOverlay.classList.remove('hidden');
-          }
-          function closeConfirmationModal() {
-              modalOverlay.classList.add('hidden');
-              currentTargetUrl = "";
-          }
-
-          btnSame.addEventListener('click', () => {
-              if(currentTargetUrl) window.location.href = currentTargetUrl;
-              closeConfirmationModal();
-          });
-          btnNew.addEventListener('click', () => {
-              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-              closeConfirmationModal();
-          });
-          btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
-          modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
-
-          function performSearch(query) {
-              const q = query.toLowerCase().trim();
-              const qRomaji = toRomaji(q); // 入力をローマ字に変換 ("ご" -> "go")
-
-              resultsContainer.innerHTML = ''; 
-
-              if (q.length === 0) {
-                  resultsContainer.classList.add('hidden');
-                  clearBtn.classList.add('hidden');
-                  return;
-              }
-
-              clearBtn.classList.remove('hidden');
-              allContentCache = gatherAllSearchableContent();
-              
-              const matches = allContentCache.filter(item => {
-                  const nameLower = item.name.toLowerCase();
-                  const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
-                  
-                  // 1. そのまま検索 (漢字、英語、ひらがな)
-                  if (nameLower.includes(q) || searchTxt.includes(q)) return true;
-                  
-                  // 2. ローマ字変換検索 ("ご" -> "go" が "google" に含まれるか)
-                  if (qRomaji.length > 0) {
-                      if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
-                  }
-                  
-                  return false;
-              });
-
-              if (matches.length > 0) {
-                  resultsContainer.classList.remove('hidden');
-                  matches.forEach(item => {
-                      const itemLink = document.createElement('a');
-                      itemLink.className = 'search-result-item';
-                      
-                      const img = document.createElement('img');
-                      img.src = item.img || './icon.png';
-                      
-                      const span = document.createElement('span');
-                      span.innerText = item.name;
-
-                      const tag = document.createElement('span');
-                      tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
-                      tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
-                      
-                      const icon = document.createElement('i');
-                      icon.className = 'fas fa-chevron-right';
-
-                      itemLink.appendChild(img);
-                      itemLink.appendChild(span);
-                      itemLink.appendChild(tag);
-                      itemLink.appendChild(icon);
-
-                      itemLink.addEventListener('click', (e) => {
-                          e.preventDefault(); 
-                          resultsContainer.classList.add('hidden');
-                          searchInput.value = '';
-                          clearBtn.classList.add('hidden');
-                          
-                          if (item.type === 'traffic' && item.el) {
-                              // Trafficへのジャンプ
-                              if(typeof window.activateTab === 'function') window.activateTab('bustarain');
-                              const parentId = item.el.parentElement.id;
-                              if(typeof window.switchSubTab === 'function') window.switchSubTab(parentId);
-                              if(!item.el.classList.contains('active')) {
-                                  // toggleAccordion相当の処理
-                                  const header = item.el.querySelector('.accordion-header');
-                                  if(header) header.click();
-                              }
-                              setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-                          } else {
-                              openConfirmationModal(item.url, item.name);
-                          }
-                      });
-                      resultsContainer.appendChild(itemLink);
-                  });
-              } else {
-                  resultsContainer.classList.remove('hidden');
-                  const noRes = document.createElement('div');
-                  noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
-                  noRes.innerText = '見つかりませんでした';
-                  resultsContainer.appendChild(noRes);
-              }
-          }
-
-          searchInput.addEventListener('input', (e) => {
-              performSearch(e.target.value);
-          });
-          
-          // フォーカス時も検索結果を表示
-          searchInput.addEventListener('focus', () => {
-              if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
-          });
-
-          clearBtn.addEventListener('click', () => {
-              searchInput.value = '';
-              performSearch('');
-              searchInput.focus();
-          });
-
-          document.addEventListener('click', (e) => {
-              if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                  resultsContainer.classList.add('hidden');
-              }
-          });
-      });
-  </script>
-</body>
-</html>
+  <script src="Option/nekotuti.
