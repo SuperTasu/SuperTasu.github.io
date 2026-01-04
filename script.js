@@ -45,8 +45,8 @@ const initialAppData = [
     {id:77,label:"Copilot",url:"https://copilot.microsoft.com",icon:"https://copilot.microsoft.com/favicon.ico",searchText:"Microsoft Copilot コパイロット Bing"},
     {id:7,label:"X",url:"https://x.com/i/timeline",icon:"https://x.com/favicon.ico",searchText:"X Twitter ツイッター"},
     {id:8,label:"Instagram",url:"https://www.instagram.com",icon:"https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png",searchText:"Instagram インスタグラム"},
-    {id:9,label:"YouTube",url:"https://www.youtube.com",icon:"https://www.youtube.com/favicon.ico",searchText:"YouTube ユーチューブ"},
-    {id:10,label:"YT Shorts",url:"https://www.youtube.com/shorts",icon:"https://www.youtube.com/favicon.ico",searchText:"YT Shorts YouTube ショート"},
+    {id:9,label:"YouTube",url:"https://www.youtube.com",icon:".ico",searchText:"YouTube ユーチューブ"},
+    {id:10,label:"YT Shorts",url:",icon:".ico",searchText:"YT Shorts YouTube ショート"},
     {id:12,label:"TikTok",url:"https://www.tiktok.com",icon:"https://www.tiktok.com/favicon.ico",searchText:"TikTok ティックトック"},
     {id:13,label:"Twitch",url:"https://www.twitch.tv",icon:"https://www.twitch.tv/favicon.ico",searchText:"Twitch ツイッチ"},
     {id:15,label:"Discord",url:"https://discord.com/channels/@me",icon:"https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",searchText:"Discord ディスコード"},
@@ -124,7 +124,7 @@ window.onload = function() {
     setInterval(updateClock, 1000);
     
     const savedTheme = localStorage.getItem('theme');
-    if(savedTheme) setTheme(savedTheme);
+    if(savedTheme) setTheme(savedTheme, false); // 初回ロード時は保存しない
 
     loadBackground();
     loadTextColor(); 
@@ -158,6 +158,8 @@ function saveBackground(urlData) {
         localStorage.setItem(BG_KEY, urlData);
         applyBackground(urlData);
         alert('背景を設定しました。');
+        // ★追加: ログインしていればクラウドに保存
+        if (window.saveUserDataToCloud) window.saveUserDataToCloud();
     } catch (e) {
         alert('保存に失敗しました。');
     }
@@ -177,6 +179,8 @@ function resetBackground() {
     localStorage.removeItem(BG_KEY);
     applyBackground('none');
     alert('背景をリセットしました。');
+    // ★追加: ログインしていればクラウドに保存
+    if (window.saveUserDataToCloud) window.saveUserDataToCloud();
 }
 
 // --- テキスト色管理 ---
@@ -382,6 +386,10 @@ function toggleFavorite(id) {
 
 function saveFavorites() {
     localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+    // ★追加: ログインしていればクラウドに保存
+    if (window.saveUserDataToCloud) {
+        window.saveUserDataToCloud();
+    }
 }
 
 // --- FY (Favorites) 表示 ---
@@ -598,7 +606,7 @@ function toggleAccordion(header) {
     }
 }
 
-function setTheme(theme) {
+function setTheme(theme, save = true) {
     if (theme === 'dark') {
         document.body.classList.add('dark-theme');
         if(!localStorage.getItem(TEXT_COLOR_KEY)) {
@@ -611,9 +619,36 @@ function setTheme(theme) {
         }
     }
     localStorage.setItem('theme', theme);
+
+    if (save && window.saveUserDataToCloud) {
+        setTimeout(() => {
+            window.saveUserDataToCloud();
+        }, 500);
+    }
 }
 
 function reloadSpeedTest() {
     const iframe = document.querySelector('.header-speed-test iframe');
     iframe.src = iframe.src;
 }
+
+// --- Firebase連携用関数 ---
+
+// クラウドからお気に入りを受け取って反映する関数
+window.updateFavoritesFromCloud = function(cloudFavorites) {
+    favorites = cloudFavorites;
+    // 60枠確保のロジックを再適用
+    if (favorites.length < 60) {
+        const padding = new Array(60 - favorites.length).fill(null);
+        favorites = favorites.concat(padding);
+    }
+    // ローカルストレージも同期
+    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+    
+    // 再描画
+    renderGrid(initialAppData);
+    if (document.getElementById('tab-fy').classList.contains('active')) {
+        renderFavoritesPage();
+    }
+    initBustarain();
+};
