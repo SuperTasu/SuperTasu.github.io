@@ -8,7 +8,6 @@ const gridContainer = document.getElementById('gridContainer');
 const searchInput = document.getElementById('globalSearchInput');
 const clearSearchBtn = document.getElementById('clearSearchBtn');
 const fyEditBtn = document.getElementById('fy-edit-btn'); 
-const searchResults = document.getElementById('searchResults');
 
 const dateElement = document.getElementById('date');
 const clockElement = document.getElementById('clock');
@@ -139,24 +138,19 @@ window.onload = function() {
 
     const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
     activateTab(lastTab);
-
-    // 検索イベントリスナーの設定
-    if (searchInput) {
-        searchInput.addEventListener('input', performGlobalSearch);
-        searchInput.addEventListener('focus', performGlobalSearch);
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            performGlobalSearch();
-        });
-    }
-
-    // 検索ボックス外クリックでドロップダウンを閉じる
-    document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.add('hidden');
-        }
-    });
 };
+
+// --- ★★★ 新ファビコン取得関数 ★★★ ---
+function getFaviconUrl(url) {
+    try {
+        if (!url) return './icon.png';
+        if (!url.startsWith('http')) return './icon.png';
+        // 高品質Favicon取得
+        return `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(url)}&size=64`;
+    } catch (e) {
+        return './icon.png';
+    }
+}
 
 // --- 背景画像管理 ---
 function saveBackground(urlData) {
@@ -219,7 +213,7 @@ function updateClock() {
     dateElement.textContent = dateStr;
     clockElement.textContent = timeStr;
 
-    // FY専用時計更新 (秒まで表示)
+    // FY専用時計更新
     if (fyContainer.style.display !== 'none') {
         if(fyDateText) fyDateText.textContent = dateStr;
         if(fyTimeText) fyTimeText.textContent = timeStr;
@@ -248,11 +242,11 @@ function updateClock() {
     countdownElement.textContent = msg;
 }
 
-// --- カード生成 (新デザイン) ---
-// レイアウト: [ Icon (40%) ] | [ Title (underline) / Buttons (square) ]
+// --- カード生成 ---
 function createAppCard(app) {
     const card = document.createElement('div');
     card.className = 'app-card';
+    card.dataset.appId = app.id; // ★ 検索ジャンプ用のID付与
 
     // 左：アイコンエリア
     const left = document.createElement('div');
@@ -261,13 +255,14 @@ function createAppCard(app) {
     left.onclick = () => { window.location.href = app.url; };
 
     const img = document.createElement('img');
-    let domain = '';
-    try {
-        const urlObj = new URL(app.url);
-        domain = urlObj.hostname;
-    } catch(e) { domain = 'google.com'; }
-    img.src = app.icon ? app.icon : `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-    img.onerror = () => { img.src = 'https://via.placeholder.com/32?text=?'; };
+    
+    // ★ Favicon logic update
+    let iconSrc = app.icon;
+    if (!iconSrc || iconSrc.includes('google.com/s2/favicons')) {
+        iconSrc = getFaviconUrl(app.url);
+    }
+    img.src = iconSrc;
+    img.onerror = () => { img.src = './icon.png'; };
     left.appendChild(img);
 
     // 中央：仕切り線
@@ -291,7 +286,7 @@ function createAppCard(app) {
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
 
-    // ボタン1: このページで開く (四角枠)
+    // ボタン1: このページで開く
     const btnSame = document.createElement('button');
     btnSame.className = 'card-btn';
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
@@ -378,7 +373,7 @@ function toggleFavorite(id) {
         }
     }
     saveFavorites();
-    renderGrid(initialAppData); // Update Apps tab to reflect fav status
+    renderGrid(initialAppData);
     if (document.getElementById('tab-fy').classList.contains('active')) {
         renderFavoritesPage();
     }
@@ -419,9 +414,6 @@ function renderFavoritesPage() {
                 const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
                 if(el) {
                     const titleStr = el.dataset.title;
-                    const trafficApp = {
-                        id: favId, label: titleStr, url: "#", icon: "./icon.png"
-                    };
                     
                     // 交通情報用カード（手動生成）
                     const card = document.createElement('div');
@@ -456,7 +448,6 @@ function renderFavoritesPage() {
                     btnMove.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
                     btnMove.onclick = (e) => { e.stopPropagation(); jumpToTraffic(favId, el); };
                     
-                    // 無効ボタン（交通情報は新規タブ不可）
                     const btnNull = document.createElement('button');
                     btnNull.className = 'card-btn';
                     btnNull.innerHTML = '<i class="fas fa-ban" style="color:#ccc"></i>';
@@ -500,208 +491,3 @@ function renderFavoritesPage() {
 
         fyContentArea.appendChild(slotDiv);
     });
-
-    if(isEditMode) {
-        fyContentArea.classList.add('edit-mode');
-        fyEditBtn.textContent = '完了';
-        fyEditBtn.classList.add('editing');
-        fyEditBtn.style.background = '#667eea';
-        fyEditBtn.style.color = '#fff';
-    } else {
-        fyContentArea.classList.remove('edit-mode');
-        fyEditBtn.textContent = '並び替え';
-        fyEditBtn.classList.remove('editing');
-        fyEditBtn.style.background = 'var(--input-bg)';
-        fyEditBtn.style.color = 'var(--text-color-secondary)';
-        selectedSlotIndex = null;
-    }
-}
-
-function jumpToTraffic(favId, element) {
-    activateTab('bustarain');
-    const parentTabId = element.parentElement.id;
-    switchSubTab(parentTabId);
-    if(!element.classList.contains('active')) toggleAccordion(element.querySelector('.accordion-header'));
-    setTimeout(() => { element.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-}
-
-function toggleEditMode() {
-    isEditMode = !isEditMode;
-    selectedSlotIndex = null;
-    renderFavoritesPage();
-}
-
-function handleSlotClick(clickedIndex) {
-    if (selectedSlotIndex === null) {
-        if (favorites[clickedIndex] === null) return;
-        selectedSlotIndex = clickedIndex;
-        renderFavoritesPage();
-        return;
-    }
-
-    if (selectedSlotIndex === clickedIndex) {
-        selectedSlotIndex = null;
-        renderFavoritesPage();
-        return;
-    }
-
-    const temp = favorites[selectedSlotIndex];
-    favorites[selectedSlotIndex] = favorites[clickedIndex];
-    favorites[clickedIndex] = temp;
-    
-    saveFavorites();
-    selectedSlotIndex = null; 
-    renderFavoritesPage();
-}
-
-// --- 共通 ---
-function activateTab(tabName) {
-    mainGrid.style.display = 'none';
-    bustarainContainer.style.display = 'none';
-    optionContainer.style.display = 'none';
-    fyContainer.style.display = 'none';
-    searchResults.classList.add('hidden'); // タブ切り替え時に検索結果を消す
-    
-    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-
-    if(isEditMode) {
-        isEditMode = false;
-        renderFavoritesPage();
-    }
-
-    localStorage.setItem(TAB_KEY, tabName);
-
-    if (tabName === 'all-apps') {
-        mainGrid.style.display = 'block';
-        document.getElementById('tab-all-apps').classList.add('active');
-        // Appsタブに来たらグリッドフィルタを適用（入力済みの場合）
-        performGlobalSearch();
-    } else if (tabName === 'bustarain') {
-        bustarainContainer.style.display = 'block';
-        document.getElementById('tab-bustarain').classList.add('active');
-    } else if (tabName === 'option') {
-        optionContainer.style.display = 'block';
-        document.getElementById('tab-option').classList.add('active');
-    } else if (tabName === 'fy') {
-        fyContainer.style.display = 'block';
-        document.getElementById('tab-fy').classList.add('active');
-        updateClock();
-        renderFavoritesPage();
-    }
-}
-
-function switchSubTab(targetId) {
-    document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById(targetId).classList.remove('hidden');
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
-    });
-}
-
-function toggleAccordion(header) {
-    const item = header.parentElement;
-    const content = item.querySelector('.accordion-content');
-    const iframe = content.querySelector('iframe');
-    item.classList.toggle('active');
-    if (item.classList.contains('active')) {
-        if (iframe && !iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src;
-    }
-}
-
-// --- 検索機能 ---
-function performGlobalSearch() {
-    const query = searchInput.value.toLowerCase().trim();
-    clearSearchBtn.classList.toggle('hidden', query.length === 0);
-
-    // フィルタリング
-    const filtered = initialAppData.filter(app => {
-        return (app.label && app.label.toLowerCase().includes(query)) ||
-               (app.searchText && app.searchText.toLowerCase().includes(query));
-    });
-
-    const activeTab = localStorage.getItem(TAB_KEY);
-
-    if (activeTab === 'all-apps') {
-        // Appsタブならグリッドを更新
-        searchResults.classList.add('hidden');
-        renderGrid(filtered);
-    } else {
-        // それ以外のタブならドロップダウンを表示
-        renderDropdownResults(filtered, query);
-    }
-}
-
-function renderDropdownResults(apps, query) {
-    searchResults.innerHTML = '';
-    if (query.length === 0) {
-        searchResults.classList.add('hidden');
-        return;
-    }
-
-    searchResults.classList.remove('hidden');
-
-    if (apps.length === 0) {
-        const noRes = document.createElement('div');
-        noRes.style.padding = '10px';
-        noRes.style.textAlign = 'center';
-        noRes.style.color = '#777';
-        noRes.innerText = '見つかりませんでした';
-        searchResults.appendChild(noRes);
-        return;
-    }
-
-    apps.forEach(app => {
-        const itemLink = document.createElement('a');
-        itemLink.className = 'search-result-item';
-        // クリック時、モーダルを開く
-        itemLink.onclick = (e) => {
-             e.preventDefault();
-             searchResults.classList.add('hidden');
-             searchInput.value = '';
-             clearSearchBtn.classList.add('hidden');
-             if(window.openConfirmationModal) {
-                 window.openConfirmationModal(app.url, app.label);
-             } else {
-                 window.location.href = app.url;
-             }
-        };
-
-        const img = document.createElement('img');
-        let domain = '';
-        try { domain = new URL(app.url).hostname; } catch(e){}
-        img.src = app.icon ? app.icon : `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-        
-        const span = document.createElement('span');
-        span.innerText = app.label;
-
-        const icon = document.createElement('i');
-        icon.className = 'fas fa-chevron-right';
-        icon.style.color = '#ccc';
-
-        itemLink.appendChild(img);
-        itemLink.appendChild(span);
-        itemLink.appendChild(icon);
-        searchResults.appendChild(itemLink);
-    });
-}
-
-function setTheme(theme) {
-    if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
-            document.documentElement.style.setProperty('--text-color-primary', '#f5f5f5');
-        }
-    } else {
-        document.body.classList.remove('dark-theme');
-        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
-            document.documentElement.style.setProperty('--text-color-primary', '#000000');
-        }
-    }
-    localStorage.setItem('theme', theme);
-}
-
-function reloadSpeedTest() {
-    const iframe = document.querySelector('.header-speed-test iframe');
-    iframe.src = iframe.src;
-}
