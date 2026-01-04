@@ -6,12 +6,14 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 // --- Firebase Configuration ---
 // ★★★ ここにFirebaseコンソールから取得した構成オブジェクトを貼り付けてください ★★★
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+firebaseConfig = {
+  apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
+  authDomain: "linkfast--login.firebaseapp.com",
+  projectId: "linkfast--login",
+  storageBucket: "linkfast--login.firebasestorage.app",
+  messagingSenderId: "691869871884",
+  appId: "1:691869871884:web:4267ca37685cfbcda7e329",
+  measurementId: "G-6LK1NSY24N"
 };
 
 // Initialize Firebase
