@@ -17,17 +17,19 @@
     /* --- CSS変数 --- */
     :root {
       --bg-color: #ffffff;
-      --text-color-primary: #333333;
-      --text-color-secondary: #666;
+      --text-color-primary: #000000;
+      --text-color-secondary: #444444;
       --custom-bg-image: none; 
+      
       --card-bg: #ffffff;
-      --card-border-color: #333; /* スケッチ風の濃い枠線 */
-      --card-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      --card-border: 2px solid #000000; /* 太い黒枠 */
+      --card-radius: 28px; /* 丸みの強い角 */
+      --divider-color: #ccc;
       
       --tab-active-bg: #667eea;
       --tab-active-text: #ffffff;
       
-      --input-bg: #e9ecef;
+      --input-bg: #f0f0f0;
       --nav-bg: rgba(255, 255, 255, 0.98);
 
       --grid-line-color: rgba(0, 0, 0, 0.1);
@@ -38,8 +40,8 @@
       --text-color-primary: #f5f5f5;
       --text-color-secondary: #aaa;
       --card-bg: #333;
-      --card-border-color: #aaa;
-      --card-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      --card-border: 2px solid #aaaaaa;
+      --divider-color: #555;
       
       --tab-active-bg: #88aaff;
       --tab-active-text: #ffffff;
@@ -154,210 +156,200 @@
     }
     #clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
 
-    /* 検索結果ドロップダウン */
+    /* 検索結果ドロップダウン (Appsタブ以外で表示) */
     .search-results-dropdown {
         position: absolute; top: 40px; left: 0; right: 0; margin: 0 auto;
         width: 85%; max-width: 550px; background-color: var(--card-bg); border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 5500; 
         max-height: 60vh; overflow-y: auto; padding: 5px; 
-        border: 1px solid var(--card-border-color); display: block; 
+        border: 1px solid var(--card-border); display: block; 
     }
     .search-results-dropdown.hidden { display: none !important; }
     
     .search-result-item {
         display: flex; align-items: center; padding: 8px 12px; margin-bottom: 4px; border-radius: 8px;
-        background: rgba(255, 255, 255, 0.6); cursor: pointer; transition: all 0.2s;
+        background: rgba(0,0,0,0.02); cursor: pointer; transition: all 0.2s;
         color: var(--text-color-primary); text-decoration: none; user-select: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
-    body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     .search-result-item:hover { background-color: var(--swap-select-color); }
     .search-result-item img { width: 32px; height: 32px; border-radius: 6px; margin-right: 12px; object-fit: contain; }
     .search-result-item span { font-weight: bold; font-size: 14px; flex-grow: 1; }
     
     /* ★★★ コンテンツエリア ★★★ */
     .page-container { 
-        max-width: 1400px; /* ワイド画面対応 */
+        max-width: 1400px; 
         margin: 0 auto; 
         padding: 100px 20px 20px 20px;
     }
 
-    /* 各コンテナ */
     #main-grid, #bustarain-container, #option-container, #fy-container {
         position: relative; z-index: 1; width: 100%; box-sizing: border-box;
     }
-    /* 初期表示制御はJSで行うが、CSSでも隠しておく */
     #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
     .main-grid { margin-top: 10px; }
 
-    /* 
-       ★ 新しいグリッドシステム（12分割中2マス = 6列） 
-       各カードは12分割の2つ分を使用。
-    */
+    /* グリッドレイアウト: 12分割の2マス使用 = 6列 */
     .grid-container, #fy-content-area {
         display: grid;
-        grid-template-columns: repeat(6, 1fr); /* PC向け: 6列 */
+        grid-template-columns: repeat(6, 1fr);
         gap: 15px;
         padding: 10px;
     }
-
-    /* レスポンシブ対応 */
-    @media (max-width: 1200px) {
-        .grid-container, #fy-content-area { grid-template-columns: repeat(4, 1fr); } /* タブレット横: 4列 */
-    }
-    @media (max-width: 900px) {
-        .grid-container, #fy-content-area { grid-template-columns: repeat(3, 1fr); } /* タブレット縦: 3列 */
-    }
-    @media (max-width: 600px) {
-        .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } /* スマホ: 2列 */
-    }
+    @media (max-width: 1300px) { .grid-container, #fy-content-area { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 900px) { .grid-container, #fy-content-area { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
 
     /* 
-       ★ 新しいカードデザイン 
-       左：アイコン、右：テキスト＋ボタン
+       ★ カードデザイン (画像に準拠) 
+       - 太い黒枠
+       - 強い角丸
+       - 左: アイコン
+       - 中央: 縦線
+       - 右: タイトル(下線) + ボタン(四角枠)
     */
     .app-card {
         display: flex;
         flex-direction: row;
         background-color: var(--card-bg);
-        border: 2px solid var(--card-border-color);
-        border-radius: 15px; /* 丸み */
+        border: var(--card-border);
+        border-radius: var(--card-radius);
         overflow: hidden;
-        height: 80px; /* 固定高さ */
-        box-shadow: var(--card-shadow);
-        transition: transform 0.2s, box-shadow 0.2s;
+        height: 90px; /* 少し高さを確保 */
         position: relative;
     }
     .app-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     
     /* 左側：アイコンエリア */
     .card-left {
-        width: 35%;
-        background-color: var(--icon-bg); /* 必要なら変更 */
+        width: 40%;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-right: 1px solid rgba(0,0,0,0.1);
-        cursor: pointer; /* アイコンクリックでページ遷移 */
+        cursor: pointer;
     }
     .card-left img {
-        width: 40px; height: 40px;
+        width: 48px; height: 48px;
         object-fit: contain;
+        border-radius: 8px; /* アイコン自体の角丸 */
+    }
+
+    /* 中央：縦の仕切り線 */
+    .card-divider {
+        width: 2px;
+        background-color: var(--divider-color);
+        margin: 10px 0;
+        border-radius: 2px;
     }
 
     /* 右側：情報＆ボタンエリア */
     .card-right {
-        width: 65%;
+        width: 60%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 5px 8px;
+        padding: 5px 10px;
         box-sizing: border-box;
     }
     
+    /* タイトルエリア（下線付き） */
+    .card-header {
+        text-align: center;
+        margin-top: 5px;
+        width: 100%;
+    }
     .card-title {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: bold;
         color: var(--text-color-primary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        margin-top: 2px;
+        display: block;
+        padding-bottom: 2px;
+        border-bottom: 2px solid var(--text-color-primary); /* タイトル下線 */
     }
 
-    /* 3つのボタンエリア */
+    /* ボタンエリア */
     .card-buttons {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 2px;
+        justify-content: space-around; /* 均等配置 */
+        align-items: center;
+        margin-bottom: 5px;
     }
     .card-btn {
-        width: 28px; height: 28px;
+        width: 24px; height: 24px;
         display: flex; align-items: center; justify-content: center;
-        border: 1px solid var(--text-color-secondary);
-        border-radius: 4px;
+        border: 2px solid var(--text-color-primary); /* 四角い枠 */
+        border-radius: 4px; /* わずかな角丸 */
         cursor: pointer;
         background: transparent;
         color: var(--text-color-primary);
         font-size: 12px;
+        padding: 0;
         transition: all 0.2s;
     }
     .card-btn:hover {
-        background-color: var(--text-color-secondary);
-        color: #fff;
+        background-color: var(--text-color-primary);
+        color: var(--bg-color);
     }
+    /* お気に入りボタンのアクティブ状態 */
     .card-btn.fav-active {
-        color: #ffc107;
+        color: #ffc107; /* 星の色 */
         border-color: #ffc107;
     }
-    .card-btn.fav-active:hover {
-        background-color: #ffc107;
-        color: #fff;
-    }
 
-    /* FY編集モード時のスロットスタイル */
+    /* FY編集モード時のスタイル */
     .grid-slot {
-        /* カードを内包するコンテナとして機能 */
-        min-height: 80px;
-        border-radius: 15px;
-        transition: transform 0.2s;
+        min-height: 90px;
+        border-radius: var(--card-radius);
     }
     .edit-mode .grid-slot {
         border: 2px dashed var(--text-color-secondary);
         cursor: pointer;
         opacity: 0.8;
     }
-    .edit-mode .grid-slot:hover {
-        background-color: var(--swap-select-color);
-    }
+    .edit-mode .grid-slot:hover { background-color: var(--swap-select-color); }
     .edit-mode .grid-slot.selected-slot {
         border-color: #ff4444;
         background-color: rgba(255, 68, 68, 0.1);
-        transform: scale(0.95);
     }
-    .edit-mode .app-card {
-        pointer-events: none; /* 編集時はカード内のクリック無効 */
-    }
+    .edit-mode .app-card { pointer-events: none; }
     
-    /* 空のスロット（FY用） */
     .grid-slot.empty {
         border: 1px dashed rgba(0,0,0,0.1);
-        border-radius: 15px;
-    }
-    body.dark-theme .grid-slot.empty {
-        border-color: rgba(255,255,255,0.1);
+        border-radius: var(--card-radius);
     }
 
     /* FY専用時計 */
     #fy-clock-display {
-        text-align: center;
-        margin-bottom: 15px;
-        font-family: 'Roboto Mono', monospace;
-        color: var(--text-color-primary);
+        text-align: center; margin-bottom: 15px;
+        font-family: 'Roboto Mono', monospace; color: var(--text-color-primary);
     }
     .fy-date-text { font-size: 16px; margin-right: 10px; font-weight: bold; }
     .fy-time-text { font-size: 28px; font-weight: bold; color: var(--tab-active-bg); }
 
-    /* 交通情報などその他 */
+    /* その他パーツ */
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
     
-    .accordion-item { border: 1px solid var(--card-border-color); border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
+    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
     .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .accordion-item.active .accordion-content { max-height: 1200px; }
     .accordion-iframe { width: 100%; height: 600px; border: none; }
     .hidden { display: none !important; }
-    .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid var(--card-border-color); padding-bottom: 5px; }
+    .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
 
     /* 下部ナビゲーション */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; width: 100%;
         background-color: var(--nav-bg); backdrop-filter: blur(10px);
-        border-top: 1px solid var(--card-border-color);
+        border-top: 1px solid #ccc;
         display: flex; justify-content: space-around; align-items: center;
         padding: 5px 10px; padding-bottom: calc(5px + env(safe-area-inset-bottom));
         z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
@@ -382,10 +374,12 @@
     .modal-overlay.hidden { display: none; }
     .modal-box {
         background: var(--card-bg); padding: 25px; border-radius: 16px;
-        width: 90%; max-width: 400px; text-align: center;
+        width: 90%; max-width: 400px; text-align: center; border: 1px solid #ccc;
     }
-    .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    .modal-title { margin-bottom: 10px; font-size:18px; font-weight:bold; }
+    .modal-desc { margin-bottom: 20px; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; gap:8px;}
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
@@ -423,6 +417,7 @@
             <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
+        <!-- ドロップダウン結果（Appsタブ以外で使用） -->
         <div id="searchResults" class="search-results-dropdown hidden"></div>
     </div>
   </div>
@@ -439,9 +434,8 @@
 
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
-              <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer;">並び替え</button>
+              <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer; background:var(--input-bg); border:1px solid #ccc;">並び替え</button>
           </div>
-          <!-- グリッドエリア -->
           <div id="fy-content-area"></div>
       </div>
 
@@ -461,8 +455,6 @@
               <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
           </div>
           <div id="train-content" class="sub-tab-content">
-              <!-- (iframe contents omitted for brevity, logic handled in JS) -->
-              <!-- アコーディオンのHTML構造は変更なし、JSで生成または既存維持 -->
                <div class="accordion-item" data-id="tr-1" data-title="和田岬">
                   <div class="accordion-header" onclick="toggleAccordion(this)">
                       <span>和田岬</span>
@@ -473,7 +465,6 @@
                       <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
                   </div>
               </div>
-              <!-- 他のアコーディオン項目... (省略せず記述する場合は元のHTMLと同じ内容が入ります) -->
               <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
                   <div class="accordion-header" onclick="toggleAccordion(this)">
                       <span>帰）板宿新長田経由海岸線</span>
@@ -496,7 +487,6 @@
               </div>
           </div>
           <div id="bus-content" class="sub-tab-content hidden">
-             <!-- バス項目 -->
              <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
                   <div class="accordion-header" onclick="toggleAccordion(this)">
                       <span>バスロケーション</span>
@@ -614,66 +604,48 @@
   <script src="script.js"></script>
   
   <script>
-      // 検索・モーダル機能（既存維持）
+      // 検索・モーダル機能（DOM依存イベントリスナー）
       document.addEventListener('DOMContentLoaded', () => {
-          const searchInput = document.getElementById('globalSearchInput');
-          const clearBtn = document.getElementById('clearSearchBtn');
-          const resultsContainer = document.getElementById('searchResults');
-          const modalOverlay = document.getElementById('link-confirm-overlay');
           const btnSame = document.getElementById('btn-same-tab');
           const btnNew = document.getElementById('btn-new-tab');
           const btnCancel = document.getElementById('btn-cancel-modal');
+          const modalOverlay = document.getElementById('link-confirm-overlay');
           const modalTitle = document.getElementById('modal-title');
           const modalDesc = document.getElementById('modal-desc');
 
           let currentTargetUrl = "";
-          let allContentCache = [];
 
-          if (!searchInput || !resultsContainer) return;
-
-          function gatherAllSearchableContent() {
-              const content = [];
-              // アプリデータ(script.jsのinitialAppData)はグローバルから取れない場合があるので
-              // DOMから取得せず、データソースから検索するのが理想だが、ここではDOM検索ロジックを維持
-              // (ただし今回のカード化でクラス名が変わったため修正が必要だが、
-              //  script.js側でhandleSearchが定義されているため、そちらを利用)
-              return content;
-          }
-
-          function openConfirmationModal(url, name) {
+          // script.jsのグローバル関数から呼び出せるようにする
+          window.openConfirmationModal = function(url, name) {
               currentTargetUrl = url;
               modalTitle.innerText = name;
               modalDesc.innerText = `「${name}」をどのように開きますか？`;
               modalOverlay.classList.remove('hidden');
-          }
+          };
+
           function closeConfirmationModal() {
               modalOverlay.classList.add('hidden');
               currentTargetUrl = "";
           }
 
-          btnSame.addEventListener('click', () => {
-              if(currentTargetUrl) window.location.href = currentTargetUrl;
-              closeConfirmationModal();
-          });
-          btnNew.addEventListener('click', () => {
-              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-              closeConfirmationModal();
-          });
-          btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
-          modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
-
-          // 検索ボックスの挙動 (script.jsのhandleSearchと連携)
-          searchInput.addEventListener('input', (e) => {
-             // 簡易的なグローバル検索（ドロップダウン）
-             // handleSearch()はAppsグリッドのフィルタリングを行うため、ここではドロップダウン表示用
-          });
-          
-          clearBtn.addEventListener('click', () => {
-              searchInput.value = '';
-              searchInput.focus();
-              // script.jsのhandleSearchを発火させる
-              if(typeof handleSearch === 'function') handleSearch();
-          });
+          if(btnSame) {
+              btnSame.addEventListener('click', () => {
+                  if(currentTargetUrl) window.location.href = currentTargetUrl;
+                  closeConfirmationModal();
+              });
+          }
+          if(btnNew) {
+              btnNew.addEventListener('click', () => {
+                  if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
+                  closeConfirmationModal();
+              });
+          }
+          if(btnCancel) {
+              btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
+          }
+          if(modalOverlay) {
+              modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
+          }
       });
 
       function switchSubTab(contentId) {
