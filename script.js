@@ -136,6 +136,9 @@ const initialAppData = [
   {id:79,label:"Microsoft Form",url:"https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?origin=Marketing",icon:"https://forms.office.com/favicon.ico",searchText:"Microsoft Forms フォーム アンケート"},
   {id:80,label:"PDF圧縮2",url:"https://tools.pdf24.org/ja/compress-pdf",icon:"https://tools.pdf24.org/favicon.ico",searchText:"PDF24 compress 圧縮"},
   {id:81,label:"画像アッシュクマ",url:"https://imguma.com/",icon:"https://imguma.com/favicon.ico",searchText:"imguma アッシュクマ 画像圧縮"},
+  {id:82,label:"Neocities",url:"https://neocities.org/",icon:"https://neocities.org/favicon.ico",searchText:"Neocities ネオシティーズ"},
+  {id:83,label:"Firebase",url:"https://console.firebase.google.com/u/0/mfa",icon:"https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png",searchText:"Firebase ファイアベース"},
+  {id:84,label:"神戸市バスロケーション",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
 ];
 
 const FAV_KEY = 'myLinkAppFavorites';
