@@ -1,13 +1,13 @@
 // ------------------------------------------------------------------
 // 1. Firebase Imports & Configuration
 // ------------------------------------------------------------------
-// バージョンを 10.7.1 に変更しました
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ★★★ 必ずご自身のAPIキーなどを入れてください（空欄だと画面は表示されてもログインできません） ★★★
+// ★★★ 必ずご自身のAPIキーなどを入れてください ★★★
 const firebaseConfig = {
     apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
     authDomain: "linkfast--login.firebaseapp.com",
@@ -17,8 +17,6 @@ const firebaseConfig = {
     appId: "1:691869871884:web:4267ca37685cfbcda7e329",
     measurementId: "G-6LK1NSY24N"
 };
-
-// ...以下、変更なし
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -181,22 +179,17 @@ window.onload = function() {
 };
 
 // --- Firebase Auth Logic ---
-// ログインボタンのイベント設定
 authBtn.addEventListener('click', () => {
     if (currentUser) {
-        // ログアウト処理
         signOut(auth).then(() => {
             alert('ログアウトしました');
         }).catch((error) => {
             console.error('Sign Out Error', error);
         });
     } else {
-        // ログイン処理
         signInWithPopup(auth, provider).then((result) => {
-            // ログイン成功時の処理は onAuthStateChanged が行います
             console.log("Login Success");
         }).catch((error) => {
-            // ★ログインエラーの原因を表示
             console.error('Sign In Error Details:', error);
             
             let errorMsg = "ログインに失敗しました。";
@@ -205,27 +198,21 @@ authBtn.addEventListener('click', () => {
             } else if (error.code === 'auth/api-key-not-valid') {
                 errorMsg = "エラー：APIキーが無効です。firebaseConfigの設定を確認してください。";
             }
-            
             alert(errorMsg + "\n(" + error.code + ")");
         });
     }
 });
 
-// ログイン状態の変化を監視
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
-        // ログイン状態
         const icon = authBtn.querySelector('i');
         if(icon) icon.classList.add('hidden');
         userAvatar.style.display = 'block';
         userAvatar.src = user.photoURL;
         authBtn.title = `ログアウト (${user.displayName})`;
-        
-        // Firestoreからデータ同期
         await loadFromCloud();
     } else {
-        // ログアウト状態
         const icon = authBtn.querySelector('i');
         if(icon) icon.classList.remove('hidden');
         userAvatar.style.display = 'none';
@@ -243,8 +230,6 @@ async function loadFromCloud() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            
-            // Favorites
             if (data.favorites) {
                 favorites = data.favorites;
                 localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
@@ -252,24 +237,11 @@ async function loadFromCloud() {
                 renderFavoritesPage();
                 initBustarain();
             }
-            
-            // Background
-            if (data.background) {
-                saveBackground(data.background, false);
-            }
-            
-            // Text Color
-            if (data.textColor) {
-                saveTextColor(data.textColor, false);
-            }
-
-            // Tab
-            if (data.lastTab) {
-                activateTab(data.lastTab, false);
-            }
+            if (data.background) saveBackground(data.background, false);
+            if (data.textColor) saveTextColor(data.textColor, false);
+            if (data.lastTab) activateTab(data.lastTab, false);
             console.log("Data loaded from cloud.");
         } else {
-            // 新規ユーザー：現在のLocalStorageデータをクラウドに保存
             saveToCloud();
         }
     } catch (e) {
@@ -433,6 +405,7 @@ function createAppCard(app) {
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
 
+    // ボタン1: このページで開く
     const btnSame = document.createElement('button');
     btnSame.className = 'card-btn';
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
@@ -442,15 +415,25 @@ function createAppCard(app) {
         window.location.href = app.url; 
     };
 
+    // ボタン2: バックグラウンド（別タブ）で開いてフォーカスを戻す
     const btnNew = document.createElement('button');
     btnNew.className = 'card-btn';
     btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>';
-    btnNew.title = "新しいタブで開く";
+    btnNew.title = "バックグラウンドで開く";
     btnNew.onclick = (e) => { 
         e.stopPropagation(); 
-        window.open(app.url, '_blank'); 
+        // 1. 新しいタブで開く
+        const newWin = window.open(app.url, '_blank');
+        
+        // 2. 開いた直後に、フォーカスを現在のウィンドウ（Link First）に戻そうとする
+        if (newWin) {
+            // 一部のブラウザには効く
+            newWin.blur();
+        }
+        window.focus();
     };
 
+    // ボタン3: お気に入り
     const btnFav = document.createElement('button');
     const isFav = favorites.includes(app.id);
     btnFav.className = isFav ? 'card-btn fav-active' : 'card-btn';
