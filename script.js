@@ -9,13 +9,13 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 
 // ★★★ 必ずご自身のAPIキーなどを入れてください ★★★
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+    apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
+    authDomain: "linkfast--login.firebaseapp.com",
+    projectId: "linkfast--login",
+    storageBucket: "linkfast--login.firebasestorage.app",
+    messagingSenderId: "691869871884",
+    appId: "1:691869871884:web:4267ca37685cfbcda7e329",
+    measurementId: "G-6LK1NSY24N"
 };
 
 // Initialize Firebase
@@ -180,11 +180,45 @@ window.onload = function() {
     const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
     activateTab(lastTab);
     
-    // ★追加: 初回ロード時に配置を決定
     adjustSpeedTestPosition();
-    // ★追加: 画面リサイズ時にも配置を再計算
     window.addEventListener('resize', adjustSpeedTestPosition);
+
+    // ★追加: ネットワーク状態の監視開始
+    setupNetworkStatus();
+    // ★追加: スピードテストの自動更新開始
+    setupSpeedTestAutoRefresh();
 };
+
+// --- ★新規関数: ネットワーク状態の監視 ---
+function setupNetworkStatus() {
+    const statusEl = document.getElementById('network-status');
+    const updateStatus = () => {
+        if (navigator.onLine) {
+            statusEl.className = 'online';
+            statusEl.innerHTML = '<i class="fas fa-wifi"></i> <span>ON</span>';
+            statusEl.title = "オンライン";
+        } else {
+            statusEl.className = 'offline';
+            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>OFF</span>';
+            statusEl.title = "オフライン";
+        }
+    };
+    
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus(); // 初期実行
+}
+
+// --- ★新規関数: スピードテストの自動更新 (2分毎) ---
+function setupSpeedTestAutoRefresh() {
+    setInterval(() => {
+        // ユーザーがオフラインの場合は更新しない（エラー画面になるのを防ぐ）
+        if (navigator.onLine) {
+            reloadSpeedTest();
+            console.log("Speed test refreshed.");
+        }
+    }, 120000); // 120,000ms = 2分
+}
 
 // --- Firebase Auth Logic ---
 authBtn.addEventListener('click', () => {
