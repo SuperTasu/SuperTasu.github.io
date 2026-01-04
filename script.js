@@ -5,9 +5,10 @@ const optionContainer = document.getElementById('option-container');
 const fyContainer = document.getElementById('fy-container');
 const fyContentArea = document.getElementById('fy-content-area');
 const gridContainer = document.getElementById('gridContainer');
-const searchInput = document.getElementById('globalSearchInput'); // ID修正
+const searchInput = document.getElementById('globalSearchInput');
 const clearSearchBtn = document.getElementById('clearSearchBtn');
 const fyEditBtn = document.getElementById('fy-edit-btn'); 
+const searchResults = document.getElementById('searchResults');
 
 const dateElement = document.getElementById('date');
 const clockElement = document.getElementById('clock');
@@ -139,13 +140,22 @@ window.onload = function() {
     const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
     activateTab(lastTab);
 
+    // 検索イベントリスナーの設定
     if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('input', performGlobalSearch);
+        searchInput.addEventListener('focus', performGlobalSearch);
         clearSearchBtn.addEventListener('click', () => {
             searchInput.value = '';
-            handleSearch();
+            performGlobalSearch();
         });
     }
+
+    // 検索ボックス外クリックでドロップダウンを閉じる
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
 };
 
 // --- 背景画像管理 ---
@@ -189,7 +199,7 @@ function applyTextColor(color) {
 }
 function resetTextColor() {
     localStorage.removeItem(TEXT_COLOR_KEY);
-    document.documentElement.style.setProperty('--text-color-primary', '#333333');
+    document.documentElement.style.setProperty('--text-color-primary', '#000000');
     const currentTheme = localStorage.getItem('theme');
     setTheme(currentTheme || 'light');
 }
@@ -238,8 +248,8 @@ function updateClock() {
     countdownElement.textContent = msg;
 }
 
-// --- カード（旧アイコン）生成 ---
-// 画像の指示に従い、左にアイコン、右に名前と3つのボタンを配置
+// --- カード生成 (新デザイン) ---
+// レイアウト: [ Icon (40%) ] | [ Title (underline) / Buttons (square) ]
 function createAppCard(app) {
     const card = document.createElement('div');
     card.className = 'app-card';
@@ -256,24 +266,32 @@ function createAppCard(app) {
         const urlObj = new URL(app.url);
         domain = urlObj.hostname;
     } catch(e) { domain = 'google.com'; }
-    // script.jsのデータにあるiconがあればそれを、なければGoogleのAPI
     img.src = app.icon ? app.icon : `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
     img.onerror = () => { img.src = 'https://via.placeholder.com/32?text=?'; };
     left.appendChild(img);
+
+    // 中央：仕切り線
+    const divider = document.createElement('div');
+    divider.className = 'card-divider';
 
     // 右：情報・ボタンエリア
     const right = document.createElement('div');
     right.className = 'card-right';
 
-    const title = document.createElement('div');
+    // タイトル部
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    const title = document.createElement('span');
     title.className = 'card-title';
     title.textContent = app.label;
     title.title = app.label;
+    header.appendChild(title);
 
+    // ボタン部
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
 
-    // ボタン1: このページで開く
+    // ボタン1: このページで開く (四角枠)
     const btnSame = document.createElement('button');
     btnSame.className = 'card-btn';
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
@@ -283,7 +301,7 @@ function createAppCard(app) {
         window.location.href = app.url; 
     };
 
-    // ボタン2: バックグラウンド（新規タブ）で開く
+    // ボタン2: 新しいタブで開く
     const btnNew = document.createElement('button');
     btnNew.className = 'card-btn';
     btnNew.innerHTML = '<i class="fas fa-external-link-alt"></i>';
@@ -308,10 +326,11 @@ function createAppCard(app) {
     btnRow.appendChild(btnNew);
     btnRow.appendChild(btnFav);
 
-    right.appendChild(title);
+    right.appendChild(header);
     right.appendChild(btnRow);
 
     card.appendChild(left);
+    card.appendChild(divider);
     card.appendChild(right);
 
     return card;
@@ -322,7 +341,6 @@ function renderGrid(data) {
     gridContainer.innerHTML = '';
     data.forEach(app => {
         const item = createAppCard(app);
-        // グリッドレイアウトはCSS側で制御(12分割の2マス)
         gridContainer.appendChild(item);
     });
 }
@@ -384,7 +402,6 @@ function renderFavoritesPage() {
         
         if (favId !== null) {
             if (favId === 'opt-takatori') {
-                // 特殊Optionカード（Takatori）の処理
                 slotDiv.classList.add('full-width');
                 if(typeof renderTakatoriBoard === 'function') {
                     renderTakatoriBoard(slotDiv);
@@ -393,64 +410,59 @@ function renderFavoritesPage() {
                 }
             } 
             else if (typeof favId === 'number') {
-                // 通常アプリ
                 const app = initialAppData.find(a => a.id === favId);
                 if(app) {
                     contentDiv = createAppCard(app);
-                    // FY編集モード時はクリックイベントを無効化するためCSSで pointer-events:none を制御
-                    // ここではDOM構造だけ作成
                 }
             } else {
-                // 交通情報(Bustarain)
+                // 交通情報
                 const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
                 if(el) {
                     const titleStr = el.dataset.title;
-                    
-                    // 交通情報用の擬似アプリデータを作成してカード化
                     const trafficApp = {
-                        id: favId, // 文字列ID
-                        label: titleStr,
-                        url: "#", // ダミーURL
-                        icon: "./icon.png" // デフォルトアイコン
+                        id: favId, label: titleStr, url: "#", icon: "./icon.png"
                     };
-
-                    // カード生成
+                    
+                    // 交通情報用カード（手動生成）
                     const card = document.createElement('div');
                     card.className = 'app-card';
                     
-                    // 左（交通情報アイコン）
+                    // Left
                     const left = document.createElement('div');
                     left.className = 'card-left';
-                    left.innerHTML = '<i class="fas fa-bus" style="font-size:24px; color:#555;"></i>';
-                    left.onclick = () => {
-                        if(isEditMode) return;
-                        jumpToTraffic(favId, el);
-                    };
+                    left.innerHTML = '<i class="fas fa-bus" style="font-size:32px; color:#555;"></i>';
+                    left.onclick = () => { if(!isEditMode) jumpToTraffic(favId, el); };
+                    
+                    // Divider
+                    const divider = document.createElement('div');
+                    divider.className = 'card-divider';
 
-                    // 右
+                    // Right
                     const right = document.createElement('div');
                     right.className = 'card-right';
                     
-                    const titleDiv = document.createElement('div');
-                    titleDiv.className = 'card-title';
-                    titleDiv.textContent = titleStr;
+                    const header = document.createElement('div');
+                    header.className = 'card-header';
+                    const title = document.createElement('span');
+                    title.className = 'card-title';
+                    title.textContent = titleStr;
+                    header.appendChild(title);
 
                     const btnRow = document.createElement('div');
                     btnRow.className = 'card-buttons';
                     
-                    // ボタン1: 移動
                     const btnMove = document.createElement('button');
                     btnMove.className = 'card-btn';
                     btnMove.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
                     btnMove.onclick = (e) => { e.stopPropagation(); jumpToTraffic(favId, el); };
                     
-                    // ボタン2: 無効（新規タブで開けないため）
+                    // 無効ボタン（交通情報は新規タブ不可）
                     const btnNull = document.createElement('button');
                     btnNull.className = 'card-btn';
                     btnNull.innerHTML = '<i class="fas fa-ban" style="color:#ccc"></i>';
+                    btnNull.style.borderColor = '#ccc';
                     btnNull.disabled = true;
 
-                    // ボタン3: Fav
                     const btnFav = document.createElement('button');
                     btnFav.className = 'card-btn fav-active';
                     btnFav.innerHTML = '<i class="fas fa-star"></i>';
@@ -460,10 +472,11 @@ function renderFavoritesPage() {
                     btnRow.appendChild(btnNull);
                     btnRow.appendChild(btnFav);
                     
-                    right.appendChild(titleDiv);
+                    right.appendChild(header);
                     right.appendChild(btnRow);
                     
                     card.appendChild(left);
+                    card.appendChild(divider);
                     card.appendChild(right);
                     
                     contentDiv = card;
@@ -475,7 +488,6 @@ function renderFavoritesPage() {
             slotDiv.appendChild(contentDiv);
         }
 
-        // 編集モード処理
         if (isEditMode) {
             slotDiv.onclick = (e) => {
                 e.stopPropagation();
@@ -493,10 +505,14 @@ function renderFavoritesPage() {
         fyContentArea.classList.add('edit-mode');
         fyEditBtn.textContent = '完了';
         fyEditBtn.classList.add('editing');
+        fyEditBtn.style.background = '#667eea';
+        fyEditBtn.style.color = '#fff';
     } else {
         fyContentArea.classList.remove('edit-mode');
         fyEditBtn.textContent = '並び替え';
         fyEditBtn.classList.remove('editing');
+        fyEditBtn.style.background = 'var(--input-bg)';
+        fyEditBtn.style.color = 'var(--text-color-secondary)';
         selectedSlotIndex = null;
     }
 }
@@ -544,9 +560,9 @@ function activateTab(tabName) {
     bustarainContainer.style.display = 'none';
     optionContainer.style.display = 'none';
     fyContainer.style.display = 'none';
+    searchResults.classList.add('hidden'); // タブ切り替え時に検索結果を消す
     
     document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-    // 検索ボックスは常時表示のため非表示処理を削除
 
     if(isEditMode) {
         isEditMode = false;
@@ -558,7 +574,8 @@ function activateTab(tabName) {
     if (tabName === 'all-apps') {
         mainGrid.style.display = 'block';
         document.getElementById('tab-all-apps').classList.add('active');
-        // 検索ボックスにフォーカスを当てるなどしても良い
+        // Appsタブに来たらグリッドフィルタを適用（入力済みの場合）
+        performGlobalSearch();
     } else if (tabName === 'bustarain') {
         bustarainContainer.style.display = 'block';
         document.getElementById('tab-bustarain').classList.add('active');
@@ -568,7 +585,7 @@ function activateTab(tabName) {
     } else if (tabName === 'fy') {
         fyContainer.style.display = 'block';
         document.getElementById('tab-fy').classList.add('active');
-        updateClock(); // タブ切り替え時に即時時計更新
+        updateClock();
         renderFavoritesPage();
     }
 }
@@ -592,15 +609,81 @@ function toggleAccordion(header) {
     }
 }
 
-function handleSearch() {
-    const query = searchInput.value.toLowerCase();
+// --- 検索機能 ---
+function performGlobalSearch() {
+    const query = searchInput.value.toLowerCase().trim();
     clearSearchBtn.classList.toggle('hidden', query.length === 0);
+
+    // フィルタリング
     const filtered = initialAppData.filter(app => {
         return (app.label && app.label.toLowerCase().includes(query)) ||
                (app.searchText && app.searchText.toLowerCase().includes(query));
     });
-    // Appsグリッドを更新
-    renderGrid(filtered);
+
+    const activeTab = localStorage.getItem(TAB_KEY);
+
+    if (activeTab === 'all-apps') {
+        // Appsタブならグリッドを更新
+        searchResults.classList.add('hidden');
+        renderGrid(filtered);
+    } else {
+        // それ以外のタブならドロップダウンを表示
+        renderDropdownResults(filtered, query);
+    }
+}
+
+function renderDropdownResults(apps, query) {
+    searchResults.innerHTML = '';
+    if (query.length === 0) {
+        searchResults.classList.add('hidden');
+        return;
+    }
+
+    searchResults.classList.remove('hidden');
+
+    if (apps.length === 0) {
+        const noRes = document.createElement('div');
+        noRes.style.padding = '10px';
+        noRes.style.textAlign = 'center';
+        noRes.style.color = '#777';
+        noRes.innerText = '見つかりませんでした';
+        searchResults.appendChild(noRes);
+        return;
+    }
+
+    apps.forEach(app => {
+        const itemLink = document.createElement('a');
+        itemLink.className = 'search-result-item';
+        // クリック時、モーダルを開く
+        itemLink.onclick = (e) => {
+             e.preventDefault();
+             searchResults.classList.add('hidden');
+             searchInput.value = '';
+             clearSearchBtn.classList.add('hidden');
+             if(window.openConfirmationModal) {
+                 window.openConfirmationModal(app.url, app.label);
+             } else {
+                 window.location.href = app.url;
+             }
+        };
+
+        const img = document.createElement('img');
+        let domain = '';
+        try { domain = new URL(app.url).hostname; } catch(e){}
+        img.src = app.icon ? app.icon : `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+        
+        const span = document.createElement('span');
+        span.innerText = app.label;
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-chevron-right';
+        icon.style.color = '#ccc';
+
+        itemLink.appendChild(img);
+        itemLink.appendChild(span);
+        itemLink.appendChild(icon);
+        searchResults.appendChild(itemLink);
+    });
 }
 
 function setTheme(theme) {
@@ -612,7 +695,7 @@ function setTheme(theme) {
     } else {
         document.body.classList.remove('dark-theme');
         if(!localStorage.getItem(TEXT_COLOR_KEY)) {
-            document.documentElement.style.setProperty('--text-color-primary', '#333333');
+            document.documentElement.style.setProperty('--text-color-primary', '#000000');
         }
     }
     localStorage.setItem('theme', theme);
