@@ -176,6 +176,11 @@ window.onload = function() {
 
     const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
     activateTab(lastTab);
+    
+    // ★追加: 初回ロード時に配置を決定
+    adjustSpeedTestPosition();
+    // ★追加: 画面リサイズ時にも配置を再計算
+    window.addEventListener('resize', adjustSpeedTestPosition);
 };
 
 // --- Firebase Auth Logic ---
@@ -269,6 +274,29 @@ async function saveToCloud() {
 // ------------------------------------------------------------------
 // 5. App Logic (Grid, Tab, Clock, etc.)
 // ------------------------------------------------------------------
+
+function adjustSpeedTestPosition() {
+    const iframe = document.getElementById('speed-test-iframe');
+    const refreshBtn = document.getElementById('speed-test-refresh-button');
+    const headerContainer = document.getElementById('header-speed-test-container');
+    const fyPlaceholder = document.getElementById('fy-speed-test-placeholder');
+
+    if (!iframe || !refreshBtn || !headerContainer || !fyPlaceholder) return;
+
+    if (window.innerWidth <= 650) {
+        // --- スマホ版: FYタブへ移動 ---
+        if (!fyPlaceholder.contains(iframe)) {
+            fyPlaceholder.appendChild(iframe);
+            fyPlaceholder.appendChild(refreshBtn);
+        }
+    } else {
+        // --- PC版: ヘッダーへ戻す ---
+        if (!headerContainer.contains(iframe)) {
+            headerContainer.prepend(iframe);
+            headerContainer.appendChild(refreshBtn);
+        }
+    }
+}
 
 function getFaviconUrl(url) {
     try {
@@ -377,27 +405,22 @@ function createAppCard(app) {
     card.style.position = 'relative'; // 子要素の絶対配置の基準
 
     // 2. カード全体を覆うリンク（透明なオーバーレイ）
-    // これにより、3つのボタン以外をクリックしたときは、このリンクが反応します
     const mainLink = document.createElement('a');
     mainLink.href = app.url;
-    // メインリンクのスタイル（カード全体を覆う）
     Object.assign(mainLink.style, {
         position: 'absolute',
         top: '0',
         left: '0',
         width: '100%',
         height: '100%',
-        zIndex: '1',            // ボタン(z-index:2)より下、他の要素より上
+        zIndex: '1',            // ボタン(z-index:2)より下
         textDecoration: 'none',
-        borderRadius: '28px'    // カードの角丸に合わせる
+        borderRadius: '28px'
     });
-    // DOMに追加（他の要素の後に追加することで、視覚的には上に来る）
-    // しかしz-indexで制御するため、append順は柔軟だが、ここでは最後にappendする
     
     // --- 左側（アイコン） ---
     const left = document.createElement('div');
     left.className = 'card-left';
-    // アイコンのクリックイベントは削除（上のmainLinkが反応するため）
     
     const img = document.createElement('img');
     let iconSrc = app.icon;
@@ -473,7 +496,6 @@ function createAppCard(app) {
     right.appendChild(btnRow);
 
     // 要素をカードに追加
-    // mainLinkを最後に追加することでDOM順序的にも上に来る（z-indexも指定済み）
     card.appendChild(left);
     card.appendChild(divider);
     card.appendChild(right);
@@ -719,6 +741,9 @@ function activateTab(tabName, sync = true) {
         document.getElementById('tab-fy').classList.add('active');
         updateClock();
         renderFavoritesPage();
+        
+        // ★追加: FYタブに切り替えたタイミングでも位置調整を呼ぶ（表示/非表示に関わるため）
+        adjustSpeedTestPosition();
     }
 }
 
@@ -758,8 +783,8 @@ function setTheme(theme) {
 }
 
 function reloadSpeedTest() {
-    const iframe = document.querySelector('.header-speed-test iframe');
-    iframe.src = iframe.src;
+    const iframe = document.querySelector('.header-speed-test iframe') || document.getElementById('speed-test-iframe');
+    if(iframe) iframe.src = iframe.src;
 }
 
 // ------------------------------------------------------------------
@@ -776,6 +801,7 @@ window.saveBackground = saveBackground;
 window.saveTextColor = saveTextColor;
 window.resetBackground = resetBackground;
 window.resetTextColor = resetTextColor;
+window.adjustSpeedTestPosition = adjustSpeedTestPosition;
 
 // 検索バー用スクリプトからアクセスできるようにする
 window.initialAppData = initialAppData;
