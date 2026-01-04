@@ -283,6 +283,61 @@
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
 
+    /* --- 追加CSS: スピードテストのレスポンシブ移動用 --- */
+    
+    /* PC・タブレット（デフォルト）: FY側のプレースホルダーは非表示 */
+    #fy-speed-test-placeholder {
+        display: none;
+    }
+
+    /* スマホ版（幅650px以下）のスタイル */
+    @media (max-width: 650px) {
+        /* ヘッダーのスピードテスト枠自体を非表示（JSで中身が移動した後、枠が残らないように） */
+        .header-speed-test {
+            display: none; 
+        }
+
+        /* FYタブの時計エリアを横並び(Flex)にする */
+        #fy-clock-display {
+            display: flex !important;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* 時計とスピードテストの間隔 */
+        }
+
+        /* 日付と時刻を縦積みに変更して省スペース化 */
+        .fy-clock-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* 右寄せ */
+        }
+        .fy-date-text {
+            font-size: 12px;
+            margin-right: 0;
+            margin-bottom: 2px;
+        }
+        .fy-time-text {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* FY側に移動してきたスピードテストの表示設定 */
+        #fy-speed-test-placeholder {
+            display: flex;
+            flex-direction: column; /* iframeと更新ボタンを縦積み */
+            align-items: center;
+            transform: scale(0.9); /* 少し小さくして収まりよくする */
+        }
+        
+        /* iframeのサイズ調整 */
+        #speed-test-iframe {
+            width: 100px !important;
+            height: 50px !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -308,8 +363,9 @@
                 </div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
             </div>
-            <div class="header-speed-test">
-                <iframe src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
+            <!-- ★ id="header-speed-test-container" と iframeの id="speed-test-iframe" を追加 -->
+            <div class="header-speed-test" id="header-speed-test-container">
+                <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
             </div>
         </div>
@@ -326,9 +382,14 @@
   </div>
   <div class="page-container">
       <div id="fy-container">
+          <!-- ★ FY時計表示の構造変更 -->
           <div id="fy-clock-display">
-              <span id="fy-date-text" class="fy-date-text"></span>
-              <span id="fy-time-text" class="fy-time-text"></span>
+              <div class="fy-clock-group">
+                  <div id="fy-date-text" class="fy-date-text"></div>
+                  <div id="fy-time-text" class="fy-time-text"></div>
+              </div>
+              <!-- スピードテストの移動先 -->
+              <div id="fy-speed-test-placeholder"></div>
           </div>
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
               <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
