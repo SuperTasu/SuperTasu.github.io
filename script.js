@@ -1,3 +1,4 @@
+
 // --- DOM要素 ---
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
@@ -491,3 +492,129 @@ function renderFavoritesPage() {
 
         fyContentArea.appendChild(slotDiv);
     });
+
+    if(isEditMode) {
+        fyContentArea.classList.add('edit-mode');
+        fyEditBtn.textContent = '完了';
+        fyEditBtn.classList.add('editing');
+        fyEditBtn.style.background = '#667eea';
+        fyEditBtn.style.color = '#fff';
+    } else {
+        fyContentArea.classList.remove('edit-mode');
+        fyEditBtn.textContent = '並び替え';
+        fyEditBtn.classList.remove('editing');
+        fyEditBtn.style.background = 'var(--input-bg)';
+        fyEditBtn.style.color = 'var(--text-color-secondary)';
+        selectedSlotIndex = null;
+    }
+}
+
+function jumpToTraffic(favId, element) {
+    activateTab('bustarain');
+    const parentTabId = element.parentElement.id;
+    switchSubTab(parentTabId);
+    if(!element.classList.contains('active')) toggleAccordion(element.querySelector('.accordion-header'));
+    setTimeout(() => { element.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+}
+
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    selectedSlotIndex = null;
+    renderFavoritesPage();
+}
+
+function handleSlotClick(clickedIndex) {
+    if (selectedSlotIndex === null) {
+        if (favorites[clickedIndex] === null) return;
+        selectedSlotIndex = clickedIndex;
+        renderFavoritesPage();
+        return;
+    }
+
+    if (selectedSlotIndex === clickedIndex) {
+        selectedSlotIndex = null;
+        renderFavoritesPage();
+        return;
+    }
+
+    const temp = favorites[selectedSlotIndex];
+    favorites[selectedSlotIndex] = favorites[clickedIndex];
+    favorites[clickedIndex] = temp;
+    
+    saveFavorites();
+    selectedSlotIndex = null; 
+    renderFavoritesPage();
+}
+
+// --- 共通 ---
+function activateTab(tabName) {
+    mainGrid.style.display = 'none';
+    bustarainContainer.style.display = 'none';
+    optionContainer.style.display = 'none';
+    fyContainer.style.display = 'none';
+    
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+
+    if(isEditMode) {
+        isEditMode = false;
+        renderFavoritesPage();
+    }
+
+    localStorage.setItem(TAB_KEY, tabName);
+
+    if (tabName === 'all-apps') {
+        mainGrid.style.display = 'block';
+        document.getElementById('tab-all-apps').classList.add('active');
+        // グリッド絞り込みはしない（検索結果バーを使用するため）
+    } else if (tabName === 'bustarain') {
+        bustarainContainer.style.display = 'block';
+        document.getElementById('tab-bustarain').classList.add('active');
+    } else if (tabName === 'option') {
+        optionContainer.style.display = 'block';
+        document.getElementById('tab-option').classList.add('active');
+    } else if (tabName === 'fy') {
+        fyContainer.style.display = 'block';
+        document.getElementById('tab-fy').classList.add('active');
+        updateClock();
+        renderFavoritesPage();
+    }
+}
+
+function switchSubTab(targetId) {
+    document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(targetId).classList.remove('hidden');
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
+    });
+}
+
+function toggleAccordion(header) {
+    const item = header.parentElement;
+    const content = item.querySelector('.accordion-content');
+    const iframe = content.querySelector('iframe');
+    item.classList.toggle('active');
+    if (item.classList.contains('active')) {
+        if (iframe && !iframe.src && iframe.dataset.src) iframe.src = iframe.dataset.src;
+    }
+}
+
+function setTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
+            document.documentElement.style.setProperty('--text-color-primary', '#f5f5f5');
+        }
+    } else {
+        document.body.classList.remove('dark-theme');
+        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
+            document.documentElement.style.setProperty('--text-color-primary', '#000000');
+        }
+    }
+    localStorage.setItem('theme', theme);
+}
+
+function reloadSpeedTest() {
+    const iframe = document.querySelector('.header-speed-test iframe');
+    iframe.src = iframe.src;
+}
