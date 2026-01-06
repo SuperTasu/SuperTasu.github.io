@@ -9,16 +9,15 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 
 // ★★★ 必ずご自身のAPIキーなどを入れてください ★★★
 const firebaseConfig = {
-    apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
-    authDomain: "linkfast--login.firebaseapp.com",
-    projectId: "linkfast--login",
-    storageBucket: "linkfast--login.firebasestorage.app",
-    messagingSenderId: "691869871884",
-    appId: "1:691869871884:web:4267ca37685cfbcda7e329",
-    measurementId: "G-6LK1NSY24N"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
@@ -35,14 +34,10 @@ const optionContainer = document.getElementById('option-container');
 const fyContainer = document.getElementById('fy-container');
 const fyContentArea = document.getElementById('fy-content-area');
 const gridContainer = document.getElementById('gridContainer');
-const searchInput = document.getElementById('globalSearchInput');
-const clearSearchBtn = document.getElementById('clearSearchBtn');
-const fyEditBtn = document.getElementById('fy-edit-btn'); 
-const dateElement = document.getElementById('date');
-const clockElement = document.getElementById('clock');
-const countdownElement = document.getElementById('countdown');
-const authBtn = document.getElementById('auth-btn');
+const authInfo = document.getElementById('auth-info');
+const userNameEl = document.getElementById('user-name');
 const userAvatar = document.getElementById('user-avatar');
+const authIcon = document.getElementById('auth-icon');
 
 // FY専用時計
 const fyDateText = document.getElementById('fy-date-text');
@@ -145,6 +140,7 @@ const FAV_KEY = 'myLinkAppFavorites';
 const BG_KEY = 'myLinkAppBg';
 const TAB_KEY = 'myLinkAppLastTab';
 const TEXT_COLOR_KEY = 'myLinkAppTextColor';
+const SECTIONS_KEY = 'myLinkAppSections'; // 区間設定保存用
 
 let favorites = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
 if (favorites.length < 60) {
@@ -152,12 +148,17 @@ if (favorites.length < 60) {
     favorites = favorites.concat(padding);
 }
 
+// 区間設定データ: { name: 'Name', start: index, end: index }
+let sections = JSON.parse(localStorage.getItem(SECTIONS_KEY)) || [];
+
 let isEditMode = false;
+let isSectionMode = false;
 let selectedSlotIndex = null;
-let currentUser = null; // 現在のログインユーザー
+let sectionSelectionStart = null;
+let currentUser = null; 
 
 // ------------------------------------------------------------------
-// 4. Initialization & Event Listeners
+// 4. Initialization
 // ------------------------------------------------------------------
 
 window.onload = function() {
@@ -170,9 +171,7 @@ window.onload = function() {
     loadBackground();
     loadTextColor(); 
 
-    if (typeof window.initOptionTabContent === 'function') {
-        window.initOptionTabContent();
-    }
+    if (typeof window.initOptionTabContent === 'function') window.initOptionTabContent();
 
     renderGrid(initialAppData);
     initBustarain();
@@ -183,64 +182,51 @@ window.onload = function() {
     adjustSpeedTestPosition();
     window.addEventListener('resize', adjustSpeedTestPosition);
 
-    // ★追加: ネットワーク状態の監視開始
     setupNetworkStatus();
-    // ★追加: スピードテストの自動更新開始
     setupSpeedTestAutoRefresh();
+    
+    // バスフィルターの初期状態適用
+    const busFilterMode = localStorage.getItem('bus_filter_mode') || 'ALL';
+    applyBusFilter(busFilterMode);
 };
 
-// --- ★新規関数: ネットワーク状態の監視 ---
+// --- Network & Speed Test ---
 function setupNetworkStatus() {
     const statusEl = document.getElementById('network-status');
     const updateStatus = () => {
         if (navigator.onLine) {
-            statusEl.className = 'online';
-            statusEl.innerHTML = '<i class="fas fa-wifi"></i> <span>ON</span>';
-            statusEl.title = "オンライン";
+            statusEl.className = 'online'; statusEl.innerHTML = '<i class="fas fa-wifi"></i> <span>ON</span>';
         } else {
-            statusEl.className = 'offline';
-            statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>OFF</span>';
-            statusEl.title = "オフライン";
+            statusEl.className = 'offline'; statusEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>OFF</span>';
         }
     };
-    
     window.addEventListener('online', updateStatus);
     window.addEventListener('offline', updateStatus);
-    updateStatus(); // 初期実行
+    updateStatus();
 }
 
-// --- ★新規関数: スピードテストの自動更新 (2分毎) ---
 function setupSpeedTestAutoRefresh() {
-    setInterval(() => {
-        // ユーザーがオフラインの場合は更新しない（エラー画面になるのを防ぐ）
-        if (navigator.onLine) {
-            reloadSpeedTest();
-            console.log("Speed test refreshed.");
-        }
-    }, 120000); // 120,000ms = 2分
+    setInterval(() => { if (navigator.onLine) reloadSpeedTest(); }, 120000);
 }
 
 // --- Firebase Auth Logic ---
-authBtn.addEventListener('click', () => {
+authInfo.addEventListener('click', () => {
     if (currentUser) {
-        signOut(auth).then(() => {
-            alert('ログアウトしました');
-        }).catch((error) => {
-            console.error('Sign Out Error', error);
-        });
+        // ログアウトかアカウント切り替えかを選択させる
+        const choice = confirm("アカウントを切り替えますか？\n[OK] アカウント切り替え\n[キャンセル] ログアウトのみ");
+        if (choice) {
+            // アカウント切り替え（強制的に選択画面を表示）
+            provider.setCustomParameters({ prompt: 'select_account' });
+            signInWithPopup(auth, provider).then(() => {
+                // パラメータリセット
+                provider.setCustomParameters({});
+            }).catch(e => console.error(e));
+        } else {
+            signOut(auth).then(() => alert('ログアウトしました'));
+        }
     } else {
-        signInWithPopup(auth, provider).then((result) => {
-            console.log("Login Success");
-        }).catch((error) => {
-            console.error('Sign In Error Details:', error);
-            
-            let errorMsg = "ログインに失敗しました。";
-            if (error.code === 'auth/unauthorized-domain') {
-                errorMsg = "エラー：このドメインは許可されていません。\nFirebaseコンソール > Authentication > 設定 > 承認済みドメイン にGitHubのURLを追加してください。";
-            } else if (error.code === 'auth/api-key-not-valid') {
-                errorMsg = "エラー：APIキーが無効です。firebaseConfigの設定を確認してください。";
-            }
-            alert(errorMsg + "\n(" + error.code + ")");
+        signInWithPopup(auth, provider).catch(e => {
+            alert("ログインエラー: " + e.code);
         });
     }
 });
@@ -248,23 +234,20 @@ authBtn.addEventListener('click', () => {
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
-        const icon = authBtn.querySelector('i');
-        if(icon) icon.classList.add('hidden');
+        authIcon.style.display = 'none';
         userAvatar.style.display = 'block';
         userAvatar.src = user.photoURL;
-        authBtn.title = `ログアウト (${user.displayName})`;
+        userNameEl.textContent = user.displayName;
         await loadFromCloud();
     } else {
-        const icon = authBtn.querySelector('i');
-        if(icon) icon.classList.remove('hidden');
+        authIcon.style.display = 'block';
         userAvatar.style.display = 'none';
         userAvatar.src = "";
-        authBtn.title = "Googleログイン";
+        userNameEl.textContent = "Guest";
     }
 });
 
-// --- Firestore Sync Functions ---
-
+// --- Firestore Sync ---
 async function loadFromCloud() {
     if (!currentUser) return;
     const docRef = doc(db, "users", currentUser.uid);
@@ -279,16 +262,17 @@ async function loadFromCloud() {
                 renderFavoritesPage();
                 initBustarain();
             }
+            if (data.sections) {
+                sections = data.sections;
+                localStorage.setItem(SECTIONS_KEY, JSON.stringify(sections));
+                renderFavoritesPage();
+            }
             if (data.background) saveBackground(data.background, false);
-            if (data.textColor) saveTextColor(data.textColor, false);
-            if (data.lastTab) activateTab(data.lastTab, false);
-            console.log("Data loaded from cloud.");
+            if (data.busFilter) applyBusFilter(data.busFilter);
         } else {
             saveToCloud();
         }
-    } catch (e) {
-        console.error("Error loading document: ", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 async function saveToCloud() {
@@ -296,20 +280,17 @@ async function saveToCloud() {
     try {
         const dataToSave = {
             favorites: favorites,
+            sections: sections, // 区間設定も保存
             background: localStorage.getItem(BG_KEY) || 'none',
-            textColor: localStorage.getItem(TEXT_COLOR_KEY) || '#000000',
-            lastTab: localStorage.getItem(TAB_KEY) || 'all-apps',
+            busFilter: localStorage.getItem('bus_filter_mode') || 'ALL',
             updatedAt: new Date()
         };
         await setDoc(doc(db, "users", currentUser.uid), dataToSave, { merge: true });
-        console.log("Data synced to cloud.");
-    } catch (e) {
-        console.error("Error writing document: ", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 // ------------------------------------------------------------------
-// 5. App Logic (Grid, Tab, Clock, etc.)
+// 5. App Logic
 // ------------------------------------------------------------------
 
 function adjustSpeedTestPosition() {
@@ -317,21 +298,12 @@ function adjustSpeedTestPosition() {
     const refreshBtn = document.getElementById('speed-test-refresh-button');
     const headerContainer = document.getElementById('header-speed-test-container');
     const fyPlaceholder = document.getElementById('fy-speed-test-placeholder');
-
     if (!iframe || !refreshBtn || !headerContainer || !fyPlaceholder) return;
 
     if (window.innerWidth <= 650) {
-        // --- スマホ版: FYタブへ移動 ---
-        if (!fyPlaceholder.contains(iframe)) {
-            fyPlaceholder.appendChild(iframe);
-            fyPlaceholder.appendChild(refreshBtn);
-        }
+        if (!fyPlaceholder.contains(iframe)) { fyPlaceholder.append(iframe, refreshBtn); }
     } else {
-        // --- PC版: ヘッダーへ戻す ---
-        if (!headerContainer.contains(iframe)) {
-            headerContainer.prepend(iframe);
-            headerContainer.appendChild(refreshBtn);
-        }
+        if (!headerContainer.contains(iframe)) { headerContainer.prepend(iframe); headerContainer.appendChild(refreshBtn); }
     }
 }
 
@@ -339,18 +311,29 @@ function getFaviconUrl(url) {
     try {
         if (!url || !url.startsWith('http')) return './icon.png';
         return `https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(url)}&size=128`;
-    } catch (e) {
-        return './icon.png';
-    }
+    } catch (e) { return './icon.png'; }
 }
-
 function getDuckDuckGoFavicon(url) {
     try {
         if (!url || !url.startsWith('http')) return './icon.png';
-        const domain = new URL(url).hostname;
-        return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
-    } catch (e) {
-        return './icon.png';
+        return `https://icons.duckduckgo.com/ip3/${new URL(url).hostname}.ico`;
+    } catch (e) { return './icon.png'; }
+}
+
+// --- Background Image from File ---
+window.handleBgImageSelect = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // 画像データをBase64として保存 (サイズに注意)
+            // 大きすぎる場合は圧縮する処理が必要だが、今回は簡易実装
+            try {
+                saveBackground(e.target.result);
+            } catch(e) {
+                alert("画像サイズが大きすぎて保存できませんでした。");
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
@@ -359,439 +342,335 @@ function saveBackground(urlData, sync = true) {
         localStorage.setItem(BG_KEY, urlData);
         applyBackground(urlData);
         if (sync && currentUser) saveToCloud();
-        if (sync) alert('背景を設定しました。');
-    } catch (e) {
-        alert('保存に失敗しました。');
-    }
+    } catch (e) { alert('保存に失敗しました(容量オーバーの可能性があります)。'); }
 }
 function loadBackground() {
     const savedBg = localStorage.getItem(BG_KEY);
     if (savedBg) applyBackground(savedBg);
 }
 function applyBackground(urlData) {
-    if (urlData && urlData !== 'none') {
-        document.body.style.setProperty('--custom-bg-image', `url('${urlData}')`);
-    } else {
-        document.body.style.setProperty('--custom-bg-image', 'none');
-    }
+    if (urlData && urlData !== 'none') document.body.style.setProperty('--custom-bg-image', `url('${urlData}')`);
+    else document.body.style.setProperty('--custom-bg-image', 'none');
 }
 function resetBackground() {
     localStorage.removeItem(BG_KEY);
     applyBackground('none');
     if (currentUser) saveToCloud();
+    document.getElementById('bg-image-input').value = '';
     alert('背景をリセットしました。');
-}
-
-function saveTextColor(color, sync = true) {
-    localStorage.setItem(TEXT_COLOR_KEY, color);
-    applyTextColor(color);
-    if (sync && currentUser) saveToCloud();
-}
-function loadTextColor() {
-    const color = localStorage.getItem(TEXT_COLOR_KEY);
-    if(color) applyTextColor(color);
-}
-function applyTextColor(color) {
-    document.documentElement.style.setProperty('--text-color-primary', color);
-}
-function resetTextColor() {
-    localStorage.removeItem(TEXT_COLOR_KEY);
-    document.documentElement.style.setProperty('--text-color-primary', '#000000');
-    const currentTheme = localStorage.getItem('theme');
-    setTheme(currentTheme || 'light');
-    if (currentUser) saveToCloud();
 }
 
 function updateClock() {
     const now = new Date();
     const days = ['日', '月', '火', '水', '木', '金', '土'];
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
     const day = days[now.getDay()];
-
-    const dateStr = `${year}/${month}/${date} (${day})`;
-    const timeStr = now.toTimeString().split(' ')[0];
-    dateElement.textContent = dateStr;
-    clockElement.textContent = timeStr;
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} (${day})`;
+    const timeStr = now.toTimeString().split(' ')[0].substring(0, 5); // 秒カットでスペース節約
+    document.getElementById('date').textContent = dateStr;
+    document.getElementById('clock').textContent = timeStr;
 
     if (fyContainer.style.display !== 'none') {
-        if(fyDateText) fyDateText.textContent = dateStr;
-        if(fyTimeText) fyTimeText.textContent = timeStr;
+        fyDateText.textContent = dateStr;
+        fyTimeText.textContent = now.toTimeString().split(' ')[0];
     }
 
     const nowMin = now.getHours() * 60 + now.getMinutes();
-    let msg = "本日の予定は終了";
-
+    let msg = "終了";
     for (let item of schedule) {
         const [sh, sm] = item.start.split(':').map(Number);
         const [eh, em] = item.end.split(':').map(Number);
-        const sMin = sh * 60 + sm;
-        const eMin = eh * 60 + em;
-
+        const sMin = sh * 60 + sm; const eMin = eh * 60 + em;
         if (nowMin >= sMin && nowMin < eMin) {
-            const totalDuration = eMin - sMin;
-            const elapsed = nowMin - sMin;
-            const percentage = Math.floor((elapsed / totalDuration) * 100);
-            msg = `${item.name} ${item.start} 〜 ${item.end} (${percentage}%)`;
-            break;
-        } else if (nowMin < sMin) {
-            msg = `次は ${item.name} (${item.start}〜)`;
-            break;
-        }
+            msg = `${item.name} (${Math.floor(((nowMin - sMin) / (eMin - sMin)) * 100)}%)`; break;
+        } else if (nowMin < sMin) { msg = `次:${item.name}`; break; }
     }
-    countdownElement.textContent = msg;
+    document.getElementById('countdown').textContent = msg;
 }
 
+// --- Cards & Grid ---
 function createAppCard(app) {
-    // 1. カード自体の枠（div）
     const card = document.createElement('div');
     card.className = 'app-card';
     card.dataset.appId = app.id;
-    card.style.position = 'relative'; // 子要素の絶対配置の基準
+    card.style.position = 'relative';
 
-    // 2. カード全体を覆うリンク（透明なオーバーレイ）
     const mainLink = document.createElement('a');
     mainLink.href = app.url;
     Object.assign(mainLink.style, {
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '100%',
-        height: '100%',
-        zIndex: '1',            // ボタン(z-index:2)より下
-        textDecoration: 'none',
-        borderRadius: '28px'
+        position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', zIndex: '1',
+        textDecoration: 'none', borderRadius: '28px'
     });
     
-    // --- 左側（アイコン） ---
-    const left = document.createElement('div');
-    left.className = 'card-left';
-    
+    const left = document.createElement('div'); left.className = 'card-left';
     const img = document.createElement('img');
-    
     if (app.icon && app.icon.startsWith('http') && !app.icon.includes('google.com/s2/favicons') && !app.icon.includes('.ico')) {
         img.src = app.icon;
-    } else {
-        img.src = getFaviconUrl(app.url);
-    }
-
-    img.onerror = () => {
-        img.onerror = () => {
-            img.src = './icon.png';
-        };
-        img.src = getDuckDuckGoFavicon(app.url);
-    };
-    
+    } else { img.src = getFaviconUrl(app.url); }
+    img.onerror = () => { img.onerror = () => { img.src = './icon.png'; }; img.src = getDuckDuckGoFavicon(app.url); };
     left.appendChild(img);
 
-    // --- 中央（仕切り） ---
-    const divider = document.createElement('div');
-    divider.className = 'card-divider';
+    const divider = document.createElement('div'); divider.className = 'card-divider';
+    const right = document.createElement('div'); right.className = 'card-right';
+    const header = document.createElement('div'); header.className = 'card-header';
+    const title = document.createElement('span'); title.className = 'card-title';
+    title.textContent = app.label; header.appendChild(title);
 
-    // --- 右側（テキストとボタン） ---
-    const right = document.createElement('div');
-    right.className = 'card-right';
+    const btnRow = document.createElement('div'); btnRow.className = 'card-buttons';
+    btnRow.style.position = 'relative'; btnRow.style.zIndex = '2'; 
 
-    const header = document.createElement('div');
-    header.className = 'card-header';
-    const title = document.createElement('span');
-    title.className = 'card-title';
-    title.textContent = app.label;
-    title.title = app.label;
-    header.appendChild(title);
-
-    // --- ボタン ---
-    const btnRow = document.createElement('div');
-    btnRow.className = 'card-buttons';
-    // ★重要：ボタン群をオーバーレイリンクより上に表示する設定
-    btnRow.style.position = 'relative';
-    btnRow.style.zIndex = '2'; 
-
-    // ボタン1: このページで開く
-    const btnSame = document.createElement('button');
-    btnSame.className = 'card-btn';
+    const btnSame = document.createElement('button'); btnSame.className = 'card-btn';
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
-    btnSame.title = "このページで開く";
-    btnSame.onclick = (e) => { 
-        e.stopPropagation(); // 親のリンク反応を止める
-        window.location.href = app.url; 
-    };
+    btnSame.onclick = (e) => { e.stopPropagation(); window.location.href = app.url; };
 
-    // ボタン3: お気に入り
     const btnFav = document.createElement('button');
     const isFav = favorites.includes(app.id);
     btnFav.className = isFav ? 'card-btn fav-active' : 'card-btn';
     btnFav.innerHTML = '<i class="fas fa-star"></i>';
-    btnFav.title = isFav ? "お気に入り解除" : "お気に入り登録";
-    btnFav.onclick = (e) => { 
-        e.stopPropagation(); // 親のリンク反応を止める
-        toggleFavorite(app.id); 
-    };
+    btnFav.onclick = (e) => { e.stopPropagation(); toggleFavorite(app.id); };
 
-    btnRow.appendChild(btnSame);
-    btnRow.appendChild(btnFav);
-
-    right.appendChild(header);
-    right.appendChild(btnRow);
-
-    // 要素をカードに追加
-    card.appendChild(left);
-    card.appendChild(divider);
-    card.appendChild(right);
-    card.appendChild(mainLink); // オーバーレイリンク
-
+    btnRow.append(btnSame, btnFav);
+    right.append(header, btnRow);
+    card.append(left, divider, right, mainLink);
     return card;
 }
 
 function renderGrid(data) {
     gridContainer.innerHTML = '';
-    data.forEach(app => {
-        const item = createAppCard(app);
-        gridContainer.appendChild(item);
-    });
+    data.forEach(app => gridContainer.appendChild(createAppCard(app)));
 }
 
 function initBustarain() {
-    const items = document.querySelectorAll('#bustarain-container .accordion-item');
-    items.forEach(item => {
+    document.querySelectorAll('#bustarain-container .accordion-item').forEach(item => {
         const id = item.dataset.id;
         const star = item.querySelector('.acc-fav-btn');
         if(!star) return;
-
-        if(favorites.includes(id)) {
-            star.className = 'fas fa-star acc-fav-btn active';
-        } else {
-            star.className = 'far fa-star acc-fav-btn';
-        }
-
-        star.onclick = (e) => {
-            e.stopPropagation();
-            toggleFavorite(id);
-        };
+        star.className = favorites.includes(id) ? 'fas fa-star acc-fav-btn active' : 'far fa-star acc-fav-btn';
+        star.onclick = (e) => { e.stopPropagation(); toggleFavorite(id); };
     });
 }
 
 function toggleFavorite(id) {
-    const existingIndex = favorites.indexOf(id);
-    if (existingIndex !== -1) {
-        favorites[existingIndex] = null;
-    } else {
-        const emptyIndex = favorites.indexOf(null);
-        if (emptyIndex !== -1) {
-            favorites[emptyIndex] = id;
-        } else {
-            favorites.push(id);
-        }
+    const idx = favorites.indexOf(id);
+    if (idx !== -1) favorites[idx] = null;
+    else {
+        const empty = favorites.indexOf(null);
+        if (empty !== -1) favorites[empty] = id; else favorites.push(id);
     }
     saveFavorites();
     renderGrid(initialAppData);
-    if (document.getElementById('tab-fy').classList.contains('active')) {
-        renderFavoritesPage();
-    }
+    if (document.getElementById('tab-fy').classList.contains('active')) renderFavoritesPage();
     initBustarain();
 }
-
 function saveFavorites() {
     localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
     if (currentUser) saveToCloud();
 }
 
+// --- FY Page Logic (Sections & Edit) ---
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    isSectionMode = false;
+    sectionSelectionStart = null;
+    updateFyButtons();
+    renderFavoritesPage();
+}
+
+function toggleSectionMode() {
+    isSectionMode = !isSectionMode;
+    isEditMode = false;
+    sectionSelectionStart = null;
+    updateFyButtons();
+    renderFavoritesPage();
+}
+
+function updateFyButtons() {
+    const editBtn = document.getElementById('fy-edit-btn');
+    const sectBtn = document.getElementById('fy-section-btn');
+    editBtn.style.background = isEditMode ? '#667eea' : 'var(--input-bg)';
+    editBtn.style.color = isEditMode ? '#fff' : 'var(--text-color-secondary)';
+    sectBtn.style.background = isSectionMode ? '#ff9800' : 'var(--input-bg)';
+    sectBtn.style.color = isSectionMode ? '#fff' : 'var(--text-color-secondary)';
+}
+
 function renderFavoritesPage() {
     fyContentArea.innerHTML = '';
+    fyContentArea.classList.toggle('edit-mode', isEditMode);
+    fyContentArea.classList.toggle('section-mode', isSectionMode);
 
-    favorites.forEach((favId, index) => {
+    // グリッドスロット生成 (60個)
+    const slots = [];
+    for (let i = 0; i < 60; i++) {
         const slotDiv = document.createElement('div');
         slotDiv.className = 'grid-slot';
+        slotDiv.dataset.index = i;
+        
+        // 区間設定モード: クリック処理
+        if (isSectionMode) {
+            slotDiv.onclick = (e) => handleSectionClick(i);
+            if (sectionSelectionStart !== null && i === sectionSelectionStart) {
+                slotDiv.classList.add('section-selected');
+            }
+        }
+        // 並び替えモード: クリック処理
+        else if (isEditMode) {
+            slotDiv.onclick = (e) => handleSlotClick(i);
+            if (selectedSlotIndex === i) slotDiv.classList.add('selected-slot');
+        }
+
+        const favId = favorites[i];
         if (favId === null) slotDiv.classList.add('empty');
-        
-        let contentDiv = null;
-        
-        if (favId !== null) {
-            if (favId === 'opt-takatori') {
-                slotDiv.classList.add('full-width');
-                if(typeof window.renderTakatoriBoard === 'function') {
-                    window.renderTakatoriBoard(slotDiv);
-                } else {
-                    slotDiv.textContent = "Takatori Board";
-                }
-            } 
-            else if (typeof favId === 'number') {
+        else {
+            let contentDiv = null;
+            if (typeof favId === 'number') {
                 const app = initialAppData.find(a => a.id === favId);
-                if(app) {
-                    contentDiv = createAppCard(app);
-                }
-            } else {
-                // ★★★ 修正: 交通情報の種類に応じてアイコンを切り替え ★★★
+                if(app) contentDiv = createAppCard(app);
+            } else { // Traffic
                 const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
                 if(el) {
                     const titleStr = el.dataset.title;
-                    const card = document.createElement('div');
-                    card.className = 'app-card';
+                    const card = document.createElement('div'); card.className = 'app-card';
+                    let iconClass = String(favId).startsWith('tr-') ? 'fa-train' : 'fa-bus';
                     
-                    // アイコン判定ロジック
-                    let iconClass = 'fa-bus'; // デフォルトはバス
-                    if (String(favId).startsWith('tr-')) {
-                        iconClass = 'fa-train'; // 電車
-                    } else if (String(favId).startsWith('ot-')) {
-                        iconClass = 'fa-info-circle'; // その他
-                    }
-
-                    const left = document.createElement('div');
-                    left.className = 'card-left';
+                    const left = document.createElement('div'); left.className = 'card-left';
                     left.innerHTML = `<i class="fas ${iconClass}" style="font-size:32px; color:#555;"></i>`;
-                    left.onclick = () => { if(!isEditMode) jumpToTraffic(favId, el); };
+                    left.onclick = () => { if(!isEditMode && !isSectionMode) jumpToTraffic(favId, el); };
                     
-                    const divider = document.createElement('div');
-                    divider.className = 'card-divider';
+                    const divider = document.createElement('div'); divider.className = 'card-divider';
+                    const right = document.createElement('div'); right.className = 'card-right';
+                    const header = document.createElement('div'); header.className = 'card-header';
+                    const title = document.createElement('span'); title.className = 'card-title';
+                    title.textContent = titleStr; header.appendChild(title);
 
-                    const right = document.createElement('div');
-                    right.className = 'card-right';
-                    
-                    const header = document.createElement('div');
-                    header.className = 'card-header';
-                    const title = document.createElement('span');
-                    title.className = 'card-title';
-                    title.textContent = titleStr;
-                    header.appendChild(title);
-
-                    const btnRow = document.createElement('div');
-                    btnRow.className = 'card-buttons';
-                    
-                    const btnMove = document.createElement('button');
-                    btnMove.className = 'card-btn';
+                    const btnRow = document.createElement('div'); btnRow.className = 'card-buttons';
+                    const btnMove = document.createElement('button'); btnMove.className = 'card-btn';
                     btnMove.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
                     btnMove.onclick = (e) => { e.stopPropagation(); jumpToTraffic(favId, el); };
-                    
-                    const btnNull = document.createElement('button');
-                    btnNull.className = 'card-btn';
-                    btnNull.innerHTML = '<i class="fas fa-ban" style="color:#ccc"></i>';
-                    btnNull.style.borderColor = '#ccc';
-                    btnNull.disabled = true;
-
-                    const btnFav = document.createElement('button');
-                    btnFav.className = 'card-btn fav-active';
+                    const btnFav = document.createElement('button'); btnFav.className = 'card-btn fav-active';
                     btnFav.innerHTML = '<i class="fas fa-star"></i>';
                     btnFav.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
 
-                    btnRow.appendChild(btnMove);
-                    btnRow.appendChild(btnNull);
-                    btnRow.appendChild(btnFav);
-                    
-                    right.appendChild(header);
-                    right.appendChild(btnRow);
-                    
-                    card.appendChild(left);
-                    card.appendChild(divider);
-                    card.appendChild(right);
-                    
+                    btnRow.append(btnMove, btnFav);
+                    right.append(header, btnRow);
+                    card.append(left, divider, right);
                     contentDiv = card;
                 }
             }
+            if(contentDiv) slotDiv.appendChild(contentDiv);
         }
+        slots.push(slotDiv);
+    }
 
-        if (contentDiv) {
-            slotDiv.appendChild(contentDiv);
-        }
-
-        if (isEditMode) {
-            slotDiv.onclick = (e) => {
-                e.stopPropagation();
-                handleSlotClick(index);
-            };
-            if (selectedSlotIndex === index) {
-                slotDiv.classList.add('selected-slot');
-            }
-        }
-
-        fyContentArea.appendChild(slotDiv);
+    // 区間表示のためのレンダリングロジック
+    // slots配列を走査し、区間に含まれるものはwrapperに入れる
+    // 区間に含まれないものはそのまま追加
+    
+    // index -> section map
+    const indexToSection = {};
+    sections.forEach(sec => {
+        for(let i=sec.start; i<=sec.end; i++) indexToSection[i] = sec;
     });
 
-    if(isEditMode) {
-        fyContentArea.classList.add('edit-mode');
-        fyEditBtn.textContent = '完了';
-        fyEditBtn.classList.add('editing');
-        fyEditBtn.style.background = '#667eea';
-        fyEditBtn.style.color = '#fff';
-    } else {
-        fyContentArea.classList.remove('edit-mode');
-        fyEditBtn.textContent = '並び替え';
-        fyEditBtn.classList.remove('editing');
-        fyEditBtn.style.background = 'var(--input-bg)';
-        fyEditBtn.style.color = 'var(--text-color-secondary)';
-        selectedSlotIndex = null;
+    let i = 0;
+    while (i < 60) {
+        if (indexToSection[i]) {
+            const sec = indexToSection[i];
+            // wrapper作成
+            const wrapper = document.createElement('div');
+            wrapper.className = 'section-wrapper';
+            
+            // ラベル
+            const label = document.createElement('div');
+            label.className = 'section-label';
+            // 削除機能もつける
+            label.innerHTML = `${sec.name} <i class="fas fa-times" style="margin-left:5px; cursor:pointer;" onclick="removeSection('${sec.name}')"></i>`;
+            wrapper.appendChild(label);
+
+            // 終了までスロットを追加
+            while (i <= sec.end && i < 60) {
+                wrapper.appendChild(slots[i]);
+                i++;
+            }
+            fyContentArea.appendChild(wrapper);
+        } else {
+            fyContentArea.appendChild(slots[i]);
+            i++;
+        }
     }
 }
 
-function jumpToTraffic(favId, element) {
-    activateTab('bustarain');
-    const parentTabId = element.parentElement.id;
-    switchSubTab(parentTabId);
-    if(!element.classList.contains('active')) toggleAccordion(element.querySelector('.accordion-header'));
-    setTimeout(() => { element.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+// 区間設定のクリックハンドラ
+function handleSectionClick(index) {
+    if (sectionSelectionStart === null) {
+        sectionSelectionStart = index;
+        renderFavoritesPage();
+    } else {
+        const start = Math.min(sectionSelectionStart, index);
+        const end = Math.max(sectionSelectionStart, index);
+        const name = prompt("区間の名前を入力してください:");
+        if (name) {
+            // 重複チェック: 既存の区間と被っていたら削除して上書き
+            sections = sections.filter(s => !(s.start <= end && s.end >= start));
+            sections.push({ name, start, end });
+            saveSections();
+        }
+        sectionSelectionStart = null;
+        renderFavoritesPage();
+    }
 }
 
-function toggleEditMode() {
-    isEditMode = !isEditMode;
-    selectedSlotIndex = null;
+window.removeSection = function(name) {
+    if(!confirm(`区間「${name}」を解除しますか？`)) return;
+    sections = sections.filter(s => s.name !== name);
+    saveSections();
     renderFavoritesPage();
+};
+
+function saveSections() {
+    localStorage.setItem(SECTIONS_KEY, JSON.stringify(sections));
+    if(currentUser) saveToCloud();
 }
 
 function handleSlotClick(clickedIndex) {
     if (selectedSlotIndex === null) {
         if (favorites[clickedIndex] === null) return;
         selectedSlotIndex = clickedIndex;
-        renderFavoritesPage();
-        return;
+    } else {
+        if (selectedSlotIndex !== clickedIndex) {
+            const temp = favorites[selectedSlotIndex];
+            favorites[selectedSlotIndex] = favorites[clickedIndex];
+            favorites[clickedIndex] = temp;
+            saveFavorites();
+        }
+        selectedSlotIndex = null; 
     }
-
-    if (selectedSlotIndex === clickedIndex) {
-        selectedSlotIndex = null;
-        renderFavoritesPage();
-        return;
-    }
-
-    const temp = favorites[selectedSlotIndex];
-    favorites[selectedSlotIndex] = favorites[clickedIndex];
-    favorites[clickedIndex] = temp;
-
-    saveFavorites();
-    selectedSlotIndex = null; 
     renderFavoritesPage();
 }
 
-function activateTab(tabName, sync = true) {
-    mainGrid.style.display = 'none';
-    bustarainContainer.style.display = 'none';
-    optionContainer.style.display = 'none';
-    fyContainer.style.display = 'none';
-
+// --- Tab Logic ---
+function activateTab(tabName) {
+    document.getElementById('main-grid').style.display = 'none';
+    document.getElementById('bustarain-container').style.display = 'none';
+    document.getElementById('option-container').style.display = 'none';
+    document.getElementById('fy-container').style.display = 'none';
     document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
 
-    if(isEditMode) {
-        isEditMode = false;
-        renderFavoritesPage();
-    }
-
     localStorage.setItem(TAB_KEY, tabName);
-    if(sync && currentUser) saveToCloud();
+    if(currentUser) saveToCloud();
 
     if (tabName === 'all-apps') {
-        mainGrid.style.display = 'block';
+        document.getElementById('main-grid').style.display = 'block';
         document.getElementById('tab-all-apps').classList.add('active');
     } else if (tabName === 'bustarain') {
-        bustarainContainer.style.display = 'block';
+        document.getElementById('bustarain-container').style.display = 'block';
         document.getElementById('tab-bustarain').classList.add('active');
     } else if (tabName === 'option') {
-        optionContainer.style.display = 'block';
+        document.getElementById('option-container').style.display = 'block';
         document.getElementById('tab-option').classList.add('active');
     } else if (tabName === 'fy') {
-        fyContainer.style.display = 'block';
+        document.getElementById('fy-container').style.display = 'block';
         document.getElementById('tab-fy').classList.add('active');
         updateClock();
         renderFavoritesPage();
-        
-        // ★追加: FYタブに切り替えたタイミングでも位置調整を呼ぶ（表示/非表示に関わるため）
         adjustSpeedTestPosition();
     }
 }
@@ -799,11 +678,42 @@ function activateTab(tabName, sync = true) {
 function switchSubTab(targetId) {
     document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(targetId).classList.remove('hidden');
-    document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
-    });
-    localStorage.setItem('active_sub_tab', targetId);
+    document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Trainボタン or BusボタンのActive切り替え
+    if(targetId === 'train-content') {
+        document.querySelector('.sub-tab-btn[onclick*="train-content"]').classList.add('active');
+    } else {
+        document.getElementById('bus-tab-btn').classList.add('active');
+    }
+}
+
+// --- Bus Filter Logic ---
+window.toggleBusFilter = function(btn) {
+    switchSubTab('bus-content'); // バス画面を表示
+    
+    const currentMode = localStorage.getItem('bus_filter_mode') || 'ALL';
+    const newMode = currentMode === 'ALL' ? 'NON-ST' : 'ALL';
+    applyBusFilter(newMode);
+    
+    if(currentUser) saveToCloud();
+};
+
+function applyBusFilter(mode) {
+    localStorage.setItem('bus_filter_mode', mode);
+    const label = document.getElementById('bus-filter-label');
+    if(label) label.textContent = `(${mode})`;
+
+    const allGroup = document.querySelector('.bus-group-all');
+    const nonStGroup = document.querySelector('.bus-group-nonst');
+
+    if (mode === 'ALL') {
+        allGroup.classList.remove('hidden');
+        nonStGroup.classList.add('hidden');
+    } else {
+        allGroup.classList.add('hidden');
+        nonStGroup.classList.remove('hidden');
+    }
 }
 
 function toggleAccordion(header) {
@@ -816,19 +726,24 @@ function toggleAccordion(header) {
     }
 }
 
-function setTheme(theme) {
-    if (theme === 'dark') {
-        document.body.classList.add('dark-theme');
-        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
-            document.documentElement.style.setProperty('--text-color-primary', '#f5f5f5');
-        }
-    } else {
-        document.body.classList.remove('dark-theme');
-        if(!localStorage.getItem(TEXT_COLOR_KEY)) {
-            document.documentElement.style.setProperty('--text-color-primary', '#000000');
-        }
+function jumpToTraffic(favId, element) {
+    activateTab('bustarain');
+    const parentId = element.parentElement.classList.contains('bus-group-all') || element.parentElement.classList.contains('bus-group-nonst') ? 'bus-content' : 'train-content';
+    switchSubTab(parentId);
+    
+    // 強制表示ロジック
+    if(parentId === 'bus-content') {
+        const isNonSt = element.parentElement.classList.contains('bus-group-nonst');
+        if(isNonSt && localStorage.getItem('bus_filter_mode') !== 'NON-ST') applyBusFilter('NON-ST');
+        if(!isNonSt && localStorage.getItem('bus_filter_mode') === 'NON-ST') applyBusFilter('ALL');
     }
-    localStorage.setItem('theme', theme);
+
+    if(!element.classList.contains('active')) toggleAccordion(element.querySelector('.accordion-header'));
+    setTimeout(() => { 
+        element.scrollIntoView({behavior: 'smooth', block: 'center'}); 
+        element.classList.add('highlight-target');
+        setTimeout(() => element.classList.remove('highlight-target'), 3000);
+    }, 100);
 }
 
 function reloadSpeedTest() {
@@ -836,23 +751,15 @@ function reloadSpeedTest() {
     if(iframe) iframe.src = iframe.src;
 }
 
-// ------------------------------------------------------------------
-// 6. Global Exposure (for HTML onclick attributes)
-// ------------------------------------------------------------------
-
+// Global Exposure
 window.activateTab = activateTab;
-window.setTheme = setTheme;
 window.toggleEditMode = toggleEditMode;
 window.switchSubTab = switchSubTab;
 window.toggleAccordion = toggleAccordion;
 window.reloadSpeedTest = reloadSpeedTest;
 window.saveBackground = saveBackground;
-window.saveTextColor = saveTextColor;
 window.resetBackground = resetBackground;
-window.resetTextColor = resetTextColor;
 window.adjustSpeedTestPosition = adjustSpeedTestPosition;
-
-// 検索バー用スクリプトからアクセスできるようにする
 window.initialAppData = initialAppData;
 window.getFaviconUrl = getFaviconUrl;
-window.renderTakatoriBoard = window.renderTakatoriBoard; // Option scriptとの互換性
+window.renderTakatoriBoard = window.renderTakatoriBoard;
