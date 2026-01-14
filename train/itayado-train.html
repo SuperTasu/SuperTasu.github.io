@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>電光掲示板 - 板宿・新長田</title>
+  <title>電光掲示板 - 板宿・新長田 (高機能版)</title>
   <style>
     * { box-sizing: border-box; }
     body { 
@@ -14,17 +14,19 @@
       padding: 10px; 
       overflow-x: auto;
     }
-    
+
+    /* ヘッダー周り */
     .header { 
       display: flex; 
       align-items: center; 
       gap: 15px; 
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       flex-wrap: nowrap;
       white-space: nowrap;
       min-width: fit-content;
+      position: relative;
     }
-    
+
     .station-title { 
       font-size: 32px; 
       color: #005739; 
@@ -34,54 +36,45 @@
       letter-spacing: 2px;
       flex-shrink: 0;
     }
-    
+
     .header-info { 
       display: flex; 
       align-items: center; 
       gap: 12px;
       flex-shrink: 0;
     }
-    
+
     .clock { 
       font-size: 24px; 
       color: #547443; 
       font-weight: bold;
-      min-width: 100px;
     }
-    
+
     .day-indicator { 
       font-size: 15px; 
       padding: 5px 10px; 
       border-radius: 6px; 
       font-weight: bold;
     }
-    
+
     .weekday { background-color: #e8f5e8; color: #2d5016; }
     .holiday { background-color: #ffe8e8; color: #8b0000; }
-    
-    /* 詳細設定エリア */
+    .simulation-mode { border: 2px solid #ff9800; position: relative; }
+    .simulation-mode::after { content: "仮想"; position: absolute; top: -8px; right: -8px; background: #ff9800; color: white; font-size: 10px; padding: 2px 4px; border-radius: 4px; }
+
+    /* 設定ボタン */
     .settings-btn {
-      background: #005739;
-      color: white;
-      border: none;
-      padding: 5px 10px;
+      background-color: #eee;
+      border: 1px solid #ccc;
       border-radius: 4px;
+      padding: 5px 10px;
       cursor: pointer;
       font-size: 14px;
+      margin-left: auto;
     }
-    .settings-panel {
-      display: none;
-      background: #f4f4f4;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .settings-panel.active { display: block; }
-    .settings-group { margin-bottom: 8px; }
-    .settings-group label { font-weight: bold; margin-right: 10px; }
+    .settings-btn:hover { background-color: #ddd; }
 
+    /* メインコンテナ */
     .container { 
       display: flex; 
       gap: 15px;
@@ -90,17 +83,17 @@
       padding-bottom: 10px;
       min-width: fit-content;
     }
-    
+
     .board { 
       border: 2px solid #005739; 
       background: #f0f8ff; 
       padding: 12px; 
-      min-width: 320px;
+      min-width: 340px; /* 少し幅を広げる */
       box-shadow: 2px 2px 8px rgba(0,0,0,0.1); 
       border-radius: 8px;
       flex-shrink: 0;
     }
-    
+
     .title { 
       font-size: 16px; 
       margin-bottom: 8px; 
@@ -110,159 +103,576 @@
       line-height: 1.3;
       white-space: nowrap;
     }
-    
+
     .station-badge { 
-      background-color: #005739; color: white; padding: 2px 6px; border-radius: 4px; font-size: 13px; margin-right: 6px;
+      background-color: #005739; 
+      color: white; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 13px; 
+      margin-right: 6px;
     }
-    
+
     .departure { 
-      font-size: 15px; margin: 6px 0; line-height: 1.3; white-space: nowrap;
+      font-size: 15px; 
+      margin: 6px 0; 
+      line-height: 1.3;
+      white-space: nowrap;
+      min-height: 20px;
     }
-    .departure.past { color: #d9534f; font-weight: bold; } /* 3分以内の表示用 */
+
+    /* 定刻過ぎ表示用スタイル */
+    .departed-text {
+      color: #d32f2f;
+      font-weight: bold;
+      animation: flash 2s infinite;
+    }
+
+    @keyframes flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
 
     .next-times { 
-      margin-top: 8px; display: flex; flex-wrap: nowrap; gap: 6px; font-size: 14px; color: #547443; overflow-x: auto; padding-bottom: 4px;
+      margin-top: 8px; 
+      display: flex; 
+      flex-wrap: nowrap;
+      gap: 6px; 
+      font-size: 14px; 
+      color: #547443;
+      overflow-x: auto;
+      padding-bottom: 4px;
     }
+
     .next-times div { 
-      background-color: #e8f5e8; padding: 4px 8px; border-radius: 4px; min-width: 48px; text-align: center; flex-shrink: 0;
+      background-color: #e8f5e8; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      min-width: 48px; 
+      text-align: center;
+      flex-shrink: 0;
     }
-    
-    .shinnagata-section { margin-top: 15px; padding-top: 12px; border-top: 2px dashed #1e5799; }
-    .shinnagata-subtitle { font-size: 15px; color: #1e5799; margin-bottom: 6px; font-weight: bold; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .shinnagata-station-badge { background-color: #1e5799; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
-    .shinnagata-departure { font-size: 14px; margin: 5px 0; line-height: 1.3; color: #1e5799; white-space: nowrap; }
-    .shinnagata-departure.past { color: #d9534f; font-weight: bold; }
-    .shinnagata-next-times { margin-top: 6px; display: flex; flex-wrap: nowrap; gap: 5px; font-size: 13px; overflow-x: auto; padding-bottom: 4px; }
-    .shinnagata-next-times div { background-color: #e6f3ff; color: #1e5799; padding: 3px 6px; border-radius: 4px; min-width: 42px; text-align: center; flex-shrink: 0; }
 
+    /* 新長田セクション */
+    .shinnagata-section { 
+      margin-top: 15px; 
+      padding-top: 12px; 
+      border-top: 2px dashed #1e5799; 
+    }
+
+    .shinnagata-subtitle { 
+      font-size: 15px; 
+      color: #1e5799; 
+      margin-bottom: 6px; 
+      font-weight: bold; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .shinnagata-station-badge { 
+      background-color: #1e5799; 
+      color: white; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 12px;
+    }
+
+    .shinnagata-departure { 
+      font-size: 14px; 
+      margin: 5px 0; 
+      line-height: 1.3; 
+      color: #1e5799;
+      white-space: nowrap;
+    }
+
+    .shinnagata-next-times { 
+      margin-top: 6px; 
+      display: flex; 
+      flex-wrap: nowrap;
+      gap: 5px; 
+      font-size: 13px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .shinnagata-next-times div { 
+      background-color: #e6f3ff; 
+      color: #1e5799; 
+      padding: 3px 6px; 
+      border-radius: 4px; 
+      min-width: 42px; 
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* 画像ボタン */
     .image-button-container { 
-      padding: 10px 15px; border: 2px solid #ccc; border-radius: 8px; cursor: pointer; background-color: #f9f9f9; display: flex; align-items: center; gap: 10px; white-space: nowrap; flex-shrink: 0; min-width: 200px;
+      padding: 10px 15px; 
+      border: 2px solid #ccc; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: background-color 0.3s, box-shadow 0.3s;
+      background-color: #f9f9f9; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      min-width: 200px;
     }
-    .image-button-container img { width: 70px; height: 70px; object-fit: contain; }
-    .image-button-container p { font-size: 16px; color: #333; font-weight: bold; margin: 0; }
-    
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); }
-    .modal-content { margin: auto; display: block; max-width: 95%; max-height: 95%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    .close { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
 
+    .image-button-container:hover { 
+      background-color: #f0f0f0; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    }
+
+    .image-button-container img { 
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+    }
+
+    .image-button-container p { 
+      font-size: 16px; 
+      color: #333; 
+      font-weight: bold; 
+      margin: 0;
+    }
+
+    /* モーダル共通 */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgba(0,0,0,0.9); 
+    }
+
+    .modal-content { 
+      margin: auto; 
+      display: block; 
+      max-width: 95%; 
+      max-height: 95%; 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+    }
+    
+    .close { 
+      position: absolute; 
+      top: 15px; 
+      right: 35px; 
+      color: #f1f1f1; 
+      font-size: 40px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      z-index: 1001;
+    }
+
+    /* 設定用モーダルの中身 */
+    .settings-modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 8px;
+      color: #333;
+    }
+    
+    .settings-row { margin-bottom: 15px; }
+    .settings-row label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .settings-row input, .settings-row select { 
+      width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px;
+    }
+    .settings-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .btn-primary { background-color: #005739; color: white; }
+    .btn-secondary { background-color: #ccc; color: #333; }
+
+    /* スマホ調整 */
     @media screen and (max-width: 768px) {
+      body { padding: 8px; }
       .station-title { font-size: 24px; }
       .clock { font-size: 18px; }
-      .board { min-width: 280px; }
+      .day-indicator { font-size: 13px; padding: 4px 8px; }
+      .board { min-width: 300px; padding: 10px; }
+      .title { font-size: 14px; }
+      .departure { font-size: 13px; }
+      .image-button-container { min-width: 180px; padding: 8px 12px; }
+      .image-button-container img { width: 60px; height: 60px; }
+      .image-button-container p { font-size: 14px; }
     }
   </style>
 </head>
 <body>
-  
   <div class="header">
     <h1 class="station-title">板宿-新長田</h1>
     <div class="header-info">
       <div class="clock" id="clock">--:--:--</div>
       <div class="day-indicator" id="dayIndicator">--</div>
-      <button class="settings-btn" id="toggle-settings">詳細設定</button>
     </div>
+    <button class="settings-btn" id="open-settings">詳細設定</button>
   </div>
 
-  <div class="settings-panel" id="settings-panel">
-    <div class="settings-group">
-      <label>モード:</label>
-      <input type="radio" name="mode" id="mode-real" value="real" checked> <label for="mode-real">リアルタイム</label>
-      <input type="radio" name="mode" id="mode-manual" value="manual"> <label for="mode-manual">手動設定</label>
-    </div>
-    <div class="settings-group">
-      <label>日時:</label>
-      <input type="datetime-local" id="manual-datetime">
-    </div>
-    <div class="settings-group">
-      <label>ダイヤ設定:</label>
-      <select id="manual-day-type">
-        <option value="auto">自動判定</option>
-        <option value="weekday">平日ダイヤ固定</option>
-        <option value="holiday">土・休日ダイヤ固定</option>
-      </select>
-    </div>
-    <div style="font-size: 12px; color: #666;">※手動設定時は設定時刻から時間が進みます。</div>
-  </div>
-  
   <div class="container">
+    <!-- 北行（板宿） -->
     <div class="board" id="northbound">
-      <div class="title"><span class="station-badge">S10 板宿駅</span>① 三宮・谷上方面</div>
+      <div class="title"><span class="station-badge">S10 板宿駅</span>① 三宮・新神戸・谷上方面行</div>
       <div class="departure" id="north-1"></div>
       <div class="departure" id="north-2"></div>
       <div class="next-times" id="north-nexts"></div>
-      
+
+      <!-- 北行（新長田） -->
       <div class="shinnagata-section">
         <div class="shinnagata-subtitle">
           <span class="shinnagata-station-badge">K10 新長田駅</span>
-          <span>三宮・花時計前方面</span>
+          <span>新長田駅 三宮・花時計前方面行</span>
         </div>
         <div class="shinnagata-departure" id="shinnagata-1"></div>
         <div class="shinnagata-departure" id="shinnagata-2"></div>
         <div class="shinnagata-next-times" id="shinnagata-nexts"></div>
       </div>
     </div>
-    
+
+    <!-- 南行 -->
     <div class="board" id="southbound">
-      <div class="title"><span class="station-badge">S10 板宿駅</span>② 名谷・西神中央方面</div>
+      <div class="title"><span class="station-badge">S10 板宿駅</span>② 名谷・西神中央方面行</div>
       <div class="departure" id="south-1"></div>
       <div class="departure" id="south-2"></div>
       <div class="next-times" id="south-nexts"></div>
     </div>
 
+    <!-- ボタン -->
     <div class="image-button-container" id="open-modal-btn">
       <img id="timetable-thumbnail" src="https://drive.google.com/uc?export=view&id=1vNwXmr8puzA3pQNHpKZU9iwNPzs-ZwYK" alt="乗車位置案内図">
       <p>乗車位置確認</p>
     </div>
   </div>
 
+  <!-- 画像モーダル -->
   <div id="image-modal" class="modal">
-    <span class="close" id="close-modal-btn">&times;</span>
+    <span class="close" id="close-image-modal">&times;</span>
     <img class="modal-content" id="modal-image">
   </div>
 
+  <!-- 設定モーダル -->
+  <div id="settings-modal" class="modal" style="background-color: rgba(0,0,0,0.5);">
+    <div class="settings-modal-content">
+      <h3 style="margin-top:0;">詳細設定</h3>
+      <div class="settings-row">
+        <label>現在時刻設定 (タイムトラベル)</label>
+        <input type="datetime-local" id="setting-datetime" step="1">
+      </div>
+      <div class="settings-row">
+        <label>ダイヤ種別</label>
+        <select id="setting-schedule-type">
+          <option value="auto">自動判定 (日付に従う)</option>
+          <option value="weekday">平日ダイヤ固定</option>
+          <option value="holiday">土休日ダイヤ固定</option>
+        </select>
+      </div>
+      <div class="settings-actions">
+        <button class="btn btn-secondary" id="reset-settings">現在時刻に戻す</button>
+        <button class="btn btn-primary" id="apply-settings">適用して閉じる</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 時刻表データ（既存データをそのまま使用）
+    // 時刻表データ (変更なし)
     const northTimesWeekdays={5:[28,41,48,58],6:[6,15,24,30,40,46,52,59],7:[4,9,15,19,23,27,32,36,40,44,48,51,55,58],8:[2,5,9,13,17,21,25,30,34,39,44,49,53,59],9:[4,9,16,20,24,29,33,38,46,54],10:[2,10,17,25,32,40,47,55],11:[2,10,17,25,32,40,47,55],12:[2,10,17,25,32,40,47,55],13:[2,10,17,25,32,40,47,55],14:[2,10,17,25,32,40,47,55],15:[2,10,17,25,32,40,47,54,57],16:[3,9,16,24,31,37,43,49,55],17:[1,9,15,20,25,31,36,42,48,54],18:[0,5,11,17,22,27,34,40,46,51,56],19:[2,8,14,21,26,33,38,44,50,56],20:[1,8,13,18,24,30,37,44,49,55],21:[1,7,13,19,24,30,35,41,48,55],22:[1,8,15,23,33,41,49,56],23:[7,17,33,42,50],0:[10,21]};
     const northTimesHolidays={5:[28,41,48],6:[1,13,23,32,41,48,55],7:[4,10,16,22,27,33,39,45,52,59],8:[4,10,14,20,25,31,37,42,47,53,59],9:[5,10,16,23,31,38,47,54],10:[2,10,17,25,32,40,47,55],11:[2,10,17,25,32,40,47,55],12:[2,10,17,25,32,40,47,55],13:[2,10,17,25,32,40,47,55],14:[2,10,17,25,32,40,47,55],15:[2,10,17,25,32,40,47,55],16:[1,7,12,19,25,32,40,48,55],17:[3,10,18,25,32,39,46,53],18:[0,7,14,20,27,34,40,46,54],19:[1,9,17,24,31,38,46,54],20:[1,8,15,23,30,37,45,52],21:[0,8,15,23,31,39,47,54],22:[1,8,12,20,27,35,42,50,57],23:[4,17,32,44,50],0:[]};
     const southTimesWeekdays={5:[42,55],6:[5,15,26,35,42,52],7:[0,7,14,19,23,28,32,35,39,44,48,53,58],8:[3,7,12,16,20,24,27,31,34,38,41,45,49,53,57],9:[2,6,10,15,20,27,33,36,41,46,52],10:[0,8,14,21,28,36,43,51,58],11:[6,13,21,28,36,43,51,58],12:[6,13,21,28,36,43,51,58],13:[6,13,21,28,36,43,51,58],14:[6,13,21,28,36,43,51,58],15:[6,13,21,29,36,43,51,58],16:[8,15,22,28,34,40,45,51,57],17:[3,8,14,20,25,31,36,41,46,53],18:[0,6,11,17,23,28,35,41,47,52,58],19:[4,9,15,21,27,32,37,43,49,55],20:[2,8,14,21,27,33,38,44,50,55],21:[1,8,15,23,28,36,42,47,53],22:[1,10,21,27,35,43,51,59],23:[7,12,17,25,31,37,50],0:[2,19,33,48]};
     const southTimesHolidays={5:[42,55],6:[9,22,30,40,52,59],7:[5,11,23,29,35,39,45,50,57],8:[2,7,13,20,24,30,36,40,46,51,57],9:[2,10,16,22,28,35,40,44,52,59],10:[6,14,21,28,36,43,51,58],11:[6,13,21,28,36,43,51,58],12:[6,13,21,28,36,43,51,58],13:[6,13,21,28,36,43,51,58],14:[6,13,21,28,36,43,51,58],15:[6,13,21,27,36,44,51,58],16:[6,13,21,29,36,44,51,58],17:[4,11,18,24,31,39,46,54],18:[0,8,14,22,29,36,44,51,58],19:[6,13,22,28,35,41,48,54],20:[1,9,16,24,32,40,48,57],21:[6,13,21,28,36,44,51,59],22:[7,15,22,29,36,42,49,56],23:[5,15,21,27,38,50],0:[1]};
     const shinnagataTimes={5:[35,51],6:[8,20,31,40,50,57],7:[5,12,20,26,32,38,44,50,56],8:[2,8,14,20,26,32,38,44,52,57],9:[0,4,10,20,30,40,50],10:[0,10,20,30,40,50],11:[0,10,20,30,40,50],12:[0,10,20,30,40,50],13:[0,10,20,30,40,50],14:[0,10,20,30,40,50],15:[0,10,20,30,40,50],16:[0,10,20,30,40,50],17:[0,7,15,23,30,37,45,52],18:[0,7,15,22,30,37,45,52],19:[0,10,20,23,30,40,50],20:[0,10,20,30,40,50],21:[0,10,20,30,41,53],22:[5,17,29,45,50,59],23:[15,30,45,56],0:[]};
     const shinnagataTimesHolidays={5:[35,51],6:[9,20,35,45,55],7:[5,15,25,35,45,55],8:[2,10,17,25,32,40,45,50],9:[0,5,10,20,30,40,50],10:[0,10,20,30,40,50],11:[0,10,20,30,40,50],12:[0,10,20,30,40,50],13:[0,10,20,30,40,50],14:[0,10,20,30,40,50],15:[0,10,20,30,40,50],16:[0,10,20,30,40,50],17:[0,10,20,30,40,50],18:[0,10,20,30,40,50],19:[0,10,20,30,40,50],20:[0,10,20,30,40,50],21:[0,10,20,30,41,53],22:[5,17,29,45,50,59],23:[15,30,45,56],0:[]};
+    
+    // システム変数
+    let timeOffset = 0; // リアルタイムとの差分(ms)
+    let isSimulated = false; // シミュレーションモードかどうか
+    let scheduleOverride = 'auto'; // 'auto', 'weekday', 'holiday'
 
-    // --- ロジック変数 ---
-    let timeOffset = 0; // リアルタイムとの差分
-    let isManual = false;
-
-    // 時刻取得関数
-    function getNow() {
-      if (!isManual) return new Date();
-      return new Date(Date.now() + timeOffset);
+    // 現在時刻を取得する関数 (シミュレーション対応)
+    function getCurrentTime() {
+      const now = new Date();
+      if (isSimulated) {
+        return new Date(now.getTime() + timeOffset);
+      }
+      return now;
     }
 
-    function isHoliday(date) {
-      const manualDay = document.getElementById("manual-day-type").value;
-      if (manualDay === "weekday") return false;
-      if (manualDay === "holiday") return true;
+    // 祝日判定ロジック
+    function isHoliday(date){const t=date.getFullYear(),e=date.getMonth()+1,n=date.getDate(),o=date.getDay();if(0===o||6===o)return!0;const a=[[1,1],[2,11],[2,23],[4,29],[5,3],[5,4],[5,5],[8,11],[11,3],[11,23]];for(let[t,o]of a)if(e===t&&n===o)return!0;if(2024===t){const t=[[1,8],[3,20],[7,15],[9,16],[9,22],[10,14]];for(let[o,a]of t)if(e===o&&n===a)return!0}else if(2025===t){const t=[[1,13],[3,20],[7,21],[9,15],[9,23],[10,13]];for(let[o,a]of t)if(e===o&&n===a)return!0}return!1}
 
-      const t=date.getFullYear(),e=date.getMonth()+1,n=date.getDate(),o=date.getDay();
-      if(0===o||6===o)return!0;
-      const a=[[1,1],[2,11],[2,23],[4,29],[5,3],[5,4],[5,5],[8,11],[11,3],[11,23]];
-      for(let[t,o]of a)if(e===t&&n===o)return!0;
-      if(2025===t){const t=[[1,13],[3,20],[7,21],[9,15],[9,23],[10,13]];for(let[o,a]of t)if(e===o&&n===a)return!0}
-      return!1;
+    // フォーマット用
+    function formatTime(t){return`${t.hour.toString().padStart(2,"0")}:${t.min.toString().padStart(2,"0")}`}
+
+    // 時刻表をフラットな配列に変換 [{hour, min, absMin}, ...] (0時は24時として計算)
+    function flattenSchedule(schedule) {
+        let list = [];
+        for (let h = 0; h <= 23; h++) {
+            // データ上の 0時は深夜24時扱いにする
+            let targetH = h;
+            let displayH = h;
+            if (h === 0 && schedule[0]) {
+               // 0時のデータが存在する場合、それは深夜の24時台として扱う（ソートのため）
+               targetH = 24; 
+            }
+            
+            const mins = schedule[displayH] || [];
+            mins.forEach(m => {
+                list.push({
+                    hour: displayH, // 表示用 (0-23)
+                    sortHour: targetH, // 計算用 (5-24)
+                    min: m,
+                    absMin: targetH * 60 + m
+                });
+            });
+        }
+        // 時間順にソート (5時から始まり、24時(0時)で終わる)
+        return list.sort((a, b) => a.absMin - b.absMin);
     }
 
-    // 発車情報を取得（3分前〜未来）
-    function getDepartures(timetable) {
-      const now = getNow();
-      const currentTotalMin = now.getHours() * 60 + now.getMinutes();
-      const result = [];
+    // 修正版: 出発リスト取得ロジック (3分経過まで保持)
+    function getDisplayList(scheduleObj) {
+        const now = getCurrentTime();
+        let currentH = now.getHours();
+        // 0-4時は深夜扱いとして24を足して計算（簡易対応）
+        if (currentH < 4) currentH += 24;
+        
+        const currentAbs = currentH * 60 + now.getMinutes();
+        const flatList = flattenSchedule(scheduleObj);
 
-      // 前の1時間、現在の1時間、次の1時間をチェック
-      for (let hOff = -1; hOff <= 24; hOff++) {
-        let h = (now.getHours() + hOff + 24) % 24;
-        const minutes = timetable[h] || [];
-        for (let m of minutes) {
-          let trainTotalMin = h * 60 + m;
-          // 日をまたぐ処理（簡易）
-          if (hOff === -1 &
+        // フィルタリング: 
+        // 1. 定刻を過ぎて3分以内 (currentAbs - 3 <= trainAbs < currentAbs) -> 表示 ("過ぎました")
+        // 2. 未来 (trainAbs >= currentAbs) -> 表示 ("あと◯分")
+        const visibleTrains = flatList.filter(t => {
+            const diff = t.absMin - currentAbs;
+            // 3分前(-3)までは許容
+            return diff >= -3;
+        });
+
+        // 最大7件返す
+        return visibleTrains.slice(0, 7);
+    }
+
+    // カウントダウン生成
+    function getStatusText(train, now) {
+        let currentH = now.getHours();
+        if (currentH < 4) currentH += 24;
+        const currentAbs = currentH * 60 + now.getMinutes();
+        
+        const diffMin = train.absMin - currentAbs;
+
+        if (diffMin < 0) {
+            // 過去の場合 (0 > diffMin >= -3)
+            return `<span class="departed-text">${formatTime(train)} は定刻を過ぎました</span>`;
+        } else {
+            // 未来の場合
+            // 秒単位まで計算したい場合はDateオブジェクト同士で比較が必要だが、
+            // ここでは簡易的に「分」の差分と、秒の差分を計算する
+            const trainDate = new Date(now);
+            // ※0時は翌日扱いなどの厳密な日付設定が必要だが、表示用ロジックとして簡易化
+            let targetH = train.hour;
+            // 現在が23時で対象が0時の場合などの日付またぎ処理
+            if (now.getHours() >= 23 && train.hour === 0) {
+                trainDate.setDate(trainDate.getDate() + 1);
+            }
+            trainDate.setHours(targetH);
+            trainDate.setMinutes(train.min);
+            trainDate.setSeconds(0);
+
+            const diffMs = trainDate - now;
+            if (diffMs < 0) return "まもなく発車"; // 計算誤差等
+
+            const secTotal = Math.floor(diffMs / 1000);
+            const h = Math.floor(secTotal / 3600);
+            const m = Math.floor((secTotal % 3600) / 60);
+            const s = secTotal % 60;
+
+            const timeStr = h > 0 ? `${h}時間${m}分${s}秒後` : `${m}分${s}秒後`;
+            return `${formatTime(train)}（${timeStr}）`;
+        }
+    }
+
+    // DOM更新
+    function updateBoardLine(scheduleObj, elementId) {
+        const now = getCurrentTime();
+        const trains = getDisplayList(scheduleObj);
+
+        const row1 = document.getElementById(`${elementId}-1`);
+        const row2 = document.getElementById(`${elementId}-2`);
+        const nexts = document.getElementById(`${elementId}-nexts`);
+
+        if (trains.length === 0) {
+            row1.textContent = "先発：運行終了";
+            row2.textContent = "次発：運行終了";
+            nexts.innerHTML = "";
+            return;
+        }
+
+        // 先発
+        if (trains[0]) {
+            const status = getStatusText(trains[0], now);
+            // HTMLタグを含む可能性があるため innerHTML
+            if (status.includes("定刻を過ぎました")) {
+                row1.innerHTML = `先発：${status}`;
+            } else {
+                row1.textContent = `先発：${status}`;
+            }
+        }
+
+        // 次発
+        if (trains[1]) {
+            const status = getStatusText(trains[1], now);
+            if (status.includes("定刻を過ぎました")) {
+                row2.innerHTML = `次発：${status}`;
+            } else {
+                row2.textContent = `次発：${status}`;
+            }
+        } else {
+            row2.textContent = "";
+        }
+
+        // その後
+        nexts.innerHTML = "";
+        trains.slice(2, 7).forEach(t => {
+            const div = document.createElement("div");
+            div.textContent = formatTime(t);
+            nexts.appendChild(div);
+        });
+    }
+
+    function updateDayIndicator(){
+        const now = getCurrentTime();
+        const el = document.getElementById("dayIndicator");
+        let isHol = false;
+
+        if (scheduleOverride === 'weekday') isHol = false;
+        else if (scheduleOverride === 'holiday') isHol = true;
+        else isHol = isHoliday(now);
+
+        if (isHol) {
+            el.textContent = "土・休日ダイヤ";
+            el.className = "day-indicator holiday";
+        } else {
+            el.textContent = "平日ダイヤ";
+            el.className = "day-indicator weekday";
+        }
+        
+        if (isSimulated) {
+            el.classList.add('simulation-mode');
+        } else {
+            el.classList.remove('simulation-mode');
+        }
+        return isHol;
+    }
+
+    function updateClock(){
+        const now = getCurrentTime();
+        const h = now.getHours().toString().padStart(2,"0");
+        const m = now.getMinutes().toString().padStart(2,"0");
+        const s = now.getSeconds().toString().padStart(2,"0");
+        document.getElementById("clock").textContent = `${h}:${m}:${s}`;
+    }
+
+    function updateAll(){
+        updateClock();
+        const isHol = updateDayIndicator();
+        
+        if (isHol) {
+            updateBoardLine(northTimesHolidays, "north");
+            updateBoardLine(southTimesHolidays, "south");
+            updateBoardLine(shinnagataTimesHolidays, "shinnagata");
+        } else {
+            updateBoardLine(northTimesWeekdays, "north");
+            updateBoardLine(southTimesWeekdays, "south");
+            updateBoardLine(shinnagataTimes, "shinnagata");
+        }
+    }
+
+    // 初期化とループ
+    updateAll();
+    setInterval(updateAll, 1000);
+
+    // --- モーダル制御 ---
+    const imgModal = document.getElementById("image-modal");
+    const openImgBtn = document.getElementById("open-modal-btn");
+    const closeImgBtn = document.getElementById("close-image-modal");
+    const modalImg = document.getElementById("modal-image");
+    const thumbImg = document.getElementById("timetable-thumbnail");
+
+    openImgBtn.onclick = function() {
+        imgModal.style.display = "block";
+        modalImg.src = thumbImg.src;
+    }
+    closeImgBtn.onclick = function() { imgModal.style.display = "none"; }
+
+    // --- 設定モーダル制御 ---
+    const settingsModal = document.getElementById("settings-modal");
+    const openSettingsBtn = document.getElementById("open-settings");
+    const applySettingsBtn = document.getElementById("apply-settings");
+    const resetSettingsBtn = document.getElementById("reset-settings");
+    const dateTimeInput = document.getElementById("setting-datetime");
+    const scheduleSelect = document.getElementById("setting-schedule-type");
+
+    // 現在時刻を datetime-local の形式 (YYYY-MM-DDTHH:mm:ss) に変換
+    function toLocalISOString(date) {
+        const pad = num => (num < 10 ? '0' : '') + num;
+        return date.getFullYear() +
+          '-' + pad(date.getMonth() + 1) +
+          '-' + pad(date.getDate()) +
+          'T' + pad(date.getHours()) +
+          ':' + pad(date.getMinutes()) +
+          ':' + pad(date.getSeconds());
+    }
+
+    openSettingsBtn.onclick = function() {
+        settingsModal.style.display = "block";
+        // 現在の（仮想含む）時刻をセット
+        dateTimeInput.value = toLocalISOString(getCurrentTime());
+        scheduleSelect.value = scheduleOverride;
+    }
+
+    // 適用ボタン
+    applySettingsBtn.onclick = function() {
+        if (dateTimeInput.value) {
+            const selectedTime = new Date(dateTimeInput.value);
+            const realNow = new Date();
+            timeOffset = selectedTime - realNow;
+            isSimulated = true;
+        }
+        scheduleOverride = scheduleSelect.value;
+        settingsModal.style.display = "none";
+        updateAll();
+    }
+
+    // リセットボタン
+    resetSettingsBtn.onclick = function() {
+        timeOffset = 0;
+        isSimulated = false;
+        scheduleOverride = 'auto';
+        scheduleSelect.value = 'auto';
+        dateTimeInput.value = toLocalISOString(new Date());
+        settingsModal.style.display = "none";
+        updateAll();
+    }
+
+    // モーダル外クリックで閉じる
+    window.onclick = function(event) {
+        if (event.target == imgModal) imgModal.style.display = "none";
+        if (event.target == settingsModal) settingsModal.style.display = "none";
+    }
+
+  </script>
+</body>
+</html>
