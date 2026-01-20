@@ -16,6 +16,7 @@
       --text-color-primary: #000000;
       --text-color-secondary: #444444;
       --custom-bg-image: none; 
+      
       --card-bg: #ffffff;
       --card-border: 2px solid #000000; /* 太い黒枠 */
       --card-radius: 28px; /* 丸みの強い角 */
@@ -66,10 +67,9 @@
       background-position: center;
       background-repeat: no-repeat;
       pointer-events: none;
-      transition: background-image 0.5s ease;
     }
 
-    /* ★★★ 固定ヘッダー（スマホ対応強化） ★★★ */
+    /* ★★★ 固定ヘッダー ★★★ */
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
@@ -79,65 +79,45 @@
     }
 
     .clock-area { 
-        width: 100%; padding: 0 10px; box-sizing: border-box; 
-        display: flex; align-items: center; min-height: 40px; /* 高さ確保 */
-        flex-wrap: wrap; /* スマホで折り返し許可 */
+        width: 100%; padding: 0 15px; box-sizing: border-box; 
+        display: flex; align-items: center; height: 30px; 
     }
-
-    .clock-main-row { 
-        display: flex; justify-content: flex-start; align-items: center; 
-        width: 100%; gap: 10px; 
-        flex-wrap: wrap; /* コンテンツが多い場合に折り返す */
-    }
+    
+    .clock-main-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; gap: 10px; }
 
     .site-logo {
       height: 26px; width: auto; margin-right: 5px; object-fit: contain; vertical-align: middle;
       border-radius: 4px; box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 8px; flex-grow: 1; flex-wrap: nowrap; }
+    .datetime-row { display: flex; align-items: baseline; gap: 10px; flex-grow: 0; flex-wrap: nowrap; }
     #date, #clock, #countdown { 
         color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 14px; line-height: 1; 
     }
     #countdown { color: #88aaff; }
 
-    /* スマホ調整: 日付を隠す、またはフォント調整 */
-    @media (max-width: 600px) {
-        #date { display: none; } /* スペース確保のため日付非表示 */
-        .datetime-row { flex-grow: 0; margin-right: auto; }
-        .clock-main-row { padding-bottom: 5px; }
-    }
-
-    .header-controls { 
-        display: flex; align-items: center; gap: 12px; margin-left: auto; 
-        background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 15px;
-    }
+    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
     .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
-    
     .theme-switcher { display: flex; gap: 5px; }
     .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-    /* Login / User Info Styles */
-    #auth-wrapper { display: flex; align-items: center; gap: 8px; border-right: 1px solid #555; padding-right: 8px; margin-right: 5px; }
+    /* Login Button Styles */
     #auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; }
     #auth-btn:hover { color: #fff; }
-    #user-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
-    #user-name { font-size: 12px; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
-    #account-switch-btn { cursor: pointer; color: #ff6b6b; font-size: 14px; display: none; margin-left: 5px; }
+    #user-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
 
-    /* Network Status */
+    /* ★ ネットワークステータス表示用スタイル ★ */
     #network-status {
-        display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold;
-        padding: 2px 5px; border-radius: 4px; transition: all 0.3s; cursor: default; white-space: nowrap;
+        display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;
+        padding: 2px 6px; border-radius: 4px; transition: all 0.3s; cursor: default;
     }
     #network-status.online { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
     #network-status.offline { color: #f44336; background: rgba(244, 67, 54, 0.1); }
-    #network-status i { font-size: 12px; }
+    #network-status i { font-size: 14px; }
 
-    /* スピードテストエリア */
     .header-speed-test { 
         position: absolute; right: 10px; top: 5px;
         display: flex; align-items: flex-start; gap: 5px; z-index: 6000; pointer-events: none;
@@ -146,6 +126,7 @@
         pointer-events: auto; width: 180px; height: 60px;
         border: none; border-radius: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
     }
+    @media (max-width: 450px) { .header-speed-test iframe { width: 120px; height: 50px; } }
     #speed-test-refresh-button { 
         pointer-events: auto; color: #aaaaaa; cursor: pointer; font-size: 16px; margin-top: 5px;
         background: rgba(0,0,0,0.5); border-radius: 50%; width: 24px; height: 24px;
@@ -153,23 +134,20 @@
     }
     #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
 
-    /* モバイル時のスピードテスト調整 */
-    @media (max-width: 650px) {
-        .header-speed-test { display: none; } /* JSでFYタブに移動 */
-    }
-
-    /* ★★★ 検索バー ★★★ */
+    /* ★★★ 検索バー（最初の仕様） ★★★ */
     .search-wrapper { 
         display: flex !important; 
-        justify-content: center; width: 100%; margin-top: 5px; padding: 0 10px; box-sizing: border-box;
+        justify-content: center; width: 100%; margin-top: 0; padding: 0 10px; box-sizing: border-box;
         position: relative; z-index: 5000;
     }
     .search-container { 
         display: flex; align-items: center; padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 20px; border: none; width: 90%; max-width: 600px; height: 36px; 
+        border-radius: 20px; border: none; width: 80%; max-width: 500px; height: 36px; 
         box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: width 0.3s ease;
     }
+    @media (max-width: 450px) { .search-container { width: 90%; } }
+    
     .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
     #globalSearchInput { 
         border: none; background: transparent; outline: none; width: 100%; font-size: 15px; color: #333;
@@ -179,7 +157,7 @@
     /* 検索結果ドロップダウン */
     .search-results-dropdown {
         position: absolute; top: 40px; left: 0; right: 0; margin: 0 auto;
-        width: 90%; max-width: 620px; background-color: var(--card-bg); border-radius: 12px;
+        width: 85%; max-width: 550px; background-color: var(--card-bg); border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 5500; 
         max-height: 60vh; overflow-y: auto; padding: 5px; 
         backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -188,9 +166,10 @@
     .search-results-dropdown.hidden { display: none !important; }
     
     .search-result-item {
-        display: flex; align-items: center; padding: 10px; margin-bottom: 4px; border-radius: 8px;
+        display: flex; align-items: center; padding: 8px 12px; margin-bottom: 4px; border-radius: 8px;
         background: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s;
-        color: var(--text-color-primary); text-decoration: none; user-select: none; border: 1px solid transparent;
+        color: var(--text-color-primary); text-decoration: none; user-select: none;
+        border: 1px solid transparent;
     }
     body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     .search-result-item:hover { background-color: var(--swap-select-color); transform: scale(1.01); }
@@ -201,14 +180,14 @@
     .tag-traffic { background-color: #28a745; }
 
     /* ★★★ コンテンツエリア ★★★ */
-    .page-container { max-width: 1400px; margin: 0 auto; padding: 110px 20px 20px 20px; }
-    #main-grid, #bustarain-container, #fy-container {
+    .page-container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 20px 20px; }
+    #main-grid, #bustarain-container, #option-container, #fy-container {
         position: relative; z-index: 1; width: 100%; box-sizing: border-box;
     }
-    #bustarain-container, #fy-container { display: none; margin-top: 20px; }
+    #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
     .main-grid { margin-top: 10px; }
 
-    /* グリッド */
+    /* グリッドレイアウト */
     .grid-container, #fy-content-area {
         display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; padding: 10px;
     }
@@ -217,7 +196,7 @@
     @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
 
-    /* カードデザイン */
+    /* ★ カードデザイン (画像準拠: 太い黒枠、カプセル型) ★ */
     .app-card {
         display: flex; flex-direction: row;
         background-color: var(--card-bg);
@@ -226,17 +205,34 @@
         overflow: hidden; height: 90px; position: relative;
     }
     .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .card-left { width: 40%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    
+    .card-left {
+        width: 40%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
     .card-left img { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; }
+
     .card-divider { width: 2px; background-color: var(--divider-color); margin: 10px 0; border-radius: 2px; }
-    .card-right { width: 60%; display: flex; flex-direction: column; justify-content: space-between; padding: 5px 10px; box-sizing: border-box; }
+
+    .card-right {
+        width: 60%; display: flex; flex-direction: column; justify-content: space-between; padding: 5px 10px; box-sizing: border-box;
+    }
+    
     .card-header { text-align: center; margin-top: 5px; width: 100%; }
     .card-title {
         font-size: 14px; font-weight: bold; color: var(--text-color-primary);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
         padding-bottom: 2px; border-bottom: 2px solid var(--text-color-primary);
     }
-    .card-buttons { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 5px; gap: 12px; padding-right: 5px; }
+
+    /* ボタン配置修正：右詰めにする */
+    .card-buttons { 
+        display: flex; 
+        justify-content: flex-end; /* 右詰め */
+        align-items: center; 
+        margin-bottom: 5px;
+        gap: 12px; /* ボタン間の余白 */
+        padding-right: 5px; /* 右端からの余白 */
+    }
     .card-btn {
         width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
         border: 2px solid var(--text-color-primary); border-radius: 4px; cursor: pointer;
@@ -258,26 +254,11 @@
     .fy-date-text { font-size: 16px; margin-right: 10px; font-weight: bold; }
     .fy-time-text { font-size: 28px; font-weight: bold; color: var(--tab-active-bg); }
 
-    /* スマホ版FY時計・スピードテスト配置 */
-    @media (max-width: 650px) {
-        #fy-clock-display {
-            display: flex !important; flex-direction: row; justify-content: center; align-items: center; gap: 15px;
-        }
-        .fy-clock-group { display: flex; flex-direction: column; align-items: flex-end; }
-        .fy-date-text { font-size: 12px; margin-right: 0; margin-bottom: 2px; }
-        .fy-time-text { font-size: 24px; line-height: 1; }
-        #fy-speed-test-placeholder {
-            display: flex; flex-direction: column; align-items: center; transform: scale(0.9);
-        }
-        #speed-test-iframe { width: 100px !important; height: 50px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    }
-    #fy-speed-test-placeholder { display: none; } /* PCでは非表示 */
-
-    /* Tabs & Content */
+    /* その他 */
     .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
-
+    
     .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
     .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
@@ -318,6 +299,62 @@
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
+
+    /* --- 追加CSS: スピードテストのレスポンシブ移動用 --- */
+    
+    /* PC・タブレット（デフォルト）: FY側のプレースホルダーは非表示 */
+    #fy-speed-test-placeholder {
+        display: none;
+    }
+
+    /* スマホ版（幅650px以下）のスタイル */
+    @media (max-width: 650px) {
+        /* ヘッダーのスピードテスト枠自体を非表示（JSで中身が移動した後、枠が残らないように） */
+        .header-speed-test {
+            display: none; 
+        }
+
+        /* FYタブの時計エリアを横並び(Flex)にする */
+        #fy-clock-display {
+            display: flex !important;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 15px; /* 時計とスピードテストの間隔 */
+        }
+
+        /* 日付と時刻を縦積みに変更して省スペース化 */
+        .fy-clock-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* 右寄せ */
+        }
+        .fy-date-text {
+            font-size: 12px;
+            margin-right: 0;
+            margin-bottom: 2px;
+        }
+        .fy-time-text {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* FY側に移動してきたスピードテストの表示設定 */
+        #fy-speed-test-placeholder {
+            display: flex;
+            flex-direction: column; /* iframeと更新ボタンを縦積み */
+            align-items: center;
+            transform: scale(0.9); /* 少し小さくして収まりよくする */
+        }
+        
+        /* iframeのサイズ調整 */
+        #speed-test-iframe {
+            width: 100px !important;
+            height: 50px !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -331,32 +368,20 @@
                 <div id="countdown"></div>
             </div>
              <div class="header-controls">
-                <!-- Google Login / User Info -->
-                <div id="auth-wrapper">
-                    <div id="auth-btn" title="Googleログイン">
-                        <i class="fab fa-google"></i>
-                    </div>
+                <!-- Google Login Button -->
+                <div id="auth-btn" title="Googleログイン">
+                    <i class="fab fa-google"></i>
                     <img id="user-avatar" src="" alt="User" />
-                    <span id="user-name"></span>
-                    <i class="fas fa-sign-out-alt" id="account-switch-btn" title="アカウント切り替え" onclick="handleAccountSwitch()"></i>
                 </div>
-                
-                <!-- 背景画像変更ボタン -->
-                <div class="control-icon" id="bg-change-btn" onclick="document.getElementById('bg-file-input').click()" title="背景画像を変更">
-                    <i class="far fa-image"></i>
-                </div>
-                <input type="file" id="bg-file-input" style="display:none" accept="image/*" onchange="changeBackground(this)">
-
                 <!-- Theme Switcher -->
                 <div class="theme-switcher">
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
                     <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
                 </div>
-                <!-- Network Status -->
+                <!-- ★ ページ更新ボタンの隣にネットワークステータスを追加 -->
                 <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i> <span>ON</span></div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
             </div>
-            <!-- PC用スピードテスト表示 -->
             <div class="header-speed-test" id="header-speed-test-container">
                 <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
@@ -373,16 +398,15 @@
         <div id="searchResults" class="search-results-dropdown hidden"></div>
     </div>
   </div>
-
   <div class="page-container">
-      <!-- FY (Favorites) Tab -->
       <div id="fy-container">
+          <!-- ★ FY時計表示の構造変更 -->
           <div id="fy-clock-display">
               <div class="fy-clock-group">
                   <div id="fy-date-text" class="fy-date-text"></div>
                   <div id="fy-time-text" class="fy-time-text"></div>
               </div>
-              <!-- Mobile用スピードテスト移動先 -->
+              <!-- スピードテストの移動先 -->
               <div id="fy-speed-test-placeholder"></div>
           </div>
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -392,137 +416,144 @@
           <div id="fy-content-area"></div>
       </div>
 
-      <!-- All Apps Tab -->
-      <div class="main-grid" id="main-grid">
-          <div id="all-apps-container">
-              <h3 class="section-title">すべてのアプリ</h3>
-              <div class="grid-container" id="gridContainer"></div>
-          </div>
-      </div>
+    <div class="main-grid" id="main-grid">
+        <div id="all-apps-container">
+            <h3 class="section-title">すべてのアプリ</h3>
+            <div class="grid-container" id="gridContainer"></div>
+        </div>
+    </div>
 
-      <!-- Traffic (Bustarain) Tab -->
-      <div id="bustarain-container">
-          <div class="sub-tab-menu">
-              <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
-              <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
-              <!-- その他 (Other) は削除されました -->
-          </div>
-          <div id="train-content" class="sub-tab-content">
-              <div class="accordion-item" data-id="tr-1" data-title="和田岬">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>和田岬</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>帰）板宿新長田経由海岸線</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>板宿駅（山陽電車）</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
-                  </div>
-              </div>
-          </div>
-          <div id="bus-content" class="sub-tab-content hidden">
-              <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>バスロケーション</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-sp" data-title="locate育英高校前">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span> Locate育英高校前 </span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-3" data-title="今出在家">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>今出在家</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>夢野町3丁目</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>高取団地前</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
-                  </div>
-              </div>
-              <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
-                  <div class="accordion-header" onclick="toggleAccordion(this)">
-                      <span>板宿駅</span>
-                      <i class="fas fa-star acc-fav-btn"></i>
-                      <i class="fas fa-chevron-down"></i>
-                  </div>
-                  <div class="accordion-content">
-                      <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
-                  </div>
-              </div>
-          </div>
-          <!-- Other content tab removed -->
-      </div>
-      <!-- Option container removed -->
+    <div id="bustarain-container">
+        <div class="sub-tab-menu">
+            <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
+            <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
+        </div>
+        <div id="train-content" class="sub-tab-content">
+            <div class="accordion-item" data-id="tr-1" data-title="和田岬">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>和田岬</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>帰）板宿新長田経由海岸線</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅（山陽電車）</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
+                </div>
+            </div>
+        </div>
+        <div id="bus-content" class="sub-tab-content hidden">
+            <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>バスロケーション</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-sp" data-title="locate育英高校前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span> Locate育英高校前 </span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-3" data-title="今出在家">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>今出在家</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>夢野町3丁目</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>高取団地前</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
+                </div>
+            </div>
+            <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>板宿駅</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
+                </div>
+            </div>
+        </div>
+        <div id="other-content" class="sub-tab-content hidden">
+            <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>ノエビアスタジアム イベント情報</span>
+                    <i class="fas fa-star acc-fav-btn"></i>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="accordion-content">
+                    <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="option-container"></div>
   </div>
-
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
-      <!-- Option tab removed -->
+      <div class="tab-item" id="tab-option" onclick="activateTab('option')"> <i class="fas fa-cog"></i> <span>Option</span> </div>
   </nav>
-
   <!-- モーダル -->
   <div id="link-confirm-overlay" class="modal-overlay hidden">
       <div class="modal-box">
@@ -535,302 +566,255 @@
           </div>
       </div>
   </div>
-
+  
   <!-- JS読み込み -->
   <script src="Option/takatori.js"></script>
   <script src="Option/memo.js"></script>
   <script src="Option/main.js"></script>
   <script src="Option/nekotuti.js"></script>
+  <!-- Firebase対応のため type="module" に変更 -->
   <script type="module" src="script.js"></script>
 
   <script>
-    // ★ 背景画像変更ロジック
-    function changeBackground(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                // 背景設定
-                document.body.style.backgroundImage = 'url(' + e.target.result + ')';
-                // LocalStorageに保存 (DataURLとして保存)
-                try {
-                    localStorage.setItem('custom-bg-image', e.target.result);
-                } catch(err) {
-                    console.log('Image too large for LocalStorage');
-                }
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+      // ★★★ 検索＆モーダル機能 ★★★
+      document.addEventListener('DOMContentLoaded', () => {
+          const searchInput = document.getElementById('globalSearchInput');
+          const clearBtn = document.getElementById('clearSearchBtn');
+          const resultsContainer = document.getElementById('searchResults');
 
-    // ★ アカウント切り替え（ログアウト）用関数
-    // script.js内にあるFirebaseロジックを呼び出す想定ですが、
-    // UI側のトリガーとしてここに定義します。
-    window.handleAccountSwitch = function() {
-        if(confirm('アカウントを切り替えますか？（ログアウト）')) {
-            // script.jsのグローバルなログアウト関数があればそれを呼ぶ、
-            // なければFirebaseのsignOutを実行するロジックが必要です。
-            // ここではイベントを発火させるか、リロードして再認証を促す形になります。
-            
-            // 例: script.jsに signOutUser() があると仮定、またはFirebase直接
-            if(window.firebase && window.firebase.auth) {
-                window.firebase.auth().signOut().then(() => {
-                    location.reload();
-                });
-            } else {
-                // script.js側で監視しているログアウト処理を実行
-                alert('ログアウト処理を実行します。(システム連携待ち)');
-                location.reload(); 
-            }
-        }
-    };
+          const modalOverlay = document.getElementById('link-confirm-overlay');
+          const btnSame = document.getElementById('btn-same-tab');
+          const btnNew = document.getElementById('btn-new-tab');
+          const btnCancel = document.getElementById('btn-cancel-modal');
+          const modalTitle = document.getElementById('modal-title');
+          const modalDesc = document.getElementById('modal-desc');
 
-    // 初期ロード時に保存された背景を適用
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedBg = localStorage.getItem('custom-bg-image');
-        if (savedBg) {
-            document.body.style.backgroundImage = 'url(' + savedBg + ')';
-        }
-    });
+          let currentTargetUrl = "";
+          let allContentCache = [];
 
-    // ★★★ 検索＆モーダル機能 (既存コード維持) ★★★
-    document.addEventListener('DOMContentLoaded', () => {
-        const searchInput = document.getElementById('globalSearchInput');
-        const clearBtn = document.getElementById('clearSearchBtn');
-        const resultsContainer = document.getElementById('searchResults');
+          if (!searchInput || !resultsContainer) return;
 
-        const modalOverlay = document.getElementById('link-confirm-overlay');
-        const btnSame = document.getElementById('btn-same-tab');
-        const btnNew = document.getElementById('btn-new-tab');
-        const btnCancel = document.getElementById('btn-cancel-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalDesc = document.getElementById('modal-desc');
+          // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
+          const kanaToRomajiMap = {
+              'あ':'a','い':'i','う':'u','え':'e','お':'o',
+              'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+              'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+              'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+              'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+              'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+              'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+              'や':'ya','ゆ':'yu','よ':'yo',
+              'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+              'わ':'wa','を':'wo','ん':'n',
+              'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+              'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+              'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+              'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+              'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+              'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+              'しゃ':'sha','しゅ':'shu','しょ':'sho',
+              'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+              'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+              'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+              'みゃ':'mya','みゅ':'myu','みょ':'myo',
+              'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
+              'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+              'じゃ':'ja','じ':'ji','じゅ':'ju','じょ':'jo',
+              'びゃ':'bya','びゅ':'byu','びょ':'byo',
+              'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+              'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
+          };
 
-        let currentTargetUrl = "";
-        let allContentCache = [];
+          // --- カタカナ -> ひらがな変換 ---
+          function katakanaToHiragana(src) {
+              return src.replace(/[\u30a1-\u30f6]/g, function(match) {
+                  var chr = match.charCodeAt(0) - 0x60;
+                  return String.fromCharCode(chr);
+              });
+          }
 
-        if (!searchInput || !resultsContainer) return;
+          // --- 文字列(ひらがな) -> ローマ字変換 ---
+          function toRomaji(text) {
+              let hira = katakanaToHiragana(text);
+              let romaji = "";
+              for (let i = 0; i < hira.length; i++) {
+                  let two = hira.substr(i, 2);
+                  if (kanaToRomajiMap[two]) {
+                      romaji += kanaToRomajiMap[two];
+                      i++;
+                      continue;
+                  }
+                  let one = hira.charAt(i);
+                  if (kanaToRomajiMap[one]) {
+                      romaji += kanaToRomajiMap[one];
+                  } else {
+                      romaji += one;
+                  }
+              }
+              return romaji;
+          }
 
-        // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
-        const kanaToRomajiMap = {
-            'あ':'a','い':'i','う':'u','え':'e','お':'o',
-            'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
-            'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
-            'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
-            'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
-            'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
-            'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
-            'や':'ya','ゆ':'yu','よ':'yo',
-            'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
-            'わ':'wa','を':'wo','ん':'n',
-            'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
-            'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
-            'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
-            'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
-            'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
-            'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
-            'しゃ':'sha','しゅ':'shu','しょ':'sho',
-            'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
-            'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
-            'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
-            'みゃ':'mya','みゅ':'myu','みょ':'myo',
-            'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
-            'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
-            'じゃ':'ja','じ':'ji','じゅ':'ju','じょ':'jo',
-            'びゃ':'bya','びゅ':'byu','びょ':'byo',
-            'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
-            'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
-        };
+          // DOMから全コンテンツを収集（Traffic情報も含めるため）
+          function gatherAllSearchableContent() {
+              const content = [];
+              // 1. Traffic (Accordion items)
+              const accordions = document.querySelectorAll('.accordion-item');
+              accordions.forEach(acc => {
+                  const headerSpan = acc.querySelector('.accordion-header span');
+                  const iframe = acc.querySelector('.accordion-iframe');
+                  if (headerSpan && iframe && iframe.dataset.src) {
+                      content.push({
+                          type: 'traffic',
+                          name: headerSpan.innerText.trim(),
+                          url: iframe.dataset.src, 
+                          el: acc,
+                          img: './icon.png'
+                      });
+                  }
+              });
+              
+              // 2. Apps
+              if(typeof window.initialAppData !== 'undefined') {
+                  window.initialAppData.forEach(app => {
+                      let iconUrl = './icon.png';
+                      if(typeof window.getFaviconUrl === 'function') {
+                          iconUrl = window.getFaviconUrl(app.url);
+                      }
+                      content.push({
+                          type: 'app',
+                          name: app.label,
+                          url: app.url,
+                          img: iconUrl,
+                          searchText: app.searchText || ""
+                      });
+                  });
+              }
+              return content;
+          }
 
-        // --- カタカナ -> ひらがな変換 ---
-        function katakanaToHiragana(src) {
-            return src.replace(/[\u30a1-\u30f6]/g, function(match) {
-                var chr = match.charCodeAt(0) - 0x60;
-                return String.fromCharCode(chr);
-            });
-        }
+          function openConfirmationModal(url, name) {
+              currentTargetUrl = url;
+              modalTitle.innerText = name;
+              modalDesc.innerText = `「${name}」をどのように開きますか？`;
+              modalOverlay.classList.remove('hidden');
+          }
+          function closeConfirmationModal() {
+              modalOverlay.classList.add('hidden');
+              currentTargetUrl = "";
+          }
 
-        // --- 文字列(ひらがな) -> ローマ字変換 ---
-        function toRomaji(text) {
-            let hira = katakanaToHiragana(text);
-            let romaji = "";
-            for (let i = 0; i < hira.length; i++) {
-                let two = hira.substr(i, 2);
-                if (kanaToRomajiMap[two]) {
-                    romaji += kanaToRomajiMap[two];
-                    i++;
-                    continue;
-                }
-                let one = hira.charAt(i);
-                if (kanaToRomajiMap[one]) {
-                    romaji += kanaToRomajiMap[one];
-                } else {
-                    romaji += one;
-                }
-            }
-            return romaji;
-        }
+          btnSame.addEventListener('click', () => {
+              if(currentTargetUrl) window.location.href = currentTargetUrl;
+              closeConfirmationModal();
+          });
+          btnNew.addEventListener('click', () => {
+              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
+              closeConfirmationModal();
+          });
+          btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
+          modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
 
-        // DOMから全コンテンツを収集
-        function gatherAllSearchableContent() {
-            const content = [];
-            // 1. Traffic (Accordion items)
-            const accordions = document.querySelectorAll('.accordion-item');
-            accordions.forEach(acc => {
-                const headerSpan = acc.querySelector('.accordion-header span');
-                const iframe = acc.querySelector('.accordion-iframe');
-                if (headerSpan && iframe && iframe.dataset.src) {
-                    content.push({
-                        type: 'traffic',
-                        name: headerSpan.innerText.trim(),
-                        url: iframe.dataset.src, 
-                        el: acc,
-                        img: './icon.png'
-                    });
-                }
-            });
-            
-            // 2. Apps
-            if(typeof window.initialAppData !== 'undefined') {
-                window.initialAppData.forEach(app => {
-                    let iconUrl = './icon.png';
-                    if(typeof window.getFaviconUrl === 'function') {
-                        iconUrl = window.getFaviconUrl(app.url);
-                    }
-                    content.push({
-                        type: 'app',
-                        name: app.label,
-                        url: app.url,
-                        img: iconUrl,
-                        searchText: app.searchText || ""
-                    });
-                });
-            }
-            return content;
-        }
+          function performSearch(query) {
+              const q = query.toLowerCase().trim();
+              const qRomaji = toRomaji(q);
 
-        function openConfirmationModal(url, name) {
-            currentTargetUrl = url;
-            modalTitle.innerText = name;
-            modalDesc.innerText = `「${name}」をどのように開きますか？`;
-            modalOverlay.classList.remove('hidden');
-        }
-        function closeConfirmationModal() {
-            modalOverlay.classList.add('hidden');
-            currentTargetUrl = "";
-        }
+              resultsContainer.innerHTML = ''; 
 
-        btnSame.addEventListener('click', () => {
-            if(currentTargetUrl) window.location.href = currentTargetUrl;
-            closeConfirmationModal();
-        });
-        btnNew.addEventListener('click', () => {
-            if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-            closeConfirmationModal();
-        });
-        btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
-        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
+              if (q.length === 0) {
+                  resultsContainer.classList.add('hidden');
+                  clearBtn.classList.add('hidden');
+                  return;
+              }
 
-        function performSearch(query) {
-            const q = query.toLowerCase().trim();
-            const qRomaji = toRomaji(q);
+              clearBtn.classList.remove('hidden');
+              allContentCache = gatherAllSearchableContent();
+              
+              const matches = allContentCache.filter(item => {
+                  const nameLower = item.name.toLowerCase();
+                  const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
+                  
+                  if (nameLower.includes(q) || searchTxt.includes(q)) return true;
+                  if (qRomaji.length > 0) {
+                      if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
+                  }
+                  
+                  return false;
+              });
 
-            resultsContainer.innerHTML = ''; 
+              if (matches.length > 0) {
+                  resultsContainer.classList.remove('hidden');
+                  matches.forEach(item => {
+                      const itemLink = document.createElement('a');
+                      itemLink.className = 'search-result-item';
+                      
+                      const img = document.createElement('img');
+                      img.src = item.img || './icon.png';
+                      
+                      const span = document.createElement('span');
+                      span.innerText = item.name;
 
-            if (q.length === 0) {
-                resultsContainer.classList.add('hidden');
-                clearBtn.classList.add('hidden');
-                return;
-            }
+                      const tag = document.createElement('span');
+                      tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
+                      tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
+                      
+                      const icon = document.createElement('i');
+                      icon.className = 'fas fa-chevron-right';
 
-            clearBtn.classList.remove('hidden');
-            allContentCache = gatherAllSearchableContent();
-            
-            const matches = allContentCache.filter(item => {
-                const nameLower = item.name.toLowerCase();
-                const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
-                
-                if (nameLower.includes(q) || searchTxt.includes(q)) return true;
-                if (qRomaji.length > 0) {
-                    if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
-                }
-                
-                return false;
-            });
+                      itemLink.appendChild(img);
+                      itemLink.appendChild(span);
+                      itemLink.appendChild(tag);
+                      itemLink.appendChild(icon);
 
-            if (matches.length > 0) {
-                resultsContainer.classList.remove('hidden');
-                matches.forEach(item => {
-                    const itemLink = document.createElement('a');
-                    itemLink.className = 'search-result-item';
-                    
-                    const img = document.createElement('img');
-                    img.src = item.img || './icon.png';
-                    
-                    const span = document.createElement('span');
-                    span.innerText = item.name;
+                      itemLink.addEventListener('click', (e) => {
+                          e.preventDefault(); 
+                          resultsContainer.classList.add('hidden');
+                          searchInput.value = '';
+                          clearBtn.classList.add('hidden');
+                          
+                          if (item.type === 'traffic' && item.el) {
+                              if(typeof window.activateTab === 'function') window.activateTab('bustarain');
+                              const parentId = item.el.parentElement.id;
+                              if(typeof window.switchSubTab === 'function') window.switchSubTab(parentId);
+                              if(!item.el.classList.contains('active')) {
+                                  const header = item.el.querySelector('.accordion-header');
+                                  if(header) header.click();
+                              }
+                              setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                          } else {
+                              openConfirmationModal(item.url, item.name);
+                          }
+                      });
+                      resultsContainer.appendChild(itemLink);
+                  });
+              } else {
+                  resultsContainer.classList.remove('hidden');
+                  const noRes = document.createElement('div');
+                  noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
+                  noRes.innerText = '見つかりませんでした';
+                  resultsContainer.appendChild(noRes);
+              }
+          }
 
-                    const tag = document.createElement('span');
-                    tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
-                    tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
-                    
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-chevron-right';
+          searchInput.addEventListener('input', (e) => {
+              performSearch(e.target.value);
+          });
+          
+          searchInput.addEventListener('focus', () => {
+              if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
+          });
 
-                    itemLink.appendChild(img);
-                    itemLink.appendChild(span);
-                    itemLink.appendChild(tag);
-                    itemLink.appendChild(icon);
+          clearBtn.addEventListener('click', () => {
+              searchInput.value = '';
+              performSearch('');
+              searchInput.focus();
+          });
 
-                    itemLink.addEventListener('click', (e) => {
-                        e.preventDefault(); 
-                        resultsContainer.classList.add('hidden');
-                        searchInput.value = '';
-                        clearBtn.classList.add('hidden');
-                        
-                        if (item.type === 'traffic' && item.el) {
-                            if(typeof window.activateTab === 'function') window.activateTab('bustarain');
-                            const parentId = item.el.parentElement.id;
-                            if(typeof window.switchSubTab === 'function') window.switchSubTab(parentId);
-                            if(!item.el.classList.contains('active')) {
-                                const header = item.el.querySelector('.accordion-header');
-                                if(header) header.click();
-                            }
-                            setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
-                        } else {
-                            openConfirmationModal(item.url, item.name);
-                        }
-                    });
-                    resultsContainer.appendChild(itemLink);
-                });
-            } else {
-                resultsContainer.classList.remove('hidden');
-                const noRes = document.createElement('div');
-                noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
-                noRes.innerText = '見つかりませんでした';
-                resultsContainer.appendChild(noRes);
-            }
-        }
-
-        searchInput.addEventListener('input', (e) => {
-            performSearch(e.target.value);
-        });
-        
-        searchInput.addEventListener('focus', () => {
-            if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
-        });
-
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            performSearch('');
-            searchInput.focus();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                resultsContainer.classList.add('hidden');
-            }
-        });
-    });
+          document.addEventListener('click', (e) => {
+              if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                  resultsContainer.classList.add('hidden');
+              }
+          });
+      });
   </script>
 </body>
 </html>
