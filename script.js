@@ -140,6 +140,9 @@ const initialAppData = [
   {id:82,label:"Neocities",url:"https://neocities.org/",icon:"https://neocities.org/favicon.ico",searchText:"Neocities ネオシティーズ"},
   {id:83,label:"Firebase",url:"https://console.firebase.google.com/u/0/mfa",icon:"https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png",searchText:"Firebase ファイアベース"},
   {id:84,label:"神戸市バスロケーション",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
+  {id:86,label:"Kakeru",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"Kakeru"},
+  {id:87,label:"シャーロックホームズ　電子書籍1",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
+  {id:88,label:"シャーロックホームズ　電子書籍2",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
 ];
 
 const FAV_KEY = 'myLinkAppFavorites';
