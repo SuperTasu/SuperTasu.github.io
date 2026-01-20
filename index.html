@@ -3,30 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Link First</title>
-  <!-- アイコン設定 -->
   <link rel="icon" href="./icon.png" type="image/png">
   <link rel="apple-touch-icon" href="./icon.png">
-  
-  <!-- ビューポート設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  
-  <!-- 外部スタイルシート (FontAwesome, Google Fonts) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
-    /* =========================================
-       CSS変数定義
-       ========================================= */
+    /* --- CSS変数 --- */
     :root {
       --bg-color: #ffffff;
       --text-color-primary: #000000;
       --text-color-secondary: #444444;
       --custom-bg-image: none; 
-      
       --card-bg: #ffffff;
-      --card-border: 2px solid #000000;
-      --card-radius: 28px;
+      --card-border: 2px solid #000000; /* 太い黒枠 */
+      --card-radius: 28px; /* 丸みの強い角 */
       --divider-color: #ccc;
       
       --tab-active-bg: #667eea;
@@ -38,8 +30,6 @@
       --grid-line-color: rgba(0, 0, 0, 0.1);
       --swap-select-color: rgba(33, 150, 243, 0.2);
     }
-
-    /* ダークモード */
     body.dark-theme {
       --bg-color: #222;
       --text-color-primary: #f5f5f5;
@@ -54,22 +44,18 @@
       --swap-select-color: rgba(100, 181, 246, 0.3);
     }
 
-    /* =========================================
-       基本スタイル
-       ========================================= */
     body {
       margin: 0;
       background-color: var(--bg-color);
       color: var(--text-color-primary);
-      font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       transition: background-color 0.3s, color 0.3s;
       padding: 0;
       box-sizing: border-box;
       min-height: 100vh;
-      padding-bottom: 80px; /* ナビゲーションバーの高さ分確保 */
+      padding-bottom: 80px; 
     }
 
-    /* 背景画像用疑似要素 */
     body::before {
       content: "";
       position: fixed;
@@ -83,9 +69,7 @@
       transition: background-image 0.5s ease;
     }
 
-    /* =========================================
-       固定ヘッダーエリア
-       ========================================= */
+    /* ★★★ 固定ヘッダー（スマホ対応強化） ★★★ */
     .fixed-top-wrapper {
       position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
       background-color: #000000; color: #ffffff;
@@ -96,365 +80,294 @@
 
     .clock-area { 
         width: 100%; padding: 0 10px; box-sizing: border-box; 
-        display: flex; align-items: center; height: 40px; 
-    }
-    
-    .clock-main-row { 
-        display: flex; justify-content: space-between; align-items: center; width: 100%; 
-        position: relative;
+        display: flex; align-items: center; min-height: 40px; /* 高さ確保 */
+        flex-wrap: wrap; /* スマホで折り返し許可 */
     }
 
-    /* 左側：ロゴと日時 */
-    .left-section { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    
+    .clock-main-row { 
+        display: flex; justify-content: flex-start; align-items: center; 
+        width: 100%; gap: 10px; 
+        flex-wrap: wrap; /* コンテンツが多い場合に折り返す */
+    }
+
     .site-logo {
-      height: 24px; width: auto; object-fit: contain; vertical-align: middle;
+      height: 26px; width: auto; margin-right: 5px; object-fit: contain; vertical-align: middle;
       border-radius: 4px; box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
-    #date { font-size: 12px; color: #ddd; }
-    #clock { font-size: 16px; font-weight: bold; font-family: 'Roboto Mono', monospace; }
+    .datetime-row { display: flex; align-items: baseline; gap: 8px; flex-grow: 1; flex-wrap: nowrap; }
+    #date, #clock, #countdown { 
+        color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 14px; line-height: 1; 
+    }
+    #countdown { color: #88aaff; }
 
-    /* 中央：スピードテスト (PC用) */
-    .header-speed-test { 
-        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-        display: flex; align-items: center; gap: 5px; z-index: 6000; 
+    /* スマホ調整: 日付を隠す、またはフォント調整 */
+    @media (max-width: 600px) {
+        #date { display: none; } /* スペース確保のため日付非表示 */
+        .datetime-row { flex-grow: 0; margin-right: auto; }
+        .clock-main-row { padding-bottom: 5px; }
     }
-    .header-speed-test iframe { 
-        width: 140px; height: 35px; border: none; border-radius: 4px; background: #fff;
-        pointer-events: auto;
-    }
-    #speed-test-refresh-button { 
-        color: #aaaaaa; cursor: pointer; font-size: 14px;
-        width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
-        background: rgba(255,255,255,0.1); border-radius: 50%;
-    }
-    #speed-test-refresh-button:hover { background: rgba(255,255,255,0.3); color: #fff; }
 
-    /* 右側：ツール・ユーザー情報 */
     .header-controls { 
-        display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; 
-        padding-right: 5px;
+        display: flex; align-items: center; gap: 12px; margin-left: auto; 
+        background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 15px;
     }
-    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 16px; transition: color 0.3s; }
+    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; }
     .control-icon:hover { color: #ffffff; }
-
-    /* ネットワークステータス */
-    #network-status {
-        display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: bold;
-        padding: 2px 5px; border-radius: 4px; cursor: default;
-    }
-    #network-status.online { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
-    #network-status.offline { color: #f44336; background: rgba(244, 67, 54, 0.1); }
-
-    /* ユーザー情報表示エリア */
-    #user-info-wrapper { position: relative; }
-    #auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; font-size: 13px; }
-    #auth-btn:hover { color: #fff; }
-
-    #user-display {
-        display: none; align-items: center; gap: 6px; cursor: pointer;
-        padding: 2px 8px; border-radius: 20px; transition: background 0.2s;
-        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    }
-    #user-display:hover { background: rgba(255,255,255,0.2); }
     
-    #user-avatar { 
-        width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; 
-    }
-    #user-name {
-        font-size: 12px; color: #fff; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-
-    /* アカウントドロップダウンメニュー */
-    #account-menu {
-        position: absolute; top: 35px; right: 0;
-        background: var(--card-bg); color: var(--text-color-primary);
-        border: 1px solid var(--card-border); border-radius: 8px;
-        padding: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        display: none; flex-direction: column; gap: 2px; z-index: 6000;
-        min-width: 160px;
-    }
-    #account-menu.show { display: flex; }
-    .menu-item {
-        padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px;
-        text-decoration: none; color: var(--text-color-primary);
-    }
-    .menu-item:hover { background: var(--input-bg); }
-    .menu-item.danger { color: #ff4444; }
-
-    /* テーマ切り替えドット */
-    .theme-switcher { display: flex; gap: 5px; align-items: center; }
-    .theme-dot { width: 10px; height: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
+    .theme-switcher { display: flex; gap: 5px; }
+    .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
-    /* =========================================
-       検索バー
-       ========================================= */
+    /* Login / User Info Styles */
+    #auth-wrapper { display: flex; align-items: center; gap: 8px; border-right: 1px solid #555; padding-right: 8px; margin-right: 5px; }
+    #auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; }
+    #auth-btn:hover { color: #fff; }
+    #user-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
+    #user-name { font-size: 12px; color: #fff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
+    #account-switch-btn { cursor: pointer; color: #ff6b6b; font-size: 14px; display: none; margin-left: 5px; }
+
+    /* Network Status */
+    #network-status {
+        display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold;
+        padding: 2px 5px; border-radius: 4px; transition: all 0.3s; cursor: default; white-space: nowrap;
+    }
+    #network-status.online { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
+    #network-status.offline { color: #f44336; background: rgba(244, 67, 54, 0.1); }
+    #network-status i { font-size: 12px; }
+
+    /* スピードテストエリア */
+    .header-speed-test { 
+        position: absolute; right: 10px; top: 5px;
+        display: flex; align-items: flex-start; gap: 5px; z-index: 6000; pointer-events: none;
+    }
+    .header-speed-test iframe { 
+        pointer-events: auto; width: 180px; height: 60px;
+        border: none; border-radius: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+    }
+    #speed-test-refresh-button { 
+        pointer-events: auto; color: #aaaaaa; cursor: pointer; font-size: 16px; margin-top: 5px;
+        background: rgba(0,0,0,0.5); border-radius: 50%; width: 24px; height: 24px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
+
+    /* モバイル時のスピードテスト調整 */
+    @media (max-width: 650px) {
+        .header-speed-test { display: none; } /* JSでFYタブに移動 */
+    }
+
+    /* ★★★ 検索バー ★★★ */
     .search-wrapper { 
-        display: flex !important; justify-content: center; width: 100%; margin-top: 5px; padding: 0 10px; box-sizing: border-box;
+        display: flex !important; 
+        justify-content: center; width: 100%; margin-top: 5px; padding: 0 10px; box-sizing: border-box;
         position: relative; z-index: 5000;
     }
     .search-container { 
-        display: flex; align-items: center; padding: 0 12px; 
+        display: flex; align-items: center; padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 18px; border: none; width: 95%; max-width: 600px; height: 34px; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        border-radius: 20px; border: none; width: 90%; max-width: 600px; height: 36px; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: width 0.3s ease;
     }
-    .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 14px; }
-    #globalSearchInput { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: #333; }
-    #clearSearchBtn { cursor: pointer; color: #777; font-size: 14px; }
+    .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
+    #globalSearchInput { 
+        border: none; background: transparent; outline: none; width: 100%; font-size: 15px; color: #333;
+    }
+    #clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
 
-    /* 検索結果リスト */
+    /* 検索結果ドロップダウン */
     .search-results-dropdown {
-        position: absolute; top: 38px; left: 0; right: 0; margin: 0 auto;
-        width: 95%; max-width: 600px; background-color: var(--card-bg); border-radius: 12px;
+        position: absolute; top: 40px; left: 0; right: 0; margin: 0 auto;
+        width: 90%; max-width: 620px; background-color: var(--card-bg); border-radius: 12px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 5500; 
-        max-height: 50vh; overflow-y: auto; padding: 5px; 
+        max-height: 60vh; overflow-y: auto; padding: 5px; 
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--card-border); display: block; 
     }
     .search-results-dropdown.hidden { display: none !important; }
     
     .search-result-item {
-        display: flex; align-items: center; padding: 8px; margin-bottom: 2px; border-radius: 8px;
-        background: rgba(255,255,255,0.05); cursor: pointer; color: var(--text-color-primary); text-decoration: none;
+        display: flex; align-items: center; padding: 10px; margin-bottom: 4px; border-radius: 8px;
+        background: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.2s;
+        color: var(--text-color-primary); text-decoration: none; user-select: none; border: 1px solid transparent;
     }
-    .search-result-item:hover { background-color: var(--swap-select-color); }
-    .search-result-item img { width: 28px; height: 28px; margin-right: 10px; border-radius: 4px; background:#fff; object-fit: contain;}
-    .search-result-item span { flex-grow: 1; font-weight: bold; font-size: 13px; }
-    .result-tag { font-size: 10px; padding: 2px 4px; border-radius: 4px; color: #fff; font-weight: bold; }
+    body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
+    .search-result-item:hover { background-color: var(--swap-select-color); transform: scale(1.01); }
+    .search-result-item img { width: 32px; height: 32px; border-radius: 6px; margin-right: 12px; object-fit: contain; background:#fff;}
+    .search-result-item span { font-weight: bold; font-size: 14px; flex-grow: 1; }
+    .result-tag { font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-right: 8px; color: #fff; font-weight: bold; }
     .tag-app { background-color: #667eea; }
     .tag-traffic { background-color: #28a745; }
 
-    /* =========================================
-       コンテンツエリア
-       ========================================= */
-    .page-container { max-width: 1400px; margin: 0 auto; padding: 110px 15px 20px 15px; }
+    /* ★★★ コンテンツエリア ★★★ */
+    .page-container { max-width: 1400px; margin: 0 auto; padding: 110px 20px 20px 20px; }
     #main-grid, #bustarain-container, #fy-container {
         position: relative; z-index: 1; width: 100%; box-sizing: border-box;
     }
-    #bustarain-container, #fy-container { display: none; margin-top: 10px; }
+    #bustarain-container, #fy-container { display: none; margin-top: 20px; }
+    .main-grid { margin-top: 10px; }
 
-    /* グリッドレイアウト */
+    /* グリッド */
     .grid-container, #fy-content-area {
-        display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding: 5px;
+        display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; padding: 10px;
     }
-    /* レスポンシブグリッド */
     @media (max-width: 1300px) { .grid-container, #fy-content-area { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 900px) { .grid-container, #fy-content-area { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
 
-    /* アプリカード */
+    /* カードデザイン */
     .app-card {
         display: flex; flex-direction: row;
         background-color: var(--card-bg);
         border: var(--card-border);
         border-radius: var(--card-radius);
-        overflow: hidden; height: 85px; position: relative;
+        overflow: hidden; height: 90px; position: relative;
     }
-    .app-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
-    
-    .card-left { width: 35%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .card-left img { width: 42px; height: 42px; object-fit: contain; border-radius: 6px; }
+    .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .card-left { width: 40%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .card-left img { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; }
     .card-divider { width: 2px; background-color: var(--divider-color); margin: 10px 0; border-radius: 2px; }
-    .card-right {
-        width: 65%; display: flex; flex-direction: column; justify-content: space-between; padding: 6px 8px; box-sizing: border-box;
-    }
-    .card-header { text-align: center; margin-top: 2px; width: 100%; }
+    .card-right { width: 60%; display: flex; flex-direction: column; justify-content: space-between; padding: 5px 10px; box-sizing: border-box; }
+    .card-header { text-align: center; margin-top: 5px; width: 100%; }
     .card-title {
-        font-size: 13px; font-weight: bold; color: var(--text-color-primary);
+        font-size: 14px; font-weight: bold; color: var(--text-color-primary);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
-        padding-bottom: 2px; border-bottom: 1.5px solid var(--text-color-primary);
+        padding-bottom: 2px; border-bottom: 2px solid var(--text-color-primary);
     }
-    .card-buttons { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 2px; gap: 8px; padding-right: 2px; }
+    .card-buttons { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 5px; gap: 12px; padding-right: 5px; }
     .card-btn {
-        width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
-        border: 1.5px solid var(--text-color-primary); border-radius: 4px; cursor: pointer;
-        background: transparent; color: var(--text-color-primary); font-size: 10px; padding: 0;
+        width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+        border: 2px solid var(--text-color-primary); border-radius: 4px; cursor: pointer;
+        background: transparent; color: var(--text-color-primary); font-size: 12px; padding: 0; transition: all 0.2s;
     }
     .card-btn:hover { background-color: var(--text-color-primary); color: var(--bg-color); }
     .card-btn.fav-active { color: #ffc107; border-color: #ffc107; }
 
     /* FY編集モード */
-    .grid-slot { min-height: 85px; border-radius: var(--card-radius); }
-    .edit-mode .grid-slot { border: 2px dashed var(--text-color-secondary); opacity: 0.8; cursor: grab; }
+    .grid-slot { min-height: 90px; border-radius: var(--card-radius); }
+    .edit-mode .grid-slot { border: 2px dashed var(--text-color-secondary); cursor: pointer; opacity: 0.8; }
+    .edit-mode .grid-slot:hover { background-color: var(--swap-select-color); }
+    .edit-mode .grid-slot.selected-slot { border-color: #ff4444; background-color: rgba(255, 68, 68, 0.1); }
+    .edit-mode .app-card { pointer-events: none; }
     .grid-slot.empty { border: 1px dashed rgba(0,0,0,0.1); border-radius: var(--card-radius); }
 
-    /* FY時計 */
-    #fy-clock-display { 
-        text-align: center; margin-bottom: 15px; font-family: 'Roboto Mono', monospace; color: var(--text-color-primary);
-        transition: all 0.3s ease;
-    }
+    /* FY専用時計 */
+    #fy-clock-display { text-align: center; margin-bottom: 15px; font-family: 'Roboto Mono', monospace; color: var(--text-color-primary); }
     .fy-date-text { font-size: 16px; margin-right: 10px; font-weight: bold; }
     .fy-time-text { font-size: 28px; font-weight: bold; color: var(--tab-active-bg); }
 
-    /* Bustarain Tab */
-    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
-    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    /* スマホ版FY時計・スピードテスト配置 */
+    @media (max-width: 650px) {
+        #fy-clock-display {
+            display: flex !important; flex-direction: row; justify-content: center; align-items: center; gap: 15px;
+        }
+        .fy-clock-group { display: flex; flex-direction: column; align-items: flex-end; }
+        .fy-date-text { font-size: 12px; margin-right: 0; margin-bottom: 2px; }
+        .fy-time-text { font-size: 24px; line-height: 1; }
+        #fy-speed-test-placeholder {
+            display: flex; flex-direction: column; align-items: center; transform: scale(0.9);
+        }
+        #speed-test-iframe { width: 100px !important; height: 50px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    }
+    #fy-speed-test-placeholder { display: none; } /* PCでは非表示 */
+
+    /* Tabs & Content */
+    .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
-    
-    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 10px; background: var(--card-bg); overflow: hidden; }
-    .accordion-header { padding: 12px 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-color-primary); }
+
+    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
+    .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .accordion-item.active .accordion-content { max-height: 1200px; }
-    .accordion-iframe { width: 100%; height: 500px; border: none; }
-    .section-title { font-size: 16px; color: var(--text-color-secondary); margin: 15px 5px 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+    .accordion-iframe { width: 100%; height: 600px; border: none; }
+    .hidden { display: none !important; }
+    .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
 
-    /* =========================================
-       ナビゲーション (Option削除済み)
-       ========================================= */
+    /* ナビゲーション */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--nav-bg); backdrop-filter: blur(10px);
         border-top: 1px solid #ccc; display: flex; justify-content: space-around; align-items: center;
-        padding: 5px 0; padding-bottom: calc(5px + env(safe-area-inset-bottom)); z-index: 2000;
+        padding: 5px 10px; padding-bottom: calc(5px + env(safe-area-inset-bottom)); z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
     }
     .tab-item { 
-        flex: 1; text-align: center; padding: 6px 0; color: var(--text-color-secondary); 
-        cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+        padding: 6px 0; color: var(--text-color-secondary); font-weight: bold; font-size: 10px; 
+        cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
+        border-radius: 10px; margin: 0 4px; max-width: 90px;
     }
     .tab-item i { font-size: 20px; }
-    .tab-item span { font-size: 10px; font-weight: bold; }
-    .tab-item.active { color: #667eea; }
+    .tab-item.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); }
+    .tab-item.active i { color: var(--tab-active-text); }
     .fy-icon { color: #ffc107; }
-    .tab-item.active .fy-icon { color: #ffc107; text-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+    .tab-item.active .fy-icon { color: #fff; }
 
-    /* =========================================
-       モーダル共通
-       ========================================= */
+    /* モーダル */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6); z-index: 7000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
     }
     .modal-overlay.hidden { display: none; }
     .modal-box {
-        background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--card-border); color: var(--text-color-primary);
+        background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #ccc;
     }
-    .modal-title { margin-bottom: 10px; font-size:16px; font-weight:bold; }
-    .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-    .modal-btn { padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; gap:8px;}
+    .modal-title { margin-bottom: 10px; font-size:18px; font-weight:bold; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; gap:8px;}
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
-
-    /* =========================================
-       レスポンシブ調整 (スマホ対応)
-       ========================================= */
-    
-    /* デフォルト (PC): FY内のスピードテストエリアは非表示 */
-    #fy-speed-test-placeholder { display: none; }
-
-    /* 650px以下 (スマホ) */
-    @media (max-width: 650px) {
-        /* ヘッダー調整 */
-        .clock-area { padding: 0 5px; }
-        .site-logo { height: 20px; }
-        
-        /* 日付非表示 */
-        #date { display: none; } 
-        #clock { font-size: 14px; }
-
-        /* PC用スピードテストエリア非表示 */
-        .header-speed-test { display: none !important; }
-
-        /* ユーザー情報表示を短縮 */
-        #user-name { max-width: 60px; }
-
-        /* FYタブ: 時計とスピードテストを統合表示 */
-        #fy-clock-display {
-            display: flex !important; flex-direction: row;
-            justify-content: center; align-items: center; gap: 15px;
-            background: var(--card-bg); padding: 10px; border-radius: 12px;
-            border: 1px solid var(--divider-color);
-            margin-bottom: 15px;
-        }
-
-        .fy-clock-group { display: flex; flex-direction: column; align-items: flex-end; }
-        .fy-date-text { font-size: 11px; margin-right: 0; margin-bottom: 2px; display: block; }
-        .fy-time-text { font-size: 22px; line-height: 1; }
-
-        /* FYへ移動したスピードテストの表示 */
-        #fy-speed-test-placeholder {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        #speed-test-iframe {
-            width: 110px !important; height: 40px !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #speed-test-refresh-button { margin-top: 2px; }
-    }
   </style>
 </head>
 <body>
-  <!-- ヘッダー -->
   <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            <!-- 左：ロゴと日時 -->
-            <div class="left-section">
-                <img src="./icon.png" alt="Logo" class="site-logo">
-                <div class="datetime-row">
-                    <div id="date"></div>
-                    <div id="clock"></div>
-                </div>
+            <img src="./icon.png" alt="Link First Logo" class="site-logo">
+            <div class="datetime-row">
+                <div id="date"></div>
+                <div id="clock"></div>
+                <div id="countdown"></div>
             </div>
+             <div class="header-controls">
+                <!-- Google Login / User Info -->
+                <div id="auth-wrapper">
+                    <div id="auth-btn" title="Googleログイン">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <img id="user-avatar" src="" alt="User" />
+                    <span id="user-name"></span>
+                    <i class="fas fa-sign-out-alt" id="account-switch-btn" title="アカウント切り替え" onclick="handleAccountSwitch()"></i>
+                </div>
+                
+                <!-- 背景画像変更ボタン -->
+                <div class="control-icon" id="bg-change-btn" onclick="document.getElementById('bg-file-input').click()" title="背景画像を変更">
+                    <i class="far fa-image"></i>
+                </div>
+                <input type="file" id="bg-file-input" style="display:none" accept="image/*" onchange="changeBackground(this)">
 
-            <!-- 中央：PC用スピードテスト (スマホではJSで移動) -->
+                <!-- Theme Switcher -->
+                <div class="theme-switcher">
+                    <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
+                    <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
+                </div>
+                <!-- Network Status -->
+                <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i> <span>ON</span></div>
+                <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
+            </div>
+            <!-- PC用スピードテスト表示 -->
             <div class="header-speed-test" id="header-speed-test-container">
                 <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
                 <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
             </div>
-
-            <!-- 右：ツール -->
-            <div class="header-controls">
-                <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i></div>
-                
-                <!-- 背景変更ボタン -->
-                <div class="control-icon" id="bg-change-btn" title="壁紙変更" onclick="openBgModal()">
-                    <i class="fas fa-image"></i>
-                </div>
-
-                <!-- ユーザー情報 -->
-                <div id="user-info-wrapper">
-                    <!-- 未ログイン時 -->
-                    <div id="auth-btn" title="Googleログイン" onclick="handleLoginClick()">
-                        <i class="fab fa-google"></i> <span class="login-text">Login</span>
-                    </div>
-                    <!-- ログイン時 -->
-                    <div id="user-display" onclick="toggleAccountMenu()">
-                        <img id="user-avatar" src="" alt="User" />
-                        <span id="user-name"></span>
-                        <i class="fas fa-caret-down" style="font-size:10px; color:#aaa;"></i>
-                    </div>
-                    <!-- アカウントメニュー -->
-                    <div id="account-menu">
-                        <div class="menu-item" onclick="handleSwitchAccount()">
-                            <i class="fas fa-users-cog"></i> アカウント切り替え
-                        </div>
-                        <div class="menu-item danger" onclick="handleLogout()">
-                            <i class="fas fa-sign-out-alt"></i> ログアウト
-                        </div>
-                    </div>
-                </div>
-
-                <!-- テーマ切り替え -->
-                <div class="theme-switcher">
-                    <div class="theme-dot light" onclick="setTheme('light')"></div>
-                    <div class="theme-dot dark" onclick="setTheme('dark')"></div>
-                </div>
-                <!-- 更新 -->
-                <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
-            </div>
         </div>
     </div>
-
     <!-- 検索バー -->
     <div class="search-wrapper">
         <div class="search-container"> 
             <i class="fas fa-search"></i> 
-            <input type="text" id="globalSearchInput" placeholder="検索 / Search..." autocomplete="off"> 
+            <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
             <i class="fas fa-times hidden" id="clearSearchBtn"></i>
         </div>
         <div id="searchResults" class="search-results-dropdown hidden"></div>
@@ -469,125 +382,156 @@
                   <div id="fy-date-text" class="fy-date-text"></div>
                   <div id="fy-time-text" class="fy-time-text"></div>
               </div>
-              <!-- スマホ表示時にここにスピードテストが移動してくる -->
+              <!-- Mobile用スピードテスト移動先 -->
               <div id="fy-speed-test-placeholder"></div>
           </div>
-          
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-              <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り</h3>
-              <button id="fy-edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer; background:var(--input-bg); border:1px solid #ccc; font-weight:bold;">編集</button>
+              <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
+              <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer; background:var(--input-bg); border:1px solid #ccc;">並び替え</button>
           </div>
           <div id="fy-content-area"></div>
       </div>
 
-    <!-- All Apps Tab -->
-    <div class="main-grid" id="main-grid">
-        <div id="all-apps-container">
-            <h3 class="section-title">すべてのアプリ</h3>
-            <div class="grid-container" id="gridContainer"></div>
-        </div>
-    </div>
+      <!-- All Apps Tab -->
+      <div class="main-grid" id="main-grid">
+          <div id="all-apps-container">
+              <h3 class="section-title">すべてのアプリ</h3>
+              <div class="grid-container" id="gridContainer"></div>
+          </div>
+      </div>
 
-    <!-- Traffic (Bustarain) Tab: その他削除済み -->
-    <div id="bustarain-container">
-        <div class="sub-tab-menu">
-            <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
-        </div>
-        
-        <div id="train-content" class="sub-tab-content">
-            <div class="accordion-item" data-id="tr-1" data-title="和田岬">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>和田岬</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>帰）板宿新長田経由海岸線</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅（山陽電車）</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
-                </div>
-            </div>
-        </div>
-
-        <div id="bus-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>バスロケーション</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-sp" data-title="Locate育英高校前">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>Locate育英高校前</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span> <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
+      <!-- Traffic (Bustarain) Tab -->
+      <div id="bustarain-container">
+          <div class="sub-tab-menu">
+              <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
+              <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
+              <!-- その他 (Other) は削除されました -->
+          </div>
+          <div id="train-content" class="sub-tab-content">
+              <div class="accordion-item" data-id="tr-1" data-title="和田岬">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>和田岬</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>帰）板宿新長田経由海岸線</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>板宿駅（山陽電車）</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
+                  </div>
+              </div>
+          </div>
+          <div id="bus-content" class="sub-tab-content hidden">
+              <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>バスロケーション</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-sp" data-title="locate育英高校前">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span> Locate育英高校前 </span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-3" data-title="今出在家">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>今出在家</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>夢野町3丁目</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>高取団地前</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
+                  </div>
+              </div>
+              <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
+                  <div class="accordion-header" onclick="toggleAccordion(this)">
+                      <span>板宿駅</span>
+                      <i class="fas fa-star acc-fav-btn"></i>
+                      <i class="fas fa-chevron-down"></i>
+                  </div>
+                  <div class="accordion-content">
+                      <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
+                  </div>
+              </div>
+          </div>
+          <!-- Other content tab removed -->
+      </div>
+      <!-- Option container removed -->
   </div>
 
-  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-      <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY</span> </div>
+      <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
+      <!-- Option tab removed -->
   </nav>
 
-  <!-- リンク確認モーダル -->
+  <!-- モーダル -->
   <div id="link-confirm-overlay" class="modal-overlay hidden">
       <div class="modal-box">
           <div id="modal-title" class="modal-title">確認</div>
           <div id="modal-desc" class="modal-desc">どちらで開きますか？</div>
           <div class="modal-buttons">
-              <button id="btn-same-tab" class="modal-btn btn-same"><i class="fas fa-arrow-circle-right"></i> このページ</button>
-              <button id="btn-new-tab" class="modal-btn btn-new"><i class="fas fa-external-link-alt"></i> 新しいタブ</button>
+              <button id="btn-same-tab" class="modal-btn btn-same"><i class="fas fa-arrow-circle-right"></i> このページで開く</button>
+              <button id="btn-new-tab" class="modal-btn btn-new"><i class="fas fa-external-link-alt"></i> 新しいタブで開く</button>
               <button id="btn-cancel-modal" class="modal-btn btn-cancel">キャンセル</button>
-          </div>
-      </div>
-  </div>
-
-  <!-- 背景設定モーダル -->
-  <div id="bg-modal-overlay" class="modal-overlay hidden">
-      <div class="modal-box">
-          <div class="modal-title">壁紙設定</div>
-          <div style="margin: 15px 0; font-size: 13px; color: var(--text-color-secondary);">
-              bgフォルダ内の画像、またはデバイス内の画像を設定します。
-          </div>
-          <div class="modal-buttons">
-              <button class="modal-btn btn-same" onclick="cycleBgImage()">
-                  <i class="fas fa-sync"></i> bgフォルダの画像切り替え
-              </button>
-              <label class="modal-btn btn-new" style="cursor: pointer;">
-                  <i class="fas fa-folder-open"></i> デバイスから画像を選択
-                  <input type="file" id="bg-file-input" accept="image/*" style="display: none;" onchange="handleBgUpload(this)">
-              </label>
-              <button class="modal-btn btn-cancel" onclick="document.getElementById('bg-modal-overlay').classList.add('hidden')">閉じる</button>
-              <button class="modal-btn" style="background: #ff4444; color: white;" onclick="resetBg()">リセット (なし)</button>
           </div>
       </div>
   </div>
@@ -597,347 +541,296 @@
   <script src="Option/memo.js"></script>
   <script src="Option/main.js"></script>
   <script src="Option/nekotuti.js"></script>
-  <!-- Firebase連携用 (実処理) -->
   <script type="module" src="script.js"></script>
 
-  <!-- 全機能統合スクリプト -->
   <script>
-      /* =========================================
-         1. 基本UI・タブ・時計機能
-         ========================================= */
-      function activateTab(tabName) {
-          // タブボタンのアクティブ化
-          document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-          document.getElementById('tab-' + tabName).classList.add('active');
+    // ★ 背景画像変更ロジック
+    function changeBackground(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                // 背景設定
+                document.body.style.backgroundImage = 'url(' + e.target.result + ')';
+                // LocalStorageに保存 (DataURLとして保存)
+                try {
+                    localStorage.setItem('custom-bg-image', e.target.result);
+                } catch(err) {
+                    console.log('Image too large for LocalStorage');
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-          // コンテンツ表示切り替え
-          document.getElementById('fy-container').style.display = 'none';
-          document.getElementById('main-grid').style.display = 'none';
-          document.getElementById('bustarain-container').style.display = 'none';
+    // ★ アカウント切り替え（ログアウト）用関数
+    // script.js内にあるFirebaseロジックを呼び出す想定ですが、
+    // UI側のトリガーとしてここに定義します。
+    window.handleAccountSwitch = function() {
+        if(confirm('アカウントを切り替えますか？（ログアウト）')) {
+            // script.jsのグローバルなログアウト関数があればそれを呼ぶ、
+            // なければFirebaseのsignOutを実行するロジックが必要です。
+            // ここではイベントを発火させるか、リロードして再認証を促す形になります。
+            
+            // 例: script.jsに signOutUser() があると仮定、またはFirebase直接
+            if(window.firebase && window.firebase.auth) {
+                window.firebase.auth().signOut().then(() => {
+                    location.reload();
+                });
+            } else {
+                // script.js側で監視しているログアウト処理を実行
+                alert('ログアウト処理を実行します。(システム連携待ち)');
+                location.reload(); 
+            }
+        }
+    };
 
-          if(tabName === 'fy') document.getElementById('fy-container').style.display = 'block';
-          else if(tabName === 'all-apps') document.getElementById('main-grid').style.display = 'block';
-          else if(tabName === 'bustarain') document.getElementById('bustarain-container').style.display = 'block';
+    // 初期ロード時に保存された背景を適用
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedBg = localStorage.getItem('custom-bg-image');
+        if (savedBg) {
+            document.body.style.backgroundImage = 'url(' + savedBg + ')';
+        }
+    });
 
-          // FYタブの場合、編集モードを解除
-          if (tabName !== 'fy') {
-              document.body.classList.remove('edit-mode');
-              const btn = document.getElementById('fy-edit-btn');
-              if(btn) btn.innerText = "編集";
-          }
-      }
+    // ★★★ 検索＆モーダル機能 (既存コード維持) ★★★
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('globalSearchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const resultsContainer = document.getElementById('searchResults');
 
-      function switchSubTab(contentId) {
-          document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-          // クリックされたボタンを特定するのは簡易的に実装
-          event.target.classList.add('active'); 
+        const modalOverlay = document.getElementById('link-confirm-overlay');
+        const btnSame = document.getElementById('btn-same-tab');
+        const btnNew = document.getElementById('btn-new-tab');
+        const btnCancel = document.getElementById('btn-cancel-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
 
-          document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.add('hidden'));
-          document.getElementById(contentId).classList.remove('hidden');
-      }
+        let currentTargetUrl = "";
+        let allContentCache = [];
 
-      function toggleAccordion(header) {
-          const item = header.parentElement;
-          item.classList.toggle('active');
-          const icon = header.querySelector('.fa-chevron-down');
-          if(icon) icon.style.transform = item.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-          
-          // iframe遅延読み込み (src属性がない場合data-srcから設定)
-          const iframe = item.querySelector('iframe');
-          if (item.classList.contains('active') && iframe && !iframe.getAttribute('src')) {
-              iframe.setAttribute('src', iframe.getAttribute('data-src'));
-          }
-      }
+        if (!searchInput || !resultsContainer) return;
 
-      function toggleEditMode() {
-          document.body.classList.toggle('edit-mode');
-          const btn = document.getElementById('fy-edit-btn');
-          btn.innerText = document.body.classList.contains('edit-mode') ? "完了" : "編集";
-      }
+        // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
+        const kanaToRomajiMap = {
+            'あ':'a','い':'i','う':'u','え':'e','お':'o',
+            'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+            'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+            'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+            'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+            'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+            'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+            'や':'ya','ゆ':'yu','よ':'yo',
+            'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+            'わ':'wa','を':'wo','ん':'n',
+            'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+            'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+            'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+            'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+            'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+            'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+            'しゃ':'sha','しゅ':'shu','しょ':'sho',
+            'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+            'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+            'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+            'みゃ':'mya','みゅ':'myu','みょ':'myo',
+            'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
+            'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+            'じゃ':'ja','じ':'ji','じゅ':'ju','じょ':'jo',
+            'びゃ':'bya','びゅ':'byu','びょ':'byo',
+            'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+            'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
+        };
 
-      function updateClock() {
-          const now = new Date();
-          const days = ['日','月','火','水','木','金','土'];
-          
-          // ヘッダー用
-          const dStr = `${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]})`;
-          const tStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-          
-          const dateEl = document.getElementById('date');
-          const clockEl = document.getElementById('clock');
-          if(dateEl) dateEl.textContent = dStr;
-          if(clockEl) clockEl.textContent = tStr;
+        // --- カタカナ -> ひらがな変換 ---
+        function katakanaToHiragana(src) {
+            return src.replace(/[\u30a1-\u30f6]/g, function(match) {
+                var chr = match.charCodeAt(0) - 0x60;
+                return String.fromCharCode(chr);
+            });
+        }
 
-          // FYタブ用
-          const fyDateEl = document.getElementById('fy-date-text');
-          const fyTimeEl = document.getElementById('fy-time-text');
-          if(fyDateEl) fyDateEl.textContent = `${now.getFullYear()}年 ${now.getMonth()+1}月${now.getDate()}日 (${days[now.getDay()]})`;
-          if(fyTimeEl) fyTimeEl.textContent = `${tStr}:${String(now.getSeconds()).padStart(2,'0')}`;
-      }
-      setInterval(updateClock, 1000);
-      updateClock();
+        // --- 文字列(ひらがな) -> ローマ字変換 ---
+        function toRomaji(text) {
+            let hira = katakanaToHiragana(text);
+            let romaji = "";
+            for (let i = 0; i < hira.length; i++) {
+                let two = hira.substr(i, 2);
+                if (kanaToRomajiMap[two]) {
+                    romaji += kanaToRomajiMap[two];
+                    i++;
+                    continue;
+                }
+                let one = hira.charAt(i);
+                if (kanaToRomajiMap[one]) {
+                    romaji += kanaToRomajiMap[one];
+                } else {
+                    romaji += one;
+                }
+            }
+            return romaji;
+        }
 
-      function setTheme(theme) {
-          if (theme === 'dark') document.body.classList.add('dark-theme');
-          else document.body.classList.remove('dark-theme');
-          localStorage.setItem('theme', theme);
-      }
-      if(localStorage.getItem('theme') === 'dark') setTheme('dark');
+        // DOMから全コンテンツを収集
+        function gatherAllSearchableContent() {
+            const content = [];
+            // 1. Traffic (Accordion items)
+            const accordions = document.querySelectorAll('.accordion-item');
+            accordions.forEach(acc => {
+                const headerSpan = acc.querySelector('.accordion-header span');
+                const iframe = acc.querySelector('.accordion-iframe');
+                if (headerSpan && iframe && iframe.dataset.src) {
+                    content.push({
+                        type: 'traffic',
+                        name: headerSpan.innerText.trim(),
+                        url: iframe.dataset.src, 
+                        el: acc,
+                        img: './icon.png'
+                    });
+                }
+            });
+            
+            // 2. Apps
+            if(typeof window.initialAppData !== 'undefined') {
+                window.initialAppData.forEach(app => {
+                    let iconUrl = './icon.png';
+                    if(typeof window.getFaviconUrl === 'function') {
+                        iconUrl = window.getFaviconUrl(app.url);
+                    }
+                    content.push({
+                        type: 'app',
+                        name: app.label,
+                        url: app.url,
+                        img: iconUrl,
+                        searchText: app.searchText || ""
+                    });
+                });
+            }
+            return content;
+        }
 
-      /* =========================================
-         2. レスポンシブ スピードテスト移動ロジック
-         ========================================= */
-      function moveSpeedTest() {
-          const iframe = document.getElementById('speed-test-iframe');
-          const refreshBtn = document.getElementById('speed-test-refresh-button');
-          const headerContainer = document.getElementById('header-speed-test-container');
-          const fyContainer = document.getElementById('fy-speed-test-placeholder');
+        function openConfirmationModal(url, name) {
+            currentTargetUrl = url;
+            modalTitle.innerText = name;
+            modalDesc.innerText = `「${name}」をどのように開きますか？`;
+            modalOverlay.classList.remove('hidden');
+        }
+        function closeConfirmationModal() {
+            modalOverlay.classList.add('hidden');
+            currentTargetUrl = "";
+        }
 
-          if (!iframe || !headerContainer || !fyContainer) return;
+        btnSame.addEventListener('click', () => {
+            if(currentTargetUrl) window.location.href = currentTargetUrl;
+            closeConfirmationModal();
+        });
+        btnNew.addEventListener('click', () => {
+            if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
+            closeConfirmationModal();
+        });
+        btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
 
-          if (window.innerWidth <= 650) {
-              // スマホ: FYへ移動
-              if (!fyContainer.contains(iframe)) {
-                  fyContainer.appendChild(iframe);
-                  fyContainer.appendChild(refreshBtn);
-              }
-          } else {
-              // PC: ヘッダーへ移動
-              if (!headerContainer.contains(iframe)) {
-                  headerContainer.appendChild(iframe);
-                  headerContainer.appendChild(refreshBtn);
-              }
-          }
-      }
-      window.addEventListener('resize', moveSpeedTest);
-      window.addEventListener('DOMContentLoaded', moveSpeedTest);
+        function performSearch(query) {
+            const q = query.toLowerCase().trim();
+            const qRomaji = toRomaji(q);
 
-      function reloadSpeedTest() {
-          const iframe = document.getElementById('speed-test-iframe');
-          if(iframe) iframe.src = iframe.src;
-      }
+            resultsContainer.innerHTML = ''; 
 
-      /* =========================================
-         3. 背景画像管理 (Optionタブ代替)
-         ========================================= */
-      // bgフォルダにあると想定されるファイル名リスト
-      const bgPresets = ['./bg/bg1.jpg', './bg/bg2.jpg', './bg/bg3.jpg', './bg/bg4.jpg', './bg/default.jpg'];
-      let currentBgIdx = 0;
+            if (q.length === 0) {
+                resultsContainer.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                return;
+            }
 
-      function openBgModal() { document.getElementById('bg-modal-overlay').classList.remove('hidden'); }
-      
-      function cycleBgImage() {
-          currentBgIdx = (currentBgIdx + 1) % bgPresets.length;
-          const url = `url('${bgPresets[currentBgIdx]}')`;
-          applyBg(url);
-      }
+            clearBtn.classList.remove('hidden');
+            allContentCache = gatherAllSearchableContent();
+            
+            const matches = allContentCache.filter(item => {
+                const nameLower = item.name.toLowerCase();
+                const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
+                
+                if (nameLower.includes(q) || searchTxt.includes(q)) return true;
+                if (qRomaji.length > 0) {
+                    if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
+                }
+                
+                return false;
+            });
 
-      function handleBgUpload(input) {
-          if (input.files && input.files[0]) {
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                  const url = `url('${e.target.result}')`;
-                  applyBg(url);
-              };
-              reader.readAsDataURL(input.files[0]);
-              document.getElementById('bg-modal-overlay').classList.add('hidden');
-          }
-      }
+            if (matches.length > 0) {
+                resultsContainer.classList.remove('hidden');
+                matches.forEach(item => {
+                    const itemLink = document.createElement('a');
+                    itemLink.className = 'search-result-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = item.img || './icon.png';
+                    
+                    const span = document.createElement('span');
+                    span.innerText = item.name;
 
-      function applyBg(url) {
-          document.documentElement.style.setProperty('--custom-bg-image', url);
-          try {
-              localStorage.setItem('customBg', url);
-          } catch(e) { console.warn('Storage limit exceeded'); }
-      }
+                    const tag = document.createElement('span');
+                    tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
+                    tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-chevron-right';
 
-      function resetBg() {
-          document.documentElement.style.setProperty('--custom-bg-image', 'none');
-          localStorage.removeItem('customBg');
-          document.getElementById('bg-modal-overlay').classList.add('hidden');
-      }
+                    itemLink.appendChild(img);
+                    itemLink.appendChild(span);
+                    itemLink.appendChild(tag);
+                    itemLink.appendChild(icon);
 
-      // 起動時ロード
-      const savedBg = localStorage.getItem('customBg');
-      if(savedBg) document.documentElement.style.setProperty('--custom-bg-image', savedBg);
+                    itemLink.addEventListener('click', (e) => {
+                        e.preventDefault(); 
+                        resultsContainer.classList.add('hidden');
+                        searchInput.value = '';
+                        clearBtn.classList.add('hidden');
+                        
+                        if (item.type === 'traffic' && item.el) {
+                            if(typeof window.activateTab === 'function') window.activateTab('bustarain');
+                            const parentId = item.el.parentElement.id;
+                            if(typeof window.switchSubTab === 'function') window.switchSubTab(parentId);
+                            if(!item.el.classList.contains('active')) {
+                                const header = item.el.querySelector('.accordion-header');
+                                if(header) header.click();
+                            }
+                            setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                        } else {
+                            openConfirmationModal(item.url, item.name);
+                        }
+                    });
+                    resultsContainer.appendChild(itemLink);
+                });
+            } else {
+                resultsContainer.classList.remove('hidden');
+                const noRes = document.createElement('div');
+                noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
+                noRes.innerText = '見つかりませんでした';
+                resultsContainer.appendChild(noRes);
+            }
+        }
 
-      /* =========================================
-         4. 検索機能 (ローマ字変換含む完全版)
-         ========================================= */
-      const kanaToRomajiMap = {
-          'あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
-          'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
-          'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
-          'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
-          'わ':'wa','を':'wo','ん':'n','が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go','ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
-          'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do','ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo','ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
-          'きゃ':'kya','きゅ':'kyu','きょ':'kyo','しゃ':'sha','しゅ':'shu','しょ':'sho','ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
-          'にゃ':'nya','にゅ':'nyu','にょ':'nyo','ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo','みゃ':'mya','みゅ':'myu','みょ':'myo',
-          'りゃ':'rya','りゅ':'ryu','りょ':'ryo','ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo','じゃ':'ja','じゅ':'ju','じょ':'jo',
-          'びゃ':'bya','びゅ':'byu','びょ':'byo','ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo'
-      };
+        searchInput.addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+        
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
+        });
 
-      function katakanaToHiragana(src) {
-          return src.replace(/[\u30a1-\u30f6]/g, match => String.fromCharCode(match.charCodeAt(0) - 0x60));
-      }
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            performSearch('');
+            searchInput.focus();
+        });
 
-      function toRomaji(text) {
-          let hira = katakanaToHiragana(text);
-          let romaji = "";
-          for (let i = 0; i < hira.length; i++) {
-              let two = hira.substr(i, 2);
-              if (kanaToRomajiMap[two]) { romaji += kanaToRomajiMap[two]; i++; continue; }
-              let one = hira.charAt(i);
-              romaji += kanaToRomajiMap[one] || one;
-          }
-          return romaji;
-      }
-
-      function gatherSearchContent() {
-          const content = [];
-          // 交通情報
-          document.querySelectorAll('.accordion-item').forEach(acc => {
-              const span = acc.querySelector('.accordion-header span');
-              const iframe = acc.querySelector('.accordion-iframe');
-              if (span && iframe) {
-                  content.push({ type:'traffic', name: span.innerText.trim(), el: acc, url: iframe.dataset.src });
-              }
-          });
-          // アプリ (window.initialAppDataが存在すると仮定)
-          if(window.initialAppData) {
-              window.initialAppData.forEach(app => {
-                  content.push({ type:'app', name: app.label, url: app.url, searchText: app.searchText||"", img: window.getFaviconUrl ? window.getFaviconUrl(app.url) : './icon.png' });
-              });
-          }
-          return content;
-      }
-
-      const searchInput = document.getElementById('globalSearchInput');
-      const resultsContainer = document.getElementById('searchResults');
-      const clearBtn = document.getElementById('clearSearchBtn');
-
-      function performSearch(query) {
-          resultsContainer.innerHTML = '';
-          const q = query.toLowerCase().trim();
-          if(!q) { resultsContainer.classList.add('hidden'); clearBtn.classList.add('hidden'); return; }
-          
-          clearBtn.classList.remove('hidden');
-          const qRomaji = toRomaji(q);
-          const allItems = gatherSearchContent();
-
-          const matches = allItems.filter(item => {
-              const nameLow = item.name.toLowerCase();
-              const txt = item.searchText ? item.searchText.toLowerCase() : "";
-              if(nameLow.includes(q) || txt.includes(q)) return true;
-              if(qRomaji && (nameLow.includes(qRomaji) || txt.includes(qRomaji))) return true;
-              return false;
-          });
-
-          if(matches.length > 0) {
-              resultsContainer.classList.remove('hidden');
-              matches.forEach(m => {
-                  const div = document.createElement('a');
-                  div.className = 'search-result-item';
-                  div.innerHTML = `<img src="${m.img||'./icon.png'}"><span>${m.name}</span><span class="result-tag ${m.type==='app'?'tag-app':'tag-traffic'}">${m.type}</span>`;
-                  div.onclick = (e) => {
-                      e.preventDefault();
-                      resultsContainer.classList.add('hidden');
-                      if(m.type === 'traffic') {
-                          activateTab('bustarain');
-                          const parentId = m.el.parentElement.id;
-                          switchSubTab(parentId);
-                          if(!m.el.classList.contains('active')) m.el.querySelector('.accordion-header').click();
-                          setTimeout(() => m.el.scrollIntoView({behavior:'smooth', block:'center'}), 100);
-                      } else {
-                          openLinkModal(m.url, m.name);
-                      }
-                  };
-                  resultsContainer.appendChild(div);
-              });
-          } else {
-              resultsContainer.classList.remove('hidden');
-              resultsContainer.innerHTML = '<div style="padding:10px;text-align:center;color:#888;">見つかりません</div>';
-          }
-      }
-
-      searchInput.addEventListener('input', e => performSearch(e.target.value));
-      clearBtn.onclick = () => { searchInput.value=''; performSearch(''); searchInput.focus(); };
-      
-      // リンク確認モーダル
-      let currentTargetUrl = "";
-      const modalOverlay = document.getElementById('link-confirm-overlay');
-      window.openLinkModal = function(url, name) {
-          currentTargetUrl = url;
-          document.getElementById('modal-title').innerText = name;
-          modalOverlay.classList.remove('hidden');
-      };
-      document.getElementById('btn-same-tab').onclick = () => { if(currentTargetUrl) location.href = currentTargetUrl; modalOverlay.classList.add('hidden'); };
-      document.getElementById('btn-new-tab').onclick = () => { if(currentTargetUrl) window.open(currentTargetUrl, '_blank'); modalOverlay.classList.add('hidden'); };
-      document.getElementById('btn-cancel-modal').onclick = () => modalOverlay.classList.add('hidden');
-
-      /* =========================================
-         5. ユーザー認証 & Google優先ロジック UI連携
-         ========================================= */
-      const authBtn = document.getElementById('auth-btn');
-      const userDisplay = document.getElementById('user-display');
-      const userAvatar = document.getElementById('user-avatar');
-      const userName = document.getElementById('user-name');
-      const accountMenu = document.getElementById('account-menu');
-
-      // 外部スクリプト(script.js)から呼び出されるUI更新関数
-      window.updateUserUI = function(user) {
-          if (user) {
-              // ログイン状態
-              authBtn.style.display = 'none';
-              userDisplay.style.display = 'flex';
-              userAvatar.src = user.photoURL || './icon.png';
-              userName.textContent = user.displayName || user.email;
-
-              // ★Google優先ロジックトリガー★
-              // script.js内のFirestore読み込み関数を呼び出し、ローカルデータを上書き
-              if(typeof window.loadDataFromFirestore === 'function') {
-                  console.log("Google Account Detected: Fetching Cloud Data...");
-                  window.loadDataFromFirestore(user.uid);
-              }
-
-          } else {
-              // 未ログイン（またはログアウト）
-              userDisplay.style.display = 'none';
-              accountMenu.classList.remove('show');
-              authBtn.style.display = 'flex';
-          }
-      };
-
-      function toggleAccountMenu() {
-          accountMenu.classList.toggle('show');
-      }
-
-      // 画面外クリックでメニューを閉じる
-      document.addEventListener('click', (e) => {
-          if (!userDisplay.contains(e.target) && !accountMenu.contains(e.target)) {
-              accountMenu.classList.remove('show');
-          }
-          if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-              resultsContainer.classList.add('hidden');
-          }
-      });
-
-      // ボタンハンドラー（実処理はscript.jsにある想定で関数を呼ぶ）
-      function handleLoginClick() {
-          if(typeof window.triggerGoogleLogin === 'function') window.triggerGoogleLogin(false); // 通常ログイン
-          else alert("Login function not loaded");
-      }
-
-      function handleSwitchAccount() {
-          // アカウント切り替え（prompt: select_account）
-          if(typeof window.triggerGoogleLogin === 'function') window.triggerGoogleLogin(true); 
-          else alert("Switch Account function not loaded");
-      }
-
-      function handleLogout() {
-          if(typeof window.triggerLogout === 'function') window.triggerLogout();
-          else alert("Logout function not loaded");
-      }
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
+            }
+        });
+    });
   </script>
 </body>
 </html>
