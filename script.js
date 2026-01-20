@@ -140,9 +140,10 @@ const initialAppData = [
   {id:82,label:"Neocities",url:"https://neocities.org/",icon:"https://neocities.org/favicon.ico",searchText:"Neocities ネオシティーズ"},
   {id:83,label:"Firebase",url:"https://console.firebase.google.com/u/0/mfa",icon:"https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png",searchText:"Firebase ファイアベース"},
   {id:84,label:"神戸市バスロケーション",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
-  {id:86,label:"Kakeru",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"Kakeru"},
-  {id:87,label:"シャーロックホームズ　電子書籍1",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
-  {id:88,label:"シャーロックホームズ　電子書籍2",url:"https://location.its-mo.com/kobe/",icon:"https://location.its-mo.com/kobe/favicon.ico",searchText:"神戸市バスロケーション バスロケ KOBE"},
+  {id:86,label:"Kakeru",url:"https://kakeru.app/boards",icon:"https://kakeru.app/boards/favicon.ico",searchText:"Kakeru"},
+  {id:87,label:"シャーロックホームズ　電子書籍1",url:"https://221b.jp",icon:"https://221b.jp/favicon.ico",searchText:"シャーロックホームズ　電子書籍1"},
+  {id:88,label:"シャーロックホームズ　電子書籍2",url:"https://book.shishin-kyoto.com",icon:"https://book.shishin-kyoto.com/favicon.ico",searchText:"シャーロックホームズ　電子書籍2"},
+  {id:87,label:"アーサーコナンドイル　電子書籍",url:"https://www.aozora.gr.jp/index_pages/person9.html",icon:"https://www.aozora.gr.jp/index_pages/person9.html/favicon.ico",searchText:"アーサーコナンドイル"},
 ];
 
 const FAV_KEY = 'myLinkAppFavorites';
