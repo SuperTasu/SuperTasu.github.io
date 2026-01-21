@@ -165,13 +165,6 @@ let isEditMode = false;
 let selectedSlotIndex = null;
 let currentUser = null; 
 
-// --- 背景画像用設定（フォルダ内のファイルを想定） ---
-const bgImages = [
-    './backgrounds/1.jpg', './backgrounds/2.jpg', './backgrounds/3.jpg', 
-    './backgrounds/4.jpg', './backgrounds/5.jpg', './backgrounds/6.jpg',
-    // 必要に応じて追加してください
-];
-
 // ------------------------------------------------------------------
 // 4. Initialization & Event Listeners
 // ------------------------------------------------------------------
@@ -190,7 +183,6 @@ window.onload = function() {
     initBustarain();
 
     let lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
-    // オプションタブが削除されたので、もし保存されていたらAppsに戻す
     if(lastTab === 'option') lastTab = 'all-apps';
     activateTab(lastTab);
     
@@ -199,6 +191,9 @@ window.onload = function() {
 
     setupNetworkStatus();
     setupSpeedTestAutoRefresh();
+    
+    setupSearch();
+    setupBackgroundInput();
 };
 
 function setupNetworkStatus() {
@@ -232,18 +227,15 @@ function setupSpeedTestAutoRefresh() {
 // --- Firebase Auth Logic (Account Switching & Display Name) ---
 authBtn.addEventListener('click', () => {
     if (currentUser) {
-        // ログアウト処理
         signOut(auth).then(() => {
             alert('ログアウトしました');
-            location.reload(); // 状態リセットのためリロード
+            location.reload(); 
         }).catch((error) => {
             console.error('Sign Out Error', error);
         });
     } else {
-        // ログイン処理（アカウント選択を強制）
         signInWithPopup(auth, provider).then((result) => {
             console.log("Login Success");
-            // ログイン成功時にクラウドデータを強制ロード（優先）
         }).catch((error) => {
             console.error('Sign In Error Details:', error);
             alert("ログインに失敗しました: " + error.message);
@@ -265,7 +257,6 @@ onAuthStateChanged(auth, async (user) => {
 
         authBtn.title = `アカウント切り替え / ログアウト (${user.displayName})`;
         
-        // ★ ログイン時はクラウドデータを優先して読み込む
         await loadFromCloud();
     } else {
         const icon = authBtn.querySelector('.fa-google');
@@ -277,7 +268,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- Firestore Sync Functions (Priority: Cloud > Local) ---
+// --- Firestore Sync Functions ---
 
 async function loadFromCloud() {
     if (!currentUser) return;
@@ -287,28 +278,25 @@ async function loadFromCloud() {
         if (docSnap.exists()) {
             const data = docSnap.data();
             
-            // クラウドデータをローカルに上書き保存（優先適用）
             if (data.favorites) {
                 favorites = data.favorites;
                 localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-                renderFavoritesPage(); // UI更新
-                initBustarain(); // スター状態更新
+                renderFavoritesPage(); 
+                initBustarain(); 
             }
             if (data.background) {
-                saveBackground(data.background, false); // false = don't sync back to cloud yet
+                saveBackground(data.background, false); 
             }
             if (data.textColor) {
                 saveTextColor(data.textColor, false);
             }
             if (data.lastTab) {
-                // オプションタブは除外
                 if(data.lastTab !== 'option') {
                     activateTab(data.lastTab, false);
                 }
             }
             console.log("Cloud data applied (Priority over local).");
         } else {
-            // クラウドにデータがない場合は現在のローカルデータを保存
             saveToCloud();
         }
     } catch (e) {
@@ -377,26 +365,32 @@ function getDuckDuckGoFavicon(url) {
     }
 }
 
-// --- 背景画像関連 ---
+// --- 背景画像関連 (修正版：ファイルアップロード) ---
+
+function setupBackgroundInput() {
+    const bgInput = document.getElementById('bg-file-input');
+    if(bgInput) {
+        bgInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const dataUrl = event.target.result;
+                saveBackground(dataUrl);
+                closeBgModal();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
 function openBgModal() {
     const modal = document.getElementById('bg-select-overlay');
-    const container = document.getElementById('bg-grid-container');
-    container.innerHTML = '';
-
-    bgImages.forEach(src => {
-        const div = document.createElement('div');
-        div.className = 'bg-item';
-        div.style.backgroundImage = `url('${src}')`;
-        // 画像読み込み失敗時のフォールバックテキスト
-        div.innerText = src.split('/').pop(); 
-        
-        div.onclick = () => {
-            saveBackground(src);
-            closeBgModal();
-        };
-        container.appendChild(div);
-    });
-
+    // リセット：前回の入力をクリア
+    const bgInput = document.getElementById('bg-file-input');
+    if(bgInput) bgInput.value = '';
+    
     modal.classList.remove('hidden');
 }
 
@@ -411,6 +405,7 @@ function saveBackground(urlData, sync = true) {
         if (sync && currentUser) saveToCloud();
     } catch (e) {
         console.error('Save BG failed', e);
+        // localStorage quota exceeded fallback or warning could go here
     }
 }
 function loadBackground() {
@@ -820,6 +815,224 @@ function setTheme(theme) {
 function reloadSpeedTest() {
     const iframe = document.querySelector('.header-speed-test iframe') || document.getElementById('speed-test-iframe');
     if(iframe) iframe.src = iframe.src;
+}
+
+// ★★★ 検索システム（修正版：点滅アニメーション付き） ★★★
+function setupSearch() {
+    const resultsContainer = document.getElementById('searchResults');
+    let allContentCache = [];
+
+    if (!searchInput || !resultsContainer) return;
+
+    const kanaToRomajiMap = {
+        'あ':'a','い':'i','う':'u','え':'e','お':'o',
+        'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
+        'さ':'sa','し':'shi','す':'su','せ':'se','そ':'so',
+        'た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to',
+        'な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no',
+        'は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho',
+        'ま':'ma','み':'mi','む':'mu','め':'me','も':'mo',
+        'や':'ya','ゆ':'yu','よ':'yo',
+        'ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro',
+        'わ':'wa','を':'wo','ん':'n',
+        'が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go',
+        'ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo',
+        'だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do',
+        'ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo',
+        'ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po',
+        'きゃ':'kya','きゅ':'kyu','きょ':'kyo',
+        'しゃ':'sha','しゅ':'shu','しょ':'sho',
+        'ちゃ':'cha','ちゅ':'chu','ちょ':'cho',
+        'にゃ':'nya','にゅ':'nyu','にょ':'nyo',
+        'ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo',
+        'みゃ':'mya','みゅ':'myu','みょ':'myo',
+        'りゃ':'rya','りゅ':'ryu','りょ':'ryo',
+        'ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo',
+        'じゃ':'ja','じ':'ji','じゅ':'ju','じょ':'jo',
+        'びゃ':'bya','びゅ':'byu','びょ':'byo',
+        'ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo',
+        'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
+    };
+
+    function katakanaToHiragana(src) {
+        return src.replace(/[\u30a1-\u30f6]/g, function(match) {
+            var chr = match.charCodeAt(0) - 0x60;
+            return String.fromCharCode(chr);
+        });
+    }
+
+    function toRomaji(text) {
+        let hira = katakanaToHiragana(text);
+        let romaji = "";
+        for (let i = 0; i < hira.length; i++) {
+            let two = hira.substr(i, 2);
+            if (kanaToRomajiMap[two]) {
+                romaji += kanaToRomajiMap[two];
+                i++;
+                continue;
+            }
+            let one = hira.charAt(i);
+            if (kanaToRomajiMap[one]) {
+                romaji += kanaToRomajiMap[one];
+            } else {
+                romaji += one;
+            }
+        }
+        return romaji;
+    }
+
+    function gatherAllSearchableContent() {
+        const content = [];
+        const accordions = document.querySelectorAll('.accordion-item');
+        accordions.forEach(acc => {
+            const headerSpan = acc.querySelector('.accordion-header span');
+            const iframe = acc.querySelector('.accordion-iframe');
+            if (headerSpan && iframe && iframe.dataset.src) {
+                content.push({
+                    type: 'traffic',
+                    name: headerSpan.innerText.trim(),
+                    url: iframe.dataset.src, 
+                    el: acc,
+                    img: './icon.png'
+                });
+            }
+        });
+        
+        initialAppData.forEach(app => {
+            let iconUrl = './icon.png';
+            if(getFaviconUrl) {
+                iconUrl = getFaviconUrl(app.url);
+            }
+            content.push({
+                type: 'app',
+                id: app.id,
+                name: app.label,
+                url: app.url,
+                img: iconUrl,
+                searchText: app.searchText || ""
+            });
+        });
+        return content;
+    }
+
+    function performSearch(query) {
+        const q = query.toLowerCase().trim();
+        const qRomaji = toRomaji(q);
+
+        resultsContainer.innerHTML = ''; 
+
+        if (q.length === 0) {
+            resultsContainer.classList.add('hidden');
+            clearSearchBtn.classList.add('hidden');
+            return;
+        }
+
+        clearSearchBtn.classList.remove('hidden');
+        allContentCache = gatherAllSearchableContent();
+        
+        const matches = allContentCache.filter(item => {
+            const nameLower = item.name.toLowerCase();
+            const searchTxt = item.searchText ? item.searchText.toLowerCase() : "";
+            
+            if (nameLower.includes(q) || searchTxt.includes(q)) return true;
+            if (qRomaji.length > 0) {
+                if (nameLower.includes(qRomaji) || searchTxt.includes(qRomaji)) return true;
+            }
+            
+            return false;
+        });
+
+        if (matches.length > 0) {
+            resultsContainer.classList.remove('hidden');
+            matches.forEach(item => {
+                const itemLink = document.createElement('a');
+                itemLink.className = 'search-result-item';
+                
+                const img = document.createElement('img');
+                img.src = item.img || './icon.png';
+                
+                const span = document.createElement('span');
+                span.innerText = item.name;
+
+                const tag = document.createElement('span');
+                tag.className = 'result-tag ' + (item.type === 'app' ? 'tag-app' : 'tag-traffic');
+                tag.innerText = item.type === 'app' ? 'App' : 'Traffic';
+                
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-chevron-right';
+
+                itemLink.appendChild(img);
+                itemLink.appendChild(span);
+                itemLink.appendChild(tag);
+                itemLink.appendChild(icon);
+
+                itemLink.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    resultsContainer.classList.add('hidden');
+                    searchInput.value = '';
+                    clearSearchBtn.classList.add('hidden');
+                    
+                    if (item.type === 'traffic' && item.el) {
+                        activateTab('bustarain');
+                        const parentId = item.el.parentElement.id;
+                        switchSubTab(parentId);
+                        if(!item.el.classList.contains('active')) {
+                            const header = item.el.querySelector('.accordion-header');
+                            if(header) header.click();
+                        }
+                        setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
+                    } else {
+                        // アプリ選択時の挙動（Appsタブ移動＆強調）
+                        activateTab('all-apps');
+                        
+                        setTimeout(() => {
+                            const card = document.querySelector(`.app-card[data-app-id="${item.id}"]`);
+                            if(card) {
+                                card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                
+                                // アニメーションをリセットして再適用（連続検索対応）
+                                card.classList.remove('highlight-target');
+                                void card.offsetWidth; // リフロー強制
+                                card.classList.add('highlight-target');
+                                
+                                // 3秒後にクラス削除（アニメーション終了後）
+                                setTimeout(() => {
+                                    card.classList.remove('highlight-target');
+                                }, 3000);
+                            }
+                        }, 100);
+                    }
+                });
+                resultsContainer.appendChild(itemLink);
+            });
+        } else {
+            resultsContainer.classList.remove('hidden');
+            const noRes = document.createElement('div');
+            noRes.style.padding = '15px'; noRes.style.textAlign = 'center'; noRes.style.color = 'var(--text-color-secondary)';
+            noRes.innerText = '見つかりませんでした';
+            resultsContainer.appendChild(noRes);
+        }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        performSearch(e.target.value);
+    });
+    
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim().length > 0) performSearch(searchInput.value);
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        performSearch('');
+        searchInput.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+            resultsContainer.classList.add('hidden');
+        }
+    });
 }
 
 // Global Exposure
