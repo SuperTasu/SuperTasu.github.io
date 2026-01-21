@@ -7,7 +7,6 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ★★★ 必ずご自身のAPIキーなどを入れてください ★★★
 const firebaseConfig = {
     apiKey: "AIzaSyB9DW9T3UA-uuVCkQyTws9Jld7Xumr_vRA",
     authDomain: "linkfast--login.firebaseapp.com",
@@ -25,13 +24,17 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
+// ★ アカウント切り替えを促す設定
+provider.setCustomParameters({
+    prompt: 'select_account'
+});
+
 // ------------------------------------------------------------------
 // 2. DOM Elements & Variables
 // ------------------------------------------------------------------
 
 const mainGrid = document.getElementById('main-grid');
 const bustarainContainer = document.getElementById('bustarain-container');
-const optionContainer = document.getElementById('option-container');
 const fyContainer = document.getElementById('fy-container');
 const fyContentArea = document.getElementById('fy-content-area');
 const gridContainer = document.getElementById('gridContainer');
@@ -43,6 +46,7 @@ const clockElement = document.getElementById('clock');
 const countdownElement = document.getElementById('countdown');
 const authBtn = document.getElementById('auth-btn');
 const userAvatar = document.getElementById('user-avatar');
+const userName = document.getElementById('user-name');
 
 // FY専用時計
 const fyDateText = document.getElementById('fy-date-text');
@@ -159,7 +163,14 @@ if (favorites.length < 60) {
 
 let isEditMode = false;
 let selectedSlotIndex = null;
-let currentUser = null; // 現在のログインユーザー
+let currentUser = null; 
+
+// --- 背景画像用設定（フォルダ内のファイルを想定） ---
+const bgImages = [
+    './backgrounds/1.jpg', './backgrounds/2.jpg', './backgrounds/3.jpg', 
+    './backgrounds/4.jpg', './backgrounds/5.jpg', './backgrounds/6.jpg',
+    // 必要に応じて追加してください
+];
 
 // ------------------------------------------------------------------
 // 4. Initialization & Event Listeners
@@ -175,26 +186,21 @@ window.onload = function() {
     loadBackground();
     loadTextColor(); 
 
-    if (typeof window.initOptionTabContent === 'function') {
-        window.initOptionTabContent();
-    }
-
     renderGrid(initialAppData);
     initBustarain();
 
-    const lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
+    let lastTab = localStorage.getItem(TAB_KEY) || 'all-apps';
+    // オプションタブが削除されたので、もし保存されていたらAppsに戻す
+    if(lastTab === 'option') lastTab = 'all-apps';
     activateTab(lastTab);
     
     adjustSpeedTestPosition();
     window.addEventListener('resize', adjustSpeedTestPosition);
 
-    // ★追加: ネットワーク状態の監視開始
     setupNetworkStatus();
-    // ★追加: スピードテストの自動更新開始
     setupSpeedTestAutoRefresh();
 };
 
-// --- ★新規関数: ネットワーク状態の監視 ---
 function setupNetworkStatus() {
     const statusEl = document.getElementById('network-status');
     const updateStatus = () => {
@@ -211,41 +217,36 @@ function setupNetworkStatus() {
     
     window.addEventListener('online', updateStatus);
     window.addEventListener('offline', updateStatus);
-    updateStatus(); // 初期実行
+    updateStatus(); 
 }
 
-// --- ★新規関数: スピードテストの自動更新 (2分毎) ---
 function setupSpeedTestAutoRefresh() {
     setInterval(() => {
-        // ユーザーがオフラインの場合は更新しない（エラー画面になるのを防ぐ）
         if (navigator.onLine) {
             reloadSpeedTest();
             console.log("Speed test refreshed.");
         }
-    }, 120000); // 120,000ms = 2分
+    }, 120000); 
 }
 
-// --- Firebase Auth Logic ---
+// --- Firebase Auth Logic (Account Switching & Display Name) ---
 authBtn.addEventListener('click', () => {
     if (currentUser) {
+        // ログアウト処理
         signOut(auth).then(() => {
             alert('ログアウトしました');
+            location.reload(); // 状態リセットのためリロード
         }).catch((error) => {
             console.error('Sign Out Error', error);
         });
     } else {
+        // ログイン処理（アカウント選択を強制）
         signInWithPopup(auth, provider).then((result) => {
             console.log("Login Success");
+            // ログイン成功時にクラウドデータを強制ロード（優先）
         }).catch((error) => {
             console.error('Sign In Error Details:', error);
-            
-            let errorMsg = "ログインに失敗しました。";
-            if (error.code === 'auth/unauthorized-domain') {
-                errorMsg = "エラー：このドメインは許可されていません。\nFirebaseコンソール > Authentication > 設定 > 承認済みドメイン にGitHubのURLを追加してください。";
-            } else if (error.code === 'auth/api-key-not-valid') {
-                errorMsg = "エラー：APIキーが無効です。firebaseConfigの設定を確認してください。";
-            }
-            alert(errorMsg + "\n(" + error.code + ")");
+            alert("ログインに失敗しました: " + error.message);
         });
     }
 });
@@ -253,22 +254,30 @@ authBtn.addEventListener('click', () => {
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     if (user) {
-        const icon = authBtn.querySelector('i');
-        if(icon) icon.classList.add('hidden');
+        const icon = authBtn.querySelector('.fa-google');
+        if(icon) icon.style.display = 'none';
+        
         userAvatar.style.display = 'block';
         userAvatar.src = user.photoURL;
-        authBtn.title = `ログアウト (${user.displayName})`;
+        
+        userName.style.display = 'block';
+        userName.textContent = user.displayName;
+
+        authBtn.title = `アカウント切り替え / ログアウト (${user.displayName})`;
+        
+        // ★ ログイン時はクラウドデータを優先して読み込む
         await loadFromCloud();
     } else {
-        const icon = authBtn.querySelector('i');
-        if(icon) icon.classList.remove('hidden');
+        const icon = authBtn.querySelector('.fa-google');
+        if(icon) icon.style.display = 'block';
         userAvatar.style.display = 'none';
+        userName.style.display = 'none';
         userAvatar.src = "";
         authBtn.title = "Googleログイン";
     }
 });
 
-// --- Firestore Sync Functions ---
+// --- Firestore Sync Functions (Priority: Cloud > Local) ---
 
 async function loadFromCloud() {
     if (!currentUser) return;
@@ -277,18 +286,29 @@ async function loadFromCloud() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
+            
+            // クラウドデータをローカルに上書き保存（優先適用）
             if (data.favorites) {
                 favorites = data.favorites;
                 localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-                renderGrid(initialAppData);
-                renderFavoritesPage();
-                initBustarain();
+                renderFavoritesPage(); // UI更新
+                initBustarain(); // スター状態更新
             }
-            if (data.background) saveBackground(data.background, false);
-            if (data.textColor) saveTextColor(data.textColor, false);
-            if (data.lastTab) activateTab(data.lastTab, false);
-            console.log("Data loaded from cloud.");
+            if (data.background) {
+                saveBackground(data.background, false); // false = don't sync back to cloud yet
+            }
+            if (data.textColor) {
+                saveTextColor(data.textColor, false);
+            }
+            if (data.lastTab) {
+                // オプションタブは除外
+                if(data.lastTab !== 'option') {
+                    activateTab(data.lastTab, false);
+                }
+            }
+            console.log("Cloud data applied (Priority over local).");
         } else {
+            // クラウドにデータがない場合は現在のローカルデータを保存
             saveToCloud();
         }
     } catch (e) {
@@ -314,7 +334,7 @@ async function saveToCloud() {
 }
 
 // ------------------------------------------------------------------
-// 5. App Logic (Grid, Tab, Clock, etc.)
+// 5. App Logic
 // ------------------------------------------------------------------
 
 function adjustSpeedTestPosition() {
@@ -325,14 +345,12 @@ function adjustSpeedTestPosition() {
 
     if (!iframe || !refreshBtn || !headerContainer || !fyPlaceholder) return;
 
-    if (window.innerWidth <= 650) {
-        // --- スマホ版: FYタブへ移動 ---
+    if (window.innerWidth <= 700) {
         if (!fyPlaceholder.contains(iframe)) {
             fyPlaceholder.appendChild(iframe);
             fyPlaceholder.appendChild(refreshBtn);
         }
     } else {
-        // --- PC版: ヘッダーへ戻す ---
         if (!headerContainer.contains(iframe)) {
             headerContainer.prepend(iframe);
             headerContainer.appendChild(refreshBtn);
@@ -359,14 +377,40 @@ function getDuckDuckGoFavicon(url) {
     }
 }
 
+// --- 背景画像関連 ---
+function openBgModal() {
+    const modal = document.getElementById('bg-select-overlay');
+    const container = document.getElementById('bg-grid-container');
+    container.innerHTML = '';
+
+    bgImages.forEach(src => {
+        const div = document.createElement('div');
+        div.className = 'bg-item';
+        div.style.backgroundImage = `url('${src}')`;
+        // 画像読み込み失敗時のフォールバックテキスト
+        div.innerText = src.split('/').pop(); 
+        
+        div.onclick = () => {
+            saveBackground(src);
+            closeBgModal();
+        };
+        container.appendChild(div);
+    });
+
+    modal.classList.remove('hidden');
+}
+
+window.closeBgModal = function() {
+    document.getElementById('bg-select-overlay').classList.add('hidden');
+}
+
 function saveBackground(urlData, sync = true) {
     try {
         localStorage.setItem(BG_KEY, urlData);
         applyBackground(urlData);
         if (sync && currentUser) saveToCloud();
-        if (sync) alert('背景を設定しました。');
     } catch (e) {
-        alert('保存に失敗しました。');
+        console.error('Save BG failed', e);
     }
 }
 function loadBackground() {
@@ -384,7 +428,7 @@ function resetBackground() {
     localStorage.removeItem(BG_KEY);
     applyBackground('none');
     if (currentUser) saveToCloud();
-    alert('背景をリセットしました。');
+    closeBgModal();
 }
 
 function saveTextColor(color, sync = true) {
@@ -399,13 +443,6 @@ function loadTextColor() {
 function applyTextColor(color) {
     document.documentElement.style.setProperty('--text-color-primary', color);
 }
-function resetTextColor() {
-    localStorage.removeItem(TEXT_COLOR_KEY);
-    document.documentElement.style.setProperty('--text-color-primary', '#000000');
-    const currentTheme = localStorage.getItem('theme');
-    setTheme(currentTheme || 'light');
-    if (currentUser) saveToCloud();
-}
 
 function updateClock() {
     const now = new Date();
@@ -417,8 +454,8 @@ function updateClock() {
 
     const dateStr = `${year}/${month}/${date} (${day})`;
     const timeStr = now.toTimeString().split(' ')[0];
-    dateElement.textContent = dateStr;
-    clockElement.textContent = timeStr;
+    if(dateElement) dateElement.textContent = dateStr;
+    if(clockElement) clockElement.textContent = timeStr;
 
     if (fyContainer.style.display !== 'none') {
         if(fyDateText) fyDateText.textContent = dateStr;
@@ -445,56 +482,39 @@ function updateClock() {
             break;
         }
     }
-    countdownElement.textContent = msg;
+    if(countdownElement) countdownElement.textContent = msg;
 }
 
 function createAppCard(app) {
-    // 1. カード自体の枠（div）
     const card = document.createElement('div');
     card.className = 'app-card';
     card.dataset.appId = app.id;
-    card.style.position = 'relative'; // 子要素の絶対配置の基準
+    card.style.position = 'relative';
 
-    // 2. カード全体を覆うリンク（透明なオーバーレイ）
     const mainLink = document.createElement('a');
     mainLink.href = app.url;
     Object.assign(mainLink.style, {
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '100%',
-        height: '100%',
-        zIndex: '1',            // ボタン(z-index:2)より下
-        textDecoration: 'none',
-        borderRadius: '28px'
+        position: 'absolute', top: '0', left: '0', width: '100%', height: '100%',
+        zIndex: '1', textDecoration: 'none', borderRadius: '28px'
     });
     
-    // --- 左側（アイコン） ---
     const left = document.createElement('div');
     left.className = 'card-left';
-    
     const img = document.createElement('img');
-    
     if (app.icon && app.icon.startsWith('http') && !app.icon.includes('google.com/s2/favicons') && !app.icon.includes('.ico')) {
         img.src = app.icon;
     } else {
         img.src = getFaviconUrl(app.url);
     }
-
     img.onerror = () => {
-        img.onerror = () => {
-            img.src = './icon.png';
-        };
+        img.onerror = () => { img.src = './icon.png'; };
         img.src = getDuckDuckGoFavicon(app.url);
     };
-    
     left.appendChild(img);
 
-    // --- 中央（仕切り） ---
     const divider = document.createElement('div');
     divider.className = 'card-divider';
 
-    // --- 右側（テキストとボタン） ---
     const right = document.createElement('div');
     right.className = 'card-right';
 
@@ -506,45 +526,33 @@ function createAppCard(app) {
     title.title = app.label;
     header.appendChild(title);
 
-    // --- ボタン ---
     const btnRow = document.createElement('div');
     btnRow.className = 'card-buttons';
-    // ★重要：ボタン群をオーバーレイリンクより上に表示する設定
     btnRow.style.position = 'relative';
     btnRow.style.zIndex = '2'; 
 
-    // ボタン1: このページで開く
     const btnSame = document.createElement('button');
     btnSame.className = 'card-btn';
     btnSame.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
     btnSame.title = "このページで開く";
-    btnSame.onclick = (e) => { 
-        e.stopPropagation(); // 親のリンク反応を止める
-        window.location.href = app.url; 
-    };
+    btnSame.onclick = (e) => { e.stopPropagation(); window.location.href = app.url; };
 
-    // ボタン3: お気に入り
     const btnFav = document.createElement('button');
     const isFav = favorites.includes(app.id);
     btnFav.className = isFav ? 'card-btn fav-active' : 'card-btn';
     btnFav.innerHTML = '<i class="fas fa-star"></i>';
     btnFav.title = isFav ? "お気に入り解除" : "お気に入り登録";
-    btnFav.onclick = (e) => { 
-        e.stopPropagation(); // 親のリンク反応を止める
-        toggleFavorite(app.id); 
-    };
+    btnFav.onclick = (e) => { e.stopPropagation(); toggleFavorite(app.id); };
 
     btnRow.appendChild(btnSame);
     btnRow.appendChild(btnFav);
-
     right.appendChild(header);
     right.appendChild(btnRow);
 
-    // 要素をカードに追加
     card.appendChild(left);
     card.appendChild(divider);
     card.appendChild(right);
-    card.appendChild(mainLink); // オーバーレイリンク
+    card.appendChild(mainLink);
 
     return card;
 }
@@ -566,8 +574,10 @@ function initBustarain() {
 
         if(favorites.includes(id)) {
             star.className = 'fas fa-star acc-fav-btn active';
+            star.style.color = '#ffc107';
         } else {
             star.className = 'far fa-star acc-fav-btn';
+            star.style.color = 'var(--text-color-primary)';
         }
 
         star.onclick = (e) => {
@@ -613,35 +623,21 @@ function renderFavoritesPage() {
         let contentDiv = null;
         
         if (favId !== null) {
-            if (favId === 'opt-takatori') {
-                slotDiv.classList.add('full-width');
-                if(typeof window.renderTakatoriBoard === 'function') {
-                    window.renderTakatoriBoard(slotDiv);
-                } else {
-                    slotDiv.textContent = "Takatori Board";
-                }
-            } 
-            else if (typeof favId === 'number') {
+            if (typeof favId === 'number') {
                 const app = initialAppData.find(a => a.id === favId);
                 if(app) {
                     contentDiv = createAppCard(app);
                 }
             } else {
-                // ★★★ 修正: 交通情報の種類に応じてアイコンを切り替え ★★★
                 const el = document.querySelector(`.accordion-item[data-id="${favId}"]`);
                 if(el) {
                     const titleStr = el.dataset.title;
                     const card = document.createElement('div');
                     card.className = 'app-card';
                     
-                    // アイコン判定ロジック
-                    let iconClass = 'fa-bus'; // デフォルトはバス
-                    if (String(favId).startsWith('tr-')) {
-                        iconClass = 'fa-train'; // 電車
-                    } else if (String(favId).startsWith('ot-')) {
-                        iconClass = 'fa-info-circle'; // その他
-                    }
-
+                    let iconClass = 'fa-bus'; 
+                    if (String(favId).startsWith('tr-')) iconClass = 'fa-train'; 
+                    
                     const left = document.createElement('div');
                     left.className = 'card-left';
                     left.innerHTML = `<i class="fas ${iconClass}" style="font-size:32px; color:#555;"></i>`;
@@ -662,25 +658,20 @@ function renderFavoritesPage() {
 
                     const btnRow = document.createElement('div');
                     btnRow.className = 'card-buttons';
+                    btnRow.style.zIndex = '2';
+                    btnRow.style.position = 'relative';
                     
                     const btnMove = document.createElement('button');
                     btnMove.className = 'card-btn';
                     btnMove.innerHTML = '<i class="fas fa-arrow-circle-right"></i>';
                     btnMove.onclick = (e) => { e.stopPropagation(); jumpToTraffic(favId, el); };
                     
-                    const btnNull = document.createElement('button');
-                    btnNull.className = 'card-btn';
-                    btnNull.innerHTML = '<i class="fas fa-ban" style="color:#ccc"></i>';
-                    btnNull.style.borderColor = '#ccc';
-                    btnNull.disabled = true;
-
                     const btnFav = document.createElement('button');
                     btnFav.className = 'card-btn fav-active';
                     btnFav.innerHTML = '<i class="fas fa-star"></i>';
                     btnFav.onclick = (e) => { e.stopPropagation(); toggleFavorite(favId); };
 
                     btnRow.appendChild(btnMove);
-                    btnRow.appendChild(btnNull);
                     btnRow.appendChild(btnFav);
                     
                     right.appendChild(header);
@@ -749,17 +740,14 @@ function handleSlotClick(clickedIndex) {
         renderFavoritesPage();
         return;
     }
-
     if (selectedSlotIndex === clickedIndex) {
         selectedSlotIndex = null;
         renderFavoritesPage();
         return;
     }
-
     const temp = favorites[selectedSlotIndex];
     favorites[selectedSlotIndex] = favorites[clickedIndex];
     favorites[clickedIndex] = temp;
-
     saveFavorites();
     selectedSlotIndex = null; 
     renderFavoritesPage();
@@ -768,7 +756,6 @@ function handleSlotClick(clickedIndex) {
 function activateTab(tabName, sync = true) {
     mainGrid.style.display = 'none';
     bustarainContainer.style.display = 'none';
-    optionContainer.style.display = 'none';
     fyContainer.style.display = 'none';
 
     document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
@@ -787,16 +774,11 @@ function activateTab(tabName, sync = true) {
     } else if (tabName === 'bustarain') {
         bustarainContainer.style.display = 'block';
         document.getElementById('tab-bustarain').classList.add('active');
-    } else if (tabName === 'option') {
-        optionContainer.style.display = 'block';
-        document.getElementById('tab-option').classList.add('active');
     } else if (tabName === 'fy') {
         fyContainer.style.display = 'block';
         document.getElementById('tab-fy').classList.add('active');
         updateClock();
         renderFavoritesPage();
-        
-        // ★追加: FYタブに切り替えたタイミングでも位置調整を呼ぶ（表示/非表示に関わるため）
         adjustSpeedTestPosition();
     }
 }
@@ -808,7 +790,6 @@ function switchSubTab(targetId) {
         btn.classList.remove('active');
         if(btn.getAttribute('onclick').includes(targetId)) btn.classList.add('active');
     });
-    localStorage.setItem('active_sub_tab', targetId);
 }
 
 function toggleAccordion(header) {
@@ -841,23 +822,16 @@ function reloadSpeedTest() {
     if(iframe) iframe.src = iframe.src;
 }
 
-// ------------------------------------------------------------------
-// 6. Global Exposure (for HTML onclick attributes)
-// ------------------------------------------------------------------
-
+// Global Exposure
 window.activateTab = activateTab;
 window.setTheme = setTheme;
 window.toggleEditMode = toggleEditMode;
 window.switchSubTab = switchSubTab;
 window.toggleAccordion = toggleAccordion;
 window.reloadSpeedTest = reloadSpeedTest;
-window.saveBackground = saveBackground;
-window.saveTextColor = saveTextColor;
+window.openBgModal = openBgModal;
+window.closeBgModal = window.closeBgModal;
 window.resetBackground = resetBackground;
-window.resetTextColor = resetTextColor;
-window.adjustSpeedTestPosition = adjustSpeedTestPosition;
-
-// 検索バー用スクリプトからアクセスできるようにする
 window.initialAppData = initialAppData;
 window.getFaviconUrl = getFaviconUrl;
-window.renderTakatoriBoard = window.renderTakatoriBoard; // Option scriptとの互換性
+window.adjustSpeedTestPosition = adjustSpeedTestPosition;
