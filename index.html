@@ -18,8 +18,8 @@
       --custom-bg-image: none; 
       
       --card-bg: #ffffff;
-      --card-border: 2px solid #000000; /* 太い黒枠 */
-      --card-radius: 28px; /* 丸みの強い角 */
+      --card-border: 2px solid #000000;
+      --card-radius: 28px;
       --divider-color: #ccc;
       
       --tab-active-bg: #667eea;
@@ -79,62 +79,75 @@
     }
 
     .clock-area { 
-        width: 100%; padding: 0 15px; box-sizing: border-box; 
-        display: flex; align-items: center; height: 30px; 
+        width: 100%; padding: 0 10px; box-sizing: border-box; 
+        display: flex; align-items: center; height: 34px; 
     }
     
-    .clock-main-row { display: flex; justify-content: flex-start; align-items: center; width: 100%; gap: 10px; }
+    .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    
+    .left-section { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
     .site-logo {
-      height: 26px; width: auto; margin-right: 5px; object-fit: contain; vertical-align: middle;
+      height: 24px; width: auto; object-fit: contain; vertical-align: middle;
       border-radius: 4px; box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
 
-    .datetime-row { display: flex; align-items: baseline; gap: 10px; flex-grow: 0; flex-wrap: nowrap; }
+    .datetime-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
     #date, #clock, #countdown { 
-        color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 14px; line-height: 1; 
+        color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 13px; line-height: 1; 
     }
-    #countdown { color: #88aaff; }
+    #countdown { color: #88aaff; font-size: 12px; }
 
-    .header-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
-    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; }
+    .header-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+    
+    .control-icon { color: #aaaaaa; cursor: pointer; font-size: 14px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; }
     .control-icon:hover { color: #ffffff; }
-    .theme-switcher { display: flex; gap: 5px; }
+    
+    .theme-switcher { display: flex; gap: 4px; }
     .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
     .theme-dot.light { background-color: #fff; }
     .theme-dot.dark { background-color: #444; }
 
     /* Login Button Styles */
-    #auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; }
+    #auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; max-width: 150px; }
     #auth-btn:hover { color: #fff; }
     #user-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
+    #user-name { font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: none; }
 
-    /* ★ ネットワークステータス表示用スタイル ★ */
+    /* Network Status */
     #network-status {
-        display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;
-        padding: 2px 6px; border-radius: 4px; transition: all 0.3s; cursor: default;
+        display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: bold;
+        padding: 2px 4px; border-radius: 4px; transition: all 0.3s; cursor: default; white-space: nowrap;
     }
     #network-status.online { color: #4caf50; background: rgba(76, 175, 80, 0.1); }
     #network-status.offline { color: #f44336; background: rgba(244, 67, 54, 0.1); }
-    #network-status i { font-size: 14px; }
+    #network-status i { font-size: 12px; }
 
+    /* Speed Test Header */
     .header-speed-test { 
-        position: absolute; right: 10px; top: 5px;
-        display: flex; align-items: flex-start; gap: 5px; z-index: 6000; pointer-events: none;
+        display: flex; align-items: center; gap: 5px; margin-left: 8px;
     }
     .header-speed-test iframe { 
-        pointer-events: auto; width: 180px; height: 60px;
-        border: none; border-radius: 8px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+        width: 140px; height: 32px;
+        border: none; border-radius: 4px; background: #fff; 
     }
-    @media (max-width: 450px) { .header-speed-test iframe { width: 120px; height: 50px; } }
     #speed-test-refresh-button { 
-        pointer-events: auto; color: #aaaaaa; cursor: pointer; font-size: 16px; margin-top: 5px;
-        background: rgba(0,0,0,0.5); border-radius: 50%; width: 24px; height: 24px;
-        display: flex; align-items: center; justify-content: center;
+        color: #aaaaaa; cursor: pointer; font-size: 14px;
+        background: rgba(255,255,255,0.1); border-radius: 50%; width: 20px; height: 20px;
     }
-    #speed-test-refresh-button:hover { color: #fff; background: rgba(0,0,0,0.8); }
 
-    /* ★★★ 検索バー（最初の仕様） ★★★ */
+    /* ★ スマホ版レスポンシブ調整 (ヘッダー崩れ防止) ★ */
+    @media (max-width: 700px) {
+        #date { display: none; } /* 日付を隠す */
+        #network-status span { display: none; } /* "ON"文字を隠す */
+        .datetime-row { gap: 5px; }
+        .header-speed-test { display: none; } /* スマホではヘッダーから消してFYへ移動 */
+        .header-controls { gap: 6px; }
+        #auth-btn span { display: none !important; } /* スマホでは名前を隠す */
+        .site-logo { height: 20px; }
+    }
+
+    /* ★★★ 検索バー ★★★ */
     .search-wrapper { 
         display: flex !important; 
         justify-content: center; width: 100%; margin-top: 0; padding: 0 10px; box-sizing: border-box;
@@ -143,10 +156,9 @@
     .search-container { 
         display: flex; align-items: center; padding: 0 15px; 
         background-color: rgba(255, 255, 255, 0.95);
-        border-radius: 20px; border: none; width: 80%; max-width: 500px; height: 36px; 
+        border-radius: 20px; border: none; width: 90%; max-width: 500px; height: 36px; 
         box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: width 0.3s ease;
     }
-    @media (max-width: 450px) { .search-container { width: 90%; } }
     
     .search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
     #globalSearchInput { 
@@ -181,10 +193,10 @@
 
     /* ★★★ コンテンツエリア ★★★ */
     .page-container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 20px 20px; }
-    #main-grid, #bustarain-container, #option-container, #fy-container {
+    #main-grid, #bustarain-container, #fy-container {
         position: relative; z-index: 1; width: 100%; box-sizing: border-box;
     }
-    #bustarain-container, #option-container, #fy-container { display: none; margin-top: 20px; }
+    #bustarain-container, #fy-container { display: none; margin-top: 20px; }
     .main-grid { margin-top: 10px; }
 
     /* グリッドレイアウト */
@@ -196,7 +208,7 @@
     @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
 
-    /* ★ カードデザイン (画像準拠: 太い黒枠、カプセル型) ★ */
+    /* ★ カードデザイン ★ */
     .app-card {
         display: flex; flex-direction: row;
         background-color: var(--card-bg);
@@ -224,14 +236,9 @@
         padding-bottom: 2px; border-bottom: 2px solid var(--text-color-primary);
     }
 
-    /* ボタン配置修正：右詰めにする */
     .card-buttons { 
-        display: flex; 
-        justify-content: flex-end; /* 右詰め */
-        align-items: center; 
-        margin-bottom: 5px;
-        gap: 12px; /* ボタン間の余白 */
-        padding-right: 5px; /* 右端からの余白 */
+        display: flex; justify-content: flex-end; align-items: center; 
+        margin-bottom: 5px; gap: 12px; padding-right: 5px; 
     }
     .card-btn {
         width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
@@ -284,107 +291,81 @@
     .fy-icon { color: #ffc107; }
     .tab-item.active .fy-icon { color: #fff; }
 
-    /* モーダル */
+    /* モーダル共通 */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6); z-index: 7000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
     }
     .modal-overlay.hidden { display: none; }
     .modal-box {
-        background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #ccc;
+        background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 500px; text-align: center; border: 1px solid #ccc;
+        max-height: 80vh; overflow-y: auto;
     }
     .modal-title { margin-bottom: 10px; font-size:18px; font-weight:bold; }
-    .modal-buttons { display: flex; flex-direction: column; gap: 10px; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px;}
     .modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; gap:8px;}
     .btn-same { background: #667eea; color: white; }
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
 
-    /* --- 追加CSS: スピードテストのレスポンシブ移動用 --- */
-    
-    /* PC・タブレット（デフォルト）: FY側のプレースホルダーは非表示 */
-    #fy-speed-test-placeholder {
-        display: none;
+    /* 背景画像選択用グリッド */
+    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+    .bg-item { 
+        aspect-ratio: 16/9; background-size: cover; background-position: center; 
+        border-radius: 8px; cursor: pointer; border: 2px solid transparent; 
+        background-color: #ddd; display: flex; align-items: center; justify-content: center;
+        font-size: 12px; color: #555;
     }
+    .bg-item:hover { transform: scale(1.05); }
+    .bg-item.selected { border-color: #667eea; box-shadow: 0 0 10px #667eea; }
 
-    /* スマホ版（幅650px以下）のスタイル */
-    @media (max-width: 650px) {
-        /* ヘッダーのスピードテスト枠自体を非表示（JSで中身が移動した後、枠が残らないように） */
-        .header-speed-test {
-            display: none; 
-        }
-
-        /* FYタブの時計エリアを横並び(Flex)にする */
-        #fy-clock-display {
-            display: flex !important;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            gap: 15px; /* 時計とスピードテストの間隔 */
-        }
-
-        /* 日付と時刻を縦積みに変更して省スペース化 */
-        .fy-clock-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* 右寄せ */
-        }
-        .fy-date-text {
-            font-size: 12px;
-            margin-right: 0;
-            margin-bottom: 2px;
-        }
-        .fy-time-text {
-            font-size: 24px;
-            line-height: 1;
-        }
-
-        /* FY側に移動してきたスピードテストの表示設定 */
-        #fy-speed-test-placeholder {
-            display: flex;
-            flex-direction: column; /* iframeと更新ボタンを縦積み */
-            align-items: center;
-            transform: scale(0.9); /* 少し小さくして収まりよくする */
-        }
-        
-        /* iframeのサイズ調整 */
-        #speed-test-iframe {
-            width: 100px !important;
-            height: 50px !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+    /* スピードテスト用レスポンシブスタイル */
+    #fy-speed-test-placeholder { display: none; }
+    @media (max-width: 700px) {
+        .header-speed-test { display: none; }
+        #fy-clock-display { display: flex !important; flex-direction: row; justify-content: center; align-items: center; gap: 15px; }
+        .fy-clock-group { display: flex; flex-direction: column; align-items: flex-end; }
+        .fy-date-text { font-size: 12px; margin-right: 0; margin-bottom: 2px; }
+        .fy-time-text { font-size: 24px; line-height: 1; }
+        #fy-speed-test-placeholder { display: flex; flex-direction: column; align-items: center; transform: scale(0.9); }
+        #speed-test-iframe { width: 100px !important; height: 50px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     }
-
   </style>
 </head>
 <body>
   <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            <img src="./icon.png" alt="Link First Logo" class="site-logo">
-            <div class="datetime-row">
-                <div id="date"></div>
-                <div id="clock"></div>
-                <div id="countdown"></div>
+            <div class="left-section">
+                <img src="./icon.png" alt="Link First Logo" class="site-logo">
+                <div class="datetime-row">
+                    <div id="date"></div>
+                    <div id="clock"></div>
+                    <div id="countdown"></div>
+                </div>
             </div>
              <div class="header-controls">
-                <!-- Google Login Button -->
+                <!-- Login Button -->
                 <div id="auth-btn" title="Googleログイン">
                     <i class="fab fa-google"></i>
                     <img id="user-avatar" src="" alt="User" />
+                    <span id="user-name"></span>
                 </div>
                 <!-- Theme Switcher -->
                 <div class="theme-switcher">
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
                     <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
                 </div>
-                <!-- ★ ページ更新ボタンの隣にネットワークステータスを追加 -->
+                <!-- Background Changer Button -->
+                <div class="control-icon" onclick="openBgModal()" title="背景変更"><i class="fas fa-image"></i></div>
+                <!-- Network & Refresh -->
                 <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i> <span>ON</span></div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
-            </div>
-            <div class="header-speed-test" id="header-speed-test-container">
-                <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
-                <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
+                <!-- SpeedTest PC -->
+                <div class="header-speed-test" id="header-speed-test-container">
+                    <iframe id="speed-test-iframe" src="https://fast.com/ja/" title="速度テスト" loading="lazy" scrolling="no"></iframe>
+                    <div class="control-icon" id="speed-test-refresh-button" onclick="reloadSpeedTest()"><i class="fas fa-redo"></i></div>
+                </div>
             </div>
         </div>
     </div>
@@ -398,15 +379,14 @@
         <div id="searchResults" class="search-results-dropdown hidden"></div>
     </div>
   </div>
+
   <div class="page-container">
       <div id="fy-container">
-          <!-- ★ FY時計表示の構造変更 -->
           <div id="fy-clock-display">
               <div class="fy-clock-group">
                   <div id="fy-date-text" class="fy-date-text"></div>
                   <div id="fy-time-text" class="fy-time-text"></div>
               </div>
-              <!-- スピードテストの移動先 -->
               <div id="fy-speed-test-placeholder"></div>
           </div>
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -427,7 +407,7 @@
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
             <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('other-content')"><i class="fas fa-info-circle"></i> その他</button>
+            <!-- その他タブ削除 -->
         </div>
         <div id="train-content" class="sub-tab-content">
             <div class="accordion-item" data-id="tr-1" data-title="和田岬">
@@ -533,28 +513,19 @@
                 </div>
             </div>
         </div>
-        <div id="other-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="ot-1" data-title="ノエビアスタジアム イベント情報">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>ノエビアスタジアム イベント情報</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="https://www.noevir-stadium.jp/event/"></iframe>
-                </div>
-            </div>
-        </div>
+        <!-- その他コンテンツ削除 -->
     </div>
-    <div id="option-container"></div>
+    <!-- Optionコンテナ削除 -->
   </div>
+
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
-      <div class="tab-item" id="tab-option" onclick="activateTab('option')"> <i class="fas fa-cog"></i> <span>Option</span> </div>
+      <!-- Optionタブ削除 -->
   </nav>
-  <!-- モーダル -->
+
+  <!-- リンクオープン確認モーダル -->
   <div id="link-confirm-overlay" class="modal-overlay hidden">
       <div class="modal-box">
           <div id="modal-title" class="modal-title">確認</div>
@@ -566,13 +537,20 @@
           </div>
       </div>
   </div>
+
+  <!-- 背景選択モーダル -->
+  <div id="bg-select-overlay" class="modal-overlay hidden">
+      <div class="modal-box">
+          <div class="modal-title">背景を選択</div>
+          <div class="modal-desc">フォルダ内の画像から選択</div>
+          <div class="bg-grid" id="bg-grid-container"></div>
+          <div class="modal-buttons" style="margin-top:20px;">
+              <button class="modal-btn btn-cancel" onclick="closeBgModal()">キャンセル</button>
+              <button class="modal-btn" style="background:#f44336; color:#fff;" onclick="resetBackground()">リセット</button>
+          </div>
+      </div>
+  </div>
   
-  <!-- JS読み込み -->
-  <script src="Option/takatori.js"></script>
-  <script src="Option/memo.js"></script>
-  <script src="Option/main.js"></script>
-  <script src="Option/nekotuti.js"></script>
-  <!-- Firebase対応のため type="module" に変更 -->
   <script type="module" src="script.js"></script>
 
   <script>
@@ -594,7 +572,6 @@
 
           if (!searchInput || !resultsContainer) return;
 
-          // --- 日本語(ひらがな/カタカナ) -> ローマ字 変換テーブル ---
           const kanaToRomajiMap = {
               'あ':'a','い':'i','う':'u','え':'e','お':'o',
               'か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko',
@@ -625,7 +602,6 @@
               'ふぁ':'fa','ふぃ':'fi','ふぇ':'fe','ふぉ':'fo'
           };
 
-          // --- カタカナ -> ひらがな変換 ---
           function katakanaToHiragana(src) {
               return src.replace(/[\u30a1-\u30f6]/g, function(match) {
                   var chr = match.charCodeAt(0) - 0x60;
@@ -633,7 +609,6 @@
               });
           }
 
-          // --- 文字列(ひらがな) -> ローマ字変換 ---
           function toRomaji(text) {
               let hira = katakanaToHiragana(text);
               let romaji = "";
@@ -654,10 +629,8 @@
               return romaji;
           }
 
-          // DOMから全コンテンツを収集（Traffic情報も含めるため）
           function gatherAllSearchableContent() {
               const content = [];
-              // 1. Traffic (Accordion items)
               const accordions = document.querySelectorAll('.accordion-item');
               accordions.forEach(acc => {
                   const headerSpan = acc.querySelector('.accordion-header span');
@@ -673,7 +646,6 @@
                   }
               });
               
-              // 2. Apps
               if(typeof window.initialAppData !== 'undefined') {
                   window.initialAppData.forEach(app => {
                       let iconUrl = './icon.png';
