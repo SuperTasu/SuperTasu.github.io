@@ -136,14 +136,14 @@
         background: rgba(255,255,255,0.1); border-radius: 50%; width: 20px; height: 20px;
     }
 
-    /* ★ スマホ版レスポンシブ調整 (ヘッダー崩れ防止) ★ */
+    /* スマホ版レスポンシブ調整 */
     @media (max-width: 700px) {
-        #date { display: none; } /* 日付を隠す */
-        #network-status span { display: none; } /* "ON"文字を隠す */
+        #date { display: none; }
+        #network-status span { display: none; }
         .datetime-row { gap: 5px; }
-        .header-speed-test { display: none; } /* スマホではヘッダーから消してFYへ移動 */
+        .header-speed-test { display: none; }
         .header-controls { gap: 6px; }
-        #auth-btn span { display: none !important; } /* スマホでは名前を隠す */
+        #auth-btn span { display: none !important; }
         .site-logo { height: 20px; }
     }
 
@@ -218,6 +218,15 @@
     }
     .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
+    /* 検索からの強調表示用スタイル */
+    .app-card.highlight-target {
+        border: 4px solid #ff0000 !important;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6) !important;
+        transform: scale(1.03);
+        z-index: 50;
+        transition: all 0.3s ease;
+    }
+
     .card-left {
         width: 40%; display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
@@ -308,17 +317,6 @@
     .btn-new { background: #28a745; color: white; }
     .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
 
-    /* 背景画像選択用グリッド */
-    .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-    .bg-item { 
-        aspect-ratio: 16/9; background-size: cover; background-position: center; 
-        border-radius: 8px; cursor: pointer; border: 2px solid transparent; 
-        background-color: #ddd; display: flex; align-items: center; justify-content: center;
-        font-size: 12px; color: #555;
-    }
-    .bg-item:hover { transform: scale(1.05); }
-    .bg-item.selected { border-color: #667eea; box-shadow: 0 0 10px #667eea; }
-
     /* スピードテスト用レスポンシブスタイル */
     #fy-speed-test-placeholder { display: none; }
     @media (max-width: 700px) {
@@ -407,7 +405,6 @@
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
             <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
-            <!-- その他タブ削除 -->
         </div>
         <div id="train-content" class="sub-tab-content">
             <div class="accordion-item" data-id="tr-1" data-title="和田岬">
@@ -513,38 +510,24 @@
                 </div>
             </div>
         </div>
-        <!-- その他コンテンツ削除 -->
     </div>
-    <!-- Optionコンテナ削除 -->
   </div>
 
   <nav class="bottom-nav">
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
-      <!-- Optionタブ削除 -->
   </nav>
 
-  <!-- リンクオープン確認モーダル -->
-  <div id="link-confirm-overlay" class="modal-overlay hidden">
-      <div class="modal-box">
-          <div id="modal-title" class="modal-title">確認</div>
-          <div id="modal-desc" class="modal-desc">どちらで開きますか？</div>
-          <div class="modal-buttons">
-              <button id="btn-same-tab" class="modal-btn btn-same"><i class="fas fa-arrow-circle-right"></i> このページで開く</button>
-              <button id="btn-new-tab" class="modal-btn btn-new"><i class="fas fa-external-link-alt"></i> 新しいタブで開く</button>
-              <button id="btn-cancel-modal" class="modal-btn btn-cancel">キャンセル</button>
-          </div>
-      </div>
-  </div>
-
-  <!-- 背景選択モーダル -->
+  <!-- 背景選択モーダル（ローカルファイル読み込みに変更） -->
   <div id="bg-select-overlay" class="modal-overlay hidden">
       <div class="modal-box">
-          <div class="modal-title">背景を選択</div>
-          <div class="modal-desc">フォルダ内の画像から選択</div>
-          <div class="bg-grid" id="bg-grid-container"></div>
-          <div class="modal-buttons" style="margin-top:20px;">
+          <div class="modal-title">背景を設定</div>
+          <div class="modal-desc" style="margin-bottom:20px;">端末内の画像を選択してください</div>
+          
+          <input type="file" id="bg-file-input" accept="image/*" style="display:block; margin:0 auto 20px auto;">
+          
+          <div class="modal-buttons">
               <button class="modal-btn btn-cancel" onclick="closeBgModal()">キャンセル</button>
               <button class="modal-btn" style="background:#f44336; color:#fff;" onclick="resetBackground()">リセット</button>
           </div>
@@ -554,20 +537,11 @@
   <script type="module" src="script.js"></script>
 
   <script>
-      // ★★★ 検索＆モーダル機能 ★★★
+      // ★★★ 検索機能 ★★★
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
           const clearBtn = document.getElementById('clearSearchBtn');
           const resultsContainer = document.getElementById('searchResults');
-
-          const modalOverlay = document.getElementById('link-confirm-overlay');
-          const btnSame = document.getElementById('btn-same-tab');
-          const btnNew = document.getElementById('btn-new-tab');
-          const btnCancel = document.getElementById('btn-cancel-modal');
-          const modalTitle = document.getElementById('modal-title');
-          const modalDesc = document.getElementById('modal-desc');
-
-          let currentTargetUrl = "";
           let allContentCache = [];
 
           if (!searchInput || !resultsContainer) return;
@@ -654,6 +628,7 @@
                       }
                       content.push({
                           type: 'app',
+                          id: app.id, // IDを追加
                           name: app.label,
                           url: app.url,
                           img: iconUrl,
@@ -663,28 +638,6 @@
               }
               return content;
           }
-
-          function openConfirmationModal(url, name) {
-              currentTargetUrl = url;
-              modalTitle.innerText = name;
-              modalDesc.innerText = `「${name}」をどのように開きますか？`;
-              modalOverlay.classList.remove('hidden');
-          }
-          function closeConfirmationModal() {
-              modalOverlay.classList.add('hidden');
-              currentTargetUrl = "";
-          }
-
-          btnSame.addEventListener('click', () => {
-              if(currentTargetUrl) window.location.href = currentTargetUrl;
-              closeConfirmationModal();
-          });
-          btnNew.addEventListener('click', () => {
-              if(currentTargetUrl) window.open(currentTargetUrl, '_blank');
-              closeConfirmationModal();
-          });
-          btnCancel.addEventListener('click', () => { closeConfirmationModal(); });
-          modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeConfirmationModal(); });
 
           function performSearch(query) {
               const q = query.toLowerCase().trim();
@@ -753,7 +706,23 @@
                               }
                               setTimeout(() => { item.el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);
                           } else {
-                              openConfirmationModal(item.url, item.name);
+                              // ★★★ アプリ選択時の挙動変更箇所 ★★★
+                              // 1. Appsタブへ移動
+                              if(typeof window.activateTab === 'function') window.activateTab('all-apps');
+                              
+                              // 2. 該当カードを取得してスクロール & 赤枠強調
+                              setTimeout(() => {
+                                  const card = document.querySelector(`.app-card[data-app-id="${item.id}"]`);
+                                  if(card) {
+                                      card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                                      card.classList.add('highlight-target');
+                                      
+                                      // 3. 3秒後に強調表示を解除
+                                      setTimeout(() => {
+                                          card.classList.remove('highlight-target');
+                                      }, 3000);
+                                  }
+                              }, 100); // タブ切り替え後のDOM描画待ち
                           }
                       });
                       resultsContainer.appendChild(itemLink);
