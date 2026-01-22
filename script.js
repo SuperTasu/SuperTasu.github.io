@@ -148,6 +148,8 @@ const initialAppData = [
   {id:87,label:"シャーロックホームズ　電子書籍1",url:"https://221b.jp",icon:"https://221b.jp/favicon.ico",searchText:"シャーロックホームズ　電子書籍1"},
   {id:88,label:"シャーロックホームズ　電子書籍2",url:"https://book.shishin-kyoto.com",icon:"https://book.shishin-kyoto.com/favicon.ico",searchText:"シャーロックホームズ　電子書籍2"},
   {id:87,label:"アーサーコナンドイル　電子書籍",url:"https://www.aozora.gr.jp/index_pages/person9.html",icon:"https://www.aozora.gr.jp/index_pages/person9.html/favicon.ico",searchText:"アーサーコナンドイル"},
+  {id:88,label:"公式ライン　Manager",url:"https://manager.line.biz/",icon:"https://manager.line.biz//favicon.ico",searchText:"公式ライン　Manager"},
+  {id:89,label:"公式ライン　Chat",url:"https://chat.line.biz/U6eb5d1cf8c36f8cd0ff9df19721f9f27",icon:"https://chat.line.biz/U6eb5d1cf8c36f8cd0ff9df19721f9f27/favicon.ico",searchText:"公式ライン　Chat"},
 ];
 
 const FAV_KEY = 'myLinkAppFavorites';
