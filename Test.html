@@ -2,72 +2,81 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Fast.com風 回線速度測定</title>
+<title>常時回線速度モニター</title>
 <style>
 body {
+  margin: 0;
   background: #0b0b0b;
   color: #fff;
   font-family: system-ui, sans-serif;
   text-align: center;
-  padding-top: 60px;
 }
+
 #current {
   font-size: 64px;
-  font-weight: bold;
+  margin-top: 40px;
 }
-.info {
-  margin-top: 15px;
+
+#stats {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 10px;
   font-size: 22px;
 }
-#status {
-  margin-top: 20px;
+
+.label {
   color: #aaa;
 }
-button {
-  margin-top: 40px;
-  font-size: 20px;
-  padding: 12px 40px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+
+canvas {
+  margin-top: 30px;
+  background: #111;
+  border-top: 1px solid #222;
 }
-button:disabled { opacity: 0.5; }
-.warn { color: #ff6b6b; }
 </style>
 </head>
 <body>
 
 <div id="current">0.00 Mbps</div>
-<div class="info">Peak：<span id="peak">--</span> Mbps</div>
-<div class="info">Average：<span id="avg">--</span> Mbps</div>
-<div id="status">待機中</div>
 
-<button id="btn" onclick="startTest()">測定開始</button>
+<div id="stats">
+  <div>
+    <div class="label">Peak</div>
+    <div id="peak">--</div>
+  </div>
+  <div>
+    <div class="label">Average</div>
+    <div id="avg">--</div>
+  </div>
+</div>
+
+<canvas id="graph" width="800" height="250"></canvas>
 
 <script>
-async function startTest() {
-  const currentEl = document.getElementById("current");
-  const peakEl = document.getElementById("peak");
-  const avgEl = document.getElementById("avg");
-  const statusEl = document.getElementById("status");
-  const btn = document.getElementById("btn");
+const URL =
+  "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 
-  btn.disabled = true;
-  statusEl.textContent = "測定中…";
+const CONNECTIONS = 5;
+const SAMPLE_INTERVAL = 300; // ms
+const AVG_WINDOW = 10000;    // 10秒
+const GRAPH_WINDOW = 60000;  // 60秒
 
-  const CONNECTIONS = 5;      // 同時接続数（fast.comはもっと多い）
-  const TEST_TIME = 12;       // 秒
-  const WARMUP = 2;           // ウォームアップ除外
-  const URL =
-    "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+let startTime = performance.now();
+let loadedBytes = 0;
+let peakSpeed = 0;
+let samples = [];
 
-  let startTime = performance.now();
-  let loadedBytes = 0;
-  let peak = 0;
-  let samples = [];
+const currentEl = document.getElementById("current");
+const peakEl = document.getElementById("peak");
+const avgEl = document.getElementById("avg");
 
-  async function download() {
-    const res = await fetch(URL + "?c=" + Math.random());
+const canvas = document.getElementById("graph");
+const ctx = canvas.getContext("2d");
+
+async function downloadLoop() {
+  while (true) {
+    const res = await fetch(URL + "?r=" + Math.random());
     const reader = res.body.getReader();
     while (true) {
       const { done, value } = await reader.read();
@@ -75,44 +84,63 @@ async function startTest() {
       loadedBytes += value.length;
     }
   }
+}
 
-  // 並列ダウンロード開始
-  for (let i = 0; i < CONNECTIONS; i++) download();
+// 並列ダウンロード開始
+for (let i = 0; i < CONNECTIONS; i++) {
+  downloadLoop();
+}
 
-  const timer = setInterval(() => {
-    const now = performance.now();
-    const elapsed = (now - startTime) / 1000;
+// サンプリング
+setInterval(() => {
+  const now = performance.now();
+  const elapsed = (now - startTime) / 1000;
 
-    const speed =
-      (loadedBytes * 8) / elapsed / 1024 / 1024;
+  const speed =
+    (loadedBytes * 8) / elapsed / 1024 / 1024;
 
-    currentEl.textContent = speed.toFixed(2) + " Mbps";
-    peak = Math.max(peak, speed);
+  peakSpeed = Math.max(peakSpeed, speed);
 
-    if (elapsed > WARMUP) {
-      samples.push(speed);
-    }
+  samples.push({ time: now, speed });
 
-    if (elapsed >= TEST_TIME) {
-      clearInterval(timer);
+  // 古いデータ削除
+  samples = samples.filter(s => now - s.time <= GRAPH_WINDOW);
 
-      const avg =
-        samples.reduce((a, b) => a + b, 0) / samples.length;
+  // 平均（直近10秒）
+  const recent = samples.filter(s => now - s.time <= AVG_WINDOW);
+  const avg =
+    recent.reduce((a, b) => a + b.speed, 0) / recent.length || 0;
 
-      peakEl.textContent = peak.toFixed(2);
-      avgEl.textContent = avg.toFixed(2);
+  currentEl.textContent = speed.toFixed(2) + " Mbps";
+  peakEl.textContent = peakSpeed.toFixed(2);
+  avgEl.textContent = avg.toFixed(2);
 
-      // 制限検出（ピークの60%以下に落ちたら警告）
-      if (avg < peak * 0.6) {
-        statusEl.innerHTML =
-          "<span class='warn'>回線制限の可能性あり</span>";
-      } else {
-        statusEl.textContent = "測定完了";
-      }
+  drawGraph();
+}, SAMPLE_INTERVAL);
 
-      btn.disabled = false;
-    }
-  }, 300);
+function drawGraph() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (samples.length < 2) return;
+
+  const maxSpeed = Math.max(...samples.map(s => s.speed)) || 1;
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#4fd1c5";
+  ctx.lineWidth = 2;
+
+  samples.forEach((s, i) => {
+    const x =
+      (i / (samples.length - 1)) * canvas.width;
+    const y =
+      canvas.height -
+      (s.speed / maxSpeed) * canvas.height;
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+
+  ctx.stroke();
 }
 </script>
 
