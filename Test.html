@@ -6,14 +6,12 @@
 
 <title>回線速度モニター</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#000">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-* { -webkit-user-select: none; user-select: none; }
+* { user-select: none; }
 
 body {
   margin: 0;
@@ -23,34 +21,55 @@ body {
   text-align: center;
 }
 
+/* ===== メイン速度 ===== */
 #speed {
-  font-size: 64px;
   margin-top: env(safe-area-inset-top);
 }
 
+#value {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#unit {
+  font-size: 20px;
+  color: #aaa;
+}
+
+#delta {
+  font-size: 20px;
+  margin-top: 4px;
+}
+
+/* ===== 情報グリッド ===== */
 #grid {
   display: flex;
   justify-content: center;
-  gap: 36px;
-  margin-top: 10px;
-  font-size: 20px;
+  gap: 32px;
+  margin-top: 16px;
+  font-size: 18px;
 }
 
 .label {
-  font-size: 14px;
+  font-size: 13px;
   color: #aaa;
 }
 
 canvas {
   width: 100vw;
   height: 260px;
+  margin-top: 10px;
 }
 </style>
 </head>
 <body>
 
 <div id="speed">
-  ↓ <span id="down">0.00</span> Mbps
+  <div>↓</div>
+  <div id="value">0.00</div>
+  <div id="unit">Mbps</div>
+  <div id="delta">±0.00</div>
 </div>
 
 <div id="grid">
@@ -63,7 +82,6 @@ canvas {
 <canvas id="graph"></canvas>
 
 <script>
-/* ========= 設定 ========= */
 const DL_URL =
  "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 const PING_URL = "https://www.google.com/generate_204";
@@ -73,9 +91,9 @@ const SAMPLE_INTERVAL = 300;
 const DISPLAY_INTERVAL = 1000;
 const AVG_WINDOW = 10000;
 const GRAPH_WINDOW = 60000;
-/* ======================== */
 
-const downEl = document.getElementById("down");
+const valueEl = document.getElementById("value");
+const deltaEl = document.getElementById("delta");
 const peakEl = document.getElementById("peak");
 const avgEl = document.getElementById("avg");
 const pingEl = document.getElementById("ping");
@@ -88,16 +106,17 @@ function resizeCanvas() {
   const dpr = devicePixelRatio || 1;
   canvas.width = innerWidth * dpr;
   canvas.height = 260 * dpr;
-  ctx.scale(dpr, dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 resizeCanvas();
 addEventListener("resize", resizeCanvas);
 
-/* ===== 速度測定 ===== */
+/* ===== 計測 ===== */
 let startTime = performance.now();
 let loadedBytes = 0;
 let peakSpeed = 0;
 let samples = [];
+let prevSpeed = 0;
 
 async function downloadLoop() {
   while (true) {
@@ -112,7 +131,7 @@ async function downloadLoop() {
 }
 for (let i = 0; i < CONNECTIONS; i++) downloadLoop();
 
-/* ===== サンプリング ===== */
+/* ===== サンプル ===== */
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
@@ -129,15 +148,24 @@ setInterval(() => {
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
+  const current = (loadedBytes * 8) / elapsed / 1024 / 1024;
 
-  const current =
-    (loadedBytes * 8) / elapsed / 1024 / 1024;
+  const delta = current - prevSpeed;
+  prevSpeed = current;
+
+  valueEl.textContent = current.toFixed(2);
+
+  deltaEl.textContent =
+    (delta >= 0 ? "+" : "") + delta.toFixed(2) + " Mbps";
+
+  if (delta > 0.05) deltaEl.style.color = "#ff4d4d";
+  else if (delta < -0.05) deltaEl.style.color = "#4da6ff";
+  else deltaEl.style.color = "#aaa";
 
   const recent = samples.filter(s => now - s.time <= AVG_WINDOW);
   const avg =
     recent.reduce((a, b) => a + b.speed, 0) / recent.length || 0;
 
-  downEl.textContent = current.toFixed(2);
   peakEl.textContent = peakSpeed.toFixed(2);
   avgEl.textContent = avg.toFixed(2);
 }, DISPLAY_INTERVAL);
@@ -163,8 +191,7 @@ pingTest();
 setInterval(pingTest, DISPLAY_INTERVAL);
 
 /* ===== FPS ===== */
-let frames = 0;
-let last = performance.now();
+let frames = 0, last = performance.now();
 function fpsLoop() {
   frames++;
   const now = performance.now();
@@ -179,7 +206,7 @@ fpsLoop();
 
 /* ===== グラフ ===== */
 function drawGraph() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   if (samples.length < 2) return;
 
   const max = Math.max(...samples.map(s => s.speed)) || 1;
@@ -187,15 +214,15 @@ function drawGraph() {
   ctx.strokeStyle = "#00ffd5";
   ctx.lineWidth = 2;
 
-  samples.forEach((s, i) => {
-    const x = (i / (samples.length - 1)) * innerWidth;
-    const y = 260 - (s.speed / max) * 260;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  samples.forEach((s,i)=>{
+    const x = (i/(samples.length-1))*innerWidth;
+    const y = 260 - (s.speed/max)*260;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   });
   ctx.stroke();
 }
 
-/* ===== Service Worker ===== */
+/* ===== SW ===== */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
