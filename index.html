@@ -54,7 +54,7 @@
       padding: 0;
       box-sizing: border-box;
       min-height: 100vh;
-      padding-bottom: 80px; 
+      padding-bottom: 90px; /* ナビゲーションの高さ分確保 */
     }
 
     body::before {
@@ -267,7 +267,7 @@
     
     .card-header { text-align: left; width: 100%; display: flex; flex-direction: column; justify-content: center; height: 100%; }
     
-    /* ★★★ タイトルの表示設定 (2行表示・下線) ★★★ */
+    /* ★★★ タイトルの表示設定 (2行表示・下線はブロックの下端のみ) ★★★ */
     .card-title {
         font-size: 14px; 
         font-weight: bold; 
@@ -278,29 +278,24 @@
         -webkit-line-clamp: 2; /* 2行まで */
         -webkit-box-orient: vertical;
         overflow: hidden;
-        white-space: normal; /* 折り返しを許可 */
+        white-space: normal;
         line-height: 1.3;
         
-        /* 下線設定 (2行になる場合も考慮してdecorationを使用し、borderも維持) */
-        text-decoration: underline; 
-        text-underline-offset: 3px;
-        border-bottom: 1px solid rgba(0,0,0,0); /* 既存のボーダー調整、装飾はtext-decorationに任せるか併用 */
-        
-        padding-bottom: 2px; 
-    }
-    
-    /* 既存のボーダーデザインを活かす場合は以下のように維持 */
-    .card-title {
+        /* 下線設定：テキストごとではなく、タイトルの枠の下に引く */
         border-bottom: 2px solid var(--text-color-primary);
+        text-decoration: none; /* テキスト自体の下線を削除 */
+        
+        padding-bottom: 2px;
+        margin-bottom: 2px;
+        height: auto;
+        max-height: 2.8em; /* 2行分確保 */
     }
-
 
     .card-buttons { 
         display: flex; justify-content: flex-end; align-items: center; 
         margin-bottom: 5px; gap: 12px; padding-right: 5px; 
-        /* Trafficタブではボタン不要な場合があるので調整 */
     }
-    /* アプリ用カードにはボタンエリアがあるがTraffic用にはない場合があるので、Traffic用はcard-headerをフルに使う */
+    /* アプリ用カードにはボタンエリアがあるがTraffic用にはない場合があるので調整 */
     .traffic-card .card-right {
         justify-content: center;
     }
@@ -335,6 +330,7 @@
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
 
     /* メモ帳スタイル */
+    #memo-container { padding: 0 10px; }
     #memo-pad {
         width: 100%;
         height: 60vh;
@@ -348,6 +344,8 @@
         font-size: 16px;
         resize: vertical;
         outline: none;
+        z-index: 50; /* 確実に入力できるように前面へ */
+        position: relative;
     }
     #memo-status {
         text-align: right;
@@ -475,7 +473,7 @@
         </div>
     </div>
 
-    <!-- Bustarain (交通) コンテナ：アプリカード形式に変更 -->
+    <!-- Bustarain (交通) コンテナ：アプリカード形式（新タブで開く） -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
@@ -484,20 +482,17 @@
 
         <!-- Train Content Grid -->
         <div id="train-content" class="sub-tab-content traffic-grid">
-            <!-- 和田岬 -->
-            <a href="train/wadmisaki-train.html" class="app-card traffic-card">
+            <a href="train/wadmisaki-train.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-subway"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">和田岬</div></div>
             </a>
-            <!-- 帰）板宿新長田経由海岸線 -->
-            <a href="train/itayado-train.html" class="app-card traffic-card">
+            <a href="train/itayado-train.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-subway"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div>
             </a>
-            <!-- 板宿駅（山陽電車） -->
-            <a href="train/Itayado-sannyou.html" class="app-card traffic-card">
+            <a href="train/Itayado-sannyou.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-train"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div>
@@ -506,44 +501,37 @@
 
         <!-- Bus Content Grid -->
         <div id="bus-content" class="sub-tab-content traffic-grid hidden">
-            <!-- バスロケーション -->
-            <a href="bus/Buslocation.html" class="app-card traffic-card">
+            <a href="bus/Buslocation.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-map-marked-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">バスロケーション</div></div>
             </a>
-            <!-- Locate育英高校前 -->
-            <a href="bus/ikuei4split.html" class="app-card traffic-card">
+            <a href="bus/ikuei4split.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-bus"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">Locate育英高校前</div></div>
             </a>
-            <!-- 行き・帰り（今出在家 ⇔ 鷹取団地） -->
-            <a href="bus/iki-kaeri.html" class="app-card traffic-card">
+            <a href="bus/iki-kaeri.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-exchange-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">行き・帰り（今出在家 ⇔ 鷹取団地）</div></div>
             </a>
-            <!-- 今出在家 -->
-            <a href="bus/imadezaike.html" class="app-card traffic-card">
+            <a href="bus/imadezaike.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">今出在家</div></div>
             </a>
-            <!-- 夢野町3丁目 -->
-            <a href="bus/yumeno3.html" class="app-card traffic-card">
+            <a href="bus/yumeno3.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">夢野町3丁目</div></div>
             </a>
-            <!-- 高取団地前 -->
-            <a href="bus/takatoridantimae.html" class="app-card traffic-card">
+            <a href="bus/takatoridantimae.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">高取団地前</div></div>
             </a>
-            <!-- 板宿駅 -->
-            <a href="bus/Itayado-bus.html" class="app-card traffic-card">
+            <a href="bus/Itayado-bus.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right"><div class="card-title">板宿駅</div></div>
@@ -583,9 +571,8 @@
   
   <script type="module" src="script.js"></script>
   
-  <!-- 追加スクリプト: タブ制御上書き、メモ帳ロジック -->
   <script>
-      // タブ切り替えロジックのオーバーライドと拡張
+      // タブ切り替えロジック
       window.activateTab = function(tabName) {
           // コンテナの表示切替
           const containers = ['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
@@ -616,8 +603,12 @@
               document.getElementById('tab-memo').classList.add('active');
           }
 
-          // ★変更: タブ切り替え時に一番上にスクロールする
-          window.scrollTo(0, 0);
+          // ★修正: タブ切り替え時に確実に一番上にスクロールする
+          setTimeout(() => {
+              window.scrollTo(0, 0);
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
+          }, 10);
       };
 
       // Traffic内のサブタブ切り替え
@@ -640,22 +631,24 @@
           const memoPad = document.getElementById('memo-pad');
           const memoStatus = document.getElementById('memo-status');
 
-          // ロード時に保存されたメモを復元
-          const savedMemo = localStorage.getItem('userMemo');
-          if (savedMemo) {
-              memoPad.value = savedMemo;
-          }
+          if (memoPad) {
+              // ロード時に保存されたメモを復元
+              const savedMemo = localStorage.getItem('userMemo');
+              if (savedMemo) {
+                  memoPad.value = savedMemo;
+              }
 
-          let timeoutId;
-          memoPad.addEventListener('input', () => {
-              memoStatus.textContent = '保存中...';
-              clearTimeout(timeoutId);
-              timeoutId = setTimeout(() => {
-                  localStorage.setItem('userMemo', memoPad.value);
-                  memoStatus.textContent = '保存しました';
-                  setTimeout(() => { memoStatus.textContent = ''; }, 2000);
-              }, 1000); // 入力停止1秒後に保存
-          });
+              let timeoutId;
+              memoPad.addEventListener('input', () => {
+                  memoStatus.textContent = '保存中...';
+                  clearTimeout(timeoutId);
+                  timeoutId = setTimeout(() => {
+                      localStorage.setItem('userMemo', memoPad.value);
+                      memoStatus.textContent = '保存しました';
+                      setTimeout(() => { memoStatus.textContent = ''; }, 2000);
+                  }, 1000); 
+              });
+          }
       });
   </script>
 </body>
