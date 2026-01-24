@@ -2,66 +2,65 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
 <title>回線速度モニター</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <style>
+* { -webkit-user-select: none; user-select: none; }
+
 body {
   margin: 0;
-  background: #0b0b0b;
+  background: #000;
   color: #fff;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system;
   text-align: center;
 }
 
-#main {
-  font-size: 56px;
-  margin-top: 25px;
+#speed {
+  font-size: 64px;
+  margin-top: env(safe-area-inset-top);
 }
 
 #grid {
   display: flex;
   justify-content: center;
-  gap: 50px;
+  gap: 36px;
   margin-top: 10px;
   font-size: 20px;
 }
 
 .label {
-  color: #aaa;
   font-size: 14px;
+  color: #aaa;
 }
 
 canvas {
-  margin-top: 25px;
-  background: #111;
+  width: 100vw;
+  height: 260px;
 }
 </style>
 </head>
 <body>
 
-<div id="main">
+<div id="speed">
   ↓ <span id="down">0.00</span> Mbps
 </div>
 
 <div id="grid">
-  <div>
-    <div class="label">Peak</div>
-    <div id="peak">--</div>
-  </div>
-  <div>
-    <div class="label">Average</div>
-    <div id="avg">--</div>
-  </div>
-  <div>
-    <div class="label">Ping</div>
-    <div><span id="ping">--</span> ms</div>
-  </div>
-  <div>
-    <div class="label">FPS</div>
-    <div id="fps">--</div>
-  </div>
+  <div><div class="label">Peak</div><div id="peak">--</div></div>
+  <div><div class="label">Avg</div><div id="avg">--</div></div>
+  <div><div class="label">Ping</div><div><span id="ping">--</span> ms</div></div>
+  <div><div class="label">FPS</div><div id="fps">--</div></div>
 </div>
 
-<canvas id="graph" width="900" height="260"></canvas>
+<canvas id="graph"></canvas>
 
 <script>
 /* ========= 設定 ========= */
@@ -70,18 +69,12 @@ const DL_URL =
 const PING_URL = "https://www.google.com/generate_204";
 
 const CONNECTIONS = 5;
-const SAMPLE_INTERVAL = 300;     // グラフ用
-const DISPLAY_INTERVAL = 10000; // 数値更新（10秒）
+const SAMPLE_INTERVAL = 300;
+const DISPLAY_INTERVAL = 1000;
 const AVG_WINDOW = 10000;
 const GRAPH_WINDOW = 60000;
 /* ======================== */
 
-let startTime = performance.now();
-let loadedBytes = 0;
-let peakSpeed = 0;
-let samples = [];
-
-/* ===== DOM ===== */
 const downEl = document.getElementById("down");
 const peakEl = document.getElementById("peak");
 const avgEl = document.getElementById("avg");
@@ -91,7 +84,21 @@ const fpsEl = document.getElementById("fps");
 const canvas = document.getElementById("graph");
 const ctx = canvas.getContext("2d");
 
-/* ===== ダウンロード（常時） ===== */
+function resizeCanvas() {
+  const dpr = devicePixelRatio || 1;
+  canvas.width = innerWidth * dpr;
+  canvas.height = 260 * dpr;
+  ctx.scale(dpr, dpr);
+}
+resizeCanvas();
+addEventListener("resize", resizeCanvas);
+
+/* ===== 速度測定 ===== */
+let startTime = performance.now();
+let loadedBytes = 0;
+let peakSpeed = 0;
+let samples = [];
+
 async function downloadLoop() {
   while (true) {
     const res = await fetch(DL_URL + "?r=" + Math.random());
@@ -105,7 +112,7 @@ async function downloadLoop() {
 }
 for (let i = 0; i < CONNECTIONS; i++) downloadLoop();
 
-/* ===== 内部サンプリング（高速） ===== */
+/* ===== サンプリング ===== */
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
@@ -118,10 +125,11 @@ setInterval(() => {
   drawGraph();
 }, SAMPLE_INTERVAL);
 
-/* ===== 表示更新（10秒ごと） ===== */
+/* ===== 表示（毎秒） ===== */
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
+
   const current =
     (loadedBytes * 8) / elapsed / 1024 / 1024;
 
@@ -134,10 +142,10 @@ setInterval(() => {
   avgEl.textContent = avg.toFixed(2);
 }, DISPLAY_INTERVAL);
 
-/* ===== Ping（中央値・10秒周期） ===== */
+/* ===== Ping ===== */
 async function pingTest() {
   let r = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     const t = performance.now();
     try {
       await fetch(PING_URL + "?p=" + Math.random(), {
@@ -147,10 +155,9 @@ async function pingTest() {
       });
       r.push(performance.now() - t);
     } catch {}
-    await new Promise(s => setTimeout(s, 100));
   }
-  r.sort((a, b) => a - b);
-  pingEl.textContent = r[Math.floor(r.length / 2)].toFixed(0);
+  r.sort((a,b)=>a-b);
+  pingEl.textContent = r[Math.floor(r.length/2)].toFixed(0);
 }
 pingTest();
 setInterval(pingTest, DISPLAY_INTERVAL);
@@ -170,24 +177,28 @@ function fpsLoop() {
 }
 fpsLoop();
 
-/* ===== グラフ描画 ===== */
+/* ===== グラフ ===== */
 function drawGraph() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (samples.length < 2) return;
 
   const max = Math.max(...samples.map(s => s.speed)) || 1;
   ctx.beginPath();
-  ctx.strokeStyle = "#4fd1c5";
+  ctx.strokeStyle = "#00ffd5";
   ctx.lineWidth = 2;
 
   samples.forEach((s, i) => {
-    const x = (i / (samples.length - 1)) * canvas.width;
-    const y = canvas.height - (s.speed / max) * canvas.height;
+    const x = (i / (samples.length - 1)) * innerWidth;
+    const y = 260 - (s.speed / max) * 260;
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
 }
-</script>
 
+/* ===== Service Worker ===== */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
 </body>
 </html>
