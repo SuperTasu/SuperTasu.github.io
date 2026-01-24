@@ -417,6 +417,7 @@
             border: 2px solid var(--text-color-primary);
             box-sizing: border-box;
             background: var(--card-bg);
+            border-radius: 12px; overflow: hidden;
         }
 
         /* 左側：表示エリア */
@@ -425,9 +426,15 @@
             border-right: 2px solid var(--text-color-primary);
             position: relative;
             background: #fff;
+            display: flex; flex-direction: column;
+        }
+        .pc-display-header {
+            height: 40px; background: var(--tab-active-bg); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 16px;
         }
         .pc-traffic-display iframe {
-            width: 100%; height: 100%; border: none;
+            width: 100%; flex-grow: 1; border: none;
         }
         .pc-placeholder {
             position: absolute; top:50%; left:50%; transform:translate(-50%, -50%);
@@ -485,18 +492,17 @@
             gap: 10px;
         }
         
-        /* リストアイテム（画像のカード風） */
+        /* リストアイテム（改良版） */
         .pc-traffic-item {
             border: 1px solid var(--text-color-primary);
             border-radius: 15px;
-            height: 80px;
+            height: 70px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between; /* ボタンと名前を離す */
             cursor: pointer;
             transition: all 0.2s;
-            padding: 0 10px;
-            text-align: center;
+            padding: 0 15px;
             font-weight: bold;
             font-size: 13px;
             background: var(--card-bg);
@@ -506,8 +512,25 @@
             background: var(--swap-select-color);
         }
         .pc-traffic-item.active {
-            background: var(--text-color-primary);
-            color: var(--bg-color);
+            background: var(--input-bg);
+            border: 2px solid var(--tab-active-bg);
+        }
+        
+        .pc-item-label {
+            flex-grow: 1; text-align: left; /* 名前部分は左寄せで広げる */
+        }
+
+        /* 新しいタブで開くボタン */
+        .pc-new-tab-btn {
+            background: transparent; border: none; 
+            color: var(--text-color-secondary);
+            font-size: 16px; cursor: pointer;
+            padding: 8px; border-radius: 50%;
+            transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pc-new-tab-btn:hover {
+            background: rgba(0,0,0,0.1); color: var(--tab-active-bg);
         }
 
         /* 下部の矢印 */
@@ -616,10 +639,11 @@
             </div>
         </div>
 
-        <!-- PC版 (幅1000px以上) : 分割レイアウト (画像再現) -->
+        <!-- PC版 (幅1000px以上) : 分割レイアウト (改良版) -->
         <div id="traffic-pc-view">
             <!-- 左側: 表示エリア -->
             <div class="pc-traffic-display">
+                <div class="pc-display-header" id="pc-header-title">Select Info</div>
                 <div class="pc-placeholder" id="pc-placeholder-msg">リストから選択してください</div>
                 <iframe id="pc-main-iframe" src=""></iframe>
             </div>
@@ -636,20 +660,50 @@
 
                 <!-- Train List -->
                 <div id="pc-list-train" class="pc-traffic-list">
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/wadmisaki-train.html', this)">和田岬</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/itayado-train.html', this)">帰）板宿新長田経由海岸線</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/Itayado-sannyou.html', this)">板宿駅（山陽電車）</div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('train/wadmisaki-train.html', this, '和田岬')">和田岬</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('train/wadmisaki-train.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('train/itayado-train.html', this, '帰）板宿新長田経由海岸線')">帰）板宿新長田経由海岸線</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('train/itayado-train.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('train/Itayado-sannyou.html', this, '板宿駅（山陽電車）')">板宿駅（山陽電車）</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('train/Itayado-sannyou.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
                 </div>
 
                 <!-- Bus List -->
                 <div id="pc-list-bus" class="pc-traffic-list hidden">
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/Buslocation.html', this)">バスロケーション</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/ikuei4split.html', this)">Locate育英高校前</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/iki-kaeri.html', this)">行き・帰り（今出在家 ⇔ 鷹取団地）</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/imadezaike.html', this)">今出在家</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/yumeno3.html', this)">夢野町3丁目</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/takatoridantimae.html', this)">高取団地前</div>
-                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/Itayado-bus.html', this)">板宿駅</div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/Buslocation.html', this, 'バスロケーション')">バスロケーション</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/Buslocation.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/ikuei4split.html', this, 'Locate育英高校前')">Locate育英高校前</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/ikuei4split.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/iki-kaeri.html', this, '行き・帰り')">行き・帰り</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/iki-kaeri.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/imadezaike.html', this, '今出在家')">今出在家</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/imadezaike.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/yumeno3.html', this, '夢野町3丁目')">夢野町3丁目</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/yumeno3.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/takatoridantimae.html', this, '高取団地前')">高取団地前</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/takatoridantimae.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
+                    <div class="pc-traffic-item">
+                        <span class="pc-item-label" onclick="loadPcTraffic('bus/Itayado-bus.html', this, '板宿駅')">板宿駅</span>
+                        <button class="pc-new-tab-btn" onclick="openNewTab('bus/Itayado-bus.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
+                    </div>
                 </div>
 
                 <div class="pc-sidebar-footer">
@@ -765,17 +819,29 @@
           }
       };
 
-      window.loadPcTraffic = function(url, element) {
+      // PC版: iframeで読み込む
+      window.loadPcTraffic = function(url, labelElement, title) {
           const iframe = document.getElementById('pc-main-iframe');
           const placeholder = document.getElementById('pc-placeholder-msg');
+          const headerTitle = document.getElementById('pc-header-title');
           
           placeholder.style.display = 'none';
           iframe.src = url;
+          if(title) headerTitle.textContent = title;
 
-          // アクティブ状態の装飾
+          // アクティブ状態の装飾 (親要素に適用)
           document.querySelectorAll('.pc-traffic-item').forEach(el => el.classList.remove('active'));
-          element.classList.add('active');
+          // ラベルの親要素(pc-traffic-item)を取得してactiveにする
+          if(labelElement && labelElement.parentElement) {
+              labelElement.parentElement.classList.add('active');
+          }
       };
+
+      // PC版: 新しいタブで開く
+      window.openNewTab = function(url, event) {
+          event.stopPropagation(); // 親要素のclickイベント(iframe読み込み)を阻止
+          window.open(url, '_blank');
+      }
 
       window.scrollTrafficList = function(amount) {
           const activeList = document.querySelector('.pc-traffic-list:not(.hidden)');
