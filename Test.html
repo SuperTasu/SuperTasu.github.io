@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>常時回線速度モニター</title>
+<title>高速回線モニター</title>
 <style>
 body {
   margin: 0;
@@ -14,7 +14,7 @@ body {
 
 #current {
   font-size: 64px;
-  margin-top: 40px;
+  margin-top: 30px;
 }
 
 #stats {
@@ -27,10 +27,16 @@ body {
 
 .label {
   color: #aaa;
+  font-size: 16px;
+}
+
+#ping {
+  margin-top: 10px;
+  font-size: 22px;
 }
 
 canvas {
-  margin-top: 30px;
+  margin-top: 25px;
   background: #111;
   border-top: 1px solid #222;
 }
@@ -51,16 +57,25 @@ canvas {
   </div>
 </div>
 
-<canvas id="graph" width="800" height="250"></canvas>
+<div id="ping">
+  <span class="label">Ping</span>：
+  <span id="pingValue">--</span> ms
+</div>
+
+<canvas id="graph" width="900" height="260"></canvas>
 
 <script>
-const URL =
+/* ================= 設定 ================= */
+const SPEED_URL =
   "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+const PING_URL = "https://www.google.com/generate_204";
 
 const CONNECTIONS = 5;
-const SAMPLE_INTERVAL = 300; // ms
-const AVG_WINDOW = 10000;    // 10秒
-const GRAPH_WINDOW = 60000;  // 60秒
+const SAMPLE_INTERVAL = 300;
+const AVG_WINDOW = 10000;
+const GRAPH_WINDOW = 60000;
+const PING_INTERVAL = 5000;
+/* ======================================== */
 
 let startTime = performance.now();
 let loadedBytes = 0;
@@ -70,13 +85,15 @@ let samples = [];
 const currentEl = document.getElementById("current");
 const peakEl = document.getElementById("peak");
 const avgEl = document.getElementById("avg");
+const pingEl = document.getElementById("pingValue");
 
 const canvas = document.getElementById("graph");
 const ctx = canvas.getContext("2d");
 
+/* ====== ダウンロード ====== */
 async function downloadLoop() {
   while (true) {
-    const res = await fetch(URL + "?r=" + Math.random());
+    const res = await fetch(SPEED_URL + "?r=" + Math.random());
     const reader = res.body.getReader();
     while (true) {
       const { done, value } = await reader.read();
@@ -86,12 +103,11 @@ async function downloadLoop() {
   }
 }
 
-// 並列ダウンロード開始
 for (let i = 0; i < CONNECTIONS; i++) {
   downloadLoop();
 }
 
-// サンプリング
+/* ====== 速度サンプリング ====== */
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
@@ -100,13 +116,10 @@ setInterval(() => {
     (loadedBytes * 8) / elapsed / 1024 / 1024;
 
   peakSpeed = Math.max(peakSpeed, speed);
-
   samples.push({ time: now, speed });
 
-  // 古いデータ削除
   samples = samples.filter(s => now - s.time <= GRAPH_WINDOW);
 
-  // 平均（直近10秒）
   const recent = samples.filter(s => now - s.time <= AVG_WINDOW);
   const avg =
     recent.reduce((a, b) => a + b.speed, 0) / recent.length || 0;
@@ -118,9 +131,35 @@ setInterval(() => {
   drawGraph();
 }, SAMPLE_INTERVAL);
 
+/* ====== Ping 測定（中央値） ====== */
+async function measurePing() {
+  let results = [];
+
+  for (let i = 0; i < 15; i++) {
+    const start = performance.now();
+    try {
+      await fetch(PING_URL + "?p=" + Math.random(), {
+        method: "HEAD",
+        cache: "no-store",
+        mode: "no-cors"
+      });
+      results.push(performance.now() - start);
+    } catch {}
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  results.sort((a, b) => a - b);
+  const median = results[Math.floor(results.length / 2)];
+
+  pingEl.textContent = median.toFixed(0);
+}
+
+measurePing();
+setInterval(measurePing, PING_INTERVAL);
+
+/* ====== グラフ ====== */
 function drawGraph() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   if (samples.length < 2) return;
 
   const maxSpeed = Math.max(...samples.map(s => s.speed)) || 1;
@@ -130,8 +169,7 @@ function drawGraph() {
   ctx.lineWidth = 2;
 
   samples.forEach((s, i) => {
-    const x =
-      (i / (samples.length - 1)) * canvas.width;
+    const x = (i / (samples.length - 1)) * canvas.width;
     const y =
       canvas.height -
       (s.speed / maxSpeed) * canvas.height;
