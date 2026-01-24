@@ -210,20 +210,20 @@
 
     /* ★★★ コンテンツエリア ★★★ */
     .page-container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 20px 20px; }
-    #main-grid, #bustarain-container, #fy-container {
+    #main-grid, #bustarain-container, #fy-container, #memo-container {
         position: relative; z-index: 1; width: 100%; box-sizing: border-box;
     }
-    #bustarain-container, #fy-container { display: none; margin-top: 20px; }
+    #bustarain-container, #fy-container, #memo-container { display: none; margin-top: 20px; }
     .main-grid { margin-top: 10px; }
 
     /* グリッドレイアウト */
-    .grid-container, #fy-content-area {
+    .grid-container, #fy-content-area, .traffic-grid {
         display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; padding: 10px;
     }
-    @media (max-width: 1300px) { .grid-container, #fy-content-area { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 900px) { .grid-container, #fy-content-area { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 650px) { .grid-container, #fy-content-area { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 400px) { .grid-container, #fy-content-area { grid-template-columns: repeat(1, 1fr); } }
+    @media (max-width: 1300px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 900px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 650px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 400px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(1, 1fr); } }
 
     /* ★ カードデザイン ★ */
     .app-card {
@@ -232,6 +232,9 @@
         border: var(--card-border);
         border-radius: var(--card-radius);
         overflow: hidden; height: 90px; position: relative;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--text-color-primary);
     }
     .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     
@@ -242,34 +245,66 @@
         100% { border-color: var(--card-border); box-shadow: none; transform: scale(1); }
     }
 
-    /* 0.5秒のアニメーションを6回繰り返す = 3秒間点滅 */
     .app-card.highlight-target {
         animation: flashRed 0.5s ease-in-out 6; 
-        z-index: 50; /* 他のカードより前に表示 */
+        z-index: 50; 
     }
 
     .card-left {
-        width: 40%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        width: 40%; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
     }
     .card-left img { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; }
+    /* Trafficアイコン用 */
+    .card-left i { font-size: 32px; color: var(--text-color-secondary); }
 
     .card-divider { width: 2px; background-color: var(--divider-color); margin: 10px 0; border-radius: 2px; }
 
     .card-right {
-        width: 60%; display: flex; flex-direction: column; justify-content: space-between; padding: 5px 10px; box-sizing: border-box;
+        width: 60%; display: flex; flex-direction: column; justify-content: center; padding: 5px 10px; box-sizing: border-box;
+        overflow: hidden;
     }
     
-    .card-header { text-align: center; margin-top: 5px; width: 100%; }
+    .card-header { text-align: left; width: 100%; display: flex; flex-direction: column; justify-content: center; height: 100%; }
+    
+    /* ★★★ タイトルの表示設定 (2行表示・下線) ★★★ */
     .card-title {
-        font-size: 14px; font-weight: bold; color: var(--text-color-primary);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
-        padding-bottom: 2px; border-bottom: 2px solid var(--text-color-primary);
+        font-size: 14px; 
+        font-weight: bold; 
+        color: var(--text-color-primary);
+        
+        /* 2行表示設定 */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 2行まで */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        white-space: normal; /* 折り返しを許可 */
+        line-height: 1.3;
+        
+        /* 下線設定 (2行になる場合も考慮してdecorationを使用し、borderも維持) */
+        text-decoration: underline; 
+        text-underline-offset: 3px;
+        border-bottom: 1px solid rgba(0,0,0,0); /* 既存のボーダー調整、装飾はtext-decorationに任せるか併用 */
+        
+        padding-bottom: 2px; 
     }
+    
+    /* 既存のボーダーデザインを活かす場合は以下のように維持 */
+    .card-title {
+        border-bottom: 2px solid var(--text-color-primary);
+    }
+
 
     .card-buttons { 
         display: flex; justify-content: flex-end; align-items: center; 
         margin-bottom: 5px; gap: 12px; padding-right: 5px; 
+        /* Trafficタブではボタン不要な場合があるので調整 */
     }
+    /* アプリ用カードにはボタンエリアがあるがTraffic用にはない場合があるので、Traffic用はcard-headerをフルに使う */
+    .traffic-card .card-right {
+        justify-content: center;
+    }
+
     .card-btn {
         width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
         border: 2px solid var(--text-color-primary); border-radius: 4px; cursor: pointer;
@@ -296,13 +331,31 @@
     .sub-tab-btn { background: var(--input-bg); color: var(--text-color-secondary); border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
     .sub-tab-btn.active { background: #667eea; color: white; }
     
-    .accordion-item { border: 1px solid #ccc; border-radius: 12px; margin-bottom: 15px; background: var(--card-bg); overflow: hidden; }
-    .accordion-header { padding: 15px 20px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    .accordion-item.active .accordion-content { max-height: 1200px; }
-    .accordion-iframe { width: 100%; height: 600px; border: none; }
     .hidden { display: none !important; }
     .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
+
+    /* メモ帳スタイル */
+    #memo-pad {
+        width: 100%;
+        height: 60vh;
+        padding: 15px;
+        box-sizing: border-box;
+        border: var(--card-border);
+        border-radius: 12px;
+        background-color: var(--card-bg);
+        color: var(--text-color-primary);
+        font-family: inherit;
+        font-size: 16px;
+        resize: vertical;
+        outline: none;
+    }
+    #memo-status {
+        text-align: right;
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+        height: 1.5em;
+    }
 
     /* ナビゲーション */
     .bottom-nav {
@@ -422,115 +475,87 @@
         </div>
     </div>
 
+    <!-- Bustarain (交通) コンテナ：アプリカード形式に変更 -->
     <div id="bustarain-container">
         <div class="sub-tab-menu">
             <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
             <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
         </div>
-        <div id="train-content" class="sub-tab-content">
-            <div class="accordion-item" data-id="tr-1" data-title="和田岬">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>和田岬</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/wadmisaki-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-2" data-title="帰）板宿新長田経由海岸線">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>帰）板宿新長田経由海岸線</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/itayado-train.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="tr-3" data-title="板宿駅（山陽電車）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅（山陽電車）</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="train/Itayado-sannyou.html"></iframe>
-                </div>
-            </div>
+
+        <!-- Train Content Grid -->
+        <div id="train-content" class="sub-tab-content traffic-grid">
+            <!-- 和田岬 -->
+            <a href="train/wadmisaki-train.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-subway"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">和田岬</div></div>
+            </a>
+            <!-- 帰）板宿新長田経由海岸線 -->
+            <a href="train/itayado-train.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-subway"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div>
+            </a>
+            <!-- 板宿駅（山陽電車） -->
+            <a href="train/Itayado-sannyou.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-train"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div>
+            </a>
         </div>
-        <div id="bus-content" class="sub-tab-content hidden">
-            <div class="accordion-item" data-id="bs-1" data-title="バスロケーション">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>バスロケーション</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Buslocation.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-sp" data-title="locate育英高校前">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span> Locate育英高校前 </span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/ikuei4split.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-2" data-title="行き・帰り（今出在家 ⇔ 鷹取団地）">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>行き・帰り（今出在家 ⇔ 鷹取団地）</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/iki-kaeri.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-3" data-title="今出在家">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>今出在家</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/imadezaike.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-4" data-title="夢野町3丁目">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>夢野町3丁目</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/yumeno3.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-5" data-title="高取団地前">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>高取団地前</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/takatoridantimae.html"></iframe>
-                </div>
-            </div>
-            <div class="accordion-item" data-id="bs-6" data-title="板宿駅">
-                <div class="accordion-header" onclick="toggleAccordion(this)">
-                    <span>板宿駅</span>
-                    <i class="fas fa-star acc-fav-btn"></i>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="accordion-content">
-                    <iframe class="accordion-iframe" data-src="bus/Itayado-bus.html"></iframe>
-                </div>
-            </div>
+
+        <!-- Bus Content Grid -->
+        <div id="bus-content" class="sub-tab-content traffic-grid hidden">
+            <!-- バスロケーション -->
+            <a href="bus/Buslocation.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">バスロケーション</div></div>
+            </a>
+            <!-- Locate育英高校前 -->
+            <a href="bus/ikuei4split.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-bus"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">Locate育英高校前</div></div>
+            </a>
+            <!-- 行き・帰り（今出在家 ⇔ 鷹取団地） -->
+            <a href="bus/iki-kaeri.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-exchange-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">行き・帰り（今出在家 ⇔ 鷹取団地）</div></div>
+            </a>
+            <!-- 今出在家 -->
+            <a href="bus/imadezaike.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">今出在家</div></div>
+            </a>
+            <!-- 夢野町3丁目 -->
+            <a href="bus/yumeno3.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">夢野町3丁目</div></div>
+            </a>
+            <!-- 高取団地前 -->
+            <a href="bus/takatoridantimae.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">高取団地前</div></div>
+            </a>
+            <!-- 板宿駅 -->
+            <a href="bus/Itayado-bus.html" class="app-card traffic-card">
+                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-divider"></div>
+                <div class="card-right"><div class="card-title">板宿駅</div></div>
+            </a>
         </div>
+    </div>
+
+    <!-- メモ帳 コンテナ -->
+    <div id="memo-container">
+        <h3 class="section-title"><i class="fas fa-sticky-note"></i> メモ帳 (Auto Save)</h3>
+        <textarea id="memo-pad" placeholder="ここにメモを入力..."></textarea>
+        <div id="memo-status"></div>
     </div>
   </div>
 
@@ -538,6 +563,7 @@
       <div class="tab-item" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
+      <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> <i class="fas fa-pen-alt"></i> <span>Memo</span> </div>
   </nav>
 
   <!-- 背景選択モーダル（ファイル選択に特化） -->
@@ -556,5 +582,81 @@
   </div>
   
   <script type="module" src="script.js"></script>
+  
+  <!-- 追加スクリプト: タブ制御上書き、メモ帳ロジック -->
+  <script>
+      // タブ切り替えロジックのオーバーライドと拡張
+      window.activateTab = function(tabName) {
+          // コンテナの表示切替
+          const containers = ['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
+          containers.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.style.display = 'none';
+          });
+
+          // タブのアクティブ状態切替
+          const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
+          tabs.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.classList.remove('active');
+          });
+
+          // 選択されたタブの表示
+          if (tabName === 'fy') {
+              document.getElementById('fy-container').style.display = 'block';
+              document.getElementById('tab-fy').classList.add('active');
+          } else if (tabName === 'all-apps') {
+              document.getElementById('main-grid').style.display = 'block';
+              document.getElementById('tab-all-apps').classList.add('active');
+          } else if (tabName === 'bustarain') {
+              document.getElementById('bustarain-container').style.display = 'block';
+              document.getElementById('tab-bustarain').classList.add('active');
+          } else if (tabName === 'memo') {
+              document.getElementById('memo-container').style.display = 'block';
+              document.getElementById('tab-memo').classList.add('active');
+          }
+
+          // ★変更: タブ切り替え時に一番上にスクロールする
+          window.scrollTo(0, 0);
+      };
+
+      // Traffic内のサブタブ切り替え
+      window.switchSubTab = function(contentId) {
+          document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
+          document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+          
+          document.getElementById(contentId).classList.remove('hidden');
+          
+          // ボタンのアクティブ状態
+          if(contentId === 'train-content') {
+              document.querySelector('.sub-tab-btn:nth-child(1)').classList.add('active');
+          } else {
+              document.querySelector('.sub-tab-btn:nth-child(2)').classList.add('active');
+          }
+      };
+
+      // メモ帳の自動保存ロジック
+      document.addEventListener('DOMContentLoaded', () => {
+          const memoPad = document.getElementById('memo-pad');
+          const memoStatus = document.getElementById('memo-status');
+
+          // ロード時に保存されたメモを復元
+          const savedMemo = localStorage.getItem('userMemo');
+          if (savedMemo) {
+              memoPad.value = savedMemo;
+          }
+
+          let timeoutId;
+          memoPad.addEventListener('input', () => {
+              memoStatus.textContent = '保存中...';
+              clearTimeout(timeoutId);
+              timeoutId = setTimeout(() => {
+                  localStorage.setItem('userMemo', memoPad.value);
+                  memoStatus.textContent = '保存しました';
+                  setTimeout(() => { memoStatus.textContent = ''; }, 2000);
+              }, 1000); // 入力停止1秒後に保存
+          });
+      });
+  </script>
 </body>
 </html>
