@@ -5,64 +5,89 @@
 <title>回線速度測定</title>
 <style>
 body {
-  font-family: sans-serif;
-  background: #f5f5f5;
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #fff;
   text-align: center;
-  padding-top: 50px;
+  padding-top: 80px;
 }
-button {
-  font-size: 20px;
-  padding: 12px 30px;
-}
+
 #speed {
-  font-size: 28px;
-  margin-top: 20px;
+  font-size: 64px;
+  font-weight: bold;
 }
+
+#unit {
+  font-size: 24px;
+  color: #aaa;
+}
+
 #status {
-  margin-top: 10px;
-  color: #555;
+  margin-top: 15px;
+  font-size: 18px;
+  color: #ccc;
+}
+
+button {
+  margin-top: 40px;
+  font-size: 20px;
+  padding: 12px 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
 }
 </style>
 </head>
 <body>
 
-<h1>回線速度テスト</h1>
-<button onclick="startTest()">測定開始</button>
+<div id="speed">0.00</div>
+<div id="unit">Mbps</div>
+<div id="status">待機中</div>
 
-<div id="speed">---</div>
-<div id="status"></div>
+<button id="btn" onclick="startTest()">測定開始</button>
 
 <script>
-function startTest() {
-  const status = document.getElementById("status");
-  const speedDiv = document.getElementById("speed");
+async function startTest() {
+  const speedEl = document.getElementById("speed");
+  const statusEl = document.getElementById("status");
+  const btn = document.getElementById("btn");
 
-  status.textContent = "測定中...";
-  speedDiv.textContent = "---";
+  btn.disabled = true;
+  statusEl.textContent = "測定中…";
 
-  // 大きめの画像（約5MB）
-  const url = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
-  const fileSize = 5 * 1024 * 1024; // 5MB（概算）
+  const url =
+    "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?cache=" +
+    Math.random();
 
   const startTime = performance.now();
-  const img = new Image();
+  let lastTime = startTime;
+  let loadedBytes = 0;
 
-  img.src = url + "?nocache=" + Math.random();
+  const response = await fetch(url);
+  const reader = response.body.getReader();
 
-  img.onload = () => {
-    const endTime = performance.now();
-    const seconds = (endTime - startTime) / 1000;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-    const bits = fileSize * 8;
-    const speedMbps = (bits / seconds / 1024 / 1024).toFixed(2);
+    loadedBytes += value.length;
 
-    speedDiv.innerHTML = `<b>${speedMbps} Mbps</b>`;
-    status.textContent = "測定完了";
-  };
+    const now = performance.now();
+    const elapsed = (now - startTime) / 1000;
 
-  img.onerror = () => {
-    status.textContent = "測定失敗（通信エラー）";
-  };
+    const speedMbps =
+      (loadedBytes * 8) / elapsed / 1024 / 1024;
+
+    speedEl.textContent = speedMbps.toFixed(2);
+    lastTime = now;
+  }
+
+  statusEl.textContent = "測定完了";
+  btn.disabled = false;
 }
 </script>
 
