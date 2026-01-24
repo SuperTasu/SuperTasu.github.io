@@ -281,9 +281,9 @@
         white-space: normal;
         line-height: 1.3;
         
-        /* 下線設定：テキストごとではなく、タイトルの枠の下に引く */
+        /* 下線設定 */
         border-bottom: 2px solid var(--text-color-primary);
-        text-decoration: none; /* テキスト自体の下線を削除 */
+        text-decoration: none; 
         
         padding-bottom: 2px;
         margin-bottom: 2px;
@@ -295,7 +295,6 @@
         display: flex; justify-content: flex-end; align-items: center; 
         margin-bottom: 5px; gap: 12px; padding-right: 5px; 
     }
-    /* アプリ用カードにはボタンエリアがあるがTraffic用にはない場合があるので調整 */
     .traffic-card .card-right {
         justify-content: center;
     }
@@ -344,7 +343,7 @@
         font-size: 16px;
         resize: vertical;
         outline: none;
-        z-index: 50; /* 確実に入力できるように前面へ */
+        z-index: 50; 
         position: relative;
     }
     #memo-status {
@@ -399,6 +398,124 @@
         .fy-time-text { font-size: 24px; line-height: 1; }
         #fy-speed-test-placeholder { display: flex; flex-direction: column; align-items: center; transform: scale(0.9); }
         #speed-test-iframe { width: 100px !important; height: 50px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    }
+
+    /* ★★★ Bustarain PC版専用スタイル (画像再現) ★★★ */
+    /* デフォルト(モバイル)はこれらを非表示にする */
+    #traffic-pc-view { display: none; }
+    #traffic-mobile-view { display: block; }
+
+    /* 1000px以上でPC用レイアウトに切り替え */
+    @media (min-width: 1000px) {
+        #traffic-mobile-view { display: none; }
+        #traffic-pc-view { display: flex; }
+        
+        #traffic-pc-view {
+            width: 100%;
+            height: calc(100vh - 150px); /* ヘッダー・フッター分を引く */
+            display: flex;
+            border: 2px solid var(--text-color-primary);
+            box-sizing: border-box;
+            background: var(--card-bg);
+        }
+
+        /* 左側：表示エリア */
+        .pc-traffic-display {
+            flex-grow: 1;
+            border-right: 2px solid var(--text-color-primary);
+            position: relative;
+            background: #fff;
+        }
+        .pc-traffic-display iframe {
+            width: 100%; height: 100%; border: none;
+        }
+        .pc-placeholder {
+            position: absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+            color: #888; font-weight: bold; text-align: center;
+        }
+
+        /* 右側：サイドバー */
+        .pc-traffic-sidebar {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        /* 上部の矢印とタブ */
+        .pc-sidebar-header {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 1px solid var(--divider-color);
+        }
+        .scroll-arrow {
+            font-size: 24px; color: var(--text-color-secondary); cursor: pointer;
+            width: 100%; text-align: center; margin-bottom: 5px;
+        }
+        .scroll-arrow:hover { color: var(--text-color-primary); }
+
+        .pc-traffic-tabs {
+            display: flex; gap: 10px; width: 100%; justify-content: center;
+        }
+        .pc-tab-btn {
+            border: 1px solid var(--text-color-primary);
+            border-radius: 20px;
+            padding: 5px 20px;
+            background: transparent;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-color-primary);
+        }
+        .pc-tab-btn.active {
+            background: var(--text-color-primary);
+            color: var(--bg-color);
+        }
+
+        /* リストエリア */
+        .pc-traffic-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        /* リストアイテム（画像のカード風） */
+        .pc-traffic-item {
+            border: 1px solid var(--text-color-primary);
+            border-radius: 15px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            background: var(--card-bg);
+            color: var(--text-color-primary);
+        }
+        .pc-traffic-item:hover {
+            background: var(--swap-select-color);
+        }
+        .pc-traffic-item.active {
+            background: var(--text-color-primary);
+            color: var(--bg-color);
+        }
+
+        /* 下部の矢印 */
+        .pc-sidebar-footer {
+            padding: 5px;
+            text-align: center;
+            border-top: 1px solid var(--divider-color);
+        }
     }
   </style>
 </head>
@@ -473,69 +590,72 @@
         </div>
     </div>
 
-    <!-- Bustarain (交通) コンテナ：アプリカード形式（新タブで開く） -->
+    <!-- Bustarain (交通) コンテナ -->
     <div id="bustarain-container">
-        <div class="sub-tab-menu">
-            <button class="sub-tab-btn active" onclick="switchSubTab('train-content')"><i class="fas fa-train"></i> Train</button>
-            <button class="sub-tab-btn" onclick="switchSubTab('bus-content')"><i class="fas fa-bus"></i> BUS</button>
+        
+        <!-- モバイル版 (幅1000px未満) : グリッド表示・新規タブ -->
+        <div id="traffic-mobile-view">
+            <div class="sub-tab-menu">
+                <button class="sub-tab-btn active" onclick="switchMobileSubTab('mobile-train')"><i class="fas fa-train"></i> Train</button>
+                <button class="sub-tab-btn" onclick="switchMobileSubTab('mobile-bus')"><i class="fas fa-bus"></i> BUS</button>
+            </div>
+            
+            <div id="mobile-train" class="traffic-grid sub-tab-content">
+                <a href="train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">和田岬</div></div></a>
+                <a href="train/itayado-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div></a>
+                <a href="train/Itayado-sannyou.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-train"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div></a>
+            </div>
+            <div id="mobile-bus" class="traffic-grid sub-tab-content hidden">
+                <a href="bus/Buslocation.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-map-marked-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バスロケーション</div></div></a>
+                <a href="bus/ikuei4split.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">Locate育英高校前</div></div></a>
+                <a href="bus/iki-kaeri.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-exchange-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">行き・帰り</div></div></a>
+                <a href="bus/imadezaike.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">今出在家</div></div></a>
+                <a href="bus/yumeno3.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">夢野町3丁目</div></div></a>
+                <a href="bus/takatoridantimae.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">高取団地前</div></div></a>
+                <a href="bus/Itayado-bus.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅</div></div></a>
+            </div>
         </div>
 
-        <!-- Train Content Grid -->
-        <div id="train-content" class="sub-tab-content traffic-grid">
-            <a href="train/wadmisaki-train.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-subway"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">和田岬</div></div>
-            </a>
-            <a href="train/itayado-train.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-subway"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div>
-            </a>
-            <a href="train/Itayado-sannyou.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-train"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div>
-            </a>
-        </div>
+        <!-- PC版 (幅1000px以上) : 分割レイアウト (画像再現) -->
+        <div id="traffic-pc-view">
+            <!-- 左側: 表示エリア -->
+            <div class="pc-traffic-display">
+                <div class="pc-placeholder" id="pc-placeholder-msg">リストから選択してください</div>
+                <iframe id="pc-main-iframe" src=""></iframe>
+            </div>
 
-        <!-- Bus Content Grid -->
-        <div id="bus-content" class="sub-tab-content traffic-grid hidden">
-            <a href="bus/Buslocation.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-map-marked-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">バスロケーション</div></div>
-            </a>
-            <a href="bus/ikuei4split.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-bus"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">Locate育英高校前</div></div>
-            </a>
-            <a href="bus/iki-kaeri.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-exchange-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">行き・帰り（今出在家 ⇔ 鷹取団地）</div></div>
-            </a>
-            <a href="bus/imadezaike.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">今出在家</div></div>
-            </a>
-            <a href="bus/yumeno3.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">夢野町3丁目</div></div>
-            </a>
-            <a href="bus/takatoridantimae.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">高取団地前</div></div>
-            </a>
-            <a href="bus/Itayado-bus.html" target="_blank" rel="noopener noreferrer" class="app-card traffic-card">
-                <div class="card-left"><i class="fas fa-bus-alt"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right"><div class="card-title">板宿駅</div></div>
-            </a>
+            <!-- 右側: サイドバー -->
+            <div class="pc-traffic-sidebar">
+                <div class="pc-sidebar-header">
+                    <div class="scroll-arrow" onclick="scrollTrafficList(-50)"><i class="fas fa-chevron-up"></i></div>
+                    <div class="pc-traffic-tabs">
+                        <button class="pc-tab-btn" id="pc-btn-bus" onclick="switchPcTrafficTab('bus')">BUS</button>
+                        <button class="pc-tab-btn active" id="pc-btn-train" onclick="switchPcTrafficTab('train')">Train</button>
+                    </div>
+                </div>
+
+                <!-- Train List -->
+                <div id="pc-list-train" class="pc-traffic-list">
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/wadmisaki-train.html', this)">和田岬</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/itayado-train.html', this)">帰）板宿新長田経由海岸線</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('train/Itayado-sannyou.html', this)">板宿駅（山陽電車）</div>
+                </div>
+
+                <!-- Bus List -->
+                <div id="pc-list-bus" class="pc-traffic-list hidden">
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/Buslocation.html', this)">バスロケーション</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/ikuei4split.html', this)">Locate育英高校前</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/iki-kaeri.html', this)">行き・帰り（今出在家 ⇔ 鷹取団地）</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/imadezaike.html', this)">今出在家</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/yumeno3.html', this)">夢野町3丁目</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/takatoridantimae.html', this)">高取団地前</div>
+                    <div class="pc-traffic-item" onclick="loadPcTraffic('bus/Itayado-bus.html', this)">板宿駅</div>
+                </div>
+
+                <div class="pc-sidebar-footer">
+                    <div class="scroll-arrow" onclick="scrollTrafficList(50)"><i class="fas fa-chevron-down"></i></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -554,14 +674,12 @@
       <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> <i class="fas fa-pen-alt"></i> <span>Memo</span> </div>
   </nav>
 
-  <!-- 背景選択モーダル（ファイル選択に特化） -->
+  <!-- 背景選択モーダル -->
   <div id="bg-select-overlay" class="modal-overlay hidden">
       <div class="modal-box">
           <div class="modal-title">背景を設定</div>
           <div class="modal-desc" style="margin-bottom:20px;">端末内の画像を選択してください</div>
-          
           <input type="file" id="bg-file-input" accept="image/*" style="display:block; margin:0 auto 20px auto;">
-          
           <div class="modal-buttons">
               <button class="modal-btn btn-cancel" onclick="closeBgModal()">キャンセル</button>
               <button class="modal-btn" style="background:#f44336; color:#fff;" onclick="resetBackground()">リセット</button>
@@ -603,7 +721,7 @@
               document.getElementById('tab-memo').classList.add('active');
           }
 
-          // ★修正: タブ切り替え時に確実に一番上にスクロールする
+          // ★ タブ切り替え時に確実に一番上にスクロールする
           setTimeout(() => {
               window.scrollTo(0, 0);
               document.documentElement.scrollTop = 0;
@@ -611,18 +729,58 @@
           }, 10);
       };
 
-      // Traffic内のサブタブ切り替え
-      window.switchSubTab = function(contentId) {
-          document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
+      // モバイル版のサブタブ切り替え
+      window.switchMobileSubTab = function(contentId) {
+          document.getElementById('mobile-train').classList.add('hidden');
+          document.getElementById('mobile-bus').classList.add('hidden');
+          
           document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
           
           document.getElementById(contentId).classList.remove('hidden');
           
-          // ボタンのアクティブ状態
-          if(contentId === 'train-content') {
+          if(contentId === 'mobile-train') {
               document.querySelector('.sub-tab-btn:nth-child(1)').classList.add('active');
           } else {
               document.querySelector('.sub-tab-btn:nth-child(2)').classList.add('active');
+          }
+      };
+
+      // PC版 Traffic ロジック
+      window.switchPcTrafficTab = function(type) {
+          const trainList = document.getElementById('pc-list-train');
+          const busList = document.getElementById('pc-list-bus');
+          const btnTrain = document.getElementById('pc-btn-train');
+          const btnBus = document.getElementById('pc-btn-bus');
+
+          if (type === 'train') {
+              trainList.classList.remove('hidden');
+              busList.classList.add('hidden');
+              btnTrain.classList.add('active');
+              btnBus.classList.remove('active');
+          } else {
+              trainList.classList.add('hidden');
+              busList.classList.remove('hidden');
+              btnTrain.classList.remove('active');
+              btnBus.classList.add('active');
+          }
+      };
+
+      window.loadPcTraffic = function(url, element) {
+          const iframe = document.getElementById('pc-main-iframe');
+          const placeholder = document.getElementById('pc-placeholder-msg');
+          
+          placeholder.style.display = 'none';
+          iframe.src = url;
+
+          // アクティブ状態の装飾
+          document.querySelectorAll('.pc-traffic-item').forEach(el => el.classList.remove('active'));
+          element.classList.add('active');
+      };
+
+      window.scrollTrafficList = function(amount) {
+          const activeList = document.querySelector('.pc-traffic-list:not(.hidden)');
+          if(activeList) {
+              activeList.scrollBy({ top: amount, behavior: 'smooth' });
           }
       };
 
@@ -632,7 +790,6 @@
           const memoStatus = document.getElementById('memo-status');
 
           if (memoPad) {
-              // ロード時に保存されたメモを復元
               const savedMemo = localStorage.getItem('userMemo');
               if (savedMemo) {
                   memoPad.value = savedMemo;
