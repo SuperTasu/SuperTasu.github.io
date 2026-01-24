@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>回線速度測定</title>
+<style>
+body {
+  font-family: sans-serif;
+  background: #f5f5f5;
+  text-align: center;
+  padding-top: 50px;
+}
+button {
+  font-size: 20px;
+  padding: 12px 30px;
+}
+#speed {
+  font-size: 28px;
+  margin-top: 20px;
+}
+#status {
+  margin-top: 10px;
+  color: #555;
+}
+</style>
+</head>
+<body>
+
+<h1>回線速度テスト</h1>
+<button onclick="startTest()">測定開始</button>
+
+<div id="speed">---</div>
+<div id="status"></div>
+
+<script>
+function startTest() {
+  const status = document.getElementById("status");
+  const speedDiv = document.getElementById("speed");
+
+  status.textContent = "測定中...";
+  speedDiv.textContent = "---";
+
+  // 大きめの画像（約5MB）
+  const url = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+  const fileSize = 5 * 1024 * 1024; // 5MB（概算）
+
+  const startTime = performance.now();
+  const img = new Image();
+
+  img.src = url + "?nocache=" + Math.random();
+
+  img.onload = () => {
+    const endTime = performance.now();
+    const seconds = (endTime - startTime) / 1000;
+
+    const bits = fileSize * 8;
+    const speedMbps = (bits / seconds / 1024 / 1024).toFixed(2);
+
+    speedDiv.innerHTML = `<b>${speedMbps} Mbps</b>`;
+    status.textContent = "測定完了";
+  };
+
+  img.onerror = () => {
+    status.textContent = "測定失敗（通信エラー）";
+  };
+}
+</script>
+
+</body>
+</html>
