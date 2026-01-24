@@ -5,27 +5,26 @@
 <title>回線速度測定</title>
 <style>
 body {
-  font-family: system-ui, sans-serif;
-  background: #111;
+  background: #0f0f0f;
   color: #fff;
+  font-family: system-ui, sans-serif;
   text-align: center;
-  padding-top: 80px;
+  padding-top: 70px;
 }
 
-#speed {
+#current {
   font-size: 64px;
   font-weight: bold;
 }
 
-#unit {
-  font-size: 24px;
+.unit {
+  font-size: 20px;
   color: #aaa;
 }
 
-#status {
-  margin-top: 15px;
-  font-size: 18px;
-  color: #ccc;
+.info {
+  margin-top: 20px;
+  font-size: 22px;
 }
 
 button {
@@ -36,7 +35,6 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
-
 button:disabled {
   opacity: 0.5;
 }
@@ -44,28 +42,34 @@ button:disabled {
 </head>
 <body>
 
-<div id="speed">0.00</div>
-<div id="unit">Mbps</div>
-<div id="status">待機中</div>
+<div id="current">0.00</div>
+<div class="unit">Mbps（現在）</div>
+
+<div class="info">Peak：<span id="peak">--</span> Mbps</div>
+<div class="info">Average：<span id="average">--</span> Mbps</div>
+<div class="info" id="status">待機中</div>
 
 <button id="btn" onclick="startTest()">測定開始</button>
 
 <script>
 async function startTest() {
-  const speedEl = document.getElementById("speed");
+  const currentEl = document.getElementById("current");
+  const peakEl = document.getElementById("peak");
+  const avgEl = document.getElementById("average");
   const statusEl = document.getElementById("status");
   const btn = document.getElementById("btn");
 
   btn.disabled = true;
   statusEl.textContent = "測定中…";
 
+  const TEST_TIME = 10; // 秒（fast.com寄り）
   const url =
     "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?cache=" +
     Math.random();
 
-  const startTime = performance.now();
-  let lastTime = startTime;
+  let startTime = performance.now();
   let loadedBytes = 0;
+  let peakSpeed = 0;
 
   const response = await fetch(url);
   const reader = response.body.getReader();
@@ -75,16 +79,25 @@ async function startTest() {
     if (done) break;
 
     loadedBytes += value.length;
-
     const now = performance.now();
     const elapsed = (now - startTime) / 1000;
 
-    const speedMbps =
+    if (elapsed > TEST_TIME) break;
+
+    const currentSpeed =
       (loadedBytes * 8) / elapsed / 1024 / 1024;
 
-    speedEl.textContent = speedMbps.toFixed(2);
-    lastTime = now;
+    peakSpeed = Math.max(peakSpeed, currentSpeed);
+
+    currentEl.textContent = currentSpeed.toFixed(2);
   }
+
+  const totalTime = (performance.now() - startTime) / 1000;
+  const avgSpeed =
+    (loadedBytes * 8) / totalTime / 1024 / 1024;
+
+  peakEl.textContent = peakSpeed.toFixed(2);
+  avgEl.textContent = avgSpeed.toFixed(2);
 
   statusEl.textContent = "測定完了";
   btn.disabled = false;
