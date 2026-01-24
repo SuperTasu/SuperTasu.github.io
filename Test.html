@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>回線 & パフォーマンスモニター</title>
+<title>回線速度モニター</title>
 <style>
 body {
   margin: 0;
@@ -11,18 +11,25 @@ body {
   font-family: system-ui, sans-serif;
   text-align: center;
 }
+
 #main {
   font-size: 56px;
   margin-top: 25px;
 }
+
 #grid {
   display: flex;
   justify-content: center;
-  gap: 40px;
+  gap: 50px;
   margin-top: 10px;
   font-size: 20px;
 }
-.label { color: #aaa; font-size: 14px; }
+
+.label {
+  color: #aaa;
+  font-size: 14px;
+}
+
 canvas {
   margin-top: 25px;
   background: #111;
@@ -32,15 +39,26 @@ canvas {
 <body>
 
 <div id="main">
-  ↓ <span id="down">0.00</span> Mbps　
-  ↑ <span id="up">0.00</span> Mbps
+  ↓ <span id="down">0.00</span> Mbps
 </div>
 
 <div id="grid">
-  <div><div class="label">Peak</div><div id="peak">--</div></div>
-  <div><div class="label">Average</div><div id="avg">--</div></div>
-  <div><div class="label">Ping</div><div><span id="ping">--</span> ms</div></div>
-  <div><div class="label">FPS</div><div id="fps">--</div></div>
+  <div>
+    <div class="label">Peak</div>
+    <div id="peak">--</div>
+  </div>
+  <div>
+    <div class="label">Average</div>
+    <div id="avg">--</div>
+  </div>
+  <div>
+    <div class="label">Ping</div>
+    <div><span id="ping">--</span> ms</div>
+  </div>
+  <div>
+    <div class="label">FPS</div>
+    <div id="fps">--</div>
+  </div>
 </div>
 
 <canvas id="graph" width="900" height="260"></canvas>
@@ -50,23 +68,21 @@ canvas {
 const DL_URL =
  "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 const PING_URL = "https://www.google.com/generate_204";
-const UP_URL = "https://httpbin.org/post"; // エコー用
 
 const CONNECTIONS = 5;
-const SAMPLE_INTERVAL = 300;
+const SAMPLE_INTERVAL = 300;     // グラフ用
+const DISPLAY_INTERVAL = 10000; // 数値更新（10秒）
 const AVG_WINDOW = 10000;
 const GRAPH_WINDOW = 60000;
 /* ======================== */
 
 let startTime = performance.now();
 let loadedBytes = 0;
-let peak = 0;
+let peakSpeed = 0;
 let samples = [];
-let uploadSpeed = 0;
 
 /* ===== DOM ===== */
 const downEl = document.getElementById("down");
-const upEl = document.getElementById("up");
 const peakEl = document.getElementById("peak");
 const avgEl = document.getElementById("avg");
 const pingEl = document.getElementById("ping");
@@ -75,7 +91,7 @@ const fpsEl = document.getElementById("fps");
 const canvas = document.getElementById("graph");
 const ctx = canvas.getContext("2d");
 
-/* ===== ダウンロード ===== */
+/* ===== ダウンロード（常時） ===== */
 async function downloadLoop() {
   while (true) {
     const res = await fetch(DL_URL + "?r=" + Math.random());
@@ -89,29 +105,36 @@ async function downloadLoop() {
 }
 for (let i = 0; i < CONNECTIONS; i++) downloadLoop();
 
-/* ===== 速度計算 ===== */
+/* ===== 内部サンプリング（高速） ===== */
 setInterval(() => {
   const now = performance.now();
   const elapsed = (now - startTime) / 1000;
-
   const speed = (loadedBytes * 8) / elapsed / 1024 / 1024;
-  peak = Math.max(peak, speed);
 
+  peakSpeed = Math.max(peakSpeed, speed);
   samples.push({ time: now, speed });
   samples = samples.filter(s => now - s.time <= GRAPH_WINDOW);
+
+  drawGraph();
+}, SAMPLE_INTERVAL);
+
+/* ===== 表示更新（10秒ごと） ===== */
+setInterval(() => {
+  const now = performance.now();
+  const elapsed = (now - startTime) / 1000;
+  const current =
+    (loadedBytes * 8) / elapsed / 1024 / 1024;
 
   const recent = samples.filter(s => now - s.time <= AVG_WINDOW);
   const avg =
     recent.reduce((a, b) => a + b.speed, 0) / recent.length || 0;
 
-  downEl.textContent = speed.toFixed(2);
-  peakEl.textContent = peak.toFixed(2);
+  downEl.textContent = current.toFixed(2);
+  peakEl.textContent = peakSpeed.toFixed(2);
   avgEl.textContent = avg.toFixed(2);
+}, DISPLAY_INTERVAL);
 
-  drawGraph();
-}, SAMPLE_INTERVAL);
-
-/* ===== Ping（中央値） ===== */
+/* ===== Ping（中央値・10秒周期） ===== */
 async function pingTest() {
   let r = [];
   for (let i = 0; i < 10; i++) {
@@ -130,27 +153,7 @@ async function pingTest() {
   pingEl.textContent = r[Math.floor(r.length / 2)].toFixed(0);
 }
 pingTest();
-setInterval(pingTest, 5000);
-
-/* ===== Upload ===== */
-async function uploadTest() {
-  const size = 512 * 1024; // 512KB
-  const data = new Uint8Array(size);
-  crypto.getRandomValues(data);
-
-  const start = performance.now();
-  try {
-    await fetch(UP_URL, {
-      method: "POST",
-      body: data
-    });
-    const time = (performance.now() - start) / 1000;
-    uploadSpeed = (size * 8) / time / 1024 / 1024;
-    upEl.textContent = uploadSpeed.toFixed(2);
-  } catch {}
-}
-uploadTest();
-setInterval(uploadTest, 8000);
+setInterval(pingTest, DISPLAY_INTERVAL);
 
 /* ===== FPS ===== */
 let frames = 0;
@@ -167,7 +170,7 @@ function fpsLoop() {
 }
 fpsLoop();
 
-/* ===== グラフ ===== */
+/* ===== グラフ描画 ===== */
 function drawGraph() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (samples.length < 2) return;
