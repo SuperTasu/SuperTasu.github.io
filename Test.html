@@ -2,31 +2,27 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>回線速度測定</title>
+<title>Fast.com風 回線速度測定</title>
 <style>
 body {
-  background: #0f0f0f;
+  background: #0b0b0b;
   color: #fff;
   font-family: system-ui, sans-serif;
   text-align: center;
-  padding-top: 70px;
+  padding-top: 60px;
 }
-
 #current {
   font-size: 64px;
   font-weight: bold;
 }
-
-.unit {
-  font-size: 20px;
-  color: #aaa;
-}
-
 .info {
-  margin-top: 20px;
+  margin-top: 15px;
   font-size: 22px;
 }
-
+#status {
+  margin-top: 20px;
+  color: #aaa;
+}
 button {
   margin-top: 40px;
   font-size: 20px;
@@ -35,19 +31,16 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
-button:disabled {
-  opacity: 0.5;
-}
+button:disabled { opacity: 0.5; }
+.warn { color: #ff6b6b; }
 </style>
 </head>
 <body>
 
-<div id="current">0.00</div>
-<div class="unit">Mbps（現在）</div>
-
+<div id="current">0.00 Mbps</div>
 <div class="info">Peak：<span id="peak">--</span> Mbps</div>
-<div class="info">Average：<span id="average">--</span> Mbps</div>
-<div class="info" id="status">待機中</div>
+<div class="info">Average：<span id="avg">--</span> Mbps</div>
+<div id="status">待機中</div>
 
 <button id="btn" onclick="startTest()">測定開始</button>
 
@@ -55,52 +48,71 @@ button:disabled {
 async function startTest() {
   const currentEl = document.getElementById("current");
   const peakEl = document.getElementById("peak");
-  const avgEl = document.getElementById("average");
+  const avgEl = document.getElementById("avg");
   const statusEl = document.getElementById("status");
   const btn = document.getElementById("btn");
 
   btn.disabled = true;
   statusEl.textContent = "測定中…";
 
-  const TEST_TIME = 10; // 秒（fast.com寄り）
-  const url =
-    "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?cache=" +
-    Math.random();
+  const CONNECTIONS = 5;      // 同時接続数（fast.comはもっと多い）
+  const TEST_TIME = 12;       // 秒
+  const WARMUP = 2;           // ウォームアップ除外
+  const URL =
+    "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 
   let startTime = performance.now();
   let loadedBytes = 0;
-  let peakSpeed = 0;
+  let peak = 0;
+  let samples = [];
 
-  const response = await fetch(url);
-  const reader = response.body.getReader();
+  async function download() {
+    const res = await fetch(URL + "?c=" + Math.random());
+    const reader = res.body.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      loadedBytes += value.length;
+    }
+  }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  // 並列ダウンロード開始
+  for (let i = 0; i < CONNECTIONS; i++) download();
 
-    loadedBytes += value.length;
+  const timer = setInterval(() => {
     const now = performance.now();
     const elapsed = (now - startTime) / 1000;
 
-    if (elapsed > TEST_TIME) break;
-
-    const currentSpeed =
+    const speed =
       (loadedBytes * 8) / elapsed / 1024 / 1024;
 
-    peakSpeed = Math.max(peakSpeed, currentSpeed);
+    currentEl.textContent = speed.toFixed(2) + " Mbps";
+    peak = Math.max(peak, speed);
 
-    currentEl.textContent = currentSpeed.toFixed(2);
-  }
+    if (elapsed > WARMUP) {
+      samples.push(speed);
+    }
 
-  const totalTime = (performance.now() - startTime) / 1000;
-  const avgSpeed =
-    (loadedBytes * 8) / totalTime / 1024 / 1024;
+    if (elapsed >= TEST_TIME) {
+      clearInterval(timer);
 
-  peakEl.textContent = peakSpeed.toFixed(2);
-  avgEl.textContent = avgSpeed.toFixed(2);
+      const avg =
+        samples.reduce((a, b) => a + b, 0) / samples.length;
 
-  statusEl.textContent = "測定完了";
-  btn.disabled = false;
+      peakEl.textContent = peak.toFixed(2);
+      avgEl.textContent = avg.toFixed(2);
+
+      // 制限検出（ピークの60%以下に落ちたら警告）
+      if (avg < peak * 0.6) {
+        statusEl.innerHTML =
+          "<span class='warn'>回線制限の可能性あり</span>";
+      } else {
+        statusEl.textContent = "測定完了";
+      }
+
+      btn.disabled = false;
+    }
+  }, 300);
 }
 </script>
 
