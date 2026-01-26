@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>神戸市バス 系統表示</title>
+<title>神戸市バス 系統表示（地図検索）</title>
 <style>
   body {
     background-color: #e6f5e6;
@@ -16,14 +16,91 @@
     flex-direction: column;
   }
 
+  /* 地図エリアのスタイル */
+  .map-scroll-container {
+    width: 100%;
+    height: 50vh; /* 画面の半分の高さ */
+    overflow: auto; /* スクロール可能にする */
+    background: #ccc;
+    position: relative;
+    border-bottom: 4px solid #8bc48b;
+  }
+
+  .map-wrapper {
+    position: relative;
+    width: 1500px; /* 画像の大きさに合わせて調整（拡大して見やすくするため） */
+    margin: 0 auto;
+  }
+
+  .map-image {
+    width: 100%;
+    display: block;
+  }
+
+  /* 地図上のピン（ボタン）のスタイル */
+  .map-pin {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background-color: red;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transform: translate(-50%, -50%); /* 中心を座標に合わせる */
+    z-index: 10;
+    animation: pulse 2s infinite;
+  }
+
+  .map-pin:hover, .map-pin.active {
+    background-color: #ffcc00;
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+
+  /* ピンのラベル（ホバー時に出る名前） */
+  .map-pin::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    font-weight: bold;
+    color: #333;
+  }
+
+  .map-pin:hover::after, .map-pin.active::after {
+    opacity: 1;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+  }
+
+  /* 操作パネル */
   .selector-container {
     background: #ffffffd5;
-    padding: 15px;
-    border-radius: 0 0 16px 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
+    padding: 10px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    z-index: 20;
+  }
+
+  .current-stop-display {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d32f2f;
+    margin-bottom: 8px;
+    min-height: 24px;
   }
 
   .selectors-row {
@@ -52,17 +129,16 @@
     background-color: #6ba86b;
   }
 
-  .info {
-    font-size: 18px;
-    font-weight: bold;
-    color: #2e5c2e;
-    margin: 10px 0;
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 
   iframe {
     flex: 1;
     width: 100%;
     border: none;
+    background: white;
   }
 
   @media (max-width: 600px) {
@@ -70,50 +146,61 @@
       flex-direction: column;
       align-items: center;
     }
-
     select, button {
       width: 90%;
-      font-size: 15px;
     }
-
-    .info {
-      font-size: 16px;
+    .map-scroll-container {
+      height: 40vh;
     }
   }
 </style>
 </head>
 <body>
 
+<!-- 地図エリア -->
+<div class="map-scroll-container">
+  <div class="map-wrapper">
+    <!-- ↓↓↓ 画像ファイル名をここに指定してください ↓↓↓ -->
+    <img src="map.jpg" alt="路線図" class="map-image">
+    
+    <!-- 
+      ピンの位置設定:
+      top: 上からの位置(%), left: 左からの位置(%) 
+      画像に合わせて調整してください。
+    -->
+    <div class="map-pin" style="top: 75%; left: 35%;" data-stop="今出在家"></div>
+    <div class="map-pin" style="top: 60%; left: 38%;" data-stop="夢野町3丁目"></div>
+    <div class="map-pin" style="top: 65%; left: 25%;" data-stop="宮川町9丁目"></div>
+    <div class="map-pin" style="top: 55%; left: 60%;" data-stop="中山手3丁目(神戸北野ノスタ)"></div>
+    <div class="map-pin" style="top: 70%; left: 15%;" data-stop="鷹取団地前"></div>
+    <div class="map-pin" style="top: 68%; left: 20%;" data-stop="育英高校前"></div>
+    <div class="map-pin" style="top: 60%; left: 65%;" data-stop="三宮駅前"></div>
+  </div>
+</div>
+
+<!-- 操作・表示エリア -->
 <div class="selector-container">
+  <div id="selectedStopName" class="current-stop-display">地図上の赤いピンを押してバス停を選択</div>
+
   <div class="selectors-row">
-    <select id="busStop">
-      <option value="">バス停</option>
-      <option value="今出在家">今出在家</option>
-      <option value="夢野町3丁目">夢野町3丁目</option>
-      <option value="宮川町9丁目">宮川町9丁目</option>
-      <option value="中山手3丁目(神戸北野ノスタ)">中山手3丁目(神戸北野ノスタ)</option>
-      <option value="鷹取団地前">鷹取団地前</option>
-      <option value="育英高校前">育英高校前</option>
-      <option value="三宮駅前">三宮駅前</option>
+    <!-- バス停選択プルダウンは削除 -->
+
+    <select id="direction" disabled>
+      <option value="">方面を選択してください</option>
     </select>
 
-    <select id="direction">
-      <option value="">方面</option>
-    </select>
-
-    <select id="line">
+    <select id="line" disabled>
       <option value="">系統</option>
     </select>
 
     <button id="showBtn">表示</button>
   </div>
-
-  <div id="info" class="info"></div>
 </div>
 
 <iframe id="resultFrame"></iframe>
 
 <script>
+// データ定義
 const data = {
   "今出在家": {
     "新開地方面": {
@@ -199,70 +286,117 @@ const data = {
   }
 };
 
-const busStopSelect = document.getElementById("busStop");
 const directionSelect = document.getElementById("direction");
 const lineSelect = document.getElementById("line");
 const showBtn = document.getElementById("showBtn");
 const frame = document.getElementById("resultFrame");
-const info = document.getElementById("info");
+const selectedStopDisplay = document.getElementById("selectedStopName");
+const pins = document.querySelectorAll(".map-pin");
 
+let currentBusStop = ""; // 現在選択されているバス停名
+
+// 初期化（ローカルストレージ確認）
 window.addEventListener("load", () => {
   const saved = JSON.parse(localStorage.getItem("busSelection"));
-  if (saved) {
-    busStopSelect.value = saved.busStop;
-    updateDirections();
+  if (saved && data[saved.busStop]) {
+    // 保存データがあれば復元
+    selectBusStop(saved.busStop);
+    
+    // 方面を復元
     directionSelect.value = saved.direction;
     updateLines();
+    
+    // 系統を復元
     lineSelect.value = saved.line;
+
     if (saved.url) {
-      info.textContent = `🚌 ${saved.busStop} – ${saved.direction} – ${saved.line}`;
       frame.src = saved.url;
     }
   }
 });
 
+// ピンをクリックした時の処理
+pins.forEach(pin => {
+  pin.addEventListener("click", (e) => {
+    const stopName = e.target.getAttribute("data-stop");
+    selectBusStop(stopName);
+  });
+});
+
+function selectBusStop(stopName) {
+  if (!data[stopName]) return;
+
+  currentBusStop = stopName;
+
+  // UI更新：選択されたバス停名を表示
+  selectedStopDisplay.textContent = `選択中: ${currentBusStop}`;
+  selectedStopDisplay.style.color = "#2e5c2e";
+
+  // UI更新：ピンの色を変える
+  pins.forEach(p => p.classList.remove("active"));
+  const targetPin = document.querySelector(`.map-pin[data-stop="${stopName}"]`);
+  if (targetPin) targetPin.classList.add("active");
+
+  // 方面セレクトボックスを更新
+  updateDirections();
+}
+
 function updateDirections() {
   directionSelect.innerHTML = '<option value="">方面</option>';
   lineSelect.innerHTML = '<option value="">系統</option>';
-  const busStop = busStopSelect.value;
-  if (busStop && data[busStop]) {
-    Object.keys(data[busStop]).forEach(dir => {
+  
+  if (currentBusStop && data[currentBusStop]) {
+    directionSelect.disabled = false;
+    lineSelect.disabled = true;
+
+    Object.keys(data[currentBusStop]).forEach(dir => {
       const opt = document.createElement("option");
       opt.value = dir;
       opt.textContent = dir;
       directionSelect.appendChild(opt);
     });
+  } else {
+    directionSelect.disabled = true;
+    lineSelect.disabled = true;
   }
 }
 
 function updateLines() {
   lineSelect.innerHTML = '<option value="">系統</option>';
-  const busStop = busStopSelect.value;
   const direction = directionSelect.value;
-  if (busStop && direction && data[busStop][direction]) {
-    Object.keys(data[busStop][direction]).forEach(line => {
+  
+  if (currentBusStop && direction && data[currentBusStop][direction]) {
+    lineSelect.disabled = false;
+    Object.keys(data[currentBusStop][direction]).forEach(line => {
       const opt = document.createElement("option");
       opt.value = line;
       opt.textContent = line;
       lineSelect.appendChild(opt);
     });
+  } else {
+    lineSelect.disabled = true;
   }
 }
 
-busStopSelect.addEventListener("change", updateDirections);
 directionSelect.addEventListener("change", updateLines);
 
 showBtn.addEventListener("click", () => {
-  const busStop = busStopSelect.value;
   const direction = directionSelect.value;
   const line = lineSelect.value;
-  if (busStop && direction && line) {
-    const url = data[busStop][direction][line];
-    info.textContent = `🚌 ${busStop} – ${direction} – ${line}`;
+  
+  if (currentBusStop && direction && line) {
+    const url = data[currentBusStop][direction][line];
     frame.src = url;
-    localStorage.setItem("busSelection", JSON.stringify({ busStop, direction, line, url }));
+    
+    // ローカルストレージに保存
+    localStorage.setItem("busSelection", JSON.stringify({ 
+      busStop: currentBusStop, 
+      direction, 
+      line, 
+      url 
+    }));
   } else {
-    alert("バス停・方面・系統をすべて選択してください。");
+    alert("地図からバス停を選び、方面と系統を選択してください。");
   }
 });
 </script>
