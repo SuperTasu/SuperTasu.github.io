@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ぼうにんげん脱出ゲーム</title>
+    <style>
+        body {
+            background-color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            background-color: #fff;
+            border: 4px solid #000;
+            overflow: hidden;
+        }
+
+        /* 部屋の背景 */
+        .room {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #eee 70%, #bbb 70%);
+        }
+
+        /* ぼうにんげん */
+        #stickman {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            width: 40px;
+            height: 80px;
+            transition: all 0.5s;
+        }
+        .head { width: 20px; height: 20px; border: 2px solid #000; border-radius: 50%; position: absolute; left: 10px; }
+        .body { width: 2px; height: 30px; background: #000; position: absolute; left: 20px; top: 22px; }
+        .arm-l { width: 20px; height: 2px; background: #000; position: absolute; left: 5px; top: 35px; transform: rotate(-30deg); }
+        .arm-r { width: 20px; height: 2px; background: #000; position: absolute; left: 17px; top: 35px; transform: rotate(30deg); }
+        .leg-l { width: 2px; height: 25px; background: #000; position: absolute; left: 15px; top: 50px; transform: rotate(20deg); }
+        .leg-r { width: 2px; height: 25px; background: #000; position: absolute; left: 25px; top: 50px; transform: rotate(-20deg); }
+
+        /* オブジェクト */
+        .object {
+            position: absolute;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+
+        #door {
+            width: 80px;
+            height: 150px;
+            background-color: #8B4513;
+            right: 40px;
+            bottom: 80px;
+            border-radius: 5px 5px 0 0;
+        }
+        #door::after { /* ドアノブ */
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            border-radius: 50%;
+            top: 80px;
+            left: 10px;
+        }
+
+        #desk {
+            width: 120px;
+            height: 60px;
+            background-color: #DEB887;
+            left: 150px;
+            bottom: 80px;
+        }
+
+        #box {
+            width: 40px;
+            height: 30px;
+            background-color: #555;
+            left: 350px;
+            bottom: 80px;
+        }
+
+        /* メッセージエリア */
+        #ui-panel {
+            width: 600px;
+            background: #fff;
+            padding: 10px;
+            border: 2px solid #000;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        #message {
+            height: 1.5em;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #inventory {
+            color: #d00;
+            font-size: 0.9em;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div class="room">
+            <!-- ぼうにんげん -->
+            <div id="stickman">
+                <div class="head"></div>
+                <div class="body"></div>
+                <div class="arm-l"></div>
+                <div class="arm-r"></div>
+                <div class="leg-l"></div>
+                <div class="leg-r"></div>
+            </div>
+
+            <!-- オブジェクト -->
+            <div id="door" class="object" onclick="interact('door')"></div>
+            <div id="desk" class="object" onclick="interact('desk')"></div>
+            <div id="box" class="object" onclick="interact('box')"></div>
+        </div>
+    </div>
+
+    <div id="ui-panel">
+        <div id="message">ここはどこだ…？ どこかに出口があるはずだ。</div>
+        <div id="inventory">持ち物: なし</div>
+        <button id="reset-btn" class="hidden" onclick="location.reload()">もう一度あそぶ</button>
+    </div>
+
+    <script>
+        let hasKey = false;
+        let isBoxOpen = false;
+        let gameClear = false;
+
+        const messageEl = document.getElementById('message');
+        const inventoryEl = document.getElementById('inventory');
+        const stickman = document.getElementById('stickman');
+        const resetBtn = document.getElementById('reset-btn');
+
+        function interact(target) {
+            if (gameClear) return;
+
+            // ぼうにんげんを移動させる（演出）
+            const rect = document.getElementById(target).getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            stickman.style.left = (rect.left - containerRect.left - 50) + "px";
+
+            setTimeout(() => {
+                if (target === 'desk') {
+                    if (!isBoxOpen) {
+                        messageEl.innerText = "机の上には何もない。下の箱が怪しいな。";
+                    } else {
+                        messageEl.innerText = "机の引き出しは空っぽだ。";
+                    }
+                } 
+                else if (target === 'box') {
+                    if (!hasKey) {
+                        messageEl.innerText = "箱の中に「銀色のカギ」があった！";
+                        hasKey = true;
+                        isBoxOpen = true;
+                        inventoryEl.innerText = "持ち物: 銀色のカギ";
+                        document.getElementById('box').style.backgroundColor = "#999";
+                    } else {
+                        messageEl.innerText = "箱の中はもう空っぽだ。";
+                    }
+                } 
+                else if (target === 'door') {
+                    if (hasKey) {
+                        messageEl.innerText = "カギを使った！扉が開いたぞ！脱出成功！";
+                        document.getElementById('door').style.backgroundColor = "#eee";
+                        document.getElementById('door').style.width = "10px";
+                        gameClear = true;
+                        finishGame();
+                    } else {
+                        messageEl.innerText = "扉は固く閉ざされている。カギが必要なようだ。";
+                    }
+                }
+            }, 500);
+        }
+
+        function finishGame() {
+            // ぼうにんげんが外に出ていく演出
+            stickman.style.left = "550px";
+            stickman.style.opacity = "0";
+            setTimeout(() => {
+                messageEl.style.color = "blue";
+                messageEl.innerText = "【脱出成功】おめでとう！";
+                resetBtn.classList.remove('hidden');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
