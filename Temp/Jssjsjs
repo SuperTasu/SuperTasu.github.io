@@ -86,7 +86,7 @@ const initialAppData = [
     id:2, label:"Gmail", url:"https://mail.google.com",
     urlA:"", iconA:"", titleA:"", // urlAを消去
     urlB:"", iconB:"", titleB:"", // urlBを消去
-    urlC:"https://mail.google.com/mail/u/0/#drafts", iconC:"fas fa-file-alt", titleC:"下書き",
+    urlC:"https://mail.google.com/mail/u/0/#all", iconC:"fas fa-file-alt", titleC:"全てのメール",
     urlD:"", iconD:"", titleD:"",
     icon:"https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico", searchText:"Gmail Google Mail メール"
   },
