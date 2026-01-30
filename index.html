@@ -98,7 +98,7 @@
             <div id="mobile-train" class="traffic-grid sub-tab-content">
                 <a href="Bustarain/train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">和田岬</div></div></a>
                 <a href="Bustarain/train/itayado-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div></a>
-                <a href="Bustrain/train/Itayado-sannyou.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-train"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div></a>Bustarain/
+                <a href="Bustrain/train/Itayado-sannyou.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-train"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div></a>
             </div>
             <div id="mobile-bus" class="traffic-grid sub-tab-content hidden">
                 <a href="Bustarain/bus/Buslocation.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-map-marked-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バスロケーション</div></div></a>
@@ -217,23 +217,89 @@
   <script type="module" src="script.js"></script>
   
   <script>
+      /**
+       * 検索ボックスの特殊コマンド処理
+       * 「!」または「！」で始まる場合、ローマ字変換してDuckDuckGoで検索
+       */
+      document.addEventListener('DOMContentLoaded', () => {
+          const searchInput = document.getElementById('globalSearchInput');
+
+          if (searchInput) {
+              searchInput.addEventListener('keydown', (e) => {
+                  if (e.key === 'Enter') {
+                      const val = searchInput.value.trim();
+
+                      // 先頭が「!」または「！」の場合
+                      if (val.startsWith('!') || val.startsWith('！')) {
+                          e.preventDefault(); // 通常の検索処理を止める
+
+                          // 「!」以降の文字列を取得
+                          let query = val.substring(1);
+
+                          // 1. 全角英数字を半角に変換、2. ひらがなをローマ字に変換
+                          query = kanaToRoman(query);
+
+                          if (query.length > 0) {
+                              const url = `https://duckduckgo.com/?q=!${encodeURIComponent(query)}&t=ipad&ia=web`;
+                              window.open(url, '_blank');
+                              searchInput.value = ''; // 入力欄を空にする
+                          }
+                      }
+                  }
+              });
+          }
+
+          /**
+           * ひらがな・カタカナをローマ字に変換し、全角英数も半角にする関数
+           */
+          function kanaToRoman(str) {
+              // 全角英数字・記号を半角に変換
+              let res = str.replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+
+              // ひらがな/カタカナ -> ローマ字 変換テーブル（簡易版）
+              const romanMap = {
+                  'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+                  'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+                  'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+                  'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+                  'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ni', 'の': 'no',
+                  'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+                  'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+                  'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+                  'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+                  'わ': 'wa', 'を': 'wo', 'ん': 'n',
+                  'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+                  'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+                  'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
+                  'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+                  'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pa', 'ぽ': 'po'
+              };
+
+              // カタカナをひらがなに変換してからローマ字へ
+              let kana = res.replace(/[\u30a1-\u30f6]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
+              
+              let result = "";
+              for (let i = 0; i < kana.length; i++) {
+                  result += romanMap[kana[i]] || kana[i];
+              }
+              return result;
+          }
+      });
+
       // タブ切り替えロジック
       window.activateTab = function(tabName) {
-          // コンテナの表示切替
           const containers = ['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
           containers.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
 
-          // タブのアクティブ状態切替
           const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
           });
 
-          // 選択されたタブの表示
           if (tabName === 'fy') {
               document.getElementById('fy-container').style.display = 'block';
               document.getElementById('tab-fy').classList.add('active');
@@ -248,7 +314,6 @@
               document.getElementById('tab-memo').classList.add('active');
           }
 
-          // ★ タブ切り替え時に確実に一番上にスクロールする
           setTimeout(() => {
               window.scrollTo(0, 0);
               document.documentElement.scrollTop = 0;
@@ -260,9 +325,7 @@
       window.switchMobileSubTab = function(contentId) {
           document.getElementById('mobile-train').classList.add('hidden');
           document.getElementById('mobile-bus').classList.add('hidden');
-          
           document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-          
           document.getElementById(contentId).classList.remove('hidden');
           
           if(contentId === 'mobile-train') {
@@ -292,7 +355,6 @@
           }
       };
 
-      // PC版: iframeで読み込む
       window.loadPcTraffic = function(url, labelElement, title) {
           const iframe = document.getElementById('pc-main-iframe');
           const placeholder = document.getElementById('pc-placeholder-msg');
@@ -302,17 +364,14 @@
           iframe.src = url;
           if(title) headerTitle.textContent = title;
 
-          // アクティブ状態の装飾 (親要素に適用)
           document.querySelectorAll('.pc-traffic-item').forEach(el => el.classList.remove('active'));
-          // ラベルの親要素(pc-traffic-item)を取得してactiveにする
           if(labelElement && labelElement.parentElement) {
               labelElement.parentElement.classList.add('active');
           }
       };
 
-      // PC版: 新しいタブで開く
       window.openNewTab = function(url, event) {
-          event.stopPropagation(); // 親要素のclickイベント(iframe読み込み)を阻止
+          event.stopPropagation(); 
           window.open(url, '_blank');
       }
 
