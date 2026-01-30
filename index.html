@@ -11,17 +11,71 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
   <!-- 外部CSSの読み込み -->
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 検索ボックスのサイズと配置の調整 */
+    .datetime-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-grow: 1;
+    }
+    .header-search-wrap {
+        margin-left: 10px;
+        flex-grow: 1;
+        max-width: 600px; /* 検索ボックスの最大幅 */
+    }
+    .search-container {
+        width: 100% !important;
+        height: 45px !important; /* 高さを少し大きく */
+        background: var(--input-bg, rgba(255,255,255,0.2));
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    #globalSearchInput {
+        width: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: inherit;
+        font-size: 1.1rem; /* 文字サイズを少し大きく */
+        margin-left: 10px;
+    }
+    /* もともとの検索バーエリアを非表示にする（移動させたため） */
+    .search-wrapper {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .header-search-wrap {
+            max-width: none;
+        }
+        .datetime-row {
+            flex-wrap: wrap;
+        }
+    }
+  </style>
 </head>
 <body>
   <div class="fixed-top-wrapper">
     <div class="clock-area">
         <div class="clock-main-row">
-            <div class="left-section">
+            <div class="left-section" style="display: flex; align-items: center; flex-grow: 1;">
                 <img src="./icon.png" alt="Link First Logo" class="site-logo">
                 <div class="datetime-row">
                     <div id="date"></div>
                     <div id="clock"></div>
-                    <div id="countdown"></div>
+                    <!-- 「限目（countdown）」を削除し、ここに検索ボックスを配置 -->
+                    <div class="header-search-wrap">
+                        <div class="search-container"> 
+                            <i class="fas fa-search"></i> 
+                            <input type="text" id="globalSearchInput" placeholder="検索（!でDuckDuckGo）..." autocomplete="off"> 
+                            <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+                        </div>
+                        <div id="searchResults" class="search-results-dropdown hidden"></div>
+                    </div>
                 </div>
             </div>
              <div class="header-controls">
@@ -49,19 +103,10 @@
             </div>
         </div>
     </div>
-    <!-- 検索バー -->
-    <div class="search-wrapper">
-        <div class="search-container"> 
-            <i class="fas fa-search"></i> 
-            <input type="text" id="globalSearchInput" placeholder="検索..." autocomplete="off"> 
-            <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-        </div>
-        <div id="searchResults" class="search-results-dropdown hidden"></div>
-    </div>
   </div>
 
   <div class="page-container">
-      <!-- FYコンテナ: 初期表示にするため display: block を指定 -->
+      <!-- FYコンテナ -->
       <div id="fy-container" style="display: block;">
           <div id="fy-clock-display">
               <div class="fy-clock-group">
@@ -77,7 +122,7 @@
           <div id="fy-content-area"></div>
       </div>
 
-    <!-- メイングアプリ一覧: 初期は非表示にするため display: none を指定 -->
+    <!-- メイングアプリ一覧 -->
     <div class="main-grid" id="main-grid" style="display: none;">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
@@ -87,18 +132,16 @@
 
     <!-- Bustarain (交通) コンテナ -->
     <div id="bustarain-container">
-        
-        <!-- モバイル版 (幅1000px未満) : グリッド表示・新規タブ -->
+        <!-- モバイル版 -->
         <div id="traffic-mobile-view">
             <div class="sub-tab-menu">
                 <button class="sub-tab-btn active" onclick="switchMobileSubTab('mobile-train')"><i class="fas fa-train"></i> Train</button>
                 <button class="sub-tab-btn" onclick="switchMobileSubTab('mobile-bus')"><i class="fas fa-bus"></i> BUS</button>
             </div>
-            
             <div id="mobile-train" class="traffic-grid sub-tab-content">
                 <a href="Bustarain/train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">和田岬</div></div></a>
                 <a href="Bustarain/train/itayado-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">帰）板宿新長田経由海岸線</div></div></a>
-                <a href="Bustrain/train/Itayado-sannyou.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-train"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div></a>
+                <a href="Bustarain/train/Itayado-sannyou.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-train"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">板宿駅（山陽電車）</div></div></a>
             </div>
             <div id="mobile-bus" class="traffic-grid sub-tab-content hidden">
                 <a href="Bustarain/bus/Buslocation.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-map-marked-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バスロケーション</div></div></a>
@@ -111,16 +154,13 @@
             </div>
         </div>
 
-        <!-- PC版 (幅1000px以上) : 分割レイアウト (改良版) -->
+        <!-- PC版 -->
         <div id="traffic-pc-view">
-            <!-- 左側: 表示エリア -->
             <div class="pc-traffic-display">
                 <div class="pc-display-header" id="pc-header-title">Select Info</div>
                 <div class="pc-placeholder" id="pc-placeholder-msg">リストから選択してください</div>
                 <iframe id="pc-main-iframe" src=""></iframe>
             </div>
-
-            <!-- 右側: サイドバー -->
             <div class="pc-traffic-sidebar">
                 <div class="pc-sidebar-header">
                     <div class="scroll-arrow" onclick="scrollTrafficList(-50)"><i class="fas fa-chevron-up"></i></div>
@@ -129,8 +169,6 @@
                         <button class="pc-tab-btn active" id="pc-btn-train" onclick="switchPcTrafficTab('train')">Train</button>
                     </div>
                 </div>
-
-                <!-- Train List -->
                 <div id="pc-list-train" class="pc-traffic-list">
                     <div class="pc-traffic-item">
                         <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/train/wadmisaki-train.html', this, '🚃和田岬')">和田岬</span>
@@ -141,12 +179,10 @@
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/train/itayado-train.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
                     <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustaraian/train/Itayado-sannyou.html', this, '🚃板宿駅（山陽電車）')">板宿駅（山陽電車）</span>
+                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/train/Itayado-sannyou.html', this, '🚃板宿駅（山陽電車）')">板宿駅（山陽電車）</span>
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/train/Itayado-sannyou.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
                 </div>
-
-                <!-- Bus List -->
                 <div id="pc-list-bus" class="pc-traffic-list hidden">
                     <div class="pc-traffic-item">
                         <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/Buslocation.html', this, 'バスロケーション')">🚌バスロケーション</span>
@@ -177,7 +213,6 @@
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/bus/Itayado-bus.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
                 </div>
-
                 <div class="pc-sidebar-footer">
                     <div class="scroll-arrow" onclick="scrollTrafficList(50)"><i class="fas fa-chevron-down"></i></div>
                 </div>
@@ -194,7 +229,6 @@
   </div>
 
   <nav class="bottom-nav">
-      <!-- FYタブに active クラスを移動 -->
       <div class="tab-item active" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
       <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
@@ -205,7 +239,6 @@
   <div id="bg-select-overlay" class="modal-overlay hidden">
       <div class="modal-box">
           <div class="modal-title">背景を設定</div>
-          <div class="modal-desc" style="margin-bottom:20px;">端末内の画像を選択してください</div>
           <input type="file" id="bg-file-input" accept="image/*" style="display:block; margin:0 auto 20px auto;">
           <div class="modal-buttons">
               <button class="modal-btn btn-cancel" onclick="closeBgModal()">キャンセル</button>
@@ -219,50 +252,35 @@
   <script>
       /**
        * 検索ボックスの特殊コマンド処理
-       * 「!」または「！」で始まる場合、ローマ字変換してDuckDuckGoで検索
        */
       document.addEventListener('DOMContentLoaded', () => {
           const searchInput = document.getElementById('globalSearchInput');
-
           if (searchInput) {
               searchInput.addEventListener('keydown', (e) => {
                   if (e.key === 'Enter') {
                       const val = searchInput.value.trim();
-
-                      // 先頭が「!」または「！」の場合
                       if (val.startsWith('!') || val.startsWith('！')) {
-                          e.preventDefault(); // 通常の検索処理を止める
-
-                          // 「!」以降の文字列を取得
+                          e.preventDefault();
                           let query = val.substring(1);
-
-                          // 1. 全角英数字を半角に変換、2. ひらがなをローマ字に変換
                           query = kanaToRoman(query);
-
                           if (query.length > 0) {
                               const url = `https://duckduckgo.com/?q=!${encodeURIComponent(query)}&t=ipad&ia=web`;
                               window.open(url, '_blank');
-                              searchInput.value = ''; // 入力欄を空にする
+                              searchInput.value = '';
                           }
                       }
                   }
               });
           }
 
-          /**
-           * ひらがな・カタカナをローマ字に変換し、全角英数も半角にする関数
-           */
           function kanaToRoman(str) {
-              // 全角英数字・記号を半角に変換
               let res = str.replace(/[！-～]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-
-              // ひらがな/カタカナ -> ローマ字 変換テーブル（簡易版）
               const romanMap = {
                   'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
                   'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
                   'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
                   'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
-                  'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ni', 'の': 'no',
+                  'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
                   'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
                   'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
                   'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
@@ -272,12 +290,9 @@
                   'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
                   'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
                   'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
-                  'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pa', 'ぽ': 'po'
+                  'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po'
               };
-
-              // カタカナをひらがなに変換してからローマ字へ
               let kana = res.replace(/[\u30a1-\u30f6]/g, s => String.fromCharCode(s.charCodeAt(0) - 0x60));
-              
               let result = "";
               for (let i = 0; i < kana.length; i++) {
                   result += romanMap[kana[i]] || kana[i];
@@ -293,13 +308,11 @@
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-
           const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
           });
-
           if (tabName === 'fy') {
               document.getElementById('fy-container').style.display = 'block';
               document.getElementById('tab-fy').classList.add('active');
@@ -313,21 +326,15 @@
               document.getElementById('memo-container').style.display = 'block';
               document.getElementById('tab-memo').classList.add('active');
           }
-
-          setTimeout(() => {
-              window.scrollTo(0, 0);
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-          }, 10);
+          window.scrollTo(0, 0);
       };
 
-      // モバイル版のサブタブ切り替え
+      // モバイルサブタブ
       window.switchMobileSubTab = function(contentId) {
           document.getElementById('mobile-train').classList.add('hidden');
           document.getElementById('mobile-bus').classList.add('hidden');
           document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
           document.getElementById(contentId).classList.remove('hidden');
-          
           if(contentId === 'mobile-train') {
               document.querySelector('.sub-tab-btn:nth-child(1)').classList.add('active');
           } else {
@@ -335,23 +342,18 @@
           }
       };
 
-      // PC版 Traffic ロジック
+      // PC Traffic
       window.switchPcTrafficTab = function(type) {
           const trainList = document.getElementById('pc-list-train');
           const busList = document.getElementById('pc-list-bus');
           const btnTrain = document.getElementById('pc-btn-train');
           const btnBus = document.getElementById('pc-btn-bus');
-
           if (type === 'train') {
-              trainList.classList.remove('hidden');
-              busList.classList.add('hidden');
-              btnTrain.classList.add('active');
-              btnBus.classList.remove('active');
+              trainList.classList.remove('hidden'); busList.classList.add('hidden');
+              btnTrain.classList.add('active'); btnBus.classList.remove('active');
           } else {
-              trainList.classList.add('hidden');
-              busList.classList.remove('hidden');
-              btnTrain.classList.remove('active');
-              btnBus.classList.add('active');
+              trainList.classList.add('hidden'); busList.classList.remove('hidden');
+              btnTrain.classList.remove('active'); btnBus.classList.add('active');
           }
       };
 
@@ -359,40 +361,29 @@
           const iframe = document.getElementById('pc-main-iframe');
           const placeholder = document.getElementById('pc-placeholder-msg');
           const headerTitle = document.getElementById('pc-header-title');
-          
           placeholder.style.display = 'none';
           iframe.src = url;
           if(title) headerTitle.textContent = title;
-
           document.querySelectorAll('.pc-traffic-item').forEach(el => el.classList.remove('active'));
-          if(labelElement && labelElement.parentElement) {
-              labelElement.parentElement.classList.add('active');
-          }
+          if(labelElement && labelElement.parentElement) labelElement.parentElement.classList.add('active');
       };
 
       window.openNewTab = function(url, event) {
-          event.stopPropagation(); 
-          window.open(url, '_blank');
+          event.stopPropagation(); window.open(url, '_blank');
       }
 
       window.scrollTrafficList = function(amount) {
           const activeList = document.querySelector('.pc-traffic-list:not(.hidden)');
-          if(activeList) {
-              activeList.scrollBy({ top: amount, behavior: 'smooth' });
-          }
+          if(activeList) activeList.scrollBy({ top: amount, behavior: 'smooth' });
       };
 
-      // メモ帳の自動保存ロジック
+      // メモ帳
       document.addEventListener('DOMContentLoaded', () => {
           const memoPad = document.getElementById('memo-pad');
           const memoStatus = document.getElementById('memo-status');
-
           if (memoPad) {
               const savedMemo = localStorage.getItem('userMemo');
-              if (savedMemo) {
-                  memoPad.value = savedMemo;
-              }
-
+              if (savedMemo) memoPad.value = savedMemo;
               let timeoutId;
               memoPad.addEventListener('input', () => {
                   memoStatus.textContent = '保存中...';
