@@ -198,10 +198,10 @@ const initialAppData = [
   { id: 85, label: "シャーロックホームズ 電子書籍1", url: "https://221b.jp", icon: "https://221b.jp/favicon.ico", searchText: "シャーロックホームズ 電子書籍1" },
   { id: 86, label: "シャーロックホームズ 電子書籍2", url: "https://book.shishin-kyoto.com", icon: "https://book.shishin-kyoto.com/favicon.ico", searchText: "シャーロックホームズ 電子書籍2" },
   { id: 87, label: "アーサーコナンドイル 電子書籍", url: "https://www.aozora.gr.jp/index_pages/person9.html", icon: "https://www.aozora.gr.jp/index_pages/person9.html/favicon.ico", searchText: "アーサーコナンドイル" },
-  { id: 88, label: "公式ライン Mannager", url: "https://manager.line.biz/", icon: "https://manager.line.biz//favicon.ico", searchText: "公式ライン Manager" },
-  { id: 89, label: "Duck duck go Bang", url: "https://manager.line.biz/", icon: "https://manager.line.biz//favicon.ico", searchText: "duck Bang" },
-  { id: 90, label: "Vercel", url: "https://manager.line.biz/", icon: "https://manager.line.biz//favicon.ico", searchText: "vercel" },
-  { id: 91, label: "PageSpeed Insights", url: "https://manager.line.biz/", icon: "https://manager.line.biz//favicon.ico", searchText: "PageSpeed Insights" },
+  { id: 88, label: "公式ライン Mannager", url: "https://manager.line.biz/", icon: "https://manager.line.biz/favicon.ico", searchText: "公式ライン Manager" },
+  { id: 89, label: "Duck duck go Bang", url: "https://duckduckgo.com/bangs", icon: "https://duckduckgo.com/bangs/favicon.ico", searchText: "duck Bang" },
+  { id: 90, label: "Vercel", url: "https://vercel.com/supertasus-projects", icon: "https://vercel.com/supertasus-projects/favicon.ico", searchText: "vercel" },
+  { id: 91, label: "PageSpeed Insights", url: "https://pagespeed.web.dev/", icon: "https://pagespeed.web.dev/favicon.ico", searchText: "PageSpeed Insights" },
 ];
 const FAV_KEY = 'myLinkAppFavorites';
 const BG_KEY = 'myLinkAppBg';
