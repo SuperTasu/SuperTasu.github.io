@@ -1,102 +1,38 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>JR神戸線 遅延情報</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .train {
-      background: white;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .delay {
-      color: red;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>JR神戸線 遅延・運行情報</title>
 </head>
 <body>
+    <h1>JR神戸線（JR西日本） 運行情報</h1>
+    <button id="refresh">更新</button>
+    <div id="status">読み込み中…</div>
 
-<h1>JR神戸線 遅延情報</h1>
-<div id="result">読み込み中...</div>
+    <script>
+        async function getStatus() {
+            try {
+                // JR西日本運行情報（近畿エリア）
+                const response = await fetch("https://trafficinfo.westjr.co.jp/kinki.html");
+                const text = await response.text();
 
-<script>
-const TRAIN_URL = "https://www.train-guide.westjr.co.jp/api/v3/kobesanyo.json";
-const STATION_URL = "https://www.train-guide.westjr.co.jp/api/v3/kobesanyo_st.json";
+                // 得られた HTML をパース
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, "text/html");
 
-// 対象駅（神戸・三ノ宮）
-const TARGET_STATIONS = ["神戸", "三ノ宮"];
+                // 遅延情報部分（例: li要素内のテキスト）
+                const items = Array.from(doc.querySelectorAll("#contents .status li"));
+                const info = items.map(li => li.textContent.trim()).join("<br>");
 
-async function loadTrainInfo() {
-  try {
-    // JSON取得
-    const trainRes = await fetch(TRAIN_URL);
-    const stationRes = await fetch(STATION_URL);
-
-    const trainData = await trainRes.json();
-    const stationData = await stationRes.json();
-
-    // 駅コード → 駅名 変換用
-    const stationMap = {};
-    stationData.stations.forEach(st => {
-      stationMap[st.info.code] = st.info.name;
-    });
-
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerHTML = "";
-
-    let found = false;
-
-    trainData.trains.forEach(train => {
-      const delay = train.delayMinutes;
-      if (delay > 0) {
-        const posCode = train.pos;
-        const stationName = stationMap[posCode] || "";
-
-        // 神戸駅 or 三ノ宮駅 付近の列車だけ
-        if (TARGET_STATIONS.some(name => stationName.includes(name))) {
-          found = true;
-
-          const div = document.createElement("div");
-          div.className = "train";
-          div.innerHTML = `
-            <div>種別：${train.trainType}</div>
-            <div>行先：${train.destination}</div>
-            <div class="delay">${delay} 分遅れ</div>
-            <div>現在位置：${stationName} 付近</div>
-          `;
-          resultDiv.appendChild(div);
+                document.getElementById("status").innerHTML = info || "運行状況が取得できませんでした";
+            } catch (error) {
+                document.getElementById("status").innerHTML = "取得エラー: " + error;
+            }
         }
-      }
-    });
 
-    if (!found) {
-      resultDiv.textContent = "現在、神戸駅・三ノ宮駅付近で遅延している列車はありません。";
-    }
+        document.getElementById("refresh").addEventListener("click", getStatus);
 
-  } catch (e) {
-    document.getElementById("result").textContent = "データ取得に失敗しました。";
-    console.error(e);
-  }
-}
-
-// 初回読み込み
-loadTrainInfo();
-
-// 30秒ごとに更新
-setInterval(loadTrainInfo, 30000);
-</script>
-
+        getStatus(); // 初回読み込み
+    </script>
 </body>
 </html>
