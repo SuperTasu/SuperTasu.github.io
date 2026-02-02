@@ -124,8 +124,8 @@ const initialAppData = [
   },
   {
     id: 25, label: "YouTube", url: "https://www.youtube.com",
-    urlA: "", iconA: "fas fa-bell", titleA: "登録済み",
-    urlB: "", iconB: "fas fa-play", titleB: "Short動画",
+    urlA: "https://www.youtube.com/feed/subscriptions", iconA: "fas fa-bell", titleA: "登録済み",
+    urlB: "https://www.youtube.com/feed/subscriptions/shorts", iconB: "fas fa-play", titleB: "Short動画",
     icon: ".ico", searchText: "YouTube ユーチューブ"
   },
   { id: 26, label: "TikTok", url: "https://www.tiktok.com", urlA: "https://www.tiktok.com/notifications", iconA: "fas fa-bell", urlB: "https://www.tiktok.com/messages", iconB: "fas fa-comment", icon: "https://www.tiktok.com/favicon.ico", searchText: "TikTok ティックトック" },
