@@ -1,41 +1,284 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>電光掲示板 - 和田岬</title>
-  <style>
-    body { background-color: white; color: #0056b3; font-family: 'Arial', sans-serif; text-align: center; margin: 0; padding: 20px; }
-    h1 { margin: 0; font-size: 32px; }
-    #clock { font-size: 24px; margin-bottom: 20px; }
-    .row { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
-    .direction { border: 3px solid #87CEFA; background-color: white; padding: 20px; border-radius: 10px; width: 450px; box-sizing: border-box; text-align: left; }
-    .title { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
-    .entry { font-size: clamp(14px, 1.8vw, 18px); margin: 10px 0; overflow-wrap: break-word; white-space: normal; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和田岬駅 次列車案内 - シミュレーター付</title>
+    <style>
+        :root {
+            --kaigan-blue: #005595;
+            --accent-orange: #ff9800;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --holiday-red: #e60012;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* シミュレーター設定エリア */
+        .simulator-panel {
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        .simulator-panel input, .simulator-panel button {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
+        .simulator-panel button {
+            background: var(--kaigan-blue);
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ヘッダー */
+        .header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            border-bottom: 4px solid var(--kaigan-blue);
+            padding-bottom: 10px;
+        }
+        .station-name { font-size: 28px; font-weight: bold; margin: 0; }
+        .clock-box { text-align: right; }
+        #clock { font-size: 32px; font-weight: bold; font-family: monospace; color: var(--kaigan-blue); }
+
+        /* コンテナレイアウト */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .direction-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .dir-header {
+            background: var(--kaigan-blue);
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* 先発・次発のスタイル */
+        .main-trains { padding: 15px; border-bottom: 2px dashed #eee; }
+        .train-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .train-row.first { border-left: 5px solid var(--accent-orange); padding-left: 10px; }
+        
+        .tag { font-size: 12px; padding: 2px 6px; border-radius: 3px; color: white; font-weight: bold; }
+        .tag-first { background: var(--accent-orange); }
+        .tag-next { background: #666; }
+
+        .time-display { font-size: 36px; font-weight: bold; color: var(--kaigan-blue); }
+        .first .time-display { font-size: 48px; }
+        
+        .countdown { font-size: 16px; font-weight: bold; color: var(--accent-orange); }
+
+        /* 3つ目以降のリスト */
+        .sub-trains { padding: 10px 15px; background: #fafafa; }
+        .sub-title { font-size: 12px; color: #888; margin-bottom: 8px; font-weight: bold; }
+        .sub-item { display: flex; justify-content: space-between; font-size: 18px; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .sub-item:last-child { border-bottom: none; }
+
+        @media (max-width: 600px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <h1>K06 和田岬</h1>
-  <div id="clock">--:--:--</div>
-  <div class="row">
-    <div class="direction">
-      <div class="title">三宮・花時計前方面行</div>
-      <div id="sannomiya"></div>
+
+<div class="simulator-panel">
+    <div><strong>検証用日時設定:</strong></div>
+    <input type="datetime-local" id="sim-time-input">
+    <button onclick="setSimulatedTime()">時間を適用</button>
+    <button onclick="resetTime()" style="background:#666;">現在時刻に戻す</button>
+</div>
+
+<div class="header">
+    <div>
+        <span style="color:var(--kaigan-blue); font-weight:bold;">K06</span>
+        <h1 class="station-name">和田岬 <small style="font-size:14px; font-weight:normal;">Wadamisaki</small></h1>
     </div>
-    <div class="direction">
-      <div class="title">新長田方面行</div>
-      <div id="shinNagata"></div>
+    <div class="clock-box">
+        <div id="clock">00:00:00</div>
+        <div id="date-label" style="font-size:12px; font-weight:bold;"></div>
     </div>
-  </div>
-  <script>
-    function isHoliday(date) { return date.getDay() === 0 || date.getDay() === 6; }
-    const sannomiyaWeekday={5:[41,57],6:[16,27,46,49],7:[3,11,19,28,38,44,50,56],8:[2,8,14,20,26,32,38,44,50,58],9:[6,16,26,36,46,56],10:[6,16,26,36,46,56],11:[6,16,26,36,46,56],12:[6,16,26,36,46,56],13:[6,16,26,36,46,56],14:[6,16,26,36,46,56],15:[6,16,26,36,46,56],16:[6,16,26,36,46,56],17:[6,13,21,29,36,43,51,58],18:[6,13,21,28,36,43,51,58],19:[6,16,26,36,46,56],20:[6,16,26,36,46,56],21:[6,16,26,36,47,59],22:[11,23,35,51],23:[5,21,36,52]};
-    const sannomiyaHoliday={5:[41,57],6:[15,26,41,51],7:[1,11,21,31,41,47,51],8:[1,8,16,23,31,38,46,56],9:[6,16,26,36,46,56],10:[6,16,26,36,46,56],11:[6,16,26,36,46,56],12:[6,16,26,36,46,56],13:[6,16,26,36,46,56],14:[6,16,26,36,46,56],15:[6,16,26,36,46,56],16:[6,16,26,36,46,56],17:[6,16,26,36,46,56],18:[6,16,26,36,46,56],19:[6,16,26,36,46,56],20:[6,16,26,36,46,56],21:[6,16,26,36,47,59],22:[11,23,35,51],23:[5,21,36,52]};
-    const shinNagataWeekday={5:[51],6:[6,21,36,47,58],7:[9,16,22,29,35,41,47,53,59],8:[5,11,17,23,29,35,41,47,54],9:[0,9,13,18,28,38,48,58],10:[8,18,28,38,48,58],11:[8,18,28,38,48,58],12:[8,18,28,38,48,58],13:[8,18,28,38,48,58],14:[8,18,28,38,48,58],15:[8,18,28,38,48,58],16:[8,18,28,38,48,58],17:[8,18,27,34,42,49,57],18:[4,12,19,27,34,42,49,57],19:[4,12,19,28,38,48,58],20:[8,18,28,38,48,58],21:[8,18,28,38,50],22:[1,13,25,37,48],23:[0,13,28,44,59]};
-    const shinNagataHoliday={5:[51],6:[6,21,37,51],7:[3,13,23,33,43,52],8:[1,7,14,22,29,37,44,52,59],9:[8,18,28,38,48,58],10:[8,18,28,38,48,58],11:[8,18,28,38,48,58],12:[8,18,28,38,48,58],13:[8,18,28,38,48,58],14:[8,18,28,38,48,58],15:[8,18,28,38,48,58],16:[8,18,28,38,48,58],17:[8,18,28,38,48,58],18:[8,18,28,38,48,58],19:[8,18,28,38,48,58],20:[8,18,28,38,48,58],21:[8,18,28,38,50],22:[1,13,25,37,48],23:[0,13,28,44,59]};
-    function getUpcomingTimes(timetable){const now=new Date,h=now.getHours(),m=now.getMinutes();let results=[];for(let hour=h;hour<=23;hour++)if(timetable[hour])for(let min of timetable[hour]){if(hour===h&&min<m)continue;const dep=new Date;dep.setHours(hour,min,0,0);const diff=Math.floor((dep-now)/1e3);if(diff>=0){if(results.push({hour:hour,minute:min.toString().padStart(2,"0"),remaining:diff}),results.length>=2)return results}}return results}
-    function formatMMSS(seconds){const m=Math.floor(seconds/60).toString().padStart(2,"0"),s=(seconds%60).toString().padStart(2,"0");return`${m}:${s}`}
-    function updateDisplay(){const now=new Date;document.getElementById("clock").textContent=now.toLocaleTimeString("ja-JP",{hour12:!1});const isHolidayToday=isHoliday(now),sannomiya=isHolidayToday?sannomiyaHoliday:sannomiyaWeekday,shinNagata=isHolidayToday?shinNagataHoliday:shinNagataWeekday,upcomingSannomiya=getUpcomingTimes(sannomiya),upcomingNagata=getUpcomingTimes(shinNagata);document.getElementById("sannomiya").innerHTML=upcomingSannomiya.map((train,index)=>`<div class="entry">${index===0?"先発":"次発"}　${train.hour}:${train.minute}　三宮・花時計前方面行　残り${formatMMSS(train.remaining)}</div>`).join(""),document.getElementById("shinNagata").innerHTML=upcomingNagata.map((train,index)=>`<div class="entry">${index===0?"先発":"次発"}　${train.hour}:${train.minute}　新長田方面行　残り${formatMMSS(train.remaining)}</div>`).join("")}
-    setInterval(updateDisplay,1e3),updateDisplay();
-  </script>
+</div>
+
+<div class="container">
+    <!-- 三宮方面 -->
+    <div class="direction-card">
+        <div class="dir-header">三宮・花時計前 方面</div>
+        <div id="sannomiya-ui"></div>
+    </div>
+
+    <!-- 新長田方面 -->
+    <div class="direction-card">
+        <div class="dir-header">新長田 方面</div>
+        <div id="shinNagata-ui"></div>
+    </div>
+</div>
+
+<div id="info-bar" style="margin-top:20px; font-size:12px; color:#666;"></div>
+
+<script>
+    let customTime = null;
+
+    // --- 時刻表データ ---
+    const oldData = {
+        sannomiya: {
+            weekday: {5:[41,57],6:[16,27,46,49],7:[3,11,19,28,38,44,50,56],8:[2,8,14,20,26,32,38,44,50,58],9:[6,16,26,36,46,56],10:[6,16,26,36,46,56],11:[6,16,26,36,46,56],12:[6,16,26,36,46,56],13:[6,16,26,36,46,56],14:[6,16,26,36,46,56],15:[6,16,26,36,46,56],16:[6,16,26,36,46,56],17:[6,13,21,29,36,43,51,58],18:[6,13,21,28,36,43,51,58],19:[6,16,26,36,46,56],20:[6,16,26,36,46,56],21:[6,16,26,36,47,59],22:[11,23,35,51],23:[5,21,36,52]},
+            holiday: {5:[41,57],6:[15,26,41,51],7:[1,11,21,31,41,47,51],8:[1,8,16,23,31,38,46,56],9:[6,16,26,36,46,56],10:[6,16,26,36,46,56],11:[6,16,26,36,46,56],12:[6,16,26,36,46,56],13:[6,16,26,36,46,56],14:[6,16,26,36,46,56],15:[6,16,26,36,46,56],16:[6,16,26,36,46,56],17:[6,16,26,36,46,56],18:[6,16,26,36,46,56],19:[6,16,26,36,46,56],20:[6,16,26,36,46,56],21:[6,16,26,36,47,59],22:[11,23,35,51],23:[5,21,36,52]}
+        },
+        shinNagata: {
+            weekday: {5:[51],6:[6,21,36,47,58],7:[9,16,22,29,35,41,47,53,59],8:[5,11,17,23,29,35,41,47,54],9:[0,9,13,18,28,38,48,58],10:[8,18,28,38,48,58],11:[8,18,28,38,48,58],12:[8,18,28,38,48,58],13:[8,18,28,38,48,58],14:[8,18,28,38,48,58],15:[8,18,28,38,48,58],16:[8,18,28,38,48,58],17:[8,18,27,34,42,49,57],18:[4,12,19,27,34,42,49,57],19:[4,12,19,28,38,48,58],20:[8,18,28,38,48,58],21:[8,18,28,38,50],22:[1,13,25,37,48],23:[0,13,28,44,59]},
+            holiday: {5:[51],6:[6,21,37,51],7:[3,13,23,33,43,52],8:[1,7,14,22,29,37,44,52,59],9:[8,18,28,38,48,58],10:[8,18,28,38,48,58],11:[8,18,28,38,48,58],12:[8,18,28,38,48,58],13:[8,18,28,38,48,58],14:[8,18,28,38,48,58],15:[8,18,28,38,48,58],16:[8,18,28,38,48,58],17:[8,18,28,38,48,58],18:[8,18,28,38,48,58],19:[8,18,28,38,48,58],20:[8,18,28,38,48,58],21:[8,18,28,38,50],22:[1,13,25,37,48],23:[0,13,28,44,59]}
+        }
+    };
+
+    const newData = {
+        sannomiya: {
+            weekday: {5:[42,58],6:[13,26,38,49,55],7:[1,7,13,19,25,31,37,43,49,55],8:[1,7,13,19,25,31,37,43,49,55],9:[3,12,24,39,54],10:[9,24,39,54],11:[9,24,39,54],12:[9,24,39,54],13:[9,24,39,54],14:[9,24,39,54],15:[9,24,39,54],16:[7,17,27,37,47,53,57],17:[7,15,22,30,37,45,52],18:[0,7,15,22,30,37,45,52],19:[1,11,21,31,41,51],20:[1,12,24,39,54],21:[9,24,39,54],22:[9,24,39,54],23:[9,29,52]},
+            holiday: {5:[42],6:[1,20,39,54],7:[9,24,39,54],8:[9,24,39,54],9:[9,24,39,54],10:[9,24,39,54],11:[9,24,39,54],12:[9,24,39,54],13:[9,24,39,54],14:[9,24,39,54],15:[9,24,39,54],16:[9,24,39,54],17:[9,24,39,54],18:[9,24,39,54],19:[9,24,39,54],20:[9,24,39,54],21:[9,24,39,54],22:[9,24,39,54],23:[9,29,52]}
+        },
+        shinNagata: {
+            weekday: {5:[52],6:[7,22,36,49],7:[0,11,18,24,30,36,42,48,54],8:[0,6,12,18,24,30,36,42,48,54],9:[0,6,12,19,34,49],10:[1,4,20,35,50],11:[5,20,35,50],12:[5,20,35,50],13:[5,20,35,50],14:[5,20,35,50],15:[5,19,34,49],16:[4,19,29,39,49,59],17:[10,17,25,32,40,47,55],18:[2,10,17,25,32,40,47,55],19:[4,13,18,23,33,43,53],20:[4,19,27,34,49],21:[4,19,34,49],22:[4,19,34,49],23:[4,22,40],0:[0]},
+            holiday: {5:[52],6:[11,30,49],7:[4,19,34,49],8:[4,19,34,49],9:[4,19,34,49],10:[4,20,35,50],11:[5,20,35,50],12:[5,20,35,50],13:[5,20,35,50],14:[5,20,35,50],15:[4,19,34,49],16:[4,19,34,49],17:[4,19,34,49],18:[4,19,34,49],19:[4,19,34,49],20:[4,19,34,49],21:[4,19,34,49],22:[4,19,34,49],23:[4,22,40],0:[0]}
+        }
+    };
+
+    function setSimulatedTime() {
+        const val = document.getElementById('sim-time-input').value;
+        if (val) {
+            customTime = new Date(val);
+            update();
+        }
+    }
+
+    function resetTime() {
+        customTime = null;
+        update();
+    }
+
+    function update() {
+        const now = customTime ? new Date(customTime) : new Date();
+        const switchDate = new Date('2026-03-14T00:00:00');
+        const isNew = now >= switchDate;
+        const data = isNew ? newData : oldData;
+        const isHol = now.getDay() === 0 || now.getDay() === 6;
+
+        // 表示更新
+        document.getElementById('clock').innerText = now.toLocaleTimeString('ja-JP', {hour12:false});
+        const dateStr = now.toLocaleDateString('ja-JP', {year:'numeric', month:'long', day:'numeric', weekday:'short'});
+        const holLabel = isHol ? '<span style="color:var(--holiday-red)">【土休日ダイヤ】</span>' : '【平日ダイヤ】';
+        document.getElementById('date-label').innerHTML = `${dateStr} ${holLabel}`;
+        
+        document.getElementById('info-bar').innerText = isNew ? "表示中：令和8年3月14日改正ダイヤ" : "表示中：旧ダイヤ (2026/3/14に自動切替)";
+
+        renderList('sannomiya-ui', isHol ? data.sannomiya.holiday : data.sannomiya.weekday, now);
+        renderList('shinNagata-ui', isHol ? data.shinNagata.holiday : data.shinNagata.weekday, now);
+
+        // シミュレーターの場合、1秒ずつ進める
+        if (customTime) customTime.setSeconds(customTime.getSeconds() + 1);
+    }
+
+    function renderList(id, table, now) {
+        const trains = getNextTrains(table, now, 5);
+        const container = document.getElementById(id);
+
+        if (trains.length === 0) {
+            container.innerHTML = "<div style='padding:20px; color:#999;'>本日の運転は終了しました</div>";
+            return;
+        }
+
+        let html = '<div class="main-trains">';
+        // 先発
+        html += `<div class="train-row first">
+                    <div><span class="tag tag-first">先発</span></div>
+                    <div class="time-display">${trains[0].h}:${trains[0].m}</div>
+                    <div class="countdown">あと ${trains[0].diff} 分</div>
+                 </div>`;
+        // 次発
+        if (trains[1]) {
+            html += `<div class="train-row">
+                        <div><span class="tag tag-next">次発</span></div>
+                        <div class="time-display" style="font-size:28px;">${trains[1].h}:${trains[1].m}</div>
+                        <div style="font-size:14px; color:#666;">(+${trains[1].diff}分)</div>
+                     </div>`;
+        }
+        html += '</div>';
+
+        // 3つ目以降
+        if (trains.length > 2) {
+            html += '<div class="sub-trains"><div class="sub-title">その後の列車</div>';
+            for (let i = 2; i < trains.length; i++) {
+                html += `<div class="sub-item">
+                            <span style="font-size:12px; color:#888;">${i+1}番目</span>
+                            <span>${trains[i].h}:${trains[i].m}</span>
+                         </div>`;
+            }
+            html += '</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    function getNextTrains(table, now, count) {
+        const h = now.getHours();
+        const m = now.getMinutes();
+        const results = [];
+
+        for (let i = 0; i < 24; i++) {
+            let hour = (h + i) % 24;
+            if (table[hour]) {
+                for (let min of table[hour]) {
+                    if (i === 0 && min <= m) continue;
+                    let diff = (i * 60) + (min - m);
+                    results.push({
+                        h: hour.toString().padStart(2, '0'),
+                        m: min.toString().padStart(2, '0'),
+                        diff: diff
+                    });
+                    if (results.length >= count) return results;
+                }
+            }
+        }
+        return results;
+    }
+
+    setInterval(update, 1000);
+    update();
+</script>
+
 </body>
 </html>
