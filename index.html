@@ -131,19 +131,13 @@
     </div>
 
     <!-- Bustarain (交通) コンテナ -->
-    <div id="bustarain-container">
+    <div id="bustarain-container" style="display: none;">
         <!-- モバイル版 -->
         <div id="traffic-mobile-view">
-            <div class="sub-tab-menu">
-                <button class="sub-tab-btn active" onclick="switchMobileSubTab('mobile-train')"><i class="fas fa-train"></i> Train</button>
-                <button class="sub-tab-btn" onclick="switchMobileSubTab('mobile-bus')"><i class="fas fa-bus"></i> BUS</button>
-            </div>
-            <div id="mobile-train" class="traffic-grid sub-tab-content">
-                <a href="Bustarain/train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">和田岬</div></div></a>
-            </div>
-            <div id="mobile-bus" class="traffic-grid sub-tab-content hidden">
+            <div id="mobile-traffic-all" class="traffic-grid sub-tab-content" style="margin-top: 15px;">
+                <a href="Bustarain/train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">電車一覧</div></div></a>
                 <a href="Bustarain/bus/Buslocation.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-map-marked-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バスロケーション</div></div></a>
-                <a href="Bustarain/bus/imadezaike.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">今出在家</div></div></a>
+                <a href="Bustarain/bus/imadezaike.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バス時刻一覧</div></div></a>
             </div>
         </div>
 
@@ -157,24 +151,18 @@
             <div class="pc-traffic-sidebar">
                 <div class="pc-sidebar-header">
                     <div class="scroll-arrow" onclick="scrollTrafficList(-50)"><i class="fas fa-chevron-up"></i></div>
-                    <div class="pc-traffic-tabs">
-                        <button class="pc-tab-btn" id="pc-btn-bus" onclick="switchPcTrafficTab('bus')">BUS</button>
-                        <button class="pc-tab-btn active" id="pc-btn-train" onclick="switchPcTrafficTab('train')">Train</button>
-                    </div>
                 </div>
-                <div id="pc-list-train" class="pc-traffic-list">
+                <div id="pc-list-all" class="pc-traffic-list">
                     <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/train/wadmisaki-train.html', this, '🚃和田岬')">和田岬</span>
+                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/train/wadmisaki-train.html', this, '🚃電車一覧')">電車一覧</span>
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/train/wadmisaki-train.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
-                </div>
-                <div id="pc-list-bus" class="pc-traffic-list hidden">
                     <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/Buslocation.html', this, 'バスロケーション')">🚌バスロケーション</span>
+                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/Buslocation.html', this, '🚌バスロケーション')">バスロケーション</span>
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/bus/Buslocation.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
                     <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/imadezaike.html', this, '今出在家')">🚌和田岬(bus)〜中央市場前(bus)</span>
+                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/imadezaike.html', this, '🚌バス時刻一覧')">バス時刻一覧</span>
                         <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/bus/imadezaike.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
                     </div>
                 </div>
@@ -186,7 +174,7 @@
     </div>
 
     <!-- メモ帳 コンテナ -->
-    <div id="memo-container">
+    <div id="memo-container" style="display: none;">
         <h3 class="section-title"><i class="fas fa-sticky-note"></i> メモ帳 (Auto Save)</h3>
         <textarea id="memo-pad" placeholder="ここにメモを入力..."></textarea>
         <div id="memo-status"></div>
@@ -273,7 +261,7 @@
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-          const tabs =['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
+          const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
@@ -294,34 +282,7 @@
           window.scrollTo(0, 0);
       };
 
-      // モバイルサブタブ
-      window.switchMobileSubTab = function(contentId) {
-          document.getElementById('mobile-train').classList.add('hidden');
-          document.getElementById('mobile-bus').classList.add('hidden');
-          document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
-          document.getElementById(contentId).classList.remove('hidden');
-          if(contentId === 'mobile-train') {
-              document.querySelector('.sub-tab-btn:nth-child(1)').classList.add('active');
-          } else {
-              document.querySelector('.sub-tab-btn:nth-child(2)').classList.add('active');
-          }
-      };
-
-      // PC Traffic
-      window.switchPcTrafficTab = function(type) {
-          const trainList = document.getElementById('pc-list-train');
-          const busList = document.getElementById('pc-list-bus');
-          const btnTrain = document.getElementById('pc-btn-train');
-          const btnBus = document.getElementById('pc-btn-bus');
-          if (type === 'train') {
-              trainList.classList.remove('hidden'); busList.classList.add('hidden');
-              btnTrain.classList.add('active'); btnBus.classList.remove('active');
-          } else {
-              trainList.classList.add('hidden'); busList.classList.remove('hidden');
-              btnTrain.classList.remove('active'); btnBus.classList.add('active');
-          }
-      };
-
+      // PC Traffic (リストクリック時の処理)
       window.loadPcTraffic = function(url, labelElement, title) {
           const iframe = document.getElementById('pc-main-iframe');
           const placeholder = document.getElementById('pc-placeholder-msg');
