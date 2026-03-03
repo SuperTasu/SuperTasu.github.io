@@ -67,7 +67,7 @@
                 <div class="datetime-row">
                     <div id="date"></div>
                     <div id="clock"></div>
-                    <!-- 検索ボックス -->
+                    <!-- 「限目（countdown）」を削除し、ここに検索ボックスを配置 -->
                     <div class="header-search-wrap">
                         <div class="search-container"> 
                             <i class="fas fa-search"></i> 
@@ -106,8 +106,24 @@
   </div>
 
   <div class="page-container">
+      <!-- FYコンテナ -->
+      <div id="fy-container" style="display: block;">
+          <div id="fy-clock-display">
+              <div class="fy-clock-group">
+                  <div id="fy-date-text" class="fy-date-text"></div>
+                  <div id="fy-time-text" class="fy-time-text"></div>
+              </div>
+              <div id="fy-speed-test-placeholder"></div>
+          </div>
+          <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
+              <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer; background:var(--input-bg); border:1px solid #ccc;">並び替え</button>
+          </div>
+          <div id="fy-content-area"></div>
+      </div>
+
     <!-- メイングアプリ一覧 -->
-    <div class="main-grid" id="main-grid" style="display: block;">
+    <div class="main-grid" id="main-grid" style="display: none;">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             <div class="grid-container" id="gridContainer"></div>
@@ -156,11 +172,20 @@
             </div>
         </div>
     </div>
+
+    <!-- メモ帳 コンテナ -->
+    <div id="memo-container" style="display: none;">
+        <h3 class="section-title"><i class="fas fa-sticky-note"></i> メモ帳 (Auto Save)</h3>
+        <textarea id="memo-pad" placeholder="ここにメモを入力..."></textarea>
+        <div id="memo-status"></div>
+    </div>
   </div>
 
   <nav class="bottom-nav">
-      <div class="tab-item active" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
+      <div class="tab-item active" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
+      <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
       <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
+      <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> <i class="fas fa-pen-alt"></i> <span>Memo</span> </div>
   </nav>
 
   <!-- 背景選択モーダル -->
@@ -231,23 +256,28 @@
 
       // タブ切り替えロジック
       window.activateTab = function(tabName) {
-          const containers =['main-grid', 'bustarain-container'];
+          const containers =['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
           containers.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-          const tabs =['tab-all-apps', 'tab-bustarain'];
+          const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
           });
-
-          if (tabName === 'all-apps') {
+          if (tabName === 'fy') {
+              document.getElementById('fy-container').style.display = 'block';
+              document.getElementById('tab-fy').classList.add('active');
+          } else if (tabName === 'all-apps') {
               document.getElementById('main-grid').style.display = 'block';
               document.getElementById('tab-all-apps').classList.add('active');
           } else if (tabName === 'bustarain') {
               document.getElementById('bustarain-container').style.display = 'block';
               document.getElementById('tab-bustarain').classList.add('active');
+          } else if (tabName === 'memo') {
+              document.getElementById('memo-container').style.display = 'block';
+              document.getElementById('tab-memo').classList.add('active');
           }
           window.scrollTo(0, 0);
       };
@@ -272,6 +302,26 @@
           const activeList = document.querySelector('.pc-traffic-list:not(.hidden)');
           if(activeList) activeList.scrollBy({ top: amount, behavior: 'smooth' });
       };
+
+      // メモ帳
+      document.addEventListener('DOMContentLoaded', () => {
+          const memoPad = document.getElementById('memo-pad');
+          const memoStatus = document.getElementById('memo-status');
+          if (memoPad) {
+              const savedMemo = localStorage.getItem('userMemo');
+              if (savedMemo) memoPad.value = savedMemo;
+              let timeoutId;
+              memoPad.addEventListener('input', () => {
+                  memoStatus.textContent = '保存中...';
+                  clearTimeout(timeoutId);
+                  timeoutId = setTimeout(() => {
+                      localStorage.setItem('userMemo', memoPad.value);
+                      memoStatus.textContent = '保存しました';
+                      setTimeout(() => { memoStatus.textContent = ''; }, 2000);
+                  }, 1000); 
+              });
+          }
+      });
   </script>
 </body>
 </html>
