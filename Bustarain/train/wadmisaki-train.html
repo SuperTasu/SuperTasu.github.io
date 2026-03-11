@@ -65,26 +65,39 @@
         .btn-reset { background: #666; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
         /* 2. 駅・方面切り替えタブ */
-        .station-tabs {
-            display: flex;
-            margin-top: 10px;
-            gap: 4px;
-            align-items: flex-end;
-            flex-wrap: wrap;
+/* 駅・方面タブ (横スクロール対応) */
+        .station-tabs { 
+            display: flex; 
+            margin-top: 10px; 
+            gap: 4px; 
+            align-items: flex-end; 
+            /* 折り返しを無くし、横スクロールを有効にする */
+            flex-wrap: nowrap; 
+            overflow-x: auto;
+            /* スマホで滑らかにスワイプできるようにする */
+            -webkit-overflow-scrolling: touch; 
+            
+            /* スクロールバーを非表示にしてアプリのような見た目にする */
+            -ms-overflow-style: none; /* IE, Edge */
+            scrollbar-width: none;    /* Firefox */
         }
+        .station-tabs::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
         .station-tab {
-            flex: 1 1 18%;
-            min-width: 70px;
-            text-align: center;
-            background: #d5d5d5;
+            /* 画面幅が狭くてもタブが潰れないように固定する */
+            flex: 0 0 auto; 
+            min-width: 90px; /* タブの幅を少し広めに確保 */
+            text-align: center; 
+            background: #d5d5d5; 
             color: #555;
-            padding: 10px 2px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 8px 8px 0 0;
+            padding: 10px 8px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 8px 8px 0 0; 
             transition: all 0.2s;
-            line-height: 1.2;
         }
         .station-tab.active {
             padding: 12px 2px 10px;
