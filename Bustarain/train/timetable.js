@@ -31,24 +31,6 @@ const keihanDestMap = {
 // 駅とタブ（方面）の基本設定
 // ==========================================
 const stationConfig = {
-    kyobashi: {
-        name: '京橋駅',
-        lineName: '京阪本線',
-        lineColor: 'keihan',
-        directions:[
-            { id: 'kyobashi_yodo', label: '淀屋橋・中之島 方面' },
-            { id: 'kyobashi_dema', label: '出町柳 方面' }
-        ]
-    },
-    neyagawa: {
-        name: '寝屋川市駅',
-        lineName: '京阪本線',
-        lineColor: 'keihan',
-        directions:[
-            { id: 'neyagawa_yodo', label: '淀屋橋・中之島 方面' },
-            { id: 'neyagawa_dema', label: '出町柳 方面' }
-        ]
-    },
     itayado: {
         name: '板宿駅',
         lineName: '西神・山手線',
@@ -90,6 +72,24 @@ const stationConfig = {
         lineColor: 'kaigan',
         directions:[
             { id: 'sannomiya_k01', label: '新長田 方面行き' }
+        ]
+    },
+        kyobashi: {
+        name: '京橋駅',
+        lineName: '京阪本線',
+        lineColor: 'keihan',
+        directions:[
+            { id: 'kyobashi_yodo', label: '淀屋橋・中之島 方面' },
+            { id: 'kyobashi_dema', label: '出町柳 方面' }
+        ]
+    },
+    neyagawa: {
+        name: '寝屋川市駅',
+        lineName: '京阪本線',
+        lineColor: 'keihan',
+        directions:[
+            { id: 'neyagawa_yodo', label: '淀屋橋・中之島 方面' },
+            { id: 'neyagawa_dema', label: '出町柳 方面' }
         ]
     }
 };
