@@ -257,31 +257,22 @@
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- 外部の時刻表データファイル (timetable.js) を読み込みます -->
+<!-- ========================================== -->
 <script src="timetable.js"></script>
 
 <script>
-    // 京阪 種別・行き先の変換辞書
-    const keihanTypeMap = {
-        "特": { name: "特急", class: "bg-type-ltd" },
-        "ラ": { name: "ライナー", class: "bg-type-liner" },
-        "通": { name: "通勤快急", class: "bg-type-com-exp" },
-        "快": { name: "快速急行", class: "bg-type-rapid-exp" },
-        "急": { name: "急行", class: "bg-type-exp" },
-        "準": { name: "準急", class: "bg-type-sub-exp" },
-        "区": { name: "区間急行", class: "bg-type-semi-exp" },
-        "普": { name: "普通", class: "bg-type-local" }
-    };
-    const keihanDestMap = {
-        "中": "中之島", "守": "守口市", "淀": "淀", 
-        "三": "三条", "枚": "枚方市", "樟": "樟葉", "香": "香里園"
-    };
-
+    // 状態管理変数
     let currentStation = 'itayado';
     let currentView = 'itayado_n';
     let timeOffset = 0;
     let isSimulated = false;
     let scheduleOverride = 'auto';
 
+    // ----------------------------------------------------
+    // 駅とタブの初期化処理
+    // ----------------------------------------------------
     function initTabs() {
         const sTabs = document.getElementById('stationTabs');
         sTabs.innerHTML = '';
@@ -341,6 +332,9 @@
         render();
     }
 
+    // ----------------------------------------------------
+    // 時刻・カレンダー処理
+    // ----------------------------------------------------
     function getNow() {
         return isSimulated ? new Date(Date.now() + timeOffset) : new Date();
     }
@@ -355,12 +349,16 @@
         return false;
     }
 
+    // ----------------------------------------------------
+    // 描画メインロジック
+    // ----------------------------------------------------
     function render() {
         const now = getNow();
         document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', {hour12:false});
         
         let logicalH = now.getHours();
         let logicalDate = new Date(now);
+        // 0時〜3時は前日のダイヤを適用
         if (logicalH < 4) {
             logicalDate.setDate(logicalDate.getDate() - 1);
         }
@@ -372,7 +370,7 @@
         let timetable;
         let config = { name: "", symbol: "", colorClass: "" };
 
-        // 和田岬の特殊ロジック（ダイヤ自動切替）
+        // 和田岬駅専用：ダイヤ自動切替ロジック
         if (currentView.startsWith('wadamisaki')) {
             const switchDate = new Date('2026-03-14T00:00:00');
             const isNew = now >= switchDate;
@@ -389,13 +387,14 @@
             infoBar.style.display = 'block';
             infoBar.innerText = isNew ? "表示中：令和8年3月14日改正ダイヤ" : "表示中：旧ダイヤ (2026/3/14に自動切替)";
         } else {
-            // その他駅
+            // その他の一般駅
             const section = otherStations[currentView];
             timetable = isHol ? section.holidays : section.weekdays;
             config = section;
             infoBar.style.display = 'none';
         }
 
+        // 時刻表データの解析とリスト化
         let list =[];
         const currentTotalMin = (now.getHours() < 4 ? now.getHours()+24 : now.getHours()) * 60 + now.getMinutes();
 
@@ -404,12 +403,12 @@
             let displayHour = hour < 4 ? hour + 24 : hour;
             timetable[h].forEach(mVal => {
                 let mStr = mVal.toString();
-                let m = parseInt(mStr); // "17準" -> 17, "38*" -> 38
+                let m = parseInt(mStr);
                 
-                // 地下鉄用 行き先違い
+                // 行き先違い（地下鉄用）
                 let isMisaki = mStr.includes('*');
 
-                // 京阪用 種別と行き先のパース
+                // 種別・行き先の抽出（京阪用）
                 let typeKey = "";
                 let destKey = "";
                 let match = mStr.match(/^\d+([^\d\*]+)?/);
@@ -419,6 +418,7 @@
                 }
 
                 let totalMin = displayHour * 60 + m;
+                // 発車済みの列車（猶予-2分）をリストから除外
                 if(totalMin >= currentTotalMin - 2) {
                     list.push({ hour, min: m, abs: totalMin, isMisaki, typeKey, destKey });
                 }
@@ -436,7 +436,9 @@
             return;
         }
 
-        // 先発
+        // ----------------------------------------------------
+        // 先発列車の描画
+        // ----------------------------------------------------
         const next = list[0];
         const targetDate = new Date(now);
         targetDate.setHours(next.hour, next.min, 0, 0);
@@ -446,14 +448,14 @@
         const diffSec = Math.max(0, Math.floor(diffMs / 1000));
         const isPassed = (next.abs < currentTotalMin);
 
-        // 行き先の決定（地下鉄/京阪共用）
+        // 行き先の決定
         let baseDestName = config.name.replace(" 方面", "");
         let nextDest = baseDestName;
         if (next.isMisaki) nextDest = "御崎公園";
         if (next.destKey && keihanDestMap[next.destKey]) nextDest = keihanDestMap[next.destKey];
         if (!nextDest.includes("行き")) nextDest += " 行き";
 
-        // バッジの決定
+        // 種別バッジの決定
         let badgeText = config.symbol;
         let badgeClass = `bg-${config.colorClass}`;
         let labelPrefix = `【${config.symbol}】`;
@@ -463,7 +465,6 @@
             badgeClass = keihanTypeMap[next.typeKey].class;
             labelPrefix = `<span class="line-badge ${badgeClass}" style="margin-right:4px;">${badgeText}</span>`;
         } else if (config.colorClass !== "keihan") {
-            // 京阪以外は駅ナンバリングを表示
             labelPrefix = `【${config.symbol}】`;
         }
 
@@ -481,7 +482,9 @@
                 </div>
             </div>`;
 
-        // 後続（次発以降）
+        // ----------------------------------------------------
+        // 後続列車（次発以降）の描画
+        // ----------------------------------------------------
         list.slice(1, 6).forEach(item => {
             let dest = baseDestName;
             if (item.isMisaki) dest = "御崎公園";
@@ -505,11 +508,15 @@
             listArea.appendChild(row);
         });
 
+        // シミュレーター進行処理
         if (isSimulated) {
             timeOffset += 1000;
         }
     }
 
+    // ----------------------------------------------------
+    // シミュレーター制御
+    // ----------------------------------------------------
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); }
     function applySettings() {
         const val = document.getElementById('setting-datetime').value;
@@ -527,6 +534,7 @@
         render();
     }
 
+    // 初回起動
     initTabs();
     setInterval(render, 1000);
     render();
