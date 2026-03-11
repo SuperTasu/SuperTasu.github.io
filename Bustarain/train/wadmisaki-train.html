@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地下鉄運行掲示板 - 海岸線・西神山手線</title>
+    <title>総合運行掲示板 (地下鉄・京阪)</title>
     <style>
         :root {
             --subway-green: #006940; /* 西神・山手線 */
             --kaigan-blue: #005c97;  /* 海岸線 */
+            --keihan-color: #1a2a47; /* 京阪線テーマ(濃紺) */
             --bg-color: #f4f4f4;
             --accent-red: #cc0000;
             --accent-orange: #ff9800;
@@ -91,6 +92,7 @@
         }
         .station-tab.active.seishin { background: var(--subway-green); }
         .station-tab.active.kaigan { background: var(--kaigan-blue); }
+        .station-tab.active.keihan { background: var(--keihan-color); }
         
         .station-line-name {
             font-size: 10px;
@@ -111,6 +113,7 @@
         }
         .direction-tabs.seishin { border-top: 4px solid var(--subway-green); }
         .direction-tabs.kaigan { border-top: 4px solid var(--kaigan-blue); }
+        .direction-tabs.keihan { border-top: 4px solid var(--keihan-color); }
 
         .dir-tab {
             flex: 1;
@@ -143,11 +146,13 @@
             position: relative;
             background: #fff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 2px solid #eee;
         }
-        .next-card.seishin { border-left: 8px solid var(--subway-green); border-right: 2px solid #eee; border-top: 2px solid #eee; border-bottom: 2px solid #eee;}
-        .next-card.kaigan { border-left: 8px solid var(--kaigan-blue); border-right: 2px solid #eee; border-top: 2px solid #eee; border-bottom: 2px solid #eee;}
+        .next-card.seishin { border-left: 8px solid var(--subway-green); }
+        .next-card.kaigan { border-left: 8px solid var(--kaigan-blue); }
+        .next-card.keihan { border-left: 8px solid var(--keihan-color); }
         
-        .next-label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 8px; color: #666; }
+        .next-label { font-size: 12px; font-weight: bold; display: flex; align-items: center; margin-bottom: 8px; color: #666; }
         .next-info { display: flex; justify-content: space-between; align-items: center; }
         .next-time { font-size: 38px; font-weight: bold; color: #333; }
         .next-countdown { text-align: right; }
@@ -162,7 +167,7 @@
             border-bottom: 1px solid #eee;
         }
         .line-badge {
-            padding: 2px 6px;
+            padding: 3px 6px;
             border-radius: 4px;
             color: #fff;
             font-size: 10px;
@@ -171,8 +176,20 @@
             text-align: center;
             font-weight: bold;
         }
+        /* 路線バッジ */
         .bg-seishin { background: var(--subway-green); }
         .bg-kaigan { background: var(--kaigan-blue); }
+        .bg-keihan { background: var(--keihan-color); }
+
+        /* 種別カラー (京阪専用) */
+        .bg-type-ltd { background: #e60012; color: #fff; } /* 特急 */
+        .bg-type-liner { background: #333; color: #fff; } /* ライナー */
+        .bg-type-com-exp { background: #8a2be2; color: #fff; } /* 通勤快急 */
+        .bg-type-rapid-exp { background: #da70d6; color: #fff; } /* 快速急行 */
+        .bg-type-exp { background: #ff8c00; color: #fff; } /* 急行 */
+        .bg-type-sub-exp { background: #00bfff; color: #fff; } /* 準急 */
+        .bg-type-semi-exp { background: #32cd32; color: #fff; } /* 区間急行 */
+        .bg-type-local { background: #555; color: #fff; } /* 普通 */
         
         .dep-time { font-size: 18px; font-weight: bold; margin-right: 15px; min-width: 50px; }
         .dep-dest { flex: 1; font-weight: bold; font-size: 14px; }
@@ -240,11 +257,25 @@
     </div>
 </div>
 
-<!-- 分離した時刻表データの読み込み -->
 <script src="timetable.js"></script>
 
 <script>
-    // 初期表示を板宿に設定
+    // 京阪 種別・行き先の変換辞書
+    const keihanTypeMap = {
+        "特": { name: "特急", class: "bg-type-ltd" },
+        "ラ": { name: "ライナー", class: "bg-type-liner" },
+        "通": { name: "通勤快急", class: "bg-type-com-exp" },
+        "快": { name: "快速急行", class: "bg-type-rapid-exp" },
+        "急": { name: "急行", class: "bg-type-exp" },
+        "準": { name: "準急", class: "bg-type-sub-exp" },
+        "区": { name: "区間急行", class: "bg-type-semi-exp" },
+        "普": { name: "普通", class: "bg-type-local" }
+    };
+    const keihanDestMap = {
+        "中": "中之島", "守": "守口市", "淀": "淀", 
+        "三": "三条", "枚": "枚方市", "樟": "樟葉", "香": "香里園"
+    };
+
     let currentStation = 'itayado';
     let currentView = 'itayado_n';
     let timeOffset = 0;
@@ -328,7 +359,13 @@
         const now = getNow();
         document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', {hour12:false});
         
-        let isHol = (scheduleOverride === 'auto') ? isHoliday(now) : (scheduleOverride === 'holiday');
+        let logicalH = now.getHours();
+        let logicalDate = new Date(now);
+        if (logicalH < 4) {
+            logicalDate.setDate(logicalDate.getDate() - 1);
+        }
+
+        let isHol = (scheduleOverride === 'auto') ? isHoliday(logicalDate) : (scheduleOverride === 'holiday');
         document.getElementById('dayIndicator').textContent = (isHol ? '土休日ダイヤ' : '平日ダイヤ') + (isSimulated ? ' (検証中)' : '');
 
         const infoBar = document.getElementById('infoBar');
@@ -359,7 +396,6 @@
             infoBar.style.display = 'none';
         }
 
-        // 表示リスト作成
         let list =[];
         const currentTotalMin = (now.getHours() < 4 ? now.getHours()+24 : now.getHours()) * 60 + now.getMinutes();
 
@@ -368,13 +404,23 @@
             let displayHour = hour < 4 ? hour + 24 : hour;
             timetable[h].forEach(mVal => {
                 let mStr = mVal.toString();
-                // *付きは行き先違い（御崎公園行き等）のフラグ
+                let m = parseInt(mStr); // "17準" -> 17, "38*" -> 38
+                
+                // 地下鉄用 行き先違い
                 let isMisaki = mStr.includes('*');
-                let m = parseInt(mStr.replace('*', ''));
+
+                // 京阪用 種別と行き先のパース
+                let typeKey = "";
+                let destKey = "";
+                let match = mStr.match(/^\d+([^\d\*]+)?/);
+                if (match && match[1]) {
+                    typeKey = match[1].charAt(0);
+                    destKey = match[1].substring(1);
+                }
 
                 let totalMin = displayHour * 60 + m;
                 if(totalMin >= currentTotalMin - 2) {
-                    list.push({ hour, min: m, abs: totalMin, isMisaki });
+                    list.push({ hour, min: m, abs: totalMin, isMisaki, typeKey, destKey });
                 }
             });
         }
@@ -400,12 +446,32 @@
         const diffSec = Math.max(0, Math.floor(diffMs / 1000));
         const isPassed = (next.abs < currentTotalMin);
 
-        // 御崎公園行きなら行き先を変更
-        const nextDest = next.isMisaki ? "御崎公園 行き" : config.name;
+        // 行き先の決定（地下鉄/京阪共用）
+        let baseDestName = config.name.replace(" 方面", "");
+        let nextDest = baseDestName;
+        if (next.isMisaki) nextDest = "御崎公園";
+        if (next.destKey && keihanDestMap[next.destKey]) nextDest = keihanDestMap[next.destKey];
+        if (!nextDest.includes("行き")) nextDest += " 行き";
+
+        // バッジの決定
+        let badgeText = config.symbol;
+        let badgeClass = `bg-${config.colorClass}`;
+        let labelPrefix = `【${config.symbol}】`;
+
+        if (next.typeKey && keihanTypeMap[next.typeKey]) {
+            badgeText = keihanTypeMap[next.typeKey].name;
+            badgeClass = keihanTypeMap[next.typeKey].class;
+            labelPrefix = `<span class="line-badge ${badgeClass}" style="margin-right:4px;">${badgeText}</span>`;
+        } else if (config.colorClass !== "keihan") {
+            // 京阪以外は駅ナンバリングを表示
+            labelPrefix = `【${config.symbol}】`;
+        }
 
         nextArea.innerHTML = `
             <div class="next-card ${config.colorClass}">
-                <span class="next-label">【先発】 ${config.symbol} ${nextDest}</span>
+                <span class="next-label" style="display:flex; align-items:center;">
+                    <span style="margin-right:6px;">【先発】</span> ${labelPrefix} <span>${nextDest}</span>
+                </span>
                 <div class="next-info">
                     <div class="next-time">${next.hour}:${next.min.toString().padStart(2,'0')}</div>
                     <div class="next-countdown">
@@ -417,11 +483,21 @@
 
         // 後続（次発以降）
         list.slice(1, 6).forEach(item => {
-            const dest = item.isMisaki ? "御崎公園" : config.name.replace(" 方面", "");
+            let dest = baseDestName;
+            if (item.isMisaki) dest = "御崎公園";
+            if (item.destKey && keihanDestMap[item.destKey]) dest = keihanDestMap[item.destKey];
+
+            let rowBadgeText = config.symbol;
+            let rowBadgeClass = `bg-${config.colorClass}`;
+            if (item.typeKey && keihanTypeMap[item.typeKey]) {
+                rowBadgeText = keihanTypeMap[item.typeKey].name;
+                rowBadgeClass = keihanTypeMap[item.typeKey].class;
+            }
+
             const row = document.createElement('div');
             row.className = 'dep-row';
             row.innerHTML = `
-                <span class="line-badge bg-${config.colorClass}">${config.symbol}</span>
+                <span class="line-badge ${rowBadgeClass}">${rowBadgeText}</span>
                 <span class="dep-time">${item.hour}:${item.min.toString().padStart(2,'0')}</span>
                 <span class="dep-dest">${dest}</span>
                 <span class="dep-status">あと${item.abs - currentTotalMin}分</span>
@@ -429,13 +505,11 @@
             listArea.appendChild(row);
         });
 
-        // シミュレーター時は時間を進める
         if (isSimulated) {
             timeOffset += 1000;
         }
     }
 
-    // シミュレーター制御
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); }
     function applySettings() {
         const val = document.getElementById('setting-datetime').value;
@@ -453,7 +527,6 @@
         render();
     }
 
-    // 初期化と起動
     initTabs();
     setInterval(render, 1000);
     render();
