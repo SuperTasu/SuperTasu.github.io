@@ -81,10 +81,9 @@ body::before {
 }
 
 .datetime-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
-#date, #clock, #countdown { 
+#date, #clock { 
     color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 13px; line-height: 1; 
 }
-#countdown { color: #88aaff; font-size: 12px; }
 
 .header-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
 
@@ -198,20 +197,21 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 
 /* ★★★ コンテンツエリア ★★★ */
 .page-container { max-width: 1400px; margin: 0 auto; padding: 100px 20px 20px 20px; }
-#main-grid, #bustarain-container, #fy-container, #memo-container {
+
+#main-grid, #bustarain-container {
     position: relative; z-index: 1; width: 100%; box-sizing: border-box;
 }
-#bustarain-container, #fy-container, #memo-container { display: none; margin-top: 20px; }
+#bustarain-container { display: none; margin-top: 20px; }
 .main-grid { margin-top: 10px; }
 
 /* グリッドレイアウト */
-.grid-container, #fy-content-area, .traffic-grid {
+.grid-container, .traffic-grid {
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; padding: 10px;
 }
-@media (max-width: 1300px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 900px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 650px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 400px) { .grid-container, #fy-content-area, .traffic-grid { grid-template-columns: repeat(1, 1fr); } }
+@media (max-width: 1300px) { .grid-container, .traffic-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 900px) { .grid-container, .traffic-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 650px) { .grid-container, .traffic-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .grid-container, .traffic-grid { grid-template-columns: repeat(1, 1fr); } }
 
 /* ★ カードデザイン ★ */
 .app-card {
@@ -293,20 +293,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     background: transparent; color: var(--text-color-primary); font-size: 12px; padding: 0; transition: all 0.2s;
 }
 .card-btn:hover { background-color: var(--text-color-primary); color: var(--bg-color); }
-.card-btn.fav-active { color: #ffc107; border-color: #ffc107; }
-
-/* FY編集モード */
-.grid-slot { min-height: 90px; border-radius: var(--card-radius); }
-.edit-mode .grid-slot { border: 2px dashed var(--text-color-secondary); cursor: pointer; opacity: 0.8; }
-.edit-mode .grid-slot:hover { background-color: var(--swap-select-color); }
-.edit-mode .grid-slot.selected-slot { border-color: #ff4444; background-color: rgba(255, 68, 68, 0.1); }
-.edit-mode .app-card { pointer-events: none; }
-.grid-slot.empty { border: 1px dashed rgba(0,0,0,0.1); border-radius: var(--card-radius); }
-
-/* FY専用時計 */
-#fy-clock-display { text-align: center; margin-bottom: 15px; font-family: 'Roboto Mono', monospace; color: var(--text-color-primary); }
-.fy-date-text { font-size: 16px; margin-right: 10px; font-weight: bold; }
-.fy-time-text { font-size: 28px; font-weight: bold; color: var(--tab-active-bg); }
 
 /* その他 */
 .sub-tab-menu { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
@@ -316,31 +302,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 .hidden { display: none !important; }
 .section-title { font-size: 18px; color: var(--text-color-secondary); margin: 20px 10px 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px; }
 
-/* メモ帳スタイル */
-#memo-container { padding: 0 10px; }
-#memo-pad {
-    width: 100%;
-    height: 60vh;
-    padding: 15px;
-    box-sizing: border-box;
-    border: var(--card-border);
-    border-radius: 12px;
-    background-color: var(--card-bg);
-    color: var(--text-color-primary);
-    font-family: inherit;
-    font-size: 16px;
-    resize: vertical;
-    outline: none;
-    z-index: 50; 
-    position: relative;
-}
-#memo-status {
-    text-align: right;
-    font-size: 12px;
-    color: #888;
-    margin-top: 5px;
-    height: 1.5em;
-}
 
 /* ナビゲーション */
 .bottom-nav {
@@ -356,8 +317,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 .tab-item i { font-size: 20px; }
 .tab-item.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); }
 .tab-item.active i { color: var(--tab-active-text); }
-.fy-icon { color: #ffc107; }
-.tab-item.active .fy-icon { color: #fff; }
 
 /* モーダル共通 */
 .modal-overlay {
@@ -375,18 +334,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 .btn-same { background: #667eea; color: white; }
 .btn-new { background: #28a745; color: white; }
 .btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
-
-/* スピードテスト用レスポンシブスタイル */
-#fy-speed-test-placeholder { display: none; }
-@media (max-width: 700px) {
-    .header-speed-test { display: none; }
-    #fy-clock-display { display: flex !important; flex-direction: row; justify-content: center; align-items: center; gap: 15px; }
-    .fy-clock-group { display: flex; flex-direction: column; align-items: flex-end; }
-    .fy-date-text { font-size: 12px; margin-right: 0; margin-bottom: 2px; }
-    .fy-time-text { font-size: 24px; line-height: 1; }
-    #fy-speed-test-placeholder { display: flex; flex-direction: column; align-items: center; transform: scale(0.9); }
-    #speed-test-iframe { width: 100px !important; height: 50px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-}
 
 /* ★★★ Bustarain PC版専用スタイル (画像再現) ★★★ */
 /* デフォルト(モバイル)はこれらを非表示にする */
