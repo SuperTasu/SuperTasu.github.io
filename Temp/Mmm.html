@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>MKC Lounge Stats</title>
+<style>
+  body {
+    /* 配信ソフト等のオーバーレイで使いやすいように背景を透過 */
+    background-color: transparent;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    text-shadow: 2px 2px 2px black; /* 文字が見やすいように黒い縁取り */
+    margin: 0;
+    padding: 10px;
+  }
+  .container {
+    background: rgba(0, 0, 0, 0.7); /* 半透明の黒背景 */
+    padding: 15px;
+    border-radius: 10px;
+    display: inline-block;
+  }
+  .stat {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  .label {
+    font-size: 16px;
+    color: #cccccc;
+    margin-right: 10px;
+  }
+  .mmr-delta.positive {
+    color: #4caf50; /* プラスの場合は緑色 */
+  }
+  .mmr-delta.negative {
+    color: #f44336; /* マイナスの場合は赤色 */
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="stat">
+    <span class="label">MMR</span>
+    <span id="mmr-val">読み込み中...</span>
+  </div>
+  <div class="stat">
+    <span class="label">Delta</span>
+    <span id="delta-val" class="mmr-delta">読み込み中...</span>
+  </div>
+</div>
+
+<script>
+  // 取得対象のURL
+  const playerUrl = 'https://lounge.mkcentral.com/mk8dx/PlayerDetails/43935?season=15';
+  
+  // CORS制限を回避するためのプロキシAPI
+  const proxyUrl = 'https://api.allorigins.win/get?url=';
+
+  async function fetchStats() {
+    try {
+      // キャッシュを回避するために現在時刻をURLの末尾に付与して取得
+      const urlWithCacheBuster = playerUrl + '&_=' + new Date().getTime();
+      const response = await fetch(proxyUrl + encodeURIComponent(urlWithCacheBuster));
+      
+      if (!response.ok) throw new Error('ネットワークエラー');
+      
+      const data = await response.json();
+      
+      // 取得したHTMLテキストを解析可能なDOMに変換
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data.contents, 'text/html');
+
+      // ページ内のすべてのテーブルから "MMR Delta" と "MMR" の列を持つものを探す
+      const tables = doc.querySelectorAll('table');
+      let found = false;
+
+      for (const table of tables) {
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+        const deltaIndex = headers.indexOf('MMR Delta');
+        const mmrIndex = headers.indexOf('MMR');
+
+        // 該当のテーブルが見つかった場合
+        if (deltaIndex !== -1 && mmrIndex !== -1) {
+          // 最初のデータ行（一番上の最新イベント）を取得
+          const tbody = table.querySelector('tbody');
+          const firstDataRow = tbody ? tbody.querySelector('tr') : table.querySelectorAll('tr')[1];
+
+          if (firstDataRow) {
+            const cells = firstDataRow.querySelectorAll('td');
+            if (cells.length > Math.max(deltaIndex, mmrIndex)) {
+              const mmrDelta = cells[deltaIndex].textContent.trim();
+              const mmr = cells[mmrIndex].textContent.trim();
+
+              updateDisplay(mmr, mmrDelta);
+              found = true;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!found) {
+        document.getElementById('mmr-val').innerText = '取得失敗';
+        document.getElementById('delta-val').innerText = '取得失敗';
+        console.warn('指定されたデータが見つかりませんでした。サイトがJavaScriptで動的生成されている可能性があります。');
+      }
+
+    } catch (error) {
+      console.error('データ取得中にエラーが発生しました:', error);
+      document.getElementById('mmr-val').innerText = 'エラー';
+      document.getElementById('delta-val').innerText = 'エラー';
+    }
+  }
+
+  // 画面の表示を更新する関数
+  function updateDisplay(mmr, mmrDelta) {
+    document.getElementById('mmr-val').innerText = mmr;
+    
+    const deltaElem = document.getElementById('delta-val');
+    deltaElem.innerText = mmrDelta;
+    
+    // 値がプラスかマイナスかで色を変更する
+    deltaElem.className = 'mmr-delta'; // クラスをリセット
+    if (mmrDelta.startsWith('+')) {
+      deltaElem.classList.add('positive');
+    } else if (mmrDelta.startsWith('-')) {
+      deltaElem.classList.add('negative');
+    }
+  }
+
+  // 初回データ取得
+  fetchStats();
+
+  // 60秒(60000ミリ秒)ごとに定期更新
+  setInterval(fetchStats, 60000);
+</script>
+
+</body>
+</html>
