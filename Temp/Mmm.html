@@ -2,124 +2,62 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>MKC Lounge Stats</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MKC Lounge Stats (切り抜き)</title>
 <style>
   body {
-    background-color: transparent;
-    color: white;
-    font-family: 'Arial', sans-serif;
-    text-shadow: 2px 2px 2px black;
+    background-color: #1a1a1a;
     margin: 0;
-    padding: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
   }
-  .container {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 10px;
-    display: inline-block;
+
+  .crop-window {
+    width: 950px;
+    height: 110px;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid #ff4d4d; /* 目印の赤い枠線 */
+    border-radius: 8px;
+    background-color: #222; 
   }
-  .stat {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 5px 0;
+
+  .crop-window iframe {
+    position: absolute;
+    width: 1200px;
+    height: 2000px;
+    border: none;
+    
+    /* 
+      ★★ここを書き換えて調整してください★★ 
+      自動で文字を探せないため、この数字を書き換えて「Event」の文字に合わせます。
+    */
+    top: -550px;   /* 【縦の調整】 -600px にすると「下」へ、-500px にすると「上」へズレます */
+    left: -125px;  /* 【横の調整】 -150px にすると「右」へ、-100px にすると「左」へズレます */
   }
-  .label {
-    font-size: 16px;
-    color: #cccccc;
-    margin-right: 10px;
+
+  /* iPadの画面に収まらない場合は、この 1.0 を 0.8 などに小さくしてください */
+  .scale-wrapper {
+    transform: scale(1.0); 
+    transform-origin: top center;
   }
-  .mmr-delta.positive { color: #4caf50; }
-  .mmr-delta.negative { color: #f44336; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="stat">
-    <span class="label">MMR</span>
-    <span id="mmr-val">読み込み中...</span>
-  </div>
-  <div class="stat">
-    <span class="label">Delta</span>
-    <span id="delta-val" class="mmr-delta">読み込み中...</span>
+<div class="scale-wrapper">
+  <!-- 赤い枠の窓 -->
+  <div class="crop-window">
+    <iframe src="https://lounge.mkcentral.com/mk8dx/PlayerDetails/43935?season=15" scrolling="no"></iframe>
   </div>
 </div>
 
 <script>
-  // 取得対象のURL
-  const playerUrl = 'https://lounge.mkcentral.com/mk8dx/PlayerDetails/43935?season=15';
-  
-  // プロキシサーバーを corsproxy.io に変更（直接HTMLを取得）
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(playerUrl);
-
-  async function fetchStats() {
-    try {
-      const response = await fetch(proxyUrl);
-      
-      if (!response.ok) {
-        throw new Error('HTTPエラー: ' + response.status);
-      }
-      
-      const htmlText = await response.text();
-      
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlText, 'text/html');
-
-      const tables = doc.querySelectorAll('table');
-      let found = false;
-
-      // ページ内のテーブルから "MMR" と "MMR Delta" の列を探す
-      for (const table of tables) {
-        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
-        const deltaIndex = headers.indexOf('MMR Delta');
-        const mmrIndex = headers.indexOf('MMR');
-
-        if (deltaIndex !== -1 && mmrIndex !== -1) {
-          const tbody = table.querySelector('tbody');
-          const firstDataRow = tbody ? tbody.querySelector('tr') : table.querySelectorAll('tr')[1];
-
-          if (firstDataRow) {
-            const cells = firstDataRow.querySelectorAll('td');
-            if (cells.length > Math.max(deltaIndex, mmrIndex)) {
-              const mmrDelta = cells[deltaIndex].textContent.trim();
-              const mmr = cells[mmrIndex].textContent.trim();
-
-              updateDisplay(mmr, mmrDelta);
-              found = true;
-              break;
-            }
-          }
-        }
-      }
-
-      // もしテーブルが見つからなかった場合
-      if (!found) {
-        document.getElementById('mmr-val').innerText = 'データなし';
-        document.getElementById('delta-val').innerText = 'データなし';
-      }
-
-    } catch (error) {
-      document.getElementById('mmr-val').innerText = '通信エラー';
-      document.getElementById('delta-val').innerText = '通信エラー';
-      console.error('エラーの詳細:', error);
-    }
-  }
-
-  function updateDisplay(mmr, mmrDelta) {
-    document.getElementById('mmr-val').innerText = mmr;
-    const deltaElem = document.getElementById('delta-val');
-    deltaElem.innerText = mmrDelta;
-    
-    deltaElem.className = 'mmr-delta'; 
-    if (mmrDelta.startsWith('+')) {
-      deltaElem.classList.add('positive');
-    } else if (mmrDelta.startsWith('-')) {
-      deltaElem.classList.add('negative');
-    }
-  }
-
-  fetchStats();
-  setInterval(fetchStats, 60000);
+  // 3分ごとに自動で最新のデータに更新
+  setInterval(() => {
+    location.reload();
+  }, 180000);
 </script>
 
 </body>
