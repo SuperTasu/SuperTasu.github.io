@@ -274,24 +274,6 @@
           if(activeList) activeList.scrollBy({ top: amount, behavior: 'smooth' });
       };
 
-      // メモ帳
-      document.addEventListener('DOMContentLoaded', () => {
-          const memoPad = document.getElementById('memo-pad');
-          const memoStatus = document.getElementById('memo-status');
-          if (memoPad) {
-              const savedMemo = localStorage.getItem('userMemo');
-              if (savedMemo) memoPad.value = savedMemo;
-              let timeoutId;
-              memoPad.addEventListener('input', () => {
-                  memoStatus.textContent = '保存中...';
-                  clearTimeout(timeoutId);
-                  timeoutId = setTimeout(() => {
-                      localStorage.setItem('userMemo', memoPad.value);
-                      memoStatus.textContent = '保存しました';
-                      setTimeout(() => { memoStatus.textContent = ''; }, 2000);
-                  }, 1000); 
-              });
-          }
       });
   </script>
 </body>
