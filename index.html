@@ -35,8 +35,9 @@
             <div class="left-section" style="display: flex; align-items: center; flex-grow: 1;">
                 <img src="./icon.png" alt="Link First Logo" class="site-logo">
                 <div class="datetime-row">
-                    <div id="date"></div>
-                    <div id="clock"></div>
+                    <!-- IDを変更して外部スクリプトとの競合を回避 -->
+                    <div id="custom-date"></div>
+                    <div id="custom-clock"></div>
                     
                     <!-- ヘッダータブ -->
                     <nav class="header-nav">
@@ -76,9 +77,9 @@
   </div>
 
   <div class="page-container">
-      <!-- Home コンテナ (埋め込み・白背景透過) -->
+      <!-- Home コンテナ (埋め込み・右上に配置) -->
       <div id="fy-container" style="display: block;">
-          <iframe id="home-iframe" src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" allowtransparency="true" title="Home Stats"></iframe>
+          <iframe id="home-iframe" src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" title="Home Stats"></iframe>
       </div>
 
     <!-- メインアプリ一覧 -->
@@ -182,8 +183,8 @@
        */
       function updateDateTime() {
           const now = new Date();
-          const dateEl = document.getElementById('date');
-          const clockEl = document.getElementById('clock');
+          const dateEl = document.getElementById('custom-date');
+          const clockEl = document.getElementById('custom-clock');
           
           if (dateEl) {
               const year = now.getFullYear();
