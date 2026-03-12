@@ -76,9 +76,9 @@
   </div>
 
   <div class="page-container">
-      <!-- Home コンテナ (埋め込み) -->
+      <!-- Home コンテナ (埋め込み・白背景透過) -->
       <div id="fy-container" style="display: block;">
-          <iframe src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" style="width: 100%; height: calc(100vh - 130px); border: none; border-radius: 12px; background: transparent;" title="Home Stats"></iframe>
+          <iframe id="home-iframe" src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" allowtransparency="true" title="Home Stats"></iframe>
       </div>
 
     <!-- メインアプリ一覧 -->
@@ -96,7 +96,7 @@
                 <div id="searchResults" class="search-results-dropdown hidden"></div>
             </div>
 
-            <!-- アプリのリスト (表示されるように追加) -->
+            <!-- アプリのリスト -->
             <div class="grid-container" id="gridContainer">
                 <a href="https://www.google.com" target="_blank" class="app-card">
                     <div class="card-left"><i class="fab fa-google" style="font-size: 32px; color: #4285F4;"></i></div>
@@ -173,7 +173,7 @@
     </div>
   </div>
   
-  <!-- script.js の読み込み (既存の機能があればここから動作します) -->
+  <!-- script.js の読み込み -->
   <script type="module" src="script.js"></script>
   
   <script>
@@ -202,7 +202,7 @@
           }
       }
       setInterval(updateDateTime, 1000);
-      updateDateTime(); // 初回実行
+      updateDateTime(); 
 
       /**
        * 最初にHomeタブを必ず開く＆検索ボックス処理
@@ -285,7 +285,7 @@
           window.scrollTo(0, 0);
       };
 
-      // PC Traffic (リストクリック時の処理)
+      // PC Traffic 
       window.loadPcTraffic = function(url, labelElement, title) {
           const iframe = document.getElementById('pc-main-iframe');
           const placeholder = document.getElementById('pc-placeholder-msg');
