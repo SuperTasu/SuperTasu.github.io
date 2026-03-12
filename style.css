@@ -67,7 +67,7 @@ body {
   border-radius: 4px; box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
-.datetime-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; overflow: hidden; }
+.datetime-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
 
 /* 時計・日付表示 */
 #custom-date, #custom-clock { 
@@ -174,39 +174,35 @@ body {
     .header-nav { margin-left: 5px; gap: 2px; }
 }
 
-/* ★★★ Home埋め込み (上部タブ内、0.5倍スケール) ★★★ */
+/* ★★★ Home埋め込み (上部タブ内、0.65倍スケールで切り抜き) ★★★ */
 .header-home-embed {
-    width: 250px;  /* 500pxの半分 */
-    height: 75px;  /* 150pxの半分 */
+    width: 250px;  /* 切り抜いて見せたい幅 */
+    height: 70px;  /* 切り抜いて見せたい高さ */
     position: relative;
     margin-left: 10px;
-    overflow: hidden;
+    overflow: hidden; /* 枠外にはみ出た余分な部分を隠す */
     flex-shrink: 0;
-    border-radius: 6px;
+    border-radius: 8px; /* 角を少し丸める */
 }
 
 .header-home-embed iframe {
-    width: 500px;
-    height: 150px;
+    width: 500px;  /* スケール前の元の幅 */
+    height: 200px; /* スケール前の元の高さ */
     border: none;
     background: transparent;
-    /* 50%に縮小し、左上を基準にする */
-    transform: scale(0.5);
+    /* 0.65倍に縮小し、左上を基準にする */
+    transform: scale(0.65);
     transform-origin: top left;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -8px;  /* 上側の不要な余白を隠すための微調整 */
+    left: -8px; /* 左側の不要な余白を隠すための微調整 */
 }
 
 @media (max-width: 800px) {
     .header-home-embed {
-        width: 200px;
-        height: 60px;
+        width: 180px;
+        height: 55px;
         margin-left: 5px;
-    }
-    .header-home-embed iframe {
-        width: 400px;
-        height: 120px;
     }
 }
 
