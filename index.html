@@ -35,7 +35,6 @@
             <div class="left-section" style="display: flex; align-items: center; flex-grow: 1;">
                 <img src="./icon.png" alt="Link First Logo" class="site-logo">
                 <div class="datetime-row">
-                    <!-- IDを変更して外部スクリプトとの競合を回避 -->
                     <div id="custom-date"></div>
                     <div id="custom-clock"></div>
                     
@@ -77,9 +76,11 @@
   </div>
 
   <div class="page-container">
-      <!-- Home コンテナ (埋め込み・右上に配置) -->
+      <!-- Home コンテナ (埋め込み・右上に配置・切り抜き) -->
       <div id="fy-container" style="display: block;">
-          <iframe id="home-iframe" src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" title="Home Stats"></iframe>
+          <div class="iframe-wrapper">
+              <iframe id="home-iframe" src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" scrolling="no" title="Home Stats"></iframe>
+          </div>
       </div>
 
     <!-- メインアプリ一覧 -->
@@ -97,28 +98,25 @@
                 <div id="searchResults" class="search-results-dropdown hidden"></div>
             </div>
 
-            <!-- アプリのリスト -->
+            <!-- アプリのリスト (アイコンの下に名前・横8個) -->
             <div class="grid-container" id="gridContainer">
-                <a href="https://www.google.com" target="_blank" class="app-card">
-                    <div class="card-left"><i class="fab fa-google" style="font-size: 32px; color: #4285F4;"></i></div>
-                    <div class="card-divider"></div>
-                    <div class="card-right"><div class="card-title">Google</div></div>
+                <a href="https://www.google.com" target="_blank" class="app-icon-card">
+                    <div class="app-icon-wrapper"><i class="fab fa-google" style="color: #4285F4;"></i></div>
+                    <div class="app-name">Google</div>
                 </a>
-                <a href="https://www.youtube.com" target="_blank" class="app-card">
-                    <div class="card-left"><i class="fab fa-youtube" style="font-size: 32px; color: #FF0000;"></i></div>
-                    <div class="card-divider"></div>
-                    <div class="card-right"><div class="card-title">YouTube</div></div>
+                <a href="https://www.youtube.com" target="_blank" class="app-icon-card">
+                    <div class="app-icon-wrapper"><i class="fab fa-youtube" style="color: #FF0000;"></i></div>
+                    <div class="app-name">YouTube</div>
                 </a>
-                <a href="https://x.com" target="_blank" class="app-card">
-                    <div class="card-left"><i class="fab fa-twitter" style="font-size: 32px; color: #1DA1F2;"></i></div>
-                    <div class="card-divider"></div>
-                    <div class="card-right"><div class="card-title">X (Twitter)</div></div>
+                <a href="https://x.com" target="_blank" class="app-icon-card">
+                    <div class="app-icon-wrapper"><i class="fab fa-twitter" style="color: #1DA1F2;"></i></div>
+                    <div class="app-name">X (Twitter)</div>
                 </a>
-                <a href="https://github.com" target="_blank" class="app-card">
-                    <div class="card-left"><i class="fab fa-github" style="font-size: 32px; color: var(--text-color-primary);"></i></div>
-                    <div class="card-divider"></div>
-                    <div class="card-right"><div class="card-title">GitHub</div></div>
+                <a href="https://github.com" target="_blank" class="app-icon-card">
+                    <div class="app-icon-wrapper"><i class="fab fa-github" style="color: var(--text-color-primary);"></i></div>
+                    <div class="app-name">GitHub</div>
                 </a>
+                <!-- 他のアプリも同様の形式で追加可能 -->
             </div>
         </div>
     </div>
