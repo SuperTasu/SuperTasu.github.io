@@ -68,7 +68,9 @@ body {
 }
 
 .datetime-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
-#date, #clock { 
+
+/* 変更したIDに対応 */
+#custom-date, #custom-clock { 
     color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 13px; line-height: 1; 
 }
 
@@ -122,7 +124,7 @@ body {
 }
 
 @media (max-width: 700px) {
-    #date { display: none; }
+    #custom-date { display: none; }
     #network-status span { display: none; }
     .datetime-row { gap: 5px; }
     .header-speed-test { display: none; }
@@ -171,21 +173,32 @@ body {
     .header-nav { margin-left: 5px; gap: 2px; }
 }
 
-/* ★★★ Home(埋め込み) 白背景透過スタイル ★★★ */
-#home-iframe {
-    width: 100%;
-    height: calc(100vh - 130px);
-    border: none;
-    border-radius: 12px;
-    background: transparent;
-    /* ライトテーマ：白背景を透明化し黒文字を見せる */
-    mix-blend-mode: multiply;
+/* ★★★ Home(埋め込み) 配置スタイル ★★★ */
+#fy-container {
+    display: flex;
+    justify-content: flex-end; /* PCでは右寄せ */
+    align-items: flex-start;
+    padding: 10px;
+    box-sizing: border-box;
+    min-height: 200px;
 }
 
-body.dark-theme #home-iframe {
-    /* ダークテーマ：色相を保ちつつ白黒反転させ、黒(元の白背景)を透明化する */
-    filter: invert(1) hue-rotate(180deg);
-    mix-blend-mode: screen;
+#home-iframe {
+    width: 100%;
+    max-width: 500px; /* 平行四辺形が収まる幅に制限 */
+    height: 180px;    /* 高さを適度に制限 */
+    border: none;
+    background: transparent;
+}
+
+/* スマホ版では中央に配置 */
+@media (max-width: 768px) {
+    #fy-container {
+        justify-content: center; /* スマホでは中央寄せ */
+    }
+    #home-iframe {
+        max-width: 100%;
+    }
 }
 
 /* ★★★ 検索バー ★★★ */
