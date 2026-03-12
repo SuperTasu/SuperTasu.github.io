@@ -23,6 +23,7 @@
     @media (max-width: 768px) {
         .datetime-row {
             flex-wrap: wrap;
+            gap: 10px;
         }
     }
   </style>
@@ -56,19 +57,11 @@
                 </div>
             </div>
              <div class="header-controls">
-                <!-- Login Button -->
-                <div id="auth-btn" title="Googleログイン">
-                    <i class="fab fa-google"></i>
-                    <img id="user-avatar" src="" alt="User" />
-                    <span id="user-name"></span>
-                </div>
                 <!-- Theme Switcher -->
                 <div class="theme-switcher">
                     <div class="theme-dot light" onclick="setTheme('light')" title="Light Mode"></div>
                     <div class="theme-dot dark" onclick="setTheme('dark')" title="Dark Mode"></div>
                 </div>
-                <!-- Background Changer Button -->
-                <div class="control-icon" onclick="openBgModal()" title="背景変更"><i class="fas fa-image"></i></div>
                 <!-- Network & Refresh -->
                 <div id="network-status" class="online" title="オンライン"><i class="fas fa-wifi"></i> <span>ON</span></div>
                 <div class="control-icon" id="refresh-button" onclick="location.reload()"><i class="fas fa-sync-alt"></i></div>
@@ -103,7 +96,29 @@
                 <div id="searchResults" class="search-results-dropdown hidden"></div>
             </div>
 
-            <div class="grid-container" id="gridContainer"></div>
+            <!-- アプリのリスト (表示されるように追加) -->
+            <div class="grid-container" id="gridContainer">
+                <a href="https://www.google.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-google" style="font-size: 32px; color: #4285F4;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">Google</div></div>
+                </a>
+                <a href="https://www.youtube.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-youtube" style="font-size: 32px; color: #FF0000;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">YouTube</div></div>
+                </a>
+                <a href="https://x.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-twitter" style="font-size: 32px; color: #1DA1F2;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">X (Twitter)</div></div>
+                </a>
+                <a href="https://github.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-github" style="font-size: 32px; color: var(--text-color-primary);"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">GitHub</div></div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -157,27 +172,42 @@
         <div id="memo-status"></div>
     </div>
   </div>
-
-  <!-- 背景選択モーダル -->
-  <div id="bg-select-overlay" class="modal-overlay hidden">
-      <div class="modal-box">
-          <div class="modal-title">背景を設定</div>
-          <input type="file" id="bg-file-input" accept="image/*" style="display:block; margin:0 auto 20px auto;">
-          <div class="modal-buttons">
-              <button class="modal-btn btn-cancel" onclick="closeBgModal()">キャンセル</button>
-              <button class="modal-btn" style="background:#f44336; color:#fff;" onclick="resetBackground()">リセット</button>
-          </div>
-      </div>
-  </div>
   
+  <!-- script.js の読み込み (既存の機能があればここから動作します) -->
   <script type="module" src="script.js"></script>
   
   <script>
       /**
+       * 時計表示（秒数まで）のリアルタイム更新
+       */
+      function updateDateTime() {
+          const now = new Date();
+          const dateEl = document.getElementById('date');
+          const clockEl = document.getElementById('clock');
+          
+          if (dateEl) {
+              const year = now.getFullYear();
+              const month = String(now.getMonth() + 1).padStart(2, '0');
+              const date = String(now.getDate()).padStart(2, '0');
+              const days =['日', '月', '火', '水', '木', '金', '土'];
+              const day = days[now.getDay()];
+              dateEl.textContent = `${year}/${month}/${date}(${day})`;
+          }
+          
+          if (clockEl) {
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const seconds = String(now.getSeconds()).padStart(2, '0');
+              clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+          }
+      }
+      setInterval(updateDateTime, 1000);
+      updateDateTime(); // 初回実行
+
+      /**
        * 最初にHomeタブを必ず開く＆検索ボックス処理
        */
       document.addEventListener('DOMContentLoaded', () => {
-          // ページロード時に確実にHomeタブを開く
           activateTab('fy');
 
           const searchInput = document.getElementById('globalSearchInput');
