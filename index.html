@@ -12,46 +12,15 @@
   <!-- 外部CSSの読み込み -->
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 検索ボックスのサイズと配置の調整 */
+    /* 日付・時計の配置の調整 */
     .datetime-row {
         display: flex;
         align-items: center;
         gap: 15px;
         flex-grow: 1;
     }
-    .header-search-wrap {
-        margin-left: 10px;
-        flex-grow: 1;
-        max-width: 600px; /* 検索ボックスの最大幅 */
-    }
-    .search-container {
-        width: 100% !important;
-        height: 45px !important; /* 高さを少し大きく */
-        background: var(--input-bg, rgba(255,255,255,0.2));
-        border-radius: 25px;
-        display: flex;
-        align-items: center;
-        padding: 0 15px;
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-    #globalSearchInput {
-        width: 100%;
-        background: transparent;
-        border: none;
-        outline: none;
-        color: inherit;
-        font-size: 1.1rem; /* 文字サイズを少し大きく */
-        margin-left: 10px;
-    }
-    /* もともとの検索バーエリアを非表示にする（移動させたため） */
-    .search-wrapper {
-        display: none;
-    }
     
     @media (max-width: 768px) {
-        .header-search-wrap {
-            max-width: none;
-        }
         .datetime-row {
             flex-wrap: wrap;
         }
@@ -67,15 +36,6 @@
                 <div class="datetime-row">
                     <div id="date"></div>
                     <div id="clock"></div>
-                    <!-- 「限目（countdown）」を削除し、ここに検索ボックスを配置 -->
-                    <div class="header-search-wrap">
-                        <div class="search-container"> 
-                            <i class="fas fa-search"></i> 
-                            <input type="text" id="globalSearchInput" placeholder="検索（!でDuckDuckGo）..." autocomplete="off"> 
-                            <i class="fas fa-times hidden" id="clearSearchBtn"></i>
-                        </div>
-                        <div id="searchResults" class="search-results-dropdown hidden"></div>
-                    </div>
                 </div>
             </div>
              <div class="header-controls">
@@ -126,6 +86,17 @@
     <div class="main-grid" id="main-grid" style="display: none;">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
+            
+            <!-- 移動した検索バー -->
+            <div class="app-search-wrap">
+                <div class="search-container"> 
+                    <i class="fas fa-search"></i> 
+                    <input type="text" id="globalSearchInput" placeholder="検索（!でDuckDuckGo）..." autocomplete="off"> 
+                    <i class="fas fa-times hidden" id="clearSearchBtn"></i>
+                </div>
+                <div id="searchResults" class="search-results-dropdown hidden"></div>
+            </div>
+
             <div class="grid-container" id="gridContainer"></div>
         </div>
     </div>
@@ -261,7 +232,7 @@
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-          const tabs = ['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
+          const tabs =['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
