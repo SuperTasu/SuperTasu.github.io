@@ -12,7 +12,7 @@
   <!-- 外部CSSの読み込み -->
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 日付・時計の配置の調整 */
+    /* 日付・時計・タブの配置の調整 */
     .datetime-row {
         display: flex;
         align-items: center;
@@ -36,6 +36,23 @@
                 <div class="datetime-row">
                     <div id="date"></div>
                     <div id="clock"></div>
+                    
+                    <!-- 下部から移動・並び替えたヘッダータブ -->
+                    <nav class="header-nav">
+                        <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
+                            <i class="fas fa-th-large"></i> <span>Apps</span> 
+                        </div>
+                        <div class="tab-item active" id="tab-fy" onclick="activateTab('fy')"> 
+                            <i class="fas fa-home fy-icon"></i> <span>Home</span> 
+                        </div>
+                        <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
+                            <i class="fas fa-bus"></i> <span>Traffic</span> 
+                        </div>
+                        <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> 
+                            <i class="fas fa-pen-alt"></i> <span>Memo</span> 
+                        </div>
+                    </nav>
+
                 </div>
             </div>
              <div class="header-controls">
@@ -66,7 +83,7 @@
   </div>
 
   <div class="page-container">
-      <!-- FYコンテナ -->
+      <!-- Home (旧FY) コンテナ -->
       <div id="fy-container" style="display: block;">
           <div id="fy-clock-display">
               <div class="fy-clock-group">
@@ -76,18 +93,18 @@
               <div id="fy-speed-test-placeholder"></div>
           </div>
           <div class="fy-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-              <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-star fy-icon"></i> お気に入り (Favorites)</h3>
+              <h3 class="section-title" style="border:none; margin:0;"><i class="fas fa-home fy-icon"></i> Home (Favorites)</h3>
               <button id="fy-edit-btn" class="edit-btn" onclick="toggleEditMode()" style="padding:5px 15px; border-radius:15px; cursor:pointer; background:var(--input-bg); border:1px solid #ccc;">並び替え</button>
           </div>
           <div id="fy-content-area"></div>
       </div>
 
-    <!-- メイングアプリ一覧 -->
+    <!-- メインアプリ一覧 -->
     <div class="main-grid" id="main-grid" style="display: none;">
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
             
-            <!-- 移動した検索バー -->
+            <!-- 検索バー -->
             <div class="app-search-wrap">
                 <div class="search-container"> 
                     <i class="fas fa-search"></i> 
@@ -151,13 +168,6 @@
         <div id="memo-status"></div>
     </div>
   </div>
-
-  <nav class="bottom-nav">
-      <div class="tab-item active" id="tab-fy" onclick="activateTab('fy')"> <i class="fas fa-star fy-icon"></i> <span>FY☆</span> </div>
-      <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> <i class="fas fa-th-large"></i> <span>Apps</span> </div>
-      <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> <i class="fas fa-bus"></i> <span>Traffic</span> </div>
-      <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> <i class="fas fa-pen-alt"></i> <span>Memo</span> </div>
-  </nav>
 
   <!-- 背景選択モーダル -->
   <div id="bg-select-overlay" class="modal-overlay hidden">
@@ -232,7 +242,7 @@
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-          const tabs =['tab-fy', 'tab-all-apps', 'tab-bustarain'];
+          const tabs =['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
@@ -246,7 +256,10 @@
           } else if (tabName === 'bustarain') {
               document.getElementById('bustarain-container').style.display = 'block';
               document.getElementById('tab-bustarain').classList.add('active');
-          } 
+          } else if (tabName === 'memo') {
+              document.getElementById('memo-container').style.display = 'block';
+              document.getElementById('tab-memo').classList.add('active');
+          }
           window.scrollTo(0, 0);
       };
 
@@ -271,6 +284,24 @@
           if(activeList) activeList.scrollBy({ top: amount, behavior: 'smooth' });
       };
 
+      // メモ帳
+      document.addEventListener('DOMContentLoaded', () => {
+          const memoPad = document.getElementById('memo-pad');
+          const memoStatus = document.getElementById('memo-status');
+          if (memoPad) {
+              const savedMemo = localStorage.getItem('userMemo');
+              if (savedMemo) memoPad.value = savedMemo;
+              let timeoutId;
+              memoPad.addEventListener('input', () => {
+                  memoStatus.textContent = '保存中...';
+                  clearTimeout(timeoutId);
+                  timeoutId = setTimeout(() => {
+                      localStorage.setItem('userMemo', memoPad.value);
+                      memoStatus.textContent = '保存しました';
+                      setTimeout(() => { memoStatus.textContent = ''; }, 2000);
+                  }, 1000); 
+              });
+          }
       });
   </script>
 </body>
