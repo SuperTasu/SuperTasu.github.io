@@ -171,6 +171,23 @@ body {
     .header-nav { margin-left: 5px; gap: 2px; }
 }
 
+/* ★★★ Home(埋め込み) 白背景透過スタイル ★★★ */
+#home-iframe {
+    width: 100%;
+    height: calc(100vh - 130px);
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    /* ライトテーマ：白背景を透明化し黒文字を見せる */
+    mix-blend-mode: multiply;
+}
+
+body.dark-theme #home-iframe {
+    /* ダークテーマ：色相を保ちつつ白黒反転させ、黒(元の白背景)を透明化する */
+    filter: invert(1) hue-rotate(180deg);
+    mix-blend-mode: screen;
+}
+
 /* ★★★ 検索バー ★★★ */
 .app-search-wrap { 
     display: flex; 
@@ -252,6 +269,11 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     color: var(--text-color-primary);
 }
 .app-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+/* ★ アプリのお気に入りボタン等を削除(非表示) ★ */
+.card-buttons, .card-btn {
+    display: none !important;
+}
 
 @keyframes flashRed {
     0% { border-color: #ff0000; box-shadow: 0 0 0 rgba(255,0,0,0); }
@@ -336,7 +358,7 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     height: 1.5em;
 }
 
-/* ★★★ Bustarain PC版専用スタイル (画像再現) ★★★ */
+/* ★★★ Bustarain PC版専用スタイル ★★★ */
 #traffic-pc-view { display: none; }
 #traffic-mobile-view { display: block; }
 
