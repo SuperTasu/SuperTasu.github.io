@@ -38,7 +38,7 @@
                     <div id="custom-date"></div>
                     <div id="custom-clock"></div>
                     
-                    <!-- ヘッダータブ -->
+                    <!-- ヘッダータブと埋め込み -->
                     <nav class="header-nav">
                         <div class="tab-item" id="tab-all-apps" onclick="activateTab('all-apps')"> 
                             <i class="fas fa-th-large"></i> <span>Apps</span> 
@@ -51,6 +51,11 @@
                         </div>
                         <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> 
                             <i class="fas fa-pen-alt"></i> <span>Memo</span> 
+                        </div>
+                        
+                        <!-- Home埋め込み (Memoの隣、0.5倍スケール) -->
+                        <div class="header-home-embed">
+                            <iframe src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" scrolling="no" title="Home Stats"></iframe>
                         </div>
                     </nav>
 
@@ -76,9 +81,9 @@
   </div>
 
   <div class="page-container">
-      <!-- Home コンテナ (そのまま埋め込み) -->
+      <!-- Home コンテナ (埋め込みは上部タブ横に移動したため空枠のみ) -->
       <div id="fy-container" style="display: block;">
-          <iframe src="https://statsoverlay.prismillon.com/?name=FY%20Tasu" style="width: 100%; height: calc(100vh - 130px); border: none; border-radius: 12px; background: transparent;" title="Home Stats"></iframe>
+          <!-- 埋め込みはヘッダーに移動しました -->
       </div>
 
     <!-- メインアプリ一覧 -->
@@ -104,7 +109,6 @@
                     <div class="app-icon-wrapper"><i class="fab fa-github" style="color: var(--text-color-primary);"></i></div>
                     <div class="app-name">GitHub</div>
                 </a>
-                <!-- 他のアプリも同様の形式で追加可能 -->
             </div>
         </div>
     </div>
