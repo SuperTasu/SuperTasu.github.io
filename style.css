@@ -3,7 +3,6 @@
   --bg-color: #ffffff;
   --text-color-primary: #000000;
   --text-color-secondary: #444444;
-  --custom-bg-image: none; 
   
   --card-bg: #ffffff;
   --card-border: 2px solid #000000;
@@ -45,18 +44,6 @@ body {
   padding-bottom: 20px;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: -1;
-  background-image: var(--custom-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-}
-
 /* ★★★ 固定ヘッダー ★★★ */
 .fixed-top-wrapper {
   position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
@@ -81,7 +68,7 @@ body::before {
 }
 
 .datetime-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
-#date, #clock, #countdown { 
+#date, #clock { 
     color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 13px; line-height: 1; 
 }
 
@@ -110,12 +97,6 @@ body::before {
 .theme-dot { width: 8px; height: 8px; border-radius: 50%; cursor: pointer; border: 1px solid #888; } 
 .theme-dot.light { background-color: #fff; }
 .theme-dot.dark { background-color: #444; }
-
-/* Login Button Styles */
-#auth-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #aaa; max-width: 150px; }
-#auth-btn:hover { color: #fff; }
-#user-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid #fff; display: none;}
-#user-name { font-size: 10px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: none; }
 
 /* Network Status */
 #network-status {
@@ -146,7 +127,6 @@ body::before {
     .datetime-row { gap: 5px; }
     .header-speed-test { display: none; }
     .header-controls { gap: 6px; }
-    #auth-btn span { display: none !important; }
     .site-logo { height: 20px; }
     .control-icon { width: 32px; height: 32px; font-size: 16px; }
 }
@@ -244,7 +224,7 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 .tag-traffic { background-color: #28a745; }
 
 /* ★★★ コンテンツエリア ★★★ */
-.page-container { max-width: 1400px; margin: 0 auto; padding: 70px 20px 20px 20px; } /* 上部パディングを調整 */
+.page-container { max-width: 1400px; margin: 0 auto; padding: 70px 20px 20px 20px; } 
 #main-grid, #bustarain-container, #fy-container, #memo-container {
     position: relative; z-index: 1; width: 100%; box-sizing: border-box;
 }
@@ -356,28 +336,10 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     height: 1.5em;
 }
 
-/* モーダル共通 */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); z-index: 7000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-}
-.modal-overlay.hidden { display: none; }
-.modal-box {
-    background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 500px; text-align: center; border: 1px solid #ccc;
-    max-height: 80vh; overflow-y: auto;
-}
-.modal-title { margin-bottom: 10px; font-size:18px; font-weight:bold; }
-.modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 15px;}
-.modal-btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; gap:8px;}
-.btn-same { background: #667eea; color: white; }
-.btn-new { background: #28a745; color: white; }
-.btn-cancel { background: var(--input-bg); color: var(--text-color-secondary); }
-
 /* ★★★ Bustarain PC版専用スタイル (画像再現) ★★★ */
 #traffic-pc-view { display: none; }
 #traffic-mobile-view { display: block; }
 
-/* 1000px以上でPC用レイアウトに切り替え */
 @media (min-width: 1000px) {
     #traffic-mobile-view { display: none; }
     #traffic-pc-view { display: flex; }
@@ -392,7 +354,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
         border-radius: 12px; overflow: hidden;
     }
 
-    /* 左側：表示エリア */
     .pc-traffic-display {
         flex-grow: 1;
         border-right: 2px solid var(--text-color-primary);
@@ -413,7 +374,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
         color: #888; font-weight: bold; text-align: center;
     }
 
-    /* 右側：サイドバー */
     .pc-traffic-sidebar {
         width: 320px;
         display: flex;
