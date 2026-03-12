@@ -42,7 +42,7 @@ body {
   padding: 0;
   box-sizing: border-box;
   min-height: 100vh;
-  padding-bottom: 90px; /* ナビゲーションの高さ分確保 */
+  padding-bottom: 20px; /* タブを下から上へ移動したため、下部の余白を縮小 */
 }
 
 body::before {
@@ -68,7 +68,7 @@ body::before {
 
 .clock-area { 
     width: 100%; padding: 0 10px; box-sizing: border-box; 
-    display: flex; align-items: center; height: 40px; 
+    display: flex; align-items: center; min-height: 40px; /* wrap時にも対応できるようmin-heightに変更 */
 }
 
 .clock-main-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -80,7 +80,7 @@ body::before {
   border-radius: 4px; box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
-.datetime-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
+.datetime-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
 #date, #clock, #countdown { 
     color: #ffffff; font-weight: bold; white-space: nowrap; font-size: 13px; line-height: 1; 
 }
@@ -150,6 +150,47 @@ body::before {
     #auth-btn span { display: none !important; }
     .site-logo { height: 20px; }
     .control-icon { width: 32px; height: 32px; font-size: 16px; }
+}
+
+/* ★★★ ヘッダータブ・ナビゲーション ★★★ */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.tab-item { 
+    padding: 6px 12px; 
+    color: #cccccc; 
+    font-weight: bold; 
+    font-size: 13px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    border-radius: 20px; 
+    transition: all 0.2s;
+}
+
+.tab-item i { font-size: 15px; }
+
+.tab-item:hover { 
+    color: #ffffff; 
+    background-color: rgba(255,255,255,0.1); 
+}
+
+.tab-item.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); }
+.tab-item.active i { color: var(--tab-active-text); }
+.fy-icon { color: #ffc107; }
+.tab-item.active .fy-icon { color: #fff; }
+
+/* モバイル時のタブ表示（テキストを隠してアイコンだけにするなど） */
+@media (max-width: 800px) {
+    .tab-item { padding: 6px 10px; }
+    .tab-item span { display: none; }
+    .tab-item i { font-size: 16px; margin: 0; }
+    .header-nav { margin-left: 5px; gap: 2px; }
 }
 
 /* ★★★ 検索バー ★★★ */
@@ -311,7 +352,7 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
 .edit-mode .app-card { pointer-events: none; }
 .grid-slot.empty { border: 1px dashed rgba(0,0,0,0.1); border-radius: var(--card-radius); }
 
-/* FY専用時計 */
+/* Home(FY)専用時計 */
 #fy-clock-display { text-align: center; margin-bottom: 15px; font-family: 'Roboto Mono', monospace; color: var(--text-color-primary); }
 .fy-date-text { font-size: 16px; margin-right: 10px; font-weight: bold; }
 .fy-time-text { font-size: 28px; font-weight: bold; color: var(--tab-active-bg); }
@@ -349,23 +390,6 @@ body.dark-theme .search-result-item { background: rgba(0, 0, 0, 0.4); }
     margin-top: 5px;
     height: 1.5em;
 }
-
-/* ナビゲーション */
-.bottom-nav {
-    position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--nav-bg); backdrop-filter: blur(10px);
-    border-top: 1px solid #ccc; display: flex; justify-content: space-around; align-items: center;
-    padding: 5px 10px; padding-bottom: calc(5px + env(safe-area-inset-bottom)); z-index: 2000; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-}
-.tab-item { 
-    padding: 6px 0; color: var(--text-color-secondary); font-weight: bold; font-size: 10px; 
-    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
-    border-radius: 10px; margin: 0 4px; max-width: 90px;
-}
-.tab-item i { font-size: 20px; }
-.tab-item.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); }
-.tab-item.active i { color: var(--tab-active-text); }
-.fy-icon { color: #ffc107; }
-.tab-item.active .fy-icon { color: #fff; }
 
 /* モーダル共通 */
 .modal-overlay {
