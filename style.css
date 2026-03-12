@@ -153,28 +153,36 @@ body::before {
 }
 
 /* ★★★ 検索バー ★★★ */
-.search-wrapper { 
-    display: flex !important; 
-    justify-content: center; width: 100%; margin-top: 0; padding: 0 10px; box-sizing: border-box;
-    position: relative; z-index: 5000;
+.app-search-wrap { 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    width: 100%; 
+    margin-top: 10px; 
+    margin-bottom: 20px;
+    padding: 0 10px; 
+    box-sizing: border-box;
+    position: relative; 
+    z-index: 5000;
 }
 .search-container { 
     display: flex; align-items: center; padding: 0 15px; 
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 20px; border: none; width: 90%; max-width: 500px; height: 36px; 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: width 0.3s ease;
+    background-color: var(--input-bg);
+    border-radius: 25px; border: 1px solid var(--card-border); 
+    width: 100%; max-width: 600px; height: 45px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: width 0.3s ease;
 }
 
-.search-container i.fa-search { color: #555; margin-right: 8px; font-size: 0.9em; }
+.search-container i.fa-search { color: var(--text-color-secondary); margin-right: 8px; font-size: 1.1em; }
 #globalSearchInput { 
-    border: none; background: transparent; outline: none; width: 100%; font-size: 15px; color: #333;
+    border: none; background: transparent; outline: none; width: 100%; font-size: 1.1rem; color: var(--text-color-primary);
 }
-#clearSearchBtn { cursor: pointer; color: #777; font-size: 0.9em; }
+#clearSearchBtn { cursor: pointer; color: var(--text-color-secondary); font-size: 1.1em; }
 
 /* 検索結果ドロップダウン */
 .search-results-dropdown {
-    position: absolute; top: 40px; left: 10; right: 10; margin: 0 auto;
-    width: 85%; max-width: 550px; background-color: var(--card-bg); border-radius: 12px;
+    position: absolute; top: 50px; left: 0; right: 0; margin: 0 auto;
+    width: calc(100% - 20px); max-width: 600px; background-color: var(--card-bg); border-radius: 12px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4); z-index: 5500; 
     max-height: 60vh; overflow-y: auto; padding: 5px; 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
