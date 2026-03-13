@@ -46,10 +46,13 @@
                         <div class="tab-item active" id="tab-fy" onclick="activateTab('fy')"> 
                             <i class="fas fa-home fy-icon"></i> <span>Home</span> 
                         </div>
-                        <div class="tab-item" id="tab-bustarain" onclick="activateTab('bustarain')"> 
+                        <!-- ★ Trafficタブ：クリック時に直接URLへ遷移する仕組みに変更 ★ -->
+                        <div class="tab-item" id="tab-bustarain" onclick="window.location.href='https://supertasu.github.io/Bustarain/B-train.html'"> 
                             <i class="fas fa-bus"></i> <span>Traffic</span> 
                         </div>
-
+                        <div class="tab-item" id="tab-memo" onclick="activateTab('memo')"> 
+                            <i class="fas fa-pen-alt"></i> <span>Memo</span> 
+                        </div>
                         
                         <!-- Home埋め込み (Memoの隣、0.65倍スケールで切り抜き) -->
                         <div class="header-home-embed">
@@ -86,7 +89,7 @@
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
 
-            <!-- アプリのリスト (以前の横長カード型に戻しました) -->
+            <!-- アプリのリスト -->
             <div class="grid-container" id="gridContainer">
                 <a href="https://www.google.com" target="_blank" class="app-card">
                     <div class="card-left"><i class="fab fa-google" style="color: #4285F4;"></i></div>
@@ -110,11 +113,6 @@
                 </a>
             </div>
         </div>
-    </div>
-
-    <!-- Bustarain (交通) コンテナ -->
-    <div id="bustarain-container" style="display: none;">
-        <iframe src="Bustarain/B-train.html" style="width: 100%; height: calc(100vh - 130px); border: none; border-radius: 12px; background: transparent;"></iframe>
     </div>
 
     <!-- メモ帳 コンテナ -->
@@ -154,26 +152,26 @@
           activateTab('fy');
       });
 
+      // タブ切り替えロジック (Trafficへの遷移は直接行うため除外)
       window.activateTab = function(tabName) {
-          const containers =['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
+          const containers =['fy-container', 'main-grid', 'memo-container'];
           containers.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.style.display = 'none';
           });
-          const tabs =['tab-fy', 'tab-all-apps', 'tab-bustarain', 'tab-memo'];
+          const tabs =['tab-fy', 'tab-all-apps', 'tab-memo'];
           tabs.forEach(id => {
               const el = document.getElementById(id);
               if (el) el.classList.remove('active');
           });
+          
+          // Traffic以外のタブの切り替え処理
           if (tabName === 'fy') {
               document.getElementById('fy-container').style.display = 'block';
               document.getElementById('tab-fy').classList.add('active');
           } else if (tabName === 'all-apps') {
               document.getElementById('main-grid').style.display = 'block';
               document.getElementById('tab-all-apps').classList.add('active');
-          } else if (tabName === 'bustarain') {
-              document.getElementById('bustarain-container').style.display = 'block';
-              document.getElementById('tab-bustarain').classList.add('active');
           } else if (tabName === 'memo') {
               document.getElementById('memo-container').style.display = 'block';
               document.getElementById('tab-memo').classList.add('active');
