@@ -81,9 +81,7 @@
   </div>
 
   <div class="page-container">
-      <!-- Home コンテナ (埋め込みはヘッダーに移動済みのため空) -->
-      <div id="fy-container" style="display: block;">
-      </div>
+      <div id="fy-container" style="display: block;"></div>
 
     <!-- メインアプリ一覧 -->
     <div class="main-grid" id="main-grid" style="display: none;">
@@ -108,52 +106,13 @@
                     <div class="app-icon-wrapper"><i class="fab fa-github" style="color: var(--text-color-primary);"></i></div>
                     <div class="app-name">GitHub</div>
                 </a>
-                <!-- 他のアプリも同様の形式で追加可能 -->
             </div>
         </div>
     </div>
 
-    <!-- Bustarain (交通) コンテナ -->
+    <!-- ★ Bustarain (交通) コンテナを B-train.html の呼び出しに変更 ★ -->
     <div id="bustarain-container" style="display: none;">
-        <!-- モバイル版 -->
-        <div id="traffic-mobile-view">
-            <div id="mobile-traffic-all" class="traffic-grid sub-tab-content" style="margin-top: 15px;">
-                <a href="Bustarain/train/wadmisaki-train.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-subway"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">電車一覧</div></div></a>
-                <a href="Bustarain/bus/Buslocation.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-map-marked-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バスロケーション</div></div></a>
-                <a href="Bustarain/bus/imadezaike.html" target="_blank" class="app-card traffic-card"><div class="card-left"><i class="fas fa-bus-alt"></i></div><div class="card-divider"></div><div class="card-right"><div class="card-title">バス時刻一覧</div></div></a>
-            </div>
-        </div>
-
-        <!-- PC版 -->
-        <div id="traffic-pc-view">
-            <div class="pc-traffic-display">
-                <div class="pc-display-header" id="pc-header-title">Select Info</div>
-                <div class="pc-placeholder" id="pc-placeholder-msg">リストから選択してください</div>
-                <iframe id="pc-main-iframe" src=""></iframe>
-            </div>
-            <div class="pc-traffic-sidebar">
-                <div class="pc-sidebar-header">
-                    <div class="scroll-arrow" onclick="scrollTrafficList(-50)"><i class="fas fa-chevron-up"></i></div>
-                </div>
-                <div id="pc-list-all" class="pc-traffic-list">
-                    <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/train/wadmisaki-train.html', this, '🚃電車一覧')">電車一覧</span>
-                        <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/train/wadmisaki-train.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
-                    </div>
-                    <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/Buslocation.html', this, '🚌バスロケーション')">バスロケーション</span>
-                        <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/bus/Buslocation.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
-                    </div>
-                    <div class="pc-traffic-item">
-                        <span class="pc-item-label" onclick="loadPcTraffic('Bustarain/bus/imadezaike.html', this, '🚌バス時刻一覧')">バス時刻一覧</span>
-                        <button class="pc-new-tab-btn" onclick="openNewTab('Bustarain/bus/imadezaike.html', event)" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></button>
-                    </div>
-                </div>
-                <div class="pc-sidebar-footer">
-                    <div class="scroll-arrow" onclick="scrollTrafficList(50)"><i class="fas fa-chevron-down"></i></div>
-                </div>
-            </div>
-        </div>
+        <iframe src="Bustarain/B-train.html" style="width: 100%; height: calc(100vh - 130px); border: none; border-radius: 12px; background: transparent;"></iframe>
     </div>
 
     <!-- メモ帳 コンテナ -->
@@ -164,13 +123,8 @@
     </div>
   </div>
   
-  <!-- script.js の読み込み -->
   <script type="module" src="script.js"></script>
-  
   <script>
-      /**
-       * 時計表示（秒数まで）のリアルタイム更新
-       */
       function updateDateTime() {
           const now = new Date();
           const dateEl = document.getElementById('custom-date');
@@ -184,7 +138,6 @@
               const day = days[now.getDay()];
               dateEl.textContent = `${year}/${month}/${date}(${day})`;
           }
-          
           if (clockEl) {
               const hours = String(now.getHours()).padStart(2, '0');
               const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -195,14 +148,10 @@
       setInterval(updateDateTime, 1000);
       updateDateTime(); 
 
-      /**
-       * 最初にHomeタブを必ず開く
-       */
       document.addEventListener('DOMContentLoaded', () => {
           activateTab('fy');
       });
 
-      // タブ切り替えロジック
       window.activateTab = function(tabName) {
           const containers =['fy-container', 'main-grid', 'bustarain-container', 'memo-container'];
           containers.forEach(id => {
@@ -230,28 +179,6 @@
           window.scrollTo(0, 0);
       };
 
-      // PC Traffic 
-      window.loadPcTraffic = function(url, labelElement, title) {
-          const iframe = document.getElementById('pc-main-iframe');
-          const placeholder = document.getElementById('pc-placeholder-msg');
-          const headerTitle = document.getElementById('pc-header-title');
-          placeholder.style.display = 'none';
-          iframe.src = url;
-          if(title) headerTitle.textContent = title;
-          document.querySelectorAll('.pc-traffic-item').forEach(el => el.classList.remove('active'));
-          if(labelElement && labelElement.parentElement) labelElement.parentElement.classList.add('active');
-      };
-
-      window.openNewTab = function(url, event) {
-          event.stopPropagation(); window.open(url, '_blank');
-      }
-
-      window.scrollTrafficList = function(amount) {
-          const activeList = document.querySelector('.pc-traffic-list:not(.hidden)');
-          if(activeList) activeList.scrollBy({ top: amount, behavior: 'smooth' });
-      };
-
-      // メモ帳
       document.addEventListener('DOMContentLoaded', () => {
           const memoPad = document.getElementById('memo-pad');
           const memoStatus = document.getElementById('memo-status');
