@@ -88,29 +88,33 @@
         <div id="all-apps-container">
             <h3 class="section-title">すべてのアプリ</h3>
 
-            <!-- アプリのリスト (アイコンの下に名前・横8個) -->
+            <!-- アプリのリスト (以前の横長カード型に戻しました) -->
             <div class="grid-container" id="gridContainer">
-                <a href="https://www.google.com" target="_blank" class="app-icon-card">
-                    <div class="app-icon-wrapper"><i class="fab fa-google" style="color: #4285F4;"></i></div>
-                    <div class="app-name">Google</div>
+                <a href="https://www.google.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-google" style="color: #4285F4;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">Google</div></div>
                 </a>
-                <a href="https://www.youtube.com" target="_blank" class="app-icon-card">
-                    <div class="app-icon-wrapper"><i class="fab fa-youtube" style="color: #FF0000;"></i></div>
-                    <div class="app-name">YouTube</div>
+                <a href="https://www.youtube.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-youtube" style="color: #FF0000;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">YouTube</div></div>
                 </a>
-                <a href="https://x.com" target="_blank" class="app-icon-card">
-                    <div class="app-icon-wrapper"><i class="fab fa-twitter" style="color: #1DA1F2;"></i></div>
-                    <div class="app-name">X (Twitter)</div>
+                <a href="https://x.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-twitter" style="color: #1DA1F2;"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">X (Twitter)</div></div>
                 </a>
-                <a href="https://github.com" target="_blank" class="app-icon-card">
-                    <div class="app-icon-wrapper"><i class="fab fa-github" style="color: var(--text-color-primary);"></i></div>
-                    <div class="app-name">GitHub</div>
+                <a href="https://github.com" target="_blank" class="app-card">
+                    <div class="card-left"><i class="fab fa-github" style="color: var(--text-color-primary);"></i></div>
+                    <div class="card-divider"></div>
+                    <div class="card-right"><div class="card-title">GitHub</div></div>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- ★ Bustarain (交通) コンテナを B-train.html の呼び出しに変更 ★ -->
+    <!-- Bustarain (交通) コンテナ -->
     <div id="bustarain-container" style="display: none;">
         <iframe src="Bustarain/B-train.html" style="width: 100%; height: calc(100vh - 130px); border: none; border-radius: 12px; background: transparent;"></iframe>
     </div>
