@@ -2,9 +2,15 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <!-- タイトルの追加 -->
+  <title>B-train</title>
+  
+  <!-- ファビコンの設定 -->
+  <link rel="icon" href="B-favi.png">
+  <link rel="apple-touch-icon" href="B-favi.png">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B-train</title>
   <style>
     /* 常にダークモードとし、見やすく調整した変数 */
     :root {
@@ -43,7 +49,7 @@
       box-sizing: border-box;
     }
 
-    /* タイトルとファビコン */
+    /* タイトルとロゴ */
     .header-title {
       display: flex;
       align-items: center;
@@ -55,8 +61,9 @@
       gap: 15px;
     }
     .header-title img {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px; /* ロゴの角を少し丸くする場合 */
     }
 
     /* --- PC・スマホ共通 カードレイアウト --- */
@@ -168,7 +175,7 @@
       color: var(--text-color-primary);
       margin-bottom: 10px;
     }
-    /* 追加：何を開いているかのテキスト */
+    /* 開いているターゲットのテキスト */
     .loading-target-text {
       font-size: 16px;
       color: var(--tab-active-bg);
@@ -263,12 +270,11 @@
 </head>
 <body>
 
-  <!-- コンテンツ全体をセンタリングするためのラッパー -->
   <div class="container">
   
-    <!-- タイトルとファビコン -->
+    <!-- タイトルとロゴ -->
     <div class="header-title">
-      <img src="B-favi.png" alt="favicon">
+      <img src="B-favi.png" alt="B-train Logo">
       <span>B-train</span>
     </div>
 
@@ -315,7 +321,7 @@
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-box">
       <div class="loading-text">ロード中...</div>
-      <!-- 追加：開こうとしているタイトルを表示する場所 -->
+      <!-- 開こうとしているタイトルを表示する場所 -->
       <div id="loading-target-text" class="loading-target-text"></div>
       
       <div class="progress-container">
@@ -332,7 +338,7 @@
       const overlay = document.getElementById('loading-overlay');
       const progressBar = document.getElementById('progress-bar');
       const cancelBtn = document.getElementById('cancel-btn');
-      const loadingTargetText = document.getElementById('loading-target-text'); // 追加
+      const loadingTargetText = document.getElementById('loading-target-text');
       
       let loadTimeout;
       let progressInterval;
@@ -346,7 +352,7 @@
           const url = this.getAttribute('href');
           const target = this.getAttribute('target');
           
-          // 追加：クリックしたカードのタイトルを取得して表示
+          // クリックしたカードのタイトルを取得して表示
           const title = this.querySelector('.card-title').textContent;
           loadingTargetText.textContent = `「${title}」を開いています`;
           
