@@ -304,7 +304,7 @@
         <div id="mobile-traffic-all" class="traffic-grid">
             
             <!-- 1. 電車一覧 -->
-            <a href="train/wadmisaki-train.html" target="_blank" class="app-card">
+            <a href="train/wadmisaki-train.html" class="app-card">
                 <div class="card-left"><i class="fas fa-subway"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -330,7 +330,7 @@
             </div>
             
             <!-- 3. 神戸市バス一覧 -->
-            <a href="bus/imadezaike.html" target="_blank" class="app-card">
+            <a href="bus/imadezaike.html" class="app-card">
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -340,7 +340,7 @@
             </a>
             
             <!-- 4. 神戸市バスロケーション -->
-            <a href="bus/Buslocation.html" target="_blank" class="app-card">
+            <a href="bus/Buslocation.html" class="app-card">
                 <div class="card-left"><i class="fas fa-map-marked-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -352,7 +352,7 @@
         </div>
     </div>
 
-    <!-- 下部リンクボタン -->
+    <!-- 下部リンクボタン (こちらも同じタブで遷移するように変更) -->
     <div class="back-btn-wrapper">
         <a href="https://supertasu.github.io/" class="back-btn">
             <i class="fas fa-home"></i> Link FIrstに戻る
@@ -408,8 +408,8 @@
       let loadTimeout;
       let progressInterval;
       
-      // 共通のロード処理関数
-      function startLoading(url, title, target) {
+      // 共通のロード処理関数 (全て同じタブで開く)
+      function startLoading(url, title) {
         // 路線選択モーダルが開いていれば閉じる
         if (trainSelectOverlay.style.display === 'flex') {
           trainSelectOverlay.style.display = 'none';
@@ -434,11 +434,8 @@
           clearInterval(progressInterval);
           overlay.style.display = 'none';
           
-          if (target === '_blank') {
-            window.open(url, '_blank');
-          } else {
-            window.location.href = url;
-          }
+          // 全て同じタブ(現在の画面)で遷移する
+          window.location.href = url;
         }, totalTime);
       }
 
@@ -448,9 +445,8 @@
         card.addEventListener('click', function(e) {
           e.preventDefault(); 
           const url = this.getAttribute('href');
-          const target = this.getAttribute('target');
           const title = this.querySelector('.card-title').textContent;
-          startLoading(url, title, target);
+          startLoading(url, title);
         });
       });
 
@@ -473,7 +469,7 @@
         btn.addEventListener('click', () => {
           const url = btn.getAttribute('data-url');
           const title = btn.getAttribute('data-title');
-          startLoading(url, title, '_blank'); // 別タブで開く
+          startLoading(url, title);
         });
       });
       
