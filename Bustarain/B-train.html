@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <!-- タイトルの追加 -->
   <title>B-train</title>
   
   <!-- ファビコンの設定 -->
@@ -45,7 +44,7 @@
       padding: 30px 20px;
       display: flex;
       flex-direction: column;
-      align-items: center; /* コンテンツ内も中央揃え */
+      align-items: center; 
       box-sizing: border-box;
     }
 
@@ -63,7 +62,7 @@
     .header-title img {
       width: 40px;
       height: 40px;
-      border-radius: 8px; /* ロゴの角を少し丸くする場合 */
+      border-radius: 8px; 
     }
 
     /* --- PC・スマホ共通 カードレイアウト --- */
@@ -75,7 +74,6 @@
     
     .traffic-grid { 
       display: grid; 
-      /* 画面幅に合わせて自動でカラム数を調整（PCなら複数列、スマホなら1列） */
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
       gap: 20px; 
       justify-content: center;
@@ -139,10 +137,10 @@
       font-size: 11px;
       color: var(--text-color-secondary);
       text-align: center;
-      line-height: 1.6; /* 複数行になるため少し行間を広げました */
+      line-height: 1.6; 
     }
 
-    /* --- ロード中モーダルのスタイル --- */
+    /* --- ロード中＆選択モーダルのスタイル --- */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -151,7 +149,7 @@
       height: 100%;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(5px);
-      display: none; /* 初期は非表示 */
+      display: none; 
       justify-content: center;
       align-items: center;
       z-index: 9999;
@@ -175,7 +173,6 @@
       color: var(--text-color-primary);
       margin-bottom: 10px;
     }
-    /* 開いているターゲットのテキスト */
     .loading-target-text {
       font-size: 16px;
       color: var(--tab-active-bg);
@@ -196,7 +193,7 @@
       height: 100%;
       width: 0%;
       background-color: var(--tab-active-bg);
-      transition: width 0.05s linear; /* なめらかに伸びる */
+      transition: width 0.05s linear; 
     }
     .cancel-btn {
       background-color: transparent;
@@ -215,6 +212,30 @@
     .cancel-btn:hover {
       background-color: #ff6b6b;
       color: #fff;
+    }
+
+    /* 路線選択用のボタンスタイル */
+    .train-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      margin-top: 15px;
+    }
+    .train-btn {
+      background-color: var(--input-bg);
+      color: var(--text-color-primary);
+      border: 1px solid var(--divider-color);
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .train-btn:hover {
+      background-color: var(--tab-active-bg);
+      border-color: var(--tab-active-bg);
     }
 
     /* --- 戻るボタン --- */
@@ -296,15 +317,17 @@
                 </div>
             </a>
             
-            <!-- 2. 京阪電車ロケーション (新規追加) -->
-            <a href="https://www.keihan.co.jp/zaisen/" target="_blank" class="app-card">
+            <!-- 2. トレロケーション (京阪・地下鉄統合) -->
+            <div id="train-location-card" class="app-card">
                 <div class="card-left"><i class="fas fa-train"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
-                    <div class="card-title">京阪電車ロケーション</div>
-                    <div class="card-details">京阪電車の列車走行位置情報</div>
+                    <div class="card-title">トレロケーション</div>
+                    <div class="card-details">
+                        京阪線、西神・山手線、海岸線の<br>列車走行位置情報
+                    </div>
                 </div>
-            </a>
+            </div>
             
             <!-- 3. 神戸市バス一覧 -->
             <a href="bus/imadezaike.html" target="_blank" class="app-card">
@@ -338,11 +361,25 @@
 
   </div> <!-- /container -->
 
+  <!-- 路線選択画面（モーダル） -->
+  <div id="train-select-overlay" class="loading-overlay">
+    <div class="loading-box">
+      <div class="loading-text">路線を選択してください</div>
+      <div class="train-btn-group">
+        <button class="train-btn" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪線">京阪線</button>
+        <button class="train-btn" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線">西神・山手線</button>
+        <button class="train-btn" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線">海岸線</button>
+      </div>
+      <button id="close-train-btn" class="cancel-btn" style="margin-top: 25px;">
+        <i class="fas fa-times"></i> 閉じる
+      </button>
+    </div>
+  </div>
+
   <!-- ロード中画面（モーダル） -->
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-box">
       <div class="loading-text">ロード中...</div>
-      <!-- 開こうとしているタイトルを表示する場所 -->
       <div id="loading-target-text" class="loading-target-text"></div>
       
       <div class="progress-container">
@@ -356,63 +393,95 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // ロード中モーダル関連
       const overlay = document.getElementById('loading-overlay');
       const progressBar = document.getElementById('progress-bar');
       const cancelBtn = document.getElementById('cancel-btn');
       const loadingTargetText = document.getElementById('loading-target-text');
       
+      // 路線選択モーダル関連
+      const trainSelectOverlay = document.getElementById('train-select-overlay');
+      const trainLocationCard = document.getElementById('train-location-card');
+      const closeTrainBtn = document.getElementById('close-train-btn');
+      const trainBtns = document.querySelectorAll('.train-btn');
+
       let loadTimeout;
       let progressInterval;
       
-      const appCards = document.querySelectorAll('.app-card');
-      
+      // 共通のロード処理関数
+      function startLoading(url, title, target) {
+        // 路線選択モーダルが開いていれば閉じる
+        if (trainSelectOverlay.style.display === 'flex') {
+          trainSelectOverlay.style.display = 'none';
+        }
+
+        loadingTargetText.textContent = `「${title}」を開いています`;
+        overlay.style.display = 'flex';
+        progressBar.style.width = '0%';
+        
+        let progress = 0;
+        const totalTime = 1000; // 1秒 (1000ミリ秒)
+        const intervalTime = 20; // 20ミリ秒ごとに更新
+        const step = (intervalTime / totalTime) * 100;
+        
+        progressInterval = setInterval(() => {
+          progress += step;
+          if (progress >= 100) progress = 100;
+          progressBar.style.width = progress + '%';
+        }, intervalTime);
+        
+        loadTimeout = setTimeout(() => {
+          clearInterval(progressInterval);
+          overlay.style.display = 'none';
+          
+          if (target === '_blank') {
+            window.open(url, '_blank');
+          } else {
+            window.location.href = url;
+          }
+        }, totalTime);
+      }
+
+      // 通常のカード（aタグ）のクリック処理
+      const appCards = document.querySelectorAll('a.app-card');
       appCards.forEach(card => {
         card.addEventListener('click', function(e) {
-          e.preventDefault(); // クリックした瞬間の移動を無効化
-          
+          e.preventDefault(); 
           const url = this.getAttribute('href');
           const target = this.getAttribute('target');
-          
-          // クリックしたカードのタイトルを取得して表示
           const title = this.querySelector('.card-title').textContent;
-          loadingTargetText.textContent = `「${title}」を開いています`;
-          
-          // モーダルとプログレスバーを初期化して表示
-          overlay.style.display = 'flex';
-          progressBar.style.width = '0%';
-          
-          let progress = 0;
-          const totalTime = 1000; // 1秒 (1000ミリ秒)
-          const intervalTime = 20; // 20ミリ秒ごとに更新
-          const step = (intervalTime / totalTime) * 100;
-          
-          // プログレスバーのアニメーションを実行
-          progressInterval = setInterval(() => {
-            progress += step;
-            if (progress >= 100) progress = 100;
-            progressBar.style.width = progress + '%';
-          }, intervalTime);
-          
-          // 1秒後に指定されたURLへ遷移
-          loadTimeout = setTimeout(() => {
-            clearInterval(progressInterval);
-            overlay.style.display = 'none';
-            
-            // target="_blank" の場合は新しいタブで開く
-            if (target === '_blank') {
-              window.open(url, '_blank');
-            } else {
-              window.location.href = url;
-            }
-          }, totalTime);
+          startLoading(url, title, target);
+        });
+      });
+
+      // トレロケーションのカードがクリックされた時（選択モーダルを開く）
+      if (trainLocationCard) {
+        trainLocationCard.addEventListener('click', () => {
+          trainSelectOverlay.style.display = 'flex';
+        });
+      }
+
+      // 選択モーダルの「閉じる」ボタン処理
+      if (closeTrainBtn) {
+        closeTrainBtn.addEventListener('click', () => {
+          trainSelectOverlay.style.display = 'none';
+        });
+      }
+
+      // 路線（京阪線・西神山手線・海岸線）のボタンをクリックした時の処理
+      trainBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const url = btn.getAttribute('data-url');
+          const title = btn.getAttribute('data-title');
+          startLoading(url, title, '_blank'); // 別タブで開く
         });
       });
       
-      // キャンセルボタンを押した時の処理
+      // ロード中画面の「キャンセル」ボタン処理
       cancelBtn.addEventListener('click', () => {
-        clearTimeout(loadTimeout); // ページ遷移を中止
-        clearInterval(progressInterval); // バーの進行を中止
-        overlay.style.display = 'none'; // モーダルを非表示
+        clearTimeout(loadTimeout); 
+        clearInterval(progressInterval); 
+        overlay.style.display = 'none'; 
       });
     });
   </script>
