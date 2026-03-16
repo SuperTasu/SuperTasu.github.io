@@ -165,8 +165,16 @@
       font-size: 22px;
       font-weight: bold;
       color: var(--text-color-primary);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
+    /* 追加：何を開いているかのテキスト */
+    .loading-target-text {
+      font-size: 16px;
+      color: var(--tab-active-bg);
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+    
     .progress-container {
       width: 100%;
       height: 12px;
@@ -306,6 +314,9 @@
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-box">
       <div class="loading-text">ロード中...</div>
+      <!-- 追加：開こうとしているタイトルを表示する場所 -->
+      <div id="loading-target-text" class="loading-target-text"></div>
+      
       <div class="progress-container">
         <div id="progress-bar" class="progress-bar"></div>
       </div>
@@ -320,6 +331,7 @@
       const overlay = document.getElementById('loading-overlay');
       const progressBar = document.getElementById('progress-bar');
       const cancelBtn = document.getElementById('cancel-btn');
+      const loadingTargetText = document.getElementById('loading-target-text'); // 追加
       
       let loadTimeout;
       let progressInterval;
@@ -333,12 +345,16 @@
           const url = this.getAttribute('href');
           const target = this.getAttribute('target');
           
+          // 追加：クリックしたカードのタイトルを取得して表示
+          const title = this.querySelector('.card-title').textContent;
+          loadingTargetText.textContent = `「${title}」を開いています`;
+          
           // モーダルとプログレスバーを初期化して表示
           overlay.style.display = 'flex';
           progressBar.style.width = '0%';
           
           let progress = 0;
-          const totalTime = 1000; // 1秒 (1000ミリ秒)に変更
+          const totalTime = 1000; // 1秒 (1000ミリ秒)
           const intervalTime = 20; // 20ミリ秒ごとに更新
           const step = (intervalTime / totalTime) * 100;
           
