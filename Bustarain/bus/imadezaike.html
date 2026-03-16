@@ -3,446 +3,678 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>バス掲示板</title>
+    <title>総合運行掲示板 (地下鉄・京阪)</title>
     <style>
+        :root {
+            --subway-green: #006940; /* 西神・山手線 */
+            --kaigan-blue: #005c97;  /* 海岸線 */
+            --keihan-color: #1a2a47; /* 京阪線テーマ(濃紺) */
+            --bg-color: #f4f4f4;
+            --accent-red: #cc0000;
+            --accent-orange: #ff9800;
+        }
+
+        /* 画面幅が広くてもスマホと同じように中央配置にする */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #e0e0e0; /* 背景を少し暗くしてスマホ画面を際立たせる */
             color: #333;
             margin: 0;
-            padding: 5px;
+            padding: 10px;
             font-size: 13px;
+            display: flex;
+            justify-content: center;
         }
 
         .display-board {
             background-color: #fff;
             border-radius: 8px;
             padding: 10px;
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px; /* PCでもスマホのような横幅に制限 */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
-        /* 1. 最上部：時刻と検索パネル */
+        /* 1. 最上部：時刻と設定 */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #333;
             color: #fff;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border-radius: 5px 5px 0 0;
-            font-size: 11px;
         }
-        .current-time-group { display: flex; gap: 8px; align-items: center; }
-        #currentTime { font-weight: bold; font-size: 14px; color: #ffeb3b; }
-        
-        .search-toggle { cursor: pointer; text-decoration: underline; color: #fff; }
+        .current-time-group { display: flex; flex-direction: column; }
+        #clock { font-weight: bold; font-size: 20px; color: #ffeb3b; font-family: monospace; }
+        #dayIndicator { font-size: 10px; opacity: 0.8; }
+        .settings-toggle { cursor: pointer; font-size: 18px; border: 1px solid #666; padding: 0 5px; border-radius: 4px; }
+
+        /* 設定パネル */
         .search-panel {
             display: none;
-            background: #eee;
-            padding: 8px;
-            border-bottom: 2px solid #ddd;
-            font-size: 11px;
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            font-size: 12px;
+            text-align: center;
+            border-radius: 4px;
         }
         .search-panel.open { display: block; }
-        .search-box { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-        input[type="date"], input[type="time"] { font-size: 11px; padding: 2px; border: 1px solid #ccc; }
+        .search-box { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
+        input[type="datetime-local"], select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-apply { background: var(--kaigan-blue); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+        .btn-reset { background: #666; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
-        /* 2. バス停タブ・方面切り替え（黄緑色ベース） */
-        .stop-tabs {
-            display: flex;
-            margin-top: 10px;
-            align-items: flex-end;
+        /* 2. 駅・方面切り替えタブ */
+        .station-tabs { 
+            display: flex; 
+            margin-top: 10px; 
+            gap: 4px; 
+            align-items: flex-end; 
+            flex-wrap: nowrap; 
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; 
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        .stop-tab {
-            flex: 1;
-            text-align: center;
-            background: #e0e0e0;
+        .station-tabs::-webkit-scrollbar { display: none; }
+
+        .station-tab {
+            flex: 0 0 auto; 
+            min-width: 90px;
+            text-align: center; 
+            background: #d5d5d5; 
             color: #555;
-            padding: 8px 2px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 6px 6px 0 0;
-            margin: 0 1px;
-            transition: background 0.2s, color 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            line-height: 1.2;
+            padding: 10px 8px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 8px 8px 0 0; 
+            transition: all 0.2s;
         }
-        .stop-tab.active {
-            background: #689f38; /* メインの黄緑色 */
-            color: #fff;
-            padding-top: 10px; /* 選択中のタブを少し高く見せる */
-        }
+        .station-tab.active { padding: 12px 2px 10px; color: #fff; }
+        .station-tab.active.seishin { background: var(--subway-green); }
+        .station-tab.active.kaigan { background: var(--kaigan-blue); }
+        .station-tab.active.keihan { background: var(--keihan-color); }
+        
+        .station-line-name { font-size: 10px; font-weight: normal; display: block; margin-top: 4px; opacity: 0.9; }
 
-        .nav-section {
-            background: #689f38; /* 黄緑色 */
-            padding: 8px;
-            border-radius: 0 0 6px 6px; /* タブとつながるように下部のみ角丸 */
-            text-align: center;
+        .direction-tabs {
+            display: flex; gap: 8px; background: #fff; padding: 12px;
+            border-radius: 0 0 8px 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px;
         }
-        .direction-selector {
-            width: 100%;
-            padding: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 4px;
-            border: none;
-            outline: none;
-            color: #333;
-        }
+        .direction-tabs.seishin { border-top: 4px solid var(--subway-green); }
+        .direction-tabs.kaigan { border-top: 4px solid var(--kaigan-blue); }
+        .direction-tabs.keihan { border-top: 4px solid var(--keihan-color); }
 
-        /* 3. 先発表示 */
+        .dir-tab {
+            flex: 1; text-align: center; background: #f4f4f4; color: #555;
+            padding: 10px 4px; font-size: 13px; font-weight: bold; cursor: pointer;
+            border-radius: 4px; transition: all 0.2s; border: 1px solid #ddd;
+        }
+        .dir-tab:hover { background: #e9e9e9; }
+        .dir-tab.active { background: #fff; color: #333; border-color: #bbb; box-shadow: inset 0 -4px 0 var(--accent-orange); }
+
+        /* 3. 先発カード */
         .next-card {
-            background: #f1f8e9; /* 薄い黄緑 */
-            border: 2px solid #689f38;
-            border-radius: 6px;
-            padding: 10px;
-            margin: 10px 0;
-            cursor: pointer;
+            border-radius: 8px; padding: 15px; margin: 10px 0; position: relative;
+            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 2px solid #eee; cursor: pointer;
             transition: background 0.2s;
         }
-        .next-card:hover { background: #dcedc8; }
-        .next-label { font-size: 10px; color: #558b2f; font-weight: bold; display: block; margin-bottom: 3px; }
+        .next-card:active { background: #f9f9f9; }
+        .next-card.seishin { border-left: 8px solid var(--subway-green); }
+        .next-card.kaigan { border-left: 8px solid var(--kaigan-blue); }
+        .next-card.keihan { border-left: 8px solid var(--keihan-color); }
+        
+        .next-label { font-size: 12px; font-weight: bold; display: flex; align-items: center; margin-bottom: 8px; color: #666; }
         .next-info { display: flex; justify-content: space-between; align-items: center; }
-        .next-route { font-size: 14px; font-weight: bold; flex: 1; }
-        .next-time { font-size: 20px; color: #cc0000; font-weight: bold; margin: 0 10px; }
-        .next-diff { font-size: 12px; color: #558b2f; font-weight: bold; min-width: 50px; text-align: right; }
+        .next-time { font-size: 38px; font-weight: bold; color: #333; }
+        .next-countdown { text-align: right; }
+        .cd-unit { font-size: 11px; color: #888; }
+        .cd-val { font-size: 18px; font-weight: bold; color: var(--accent-orange); display: block; }
 
         /* 4. 一覧リスト */
-        .dep-row {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
+        .dep-row { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;}
+        .dep-row:active { background: #f4f4f4; }
+        
+        .line-badge { padding: 3px 6px; border-radius: 4px; color: #fff; font-size: 10px; margin-right: 12px; min-width: 35px; text-align: center; font-weight: bold; }
+        .bg-seishin { background: var(--subway-green); }
+        .bg-kaigan { background: var(--kaigan-blue); }
+        .bg-keihan { background: var(--keihan-color); }
+
+        .bg-type-ltd { background: #e60012; color: #fff; }
+        .bg-type-liner { background: #333; color: #fff; }
+        .bg-type-com-exp { background: #8a2be2; color: #fff; }
+        .bg-type-rapid-exp { background: #da70d6; color: #fff; }
+        .bg-type-exp { background: #ff8c00; color: #fff; }
+        .bg-type-sub-exp { background: #00bfff; color: #fff; }
+        .bg-type-semi-exp { background: #32cd32; color: #fff; }
+        .bg-type-local { background: #555; color: #fff; }
+        
+        .dep-time { font-size: 18px; font-weight: bold; margin-right: 15px; min-width: 50px; }
+        .dep-dest { flex: 1; font-weight: bold; font-size: 14px; }
+        .dep-status { font-size: 11px; color: #888; text-align: right; }
+
+        .info-bar { background: #fff3e0; color: #e65100; padding: 8px; font-size: 11px; text-align: center; border-radius: 4px; margin: 10px 0; border: 1px solid #ffe0b2; display: none; }
+        .alert-text { color: var(--accent-red); font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* === ローディングモーダル === */
+        .loading-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; z-index: 2000;
+            align-items: center; justify-content: center;
         }
-        .dep-row:hover { background: #f9f9f9; }
-        .route-num {
-            border: 1px solid #558b2f; /* 黄緑色 */
-            color: #558b2f; /* 黄緑色 */
-            padding: 1px 4px;
-            border-radius: 3px;
-            margin-right: 8px;
-            font-size: 11px;
-            min-width: 18px;
-            text-align: center;
-            font-weight: bold;
+        .loading-content {
+            background: #fff; width: 80%; max-width: 300px; padding: 25px 20px;
+            border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; gap: 15px;
+            animation: fadeIn 0.2s ease-out;
         }
-        .dep-name { flex: 1; font-weight: bold; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dep-time { font-size: 14px; font-weight: bold; color: #cc0000; margin: 0 8px; }
-        .dep-diff { font-size: 11px; color: #666; width: 45px; text-align: right; }
-
-        /* 5. もっと見る */
-        .more-btn {
-            display: block;
-            width: 100%;
-            padding: 8px;
-            background: #f0f0f0;
-            border: none;
-            color: #666;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
-            border-radius: 4px;
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .loading-title { font-size: 16px; font-weight: bold; color: #333; }
+        
+        .loading-bar-wrap {
+            width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
-        #extraList { display: none; }
-        #extraList.open { display: block; }
-
-        button.small-btn { font-size: 10px; padding: 2px 5px; cursor: pointer; }
-
-
-        /* =========================================
-           PC・タブレット向けの大きな表示設定
-           (画面幅が768px以上の場合に適用されます)
-           ========================================= */
-        @media screen and (min-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            .display-board {
-                max-width: 800px; /* ボードの最大幅を拡大 */
-                padding: 20px;
-            }
-            
-            /* 最上部 */
-            .top-bar {
-                font-size: 14px;
-                padding: 10px 15px;
-            }
-            #currentTime { font-size: 20px; }
-            .search-panel { font-size: 14px; padding: 12px; }
-            input[type="date"], input[type="time"] { font-size: 14px; padding: 4px; }
-            button.small-btn { font-size: 13px; padding: 4px 10px; }
-
-            /* タブ・セレクタ */
-            .stop-tab {
-                font-size: 16px;
-                padding: 12px 5px;
-            }
-            .stop-tab.active {
-                padding-top: 15px;
-            }
-            .nav-section {
-                padding: 15px;
-            }
-            .direction-selector {
-                font-size: 18px;
-                padding: 10px;
-            }
-
-            /* 先発カード */
-            .next-card {
-                padding: 20px;
-                margin: 15px 0;
-            }
-            .next-label { font-size: 13px; margin-bottom: 8px; }
-            .next-route { font-size: 22px; }
-            .next-time { font-size: 36px; margin: 0 20px; }
-            .next-diff { font-size: 16px; min-width: 70px; }
-
-            /* リスト */
-            .dep-row {
-                padding: 15px 10px;
-            }
-            .route-num {
-                font-size: 16px;
-                padding: 2px 8px;
-                min-width: 24px;
-                margin-right: 12px;
-            }
-            .dep-name { font-size: 18px; }
-            .dep-time { font-size: 24px; margin: 0 15px; }
-            .dep-diff { font-size: 16px; width: 60px; }
-
-            /* ボタン */
-            .more-btn {
-                font-size: 16px;
-                padding: 12px;
-                margin-top: 10px;
-            }
+        .loading-bar {
+            width: 0%; height: 100%; border-radius: 4px;
+            /* JavaScript側で色と2秒間のtransitionを設定します */
         }
+        
+        .loading-cancel-btn {
+            margin-top: 10px; padding: 10px; border-radius: 6px; border: 1px solid #ddd;
+            background: #fafafa; color: #555; font-weight: bold; cursor: pointer;
+            font-size: 14px; transition: background 0.2s;
+        }
+        .loading-cancel-btn:active { background: #e0e0e0; }
+
+        /* === 停車駅一覧モーダル === */
+        .stops-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: none; z-index: 1000;
+            align-items: flex-end; justify-content: center;
+        }
+        .stops-content {
+            background: #f4f4f7; width: 100%; max-width: 500px; height: 85vh; /* PCでもスマホ幅に合わせる */
+            border-radius: 12px 12px 0 0; display: flex; flex-direction: column;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .stops-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: #fff; border-radius: 12px 12px 0 0; border-bottom: 1px solid #ddd;
+        }
+        .stops-close { color: #007aff; cursor: pointer; font-size: 15px; font-weight: normal; }
+        .stops-title { font-size: 16px; font-weight: bold; }
+        
+        .stops-subtitle { padding: 15px 20px; font-size: 14px; color: #333; background: #fff; border-bottom: 1px solid #eee; }
+        .stops-list-container { flex: 1; overflow-y: auto; background: #fff; padding-bottom: 40px; }
+        
+        .stop-item { display: flex; align-items: center; position: relative; padding: 0 20px; height: 50px; }
+        .stop-time { width: 55px; font-size: 14px; color: #333; text-align: right; margin-right: 15px; }
+        .stop-line { width: 20px; height: 100%; position: absolute; left: 90px; top: 0; display: flex; justify-content: center; }
+        .stop-line-bar { width: 6px; background-color: #8fa0ac; height: 100%; }
+        .stop-dot {
+            width: 8px; height: 8px; background: white; border: 3px solid #8fa0ac;
+            border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
+        }
+        .stop-name { margin-left: 45px; font-size: 16px; font-weight: bold; color: #333; }
+        
+        /* 線の端の処理 */
+        .stop-item:first-child .stop-line-bar { top: 50%; height: 50%; position: absolute; }
+        .stop-item:last-child .stop-line-bar { bottom: 50%; height: 50%; position: absolute; }
     </style>
 </head>
 <body>
 
-    <div class="display-board">
-        <!-- 1. 最上部：時刻・検索 -->
-        <div class="top-bar">
-            <div class="current-time-group">
-                <span id="currentTime">00:00:00</span>
-                <span id="scheduleType">平日</span>
-            </div>
-            <div class="search-toggle" onclick="toggleSearch()">時刻指定検索 ▽</div>
+<div class="display-board">
+    <!-- 1. 最上部 -->
+    <div class="top-bar">
+        <div class="current-time-group">
+            <div id="clock">00:00:00</div>
+            <div id="dayIndicator">判定中...</div>
         </div>
-        
-        <div class="search-panel" id="searchPanel">
-            <div class="search-box">
-                <input type="date" id="searchDate">
-                <input type="time" id="searchTime">
-                <button class="small-btn" onclick="applySearch()">検索</button>
-                <button class="small-btn" onclick="resetSearch()">現在時刻</button>
-            </div>
-        </div>
-
-        <!-- 2. ナビゲーション（バス停タブ・方面） -->
-        <div class="stop-tabs" id="stopTabs">
-            <!-- JavaScriptでタブを自動生成します -->
-        </div>
-        <div class="nav-section">
-            <select id="directionSelect" class="direction-selector">
-                <option value="shinkaichi">新開地・夢野方面</option>
-                <option value="yoshidacho">吉田町・名倉町方面</option>
+        <div class="settings-toggle" onclick="toggleSettings()" title="シミュレーター">&#9881; 設定</div>
+    </div>
+    
+    <div class="search-panel" id="settingsPanel">
+        <div style="font-weight:bold; margin-bottom:10px;">検証用シミュレーター</div>
+        <div class="search-box">
+            <input type="datetime-local" id="setting-datetime">
+            <select id="setting-schedule-type">
+                <option value="auto">自動判定</option>
+                <option value="weekday">平日固定</option>
+                <option value="holiday">土休日固定</option>
             </select>
+            <button class="btn-apply" onclick="applySettings()">時間を適用</button>
+            <button class="btn-reset" onclick="resetSettings()">リセット</button>
         </div>
-
-        <!-- 3. コンテンツ表示エリア -->
-        <div id="nextArea"></div>
-        <div id="mainList"></div>
-        <div id="extraList"></div>
-        
-        <button id="moreBtn" class="more-btn" onclick="toggleMore()" style="display:none;">▼ 他の便を表示</button>
     </div>
 
+    <!-- 2. 駅・方面タブ -->
+    <div class="station-tabs" id="stationTabs"></div>
+    <div class="direction-tabs" id="directionTabs"></div>
+
+    <!-- ダイヤ改正情報表示 -->
+    <div id="infoBar" class="info-bar"></div>
+
+    <!-- 3. コンテンツエリア -->
+    <div id="contentArea">
+        <div id="nextArea"></div>
+        <div id="listArea"></div>
+    </div>
+</div>
+
+<!-- ロード中画面モーダル -->
+<div id="loadingModal" class="loading-modal">
+    <div class="loading-content">
+        <div class="loading-title">停車駅を読み込み中...</div>
+        <div class="loading-bar-wrap">
+            <div id="loadingBar" class="loading-bar"></div>
+        </div>
+        <button class="loading-cancel-btn" onclick="cancelLoading()">キャンセル</button>
+    </div>
+</div>
+
+<!-- 停車駅表示モーダル -->
+<div id="stopsModal" class="stops-modal">
+    <div class="stops-content">
+        <div class="stops-header">
+            <span class="stops-close" onclick="closeStopsModal()">閉じる</span>
+            <span class="stops-title">停車駅</span>
+            <span style="width: 45px;"></span>
+        </div>
+        <div id="stopsSubtitle" class="stops-subtitle"></div>
+        <div class="stops-list-container" id="stopsList">
+            <!-- 動的にリストが生成されます -->
+        </div>
+    </div>
+</div>
+
+<script src="timetable.js"></script>
+
 <script>
-    const busStops = {
-        wadamisaki: { name: '和田岬', shortName: '和田岬', adjustment: { yoshidacho: 1, shinkaichi: -1 } },
-        imade: { name: '今出在家町', shortName: '今出在家', adjustment: { yoshidacho: 0, shinkaichi: 0 } },
-        museum: { name: '兵庫津ミュージアム前', shortName: '兵庫津M前', adjustment: { yoshidacho: -1, shinkaichi: 1 } },
-        market: { name: '中央市場', shortName: '中央市場', adjustment: { yoshidacho: -2, shinkaichi: 2 } }
-    };
-    const busStopOrder =['wadamisaki', 'imade', 'museum', 'market'];
+    // ----------------------------------------------------
+    // 駅・路線データ (路線図からのデータ化)
+    // ----------------------------------------------------
+    // 海岸線
+    const K_STATIONS =[
+        { id:"K01", name:"三宮・花時計前", time:2 }, { id:"K02", name:"旧居留地・大丸前", time:2 },
+        { id:"K03", name:"みなと元町", time:2 }, { id:"K04", name:"ハーバーランド", time:2 },
+        { id:"K05", name:"中央市場前", time:3 }, { id:"K06", name:"和田岬", time:2 },
+        { id:"K07", name:"御崎公園", time:2 }, { id:"K08", name:"苅藻", time:2 },
+        { id:"K09", name:"駒ヶ林", time:2 }, { id:"K10", name:"新長田", time:0 }
+    ];
+    // 西神・山手線
+    const S_STATIONS =[
+        { id:"S01", name:"谷上", time:8 }, { id:"S02", name:"新神戸", time:2 },
+        { id:"S03", name:"三宮", time:2 }, { id:"S04", name:"県庁前", time:2 },
+        { id:"S05", name:"大倉山", time:2 }, { id:"S06", name:"湊川公園", time:2 },
+        { id:"S07", name:"上沢", time:2 }, { id:"S08", name:"長田(長田神社前)", time:2 },
+        { id:"S09", name:"新長田", time:2 }, { id:"S10", name:"板宿", time:3 },
+        { id:"S11", name:"妙法寺", time:3 }, { id:"S12", name:"名谷", time:3 },
+        { id:"S13", name:"総合運動公園", time:2 }, { id:"S14", name:"学園都市", time:3 },
+        { id:"S15", name:"伊川谷", time:3 }, { id:"S16", name:"西神南", time:3 },
+        { id:"S17", name:"西神中央", time:0 }
+    ];
+    // 京阪線
+    const KH_STATIONS =[
+        { id:"KH01", name:"淀屋橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH02", name:"北浜", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH03", name:"天満橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:3 },
+        { id:"KH04", name:"京橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH05", name:"野江", types:["local"], time:2 }, { id:"KH06", name:"関目", types:["local"], time:2 },
+        { id:"KH07", name:"森小路", types:["local"], time:1 }, { id:"KH08", name:"千林", types:["local"], time:1 },
+        { id:"KH09", name:"滝井", types:["local"], time:1 }, { id:"KH10", name:"土居", types:["local"], time:1 },
+        { id:"KH11", name:"守口市", types:["local","semi_exp","sub_exp","exp","rapid_exp"], time:3 }, 
+        { id:"KH12", name:"西三荘", types:["local","semi_exp"], time:2 }, { id:"KH13", name:"門真市", types:["local","semi_exp"], time:2 },
+        { id:"KH14", name:"古川橋", types:["local","semi_exp"], time:2 }, { id:"KH15", name:"大和田", types:["local","semi_exp"], time:2 },
+        { id:"KH16", name:"萱島", types:["local","semi_exp","sub_exp","com_sub_exp"], time:3 },
+        { id:"KH17", name:"寝屋川市", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","liner"], time:3 },
+        { id:"KH18", name:"香里園", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","liner"], time:3 },
+        { id:"KH19", name:"光善寺", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH20", name:"枚方公園", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:2 },
+        { id:"KH21", name:"枚方市", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:3 },
+        { id:"KH22", name:"御殿山", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH23", name:"牧野", types:["local","semi_exp","sub_exp","com_sub_exp"], time:3 },
+        { id:"KH24", name:"樟葉", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:3 },
+        { id:"KH25", name:"橋本", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH26", name:"石清水八幡宮", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:4 },
+        { id:"KH27", name:"淀", types:["local","semi_exp","sub_exp","com_sub_exp"], time:4 },
+        { id:"KH28", name:"中書島", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH29", name:"伏見桃山", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH30", name:"丹波橋", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH31", name:"墨染", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH32", name:"藤森", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH33", name:"龍谷大前深草", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH34", name:"伏見稲荷", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:2 },
+        { id:"KH35", name:"鳥羽街道", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH36", name:"東福寺", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH37", name:"七条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH38", name:"清水五条", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
+        { id:"KH39", name:"祇園四条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH40", name:"三条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH41", name:"神宮丸太町", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:2 },
+        { id:"KH42", name:"出町柳", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:0 }
+    ];
 
-    const detailUrls = {
-        wadamisaki: {
-            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0151" },
-            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0342&directionId=kobe0150" }
-        },
-        imade: {
-            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0151" },
-            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0341&directionId=kobe0150" }
-        },
-        museum: {
-            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0151" },
-            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0340&directionId=kobe0150" }
-        },
-        market: {
-            shinkaichi: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0004", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0151" },
-            yoshidacho: { route3: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0003", route9: "https://location.its-mo.com/usersite/kobe/US0005/search/jp?busStopCode=0339&directionId=kobe0150" }
-        }
-    };
+    // 状態管理変数
+    let currentStation = 'itayado';
+    let currentView = 'itayado_n';
+    let timeOffset = 0;
+    let isSimulated = false;
+    let scheduleOverride = 'auto';
+    let loadingTimer = null; // ロード遅延用タイマー
 
-    const timetables = {
-        shinkaichi: {
-            route3: { name: "新開地・夢野方面", number: "3", weekdays: [{ hour: 6, minutes: [35] }, { hour: 7, minutes:[3, 15, 27, 39, 51] }, { hour: 8, minutes: [3, 35] }, { hour: 9, minutes: [34] }, { hour: 10, minutes: [34] }, { hour: 11, minutes: [33] }, { hour: 12, minutes:[33] }, { hour: 13, minutes: [33] }, { hour: 14, minutes:[33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes:[12, 23, 30, 39, 48, 57] }, { hour: 18, minutes:[13, 23, 33, 43, 53] }, { hour: 19, minutes: [33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [3] }], holidays: [{ hour: 6, minutes:[30, 49] }, { hour: 7, minutes:[8, 35, 51] }, { hour: 8, minutes: [35] }, { hour: 9, minutes:[33] }, { hour: 10, minutes: [33] }, { hour: 11, minutes: [33] }, { hour: 12, minutes: [33] }, { hour: 13, minutes:[33] }, { hour: 14, minutes:[33] }, { hour: 15, minutes: [33] }, { hour: 16, minutes: [33] }, { hour: 17, minutes: [33] }, { hour: 18, minutes:[13, 53] }, { hour: 19, minutes:[33] }, { hour: 20, minutes: [33] }, { hour: 21, minutes: [33] }, { hour: 22, minutes: [37] }] },
-            route9: { name: "新開地・兵庫駅前方面", number: "9", weekdays: [{ hour: 7, minutes: [10] }, { hour: 8, minutes: [9] }, { hour: 9, minutes: [2] }, { hour: 10, minutes:[2] }, { hour: 11, minutes:[2] }, { hour: 12, minutes: [2] }, { hour: 13, minutes: [2] }, { hour: 14, minutes: [2] }, { hour: 15, minutes: [2] }, { hour: 16, minutes: [2] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [5] }, { hour: 19, minutes: [5] }, { hour: 20, minutes: [5] }, { hour: 21, minutes: [5] }], holidays: [{ hour: 7, minutes:[21] }, { hour: 8, minutes: [9] }, { hour: 9, minutes:[3] }, { hour: 10, minutes: [3] }, { hour: 11, minutes: [3] }, { hour: 12, minutes: [3] }, { hour: 13, minutes: [3] }, { hour: 14, minutes: [3] }, { hour: 15, minutes: [3] }, { hour: 16, minutes: [3] }, { hour: 17, minutes: [3] }, { hour: 18, minutes: [3] }, { hour: 19, minutes:[3] }, { hour: 20, minutes: [3] }, { hour: 21, minutes: [3] }, { hour: 22, minutes:[3] }] }
-        },
-        yoshidacho: {
-            route3: { name: "名倉町方面", number: "3", weekdays: [{ hour: 9, minutes: [45] }, { hour: 11, minutes: [45] }, { hour: 13, minutes: [45] }, { hour: 15, minutes: [45] }], holidays:[{ hour: 9, minutes: [42] }, { hour: 11, minutes: [43] }, { hour: 13, minutes:[43] }, { hour: 15, minutes:[43] }] },
-            route9: { name: "吉田町１丁目方面", number: "9", weekdays:[{ hour: 6, minutes: [38] }, { hour: 7, minutes:[1, 12, 22, 32, 42, 49, 55] }, { hour: 8, minutes:[0, 5, 13, 15, 20, 25, 30, 35, 40, 45, 55] }, { hour: 9, minutes: [16] }, { hour: 10, minutes:[16, 45] }, { hour: 11, minutes: [16] }, { hour: 12, minutes: [16, 45] }, { hour: 13, minutes:[16] }, { hour: 14, minutes: [16, 45] }, { hour: 15, minutes: [16] }, { hour: 16, minutes:[16, 45] }, { hour: 17, minutes:[16, 49] }, { hour: 18, minutes:[4, 19, 34, 49] }, { hour: 19, minutes:[4, 19, 34, 49] }, { hour: 20, minutes: [17, 37] }, { hour: 21, minutes: [17, 30] }, { hour: 22, minutes:[40] }], holidays: [{ hour: 6, minutes: [38, 57] }, { hour: 7, minutes: [14, 23, 31, 50] }, { hour: 8, minutes: [11, 22, 42] }, { hour: 9, minutes: [14] }, { hour: 10, minutes:[15, 43] }, { hour: 11, minutes: [15] }, { hour: 12, minutes: [15, 43] }, { hour: 13, minutes:[15] }, { hour: 14, minutes: [15, 43] }, { hour: 15, minutes: [15] }, { hour: 16, minutes:[15, 43] }, { hour: 17, minutes: [15, 41] }, { hour: 18, minutes: [11, 15, 42] }, { hour: 19, minutes: [13, 15, 45] }, { hour: 20, minutes: [15, 41] }, { hour: 21, minutes:[8, 38] }, { hour: 22, minutes: [8, 38] }] }
-        }
-    };
-
-    let currentDirection = 'shinkaichi';
-    let currentBusStop = 'imade';
-    let customDateTime = null;
-
-    // 初期化：タブを生成
     function initTabs() {
-        const tabsContainer = document.getElementById('stopTabs');
-        busStopOrder.forEach(stopId => {
-            const stop = busStops[stopId];
-            const tab = document.createElement('div');
-            tab.className = 'stop-tab';
-            tab.id = 'tab-' + stopId;
-            tab.textContent = stop.shortName;
-            tab.onclick = () => selectStop(stopId);
-            tabsContainer.appendChild(tab);
+        const sTabs = document.getElementById('stationTabs');
+        sTabs.innerHTML = '';
+        Object.keys(stationConfig).forEach(st => {
+            const conf = stationConfig[st];
+            const div = document.createElement('div');
+            div.className = `station-tab ${conf.lineColor}`;
+            if (st === currentStation) div.classList.add('active');
+            
+            const nameSpan = document.createElement('span'); nameSpan.textContent = conf.name;
+            const lineSpan = document.createElement('span'); lineSpan.className = 'station-line-name'; lineSpan.textContent = conf.lineName;
+            
+            div.appendChild(nameSpan); div.appendChild(lineSpan);
+            div.onclick = () => selectStation(st);
+            sTabs.appendChild(div);
+        });
+        renderDirectionTabs();
+    }
+
+    function renderDirectionTabs() {
+        const dTabs = document.getElementById('directionTabs');
+        dTabs.innerHTML = ''; dTabs.className = 'direction-tabs'; 
+        const conf = stationConfig[currentStation];
+        dTabs.classList.add(conf.lineColor);
+        conf.directions.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'dir-tab';
+            if (d.id === currentView) div.classList.add('active');
+            div.textContent = d.label;
+            div.onclick = () => selectDirection(d.id);
+            dTabs.appendChild(div);
         });
     }
 
-    function selectStop(stopId) {
-        currentBusStop = stopId;
-        render();
-    }
+    function selectStation(st) { if(currentStation === st) return; currentStation = st; currentView = stationConfig[st].directions[0].id; initTabs(); render(); }
+    function selectDirection(dirId) { if(currentView === dirId) return; currentView = dirId; renderDirectionTabs(); render(); }
+    function getNow() { return isSimulated ? new Date(Date.now() + timeOffset) : new Date(); }
 
-    function getNow() { return customDateTime || new Date(); }
-
-    function updateTimeDisplay() {
-        const now = getNow();
-        document.getElementById('currentTime').textContent = now.toLocaleTimeString('ja-JP');
-        const isHoli = now.getDay() === 0 || now.getDay() === 6;
-        document.getElementById('scheduleType').textContent = isHoli ? '休日ダイヤ' : '平日ダイヤ';
-    }
-
-    function getDepartures() {
-        const now = getNow();
-        const list =[];
-        const adj = busStops[currentBusStop].adjustment[currentDirection];
-        const isHoli = now.getDay() === 0 || now.getDay() === 6;
-        const type = isHoli ? 'holidays' : 'weekdays';
-
-        Object.keys(timetables[currentDirection]).forEach(rk => {
-            const route = timetables[currentDirection][rk];
-            route[type].forEach(h => {
-                h.minutes.forEach(m => {
-                    const d = new Date(now);
-                    d.setHours(h.hour, m + adj, 0, 0);
-                    if (d >= new Date(now.getTime() - 30000)) { 
-                        list.push({
-                            time: d, num: route.number, name: route.name,
-                            url: detailUrls[currentBusStop][currentDirection][rk]
-                        });
-                    }
-                });
-            });
-        });
-        return list.sort((a, b) => a.time - b.time);
+    function isHoliday(date){
+        const y=date.getFullYear(), m=date.getMonth()+1, d=date.getDate(), w=date.getDay();
+        if(w===0 || w===6) return true;
+        const holidays=[[1,1],[2,11],[2,23],[4,29],[5,3],[5,4],[5,5],[8,11],[11,3],[11,23]];
+        for(let h of holidays) if(m===h[0] && d===h[1]) return true;
+        const specials = (y===2024) ? [[1,8],[3,20],[7,15],[9,16],[9,22],[10,14]] : [[1,13],[3,20],[7,21],[9,15],[9,23],[10,13]];
+        for(let s of specials) if(m===s[0] && d===s[1]) return true;
+        return false;
     }
 
     function render() {
-        updateTimeDisplay();
-        
-        // タブのアクティブ状態を更新
-        busStopOrder.forEach(stopId => {
-            const tab = document.getElementById('tab-' + stopId);
-            if (stopId === currentBusStop) tab.classList.add('active');
-            else tab.classList.remove('active');
-        });
-        
-        const departures = getDepartures();
-        const nextArea = document.getElementById('nextArea');
-        const mainList = document.getElementById('mainList');
-        const extraList = document.getElementById('extraList');
-        const moreBtn = document.getElementById('moreBtn');
-        
-        nextArea.innerHTML = '';
-        mainList.innerHTML = '';
-        extraList.innerHTML = '';
+        const now = getNow();
+        document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP', {hour12:false});
+        let logicalH = now.getHours(); let logicalDate = new Date(now);
+        if (logicalH < 4) logicalDate.setDate(logicalDate.getDate() - 1);
+        let isHol = (scheduleOverride === 'auto') ? isHoliday(logicalDate) : (scheduleOverride === 'holiday');
+        document.getElementById('dayIndicator').textContent = (isHol ? '土休日ダイヤ' : '平日ダイヤ') + (isSimulated ? ' (検証中)' : '');
 
-        if (departures.length === 0) {
-            nextArea.innerHTML = '<div style="text-align:center;padding:20px;color:#cc0000;">本日の運行は終了しました</div>';
-            moreBtn.style.display = 'none';
-            return;
+        const infoBar = document.getElementById('infoBar');
+        let timetable; let config = { name: "", symbol: "", colorClass: "" };
+
+        if (currentView.startsWith('wadamisaki')) {
+            const switchDate = new Date('2026-03-14T00:00:00');
+            const isNew = now >= switchDate;
+            const wadaData = isNew ? wadaNew : wadaOld;
+            const dir = (currentView === 'wadamisaki_s') ? 'sannomiya' : 'shinNagata';
+            timetable = isHol ? wadaData[dir].holiday : wadaData[dir].weekday;
+            config = { name: (dir === 'sannomiya' ? "三宮・花時計前 方面" : "新長田 方面"), symbol: "K06", colorClass: "kaigan" };
+            infoBar.style.display = 'block'; infoBar.innerText = isNew ? "表示中：令和8年3月14日改正ダイヤ" : "表示中：旧ダイヤ (2026/3/14に自動切替)";
+        } else {
+            const section = otherStations[currentView];
+            timetable = isHol ? section.holidays : section.weekdays;
+            config = section; infoBar.style.display = 'none';
         }
 
-        // 先発
-        const next = departures[0];
-        const nextDiff = Math.ceil((next.time - getNow()) / 60000);
+        let list =[];
+        const currentTotalMin = (now.getHours() < 4 ? now.getHours()+24 : now.getHours()) * 60 + now.getMinutes();
+
+        for(let h in timetable) {
+            let hour = parseInt(h); let displayHour = hour < 4 ? hour + 24 : hour;
+            timetable[h].forEach(mVal => {
+                let mStr = mVal.toString(); let m = parseInt(mStr);
+                let isMisaki = mStr.includes('*');
+                let typeKey = ""; let destKey = "";
+                let match = mStr.match(/^\d+([^\d\*]+)?/);
+                if (match && match[1]) { typeKey = match[1].charAt(0); destKey = match[1].substring(1); }
+                let totalMin = displayHour * 60 + m;
+                if(totalMin >= currentTotalMin - 2) { list.push({ hour, min: m, abs: totalMin, isMisaki, typeKey, destKey }); }
+            });
+        }
+        list.sort((a,b) => a.abs - b.abs);
+
+        const nextArea = document.getElementById('nextArea'); const listArea = document.getElementById('listArea');
+        nextArea.innerHTML = ''; listArea.innerHTML = '';
+        if(list.length === 0) { nextArea.innerHTML = '<div style="padding:20px;text-align:center;">本日の運転は終了しました</div>'; return; }
+
+        // --- 先発列車の描画 ---
+        const next = list[0];
+        const targetDate = new Date(now); targetDate.setHours(next.hour, next.min, 0, 0);
+        if (next.hour < 4 && now.getHours() > 20) targetDate.setDate(targetDate.getDate() + 1);
+        const diffSec = Math.max(0, Math.floor((targetDate - now) / 1000));
+        const isPassed = (next.abs < currentTotalMin);
+
+        let baseDestName = config.name.replace(" 方面", ""); let nextDest = baseDestName;
+        if (next.isMisaki) nextDest = "御崎公園";
+        if (next.destKey && keihanDestMap[next.destKey]) nextDest = keihanDestMap[next.destKey];
+        if (!nextDest.includes("行き")) nextDest += " 行き";
+
+        let badgeText = config.symbol; let badgeClass = `bg-${config.colorClass}`; let labelPrefix = `【${config.symbol}】`;
+        if (next.typeKey && keihanTypeMap[next.typeKey]) {
+            badgeText = keihanTypeMap[next.typeKey].name; badgeClass = keihanTypeMap[next.typeKey].class;
+            labelPrefix = `<span class="line-badge ${badgeClass}" style="margin-right:4px;">${badgeText}</span>`;
+        } else if (config.colorClass !== "keihan") {
+            labelPrefix = `【${config.symbol}】`;
+        }
+
+        // ロード画面をトリガーする関数を呼び出す
+        let eDest1 = nextDest.replace(/'/g, "\\'");
+        let onClickStr1 = `onclick="triggerOpenStopsModal(${next.hour}, ${next.min}, '${eDest1}', '${config.colorClass}', '${badgeText}', '${config.symbol}', '${config.name}')"`;
+
         nextArea.innerHTML = `
-            <div class="next-card" onclick="window.open('${next.url}', '_blank')">
-                <span class="next-label">【先発】タップして接近情報を確認</span>
+            <div class="next-card ${config.colorClass}" ${onClickStr1}>
+                <span class="next-label">
+                    <span style="margin-right:6px;">【先発】</span> ${labelPrefix} <span>${nextDest}</span>
+                </span>
                 <div class="next-info">
-                    <div class="next-route"><span class="route-num">${next.num}</span> ${next.name}</div>
-                    <div class="next-time">${next.time.getHours()}:${String(next.time.getMinutes()).padStart(2, '0')}</div>
-                    <div class="next-diff">${nextDiff <= 0 ? 'まもなく' : nextDiff + '分'}</div>
+                    <div class="next-time">${next.hour}:${next.min.toString().padStart(2,'0')}</div>
+                    <div class="next-countdown">
+                        ${isPassed ? '<span class="alert-text">定刻を過ぎました</span>' : 
+                        `<span class="cd-unit">発車まで</span><span class="cd-val">${Math.floor(diffSec/60)}分${diffSec%60}秒</span>`}
+                    </div>
                 </div>
             </div>`;
 
-        // 後続
-        departures.slice(1).forEach((d, i) => {
-            const diff = Math.ceil((d.time - getNow()) / 60000);
+        // --- 次発以降の描画 ---
+        list.slice(1, 6).forEach(item => {
+            let dest = baseDestName;
+            if (item.isMisaki) dest = "御崎公園";
+            if (item.destKey && keihanDestMap[item.destKey]) dest = keihanDestMap[item.destKey];
+
+            let rBadgeText = config.symbol; let rBadgeClass = `bg-${config.colorClass}`;
+            if (item.typeKey && keihanTypeMap[item.typeKey]) {
+                rBadgeText = keihanTypeMap[item.typeKey].name; rBadgeClass = keihanTypeMap[item.typeKey].class;
+            }
+
+            let eDest2 = dest.replace(/'/g, "\\'");
+            let onClickStr2 = `triggerOpenStopsModal(${item.hour}, ${item.min}, '${eDest2}', '${config.colorClass}', '${rBadgeText}', '${config.symbol}', '${config.name}')`;
+
             const row = document.createElement('div');
             row.className = 'dep-row';
-            row.onclick = () => window.open(d.url, '_blank');
+            row.setAttribute('onclick', onClickStr2);
             row.innerHTML = `
-                <span class="route-num">${d.num}</span>
-                <span class="dep-name">${d.name}</span>
-                <span class="dep-time">${d.time.getHours()}:${String(d.time.getMinutes()).padStart(2, '0')}</span>
-                <span class="dep-diff">${diff <= 0 ? 'まもなく' : diff + '分'}</span>
+                <span class="line-badge ${rBadgeClass}">${rBadgeText}</span>
+                <span class="dep-time">${item.hour}:${item.min.toString().padStart(2,'0')}</span>
+                <span class="dep-dest">${dest}</span>
+                <span class="dep-status">あと${item.abs - currentTotalMin}分</span>
             `;
-            
-            if (i < 2) mainList.appendChild(row);
-            else extraList.appendChild(row);
+            listArea.appendChild(row);
         });
 
-        moreBtn.style.display = departures.length > 3 ? 'block' : 'none';
+        if (isSimulated) timeOffset += 1000;
     }
 
-    function toggleSearch() { document.getElementById('searchPanel').classList.toggle('open'); }
-    function toggleMore() {
-        const list = document.getElementById('extraList');
-        const btn = document.getElementById('moreBtn');
-        list.classList.toggle('open');
-        btn.textContent = list.classList.contains('open') ? '▲ 閉じる' : '▼ 他の便を表示';
+    // ----------------------------------------------------
+    // モーダルとロード画面の制御
+    // ----------------------------------------------------
+    
+    // ロード画面を表示して2秒後にモーダルを開く処理
+    function triggerOpenStopsModal(hour, min, destName, lineClass, typeName, symbol, configName) {
+        const loadingModal = document.getElementById('loadingModal');
+        const loadingBar = document.getElementById('loadingBar');
+        
+        // 路線のテーマカラーに合わせてローディングバーの色を変更
+        const colorMap = {
+            'kaigan': 'var(--kaigan-blue)',
+            'seishin': 'var(--subway-green)',
+            'keihan': 'var(--keihan-color)'
+        };
+        loadingBar.style.background = colorMap[lineClass] || 'var(--kaigan-blue)';
+        
+        // 初期状態にリセットして表示
+        loadingModal.style.display = 'flex';
+        loadingBar.style.transition = 'none';
+        loadingBar.style.width = '0%';
+        
+        // 少し遅延させてからCSSアニメーション(transition)を有効化し、100%に伸ばす
+        setTimeout(() => {
+            loadingBar.style.transition = 'width 2s linear';
+            loadingBar.style.width = '100%';
+        }, 50);
+
+        // 前のタイマーが残っていればクリア
+        if (loadingTimer) clearTimeout(loadingTimer);
+        
+        // 2秒後(2000ms)に本編のモーダルを開く
+        loadingTimer = setTimeout(() => {
+            loadingModal.style.display = 'none';
+            openStopsModal(hour, min, destName, lineClass, typeName, symbol, configName);
+        }, 2000);
     }
 
-    document.getElementById('directionSelect').onchange = (e) => { currentDirection = e.target.value; render(); };
-
-    function applySearch() {
-        const d = document.getElementById('searchDate').value;
-        const t = document.getElementById('searchTime').value;
-        if (d && t) { customDateTime = new Date(`${d}T${t}`); render(); }
+    // ロード中にキャンセルボタンが押された時の処理
+    function cancelLoading() {
+        if (loadingTimer) clearTimeout(loadingTimer);
+        loadingTimer = null;
+        document.getElementById('loadingModal').style.display = 'none';
     }
-    function resetSearch() { customDateTime = null; render(); }
 
-    // 起動時の処理
+    // 実際の停車駅一覧モーダルの生成と表示
+    function openStopsModal(hour, min, destName, lineClass, typeName, symbol, configName) {
+        const modal = document.getElementById('stopsModal');
+        const listContainer = document.getElementById('stopsList');
+        listContainer.innerHTML = '';
+
+        let lineTitle = "";
+        let stations =[];
+        if (lineClass === 'kaigan') { lineTitle = "神戸市営地下鉄海岸線"; stations = K_STATIONS; }
+        else if (lineClass === 'seishin') { lineTitle = "神戸市営地下鉄西神・山手線"; stations = S_STATIONS; }
+        else if (lineClass === 'keihan') { lineTitle = "京阪電車"; stations = KH_STATIONS; }
+
+        let destText = configName.replace(" 方面", "");
+        let cleanDest = destName.replace(" 行き", "");
+        
+        let typeDisplay = typeName;
+        if (lineClass !== 'keihan' && /^[A-Z]\d+$/.test(typeName)) typeDisplay = "普通";
+        
+        document.getElementById('stopsSubtitle').textContent = `${lineTitle} ${destText}方面 ${typeDisplay}`;
+
+        let startIdx = stations.findIndex(s => s.id === symbol);
+        if (startIdx === -1) startIdx = 0;
+
+        let endIdx = stations.findIndex(s => s.name.includes(cleanDest) || cleanDest.includes(s.name));
+        if (endIdx === -1) endIdx = (startIdx > stations.length / 2) ? 0 : stations.length - 1;
+
+        let step = startIdx < endIdx ? 1 : -1;
+
+        let typeKey = "local";
+        if (lineClass === 'keihan') {
+            const map = {
+                "特急":"ltd", "ライナー":"liner", "通勤快急":"com_exp", "快速急行":"rapid_exp",
+                "急行":"exp", "準急":"sub_exp", "通勤準急":"com_sub_exp", "区間急行":"semi_exp"
+            };
+            typeKey = map[typeName] || "local";
+        }
+
+        let currentTime = new Date();
+        currentTime.setHours(hour, min, 0, 0);
+        
+        let html = "";
+        let isFirst = true;
+
+        for (let i = startIdx; i !== endIdx + step; i += step) {
+            let st = stations[i];
+            let isStop = true;
+            if (lineClass === 'keihan' && typeKey !== "local") {
+                isStop = st.types.includes(typeKey);
+            }
+
+            if (isStop) {
+                let h = currentTime.getHours();
+                let m = currentTime.getMinutes();
+                let timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                let actionStr = isFirst ? "発" : "着";
+                
+                html += `
+                <div class="stop-item">
+                    <div class="stop-time">${timeStr}${actionStr}</div>
+                    <div class="stop-line">
+                        <div class="stop-line-bar"></div>
+                        <div class="stop-dot"></div>
+                    </div>
+                    <div class="stop-name">${st.name}</div>
+                </div>`;
+                isFirst = false;
+            }
+
+            if (i !== endIdx) {
+                let addMin = step > 0 ? stations[i].time : stations[i-1].time;
+                if(addMin === 0) addMin = 2;
+                currentTime.setMinutes(currentTime.getMinutes() + addMin);
+            }
+        }
+
+        listContainer.innerHTML = html;
+        modal.style.display = 'flex';
+    }
+
+    function closeStopsModal() {
+        document.getElementById('stopsModal').style.display = 'none';
+    }
+
+    // ----------------------------------------------------
+    // シミュレーター制御
+    // ----------------------------------------------------
+    function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); }
+    function applySettings() {
+        const val = document.getElementById('setting-datetime').value;
+        if(val) { timeOffset = new Date(val).getTime() - Date.now(); isSimulated = true; }
+        scheduleOverride = document.getElementById('setting-schedule-type').value;
+        render();
+    }
+    function resetSettings() { timeOffset = 0; isSimulated = false; scheduleOverride = 'auto'; render(); }
+
     initTabs();
-    setInterval(render, 30000);
-    setInterval(updateTimeDisplay, 1000);
+    setInterval(render, 1000);
     render();
 </script>
 </body>
