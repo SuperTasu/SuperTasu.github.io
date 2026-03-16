@@ -80,6 +80,7 @@
     }
 
     .app-card { 
+      position: relative; /* 別タブボタンを配置するため */
       display: flex; 
       flex-direction: row; 
       background-color: var(--card-bg); 
@@ -96,6 +97,30 @@
     .app-card:hover { 
       transform: translateY(-4px);
       box-shadow: 0 8px 16px rgba(0,0,0,0.5); 
+    }
+
+    /* --- 新しいタブで開くボタン --- */
+    .new-tab-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--divider-color);
+      border-radius: 6px;
+      color: var(--text-color-secondary);
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .new-tab-btn:hover {
+      background-color: var(--tab-active-bg);
+      color: #ffffff;
+      border-color: var(--tab-active-bg);
     }
 
     .card-left { 
@@ -138,6 +163,7 @@
       color: var(--text-color-secondary);
       text-align: center;
       line-height: 1.6; 
+      margin-right: 15px; /* 別タブボタンに被らないよう余白 */
     }
 
     /* --- ロード中＆選択モーダルのスタイル --- */
@@ -214,7 +240,7 @@
       color: #fff;
     }
 
-    /* 路線選択用のボタンスタイル */
+    /* --- 路線選択用のボタンスタイル --- */
     .train-btn-group {
       display: flex;
       flex-direction: column;
@@ -223,19 +249,41 @@
       margin-top: 15px;
     }
     .train-btn {
-      background-color: var(--input-bg);
-      color: var(--text-color-primary);
-      border: 1px solid var(--divider-color);
+      color: #ffffff;
+      border: none;
       padding: 15px 20px;
       border-radius: 10px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.2s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
     .train-btn:hover {
-      background-color: var(--tab-active-bg);
-      border-color: var(--tab-active-bg);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+    
+    /* 個別路線カラー */
+    .btn-keihan {
+      background-color: #6a1b9a; /* 紫 */
+    }
+    .btn-keihan:hover {
+      background-color: #8e24aa;
+    }
+    
+    .btn-seishin {
+      background-color: #2e7d32; /* 緑 */
+    }
+    .btn-seishin:hover {
+      background-color: #388e3c;
+    }
+    
+    .btn-kaigan {
+      background-color: #0277bd; /* 青 */
+    }
+    .btn-kaigan:hover {
+      background-color: #0288d1;
     }
 
     /* --- 戻るボタン --- */
@@ -305,6 +353,7 @@
             
             <!-- 1. 電車一覧 -->
             <a href="train/wadmisaki-train.html" class="app-card">
+                <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-subway"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -319,6 +368,7 @@
             
             <!-- 2. トレロケーション (京阪・地下鉄統合) -->
             <div id="train-location-card" class="app-card">
+                <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-train"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -331,6 +381,7 @@
             
             <!-- 3. 神戸市バス一覧 -->
             <a href="bus/imadezaike.html" class="app-card">
+                <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -341,6 +392,7 @@
             
             <!-- 4. 神戸市バスロケーション -->
             <a href="bus/Buslocation.html" class="app-card">
+                <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-map-marked-alt"></i></div>
                 <div class="card-divider"></div>
                 <div class="card-right">
@@ -352,7 +404,7 @@
         </div>
     </div>
 
-    <!-- 下部リンクボタン (こちらも同じタブで遷移するように変更) -->
+    <!-- 下部リンクボタン -->
     <div class="back-btn-wrapper">
         <a href="https://supertasu.github.io/" class="back-btn">
             <i class="fas fa-home"></i> Link FIrstに戻る
@@ -366,9 +418,9 @@
     <div class="loading-box">
       <div class="loading-text">路線を選択してください</div>
       <div class="train-btn-group">
-        <button class="train-btn" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪線">京阪線</button>
-        <button class="train-btn" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線">西神・山手線</button>
-        <button class="train-btn" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線">海岸線</button>
+        <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">京阪電車(公式)</button>
+        <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">西神・山手線(非公式)</button>
+        <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">海岸線(非公式)</button>
       </div>
       <button id="close-train-btn" class="cancel-btn" style="margin-top: 25px;">
         <i class="fas fa-times"></i> 閉じる
@@ -404,13 +456,16 @@
       const trainLocationCard = document.getElementById('train-location-card');
       const closeTrainBtn = document.getElementById('close-train-btn');
       const trainBtns = document.querySelectorAll('.train-btn');
+      const trainSelectTitle = trainSelectOverlay.querySelector('.loading-text');
 
       let loadTimeout;
       let progressInterval;
       
-      // 共通のロード処理関数 (全て同じタブで開く)
+      // 別タブで開くかどうかの状態保持
+      let isNewTabMode = false;
+      
+      // 共通のロード処理関数 (同じタブで開く場合)
       function startLoading(url, title) {
-        // 路線選択モーダルが開いていれば閉じる
         if (trainSelectOverlay.style.display === 'flex') {
           trainSelectOverlay.style.display = 'none';
         }
@@ -420,8 +475,8 @@
         progressBar.style.width = '0%';
         
         let progress = 0;
-        const totalTime = 1000; // 1秒 (1000ミリ秒)
-        const intervalTime = 20; // 20ミリ秒ごとに更新
+        const totalTime = 1000;
+        const intervalTime = 20;
         const step = (intervalTime / totalTime) * 100;
         
         progressInterval = setInterval(() => {
@@ -433,11 +488,30 @@
         loadTimeout = setTimeout(() => {
           clearInterval(progressInterval);
           overlay.style.display = 'none';
-          
-          // 全て同じタブ(現在の画面)で遷移する
           window.location.href = url;
         }, totalTime);
       }
+
+      // ── 新しいタブで開くボタンの処理 ──
+      const newTabBtns = document.querySelectorAll('.new-tab-btn');
+      newTabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // カード本体のクリックイベントが発火するのを防ぐ
+          
+          const card = btn.closest('.app-card');
+          if (card.id === 'train-location-card') {
+            // トレロケーションの場合は別タブ用としてモーダルを開く
+            isNewTabMode = true;
+            trainSelectTitle.textContent = '路線を選択してください (別タブ)';
+            trainSelectOverlay.style.display = 'flex';
+          } else {
+            // それ以外は即座に新しいタブで開く
+            const url = card.getAttribute('href');
+            window.open(url, '_blank');
+          }
+        });
+      });
 
       // 通常のカード（aタグ）のクリック処理
       const appCards = document.querySelectorAll('a.app-card');
@@ -453,6 +527,8 @@
       // トレロケーションのカードがクリックされた時（選択モーダルを開く）
       if (trainLocationCard) {
         trainLocationCard.addEventListener('click', () => {
+          isNewTabMode = false;
+          trainSelectTitle.textContent = '路線を選択してください';
           trainSelectOverlay.style.display = 'flex';
         });
       }
@@ -469,7 +545,15 @@
         btn.addEventListener('click', () => {
           const url = btn.getAttribute('data-url');
           const title = btn.getAttribute('data-title');
-          startLoading(url, title);
+          
+          if (isNewTabMode) {
+            // 別タブモードならモーダルを閉じて新しいタブで開く
+            trainSelectOverlay.style.display = 'none';
+            window.open(url, '_blank');
+          } else {
+            // 通常モードならロード画面を挟んで現在のタブで開く
+            startLoading(url, title);
+          }
         });
       });
       
