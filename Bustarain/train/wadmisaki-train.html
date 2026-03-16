@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Train List</title>
+    <title>総合運行掲示板 (地下鉄・京阪)</title>
     <style>
         :root {
             --subway-green: #006940; /* 西神・山手線 */
@@ -17,7 +17,7 @@
         /* 画面幅が広くてもスマホと同じように中央配置にする */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #e0e0e0; /* 背景を少し暗くしてスマホ画面を際立たせる */
+            background-color: #e0e0e0;
             color: #333;
             margin: 0;
             padding: 10px;
@@ -31,7 +31,7 @@
             border-radius: 8px;
             padding: 10px;
             width: 100%;
-            max-width: 500px; /* PCでもスマホのような横幅に制限 */
+            max-width: 500px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
@@ -63,75 +63,35 @@
         }
         .search-panel.open { display: block; }
         .search-box { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; }
-        input[type="datetime-local"], select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="datetime-local"], select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; background: #fff; }
         .btn-apply { background: var(--kaigan-blue); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
         .btn-reset { background: #666; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
 
-        /* 2. 駅・方面切り替えタブ (スクロールUI改善) */
-        .station-tabs-container {
-            position: relative;
-            margin-top: 10px;
-        }
-        
-        /* 横にスクロールできることを示す右端のフェードグラデーション */
+        /* 2. 駅・方面切り替えタブ (スクロールUI) */
+        .station-tabs-container { position: relative; margin-top: 10px; }
         .station-tabs-container::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: calc(100% - 6px); /* スクロールバーの分を避ける */
+            content: ""; position: absolute; top: 0; right: 0; width: 40px; height: calc(100% - 6px); 
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 90%);
-            pointer-events: none; /* クリックを阻害しない */
-            transition: opacity 0.3s;
-            z-index: 2;
+            pointer-events: none; transition: opacity 0.3s; z-index: 2;
         }
-        /* 一番右までスクロールしたらフェードを消す */
-        .station-tabs-container.is-end::after {
-            opacity: 0;
-        }
+        .station-tabs-container.is-end::after { opacity: 0; }
 
         .station-tabs { 
-            display: flex; 
-            gap: 4px; 
-            align-items: flex-end; 
-            flex-wrap: nowrap; 
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch; 
-            padding-bottom: 6px; /* スクロールバー用の余白 */
+            display: flex; gap: 4px; align-items: flex-end; flex-wrap: nowrap; overflow-x: auto;
+            -webkit-overflow-scrolling: touch; padding-bottom: 6px; 
         }
-        
-        /* スクロールバーを明示的に表示してわかりやすくする */
-        .station-tabs::-webkit-scrollbar {
-            height: 6px;
-        }
-        .station-tabs::-webkit-scrollbar-track {
-            background: #f4f4f4;
-            border-radius: 4px;
-        }
-        .station-tabs::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 4px;
-        }
+        .station-tabs::-webkit-scrollbar { height: 6px; }
+        .station-tabs::-webkit-scrollbar-track { background: #f4f4f4; border-radius: 4px; }
+        .station-tabs::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
         .station-tab {
-            flex: 0 0 auto; 
-            min-width: 90px;
-            text-align: center; 
-            background: #d5d5d5; 
-            color: #555;
-            padding: 10px 8px; 
-            font-size: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            border-radius: 8px 8px 0 0; 
-            transition: all 0.2s;
+            flex: 0 0 auto; min-width: 90px; text-align: center; background: #d5d5d5; color: #555;
+            padding: 10px 8px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 8px 8px 0 0; transition: all 0.2s;
         }
         .station-tab.active { padding: 12px 2px 10px; color: #fff; }
         .station-tab.active.seishin { background: var(--subway-green); }
         .station-tab.active.kaigan { background: var(--kaigan-blue); }
         .station-tab.active.keihan { background: var(--keihan-color); }
-        
         .station-line-name { font-size: 10px; font-weight: normal; display: block; margin-top: 4px; opacity: 0.9; }
 
         .direction-tabs {
@@ -143,9 +103,8 @@
         .direction-tabs.keihan { border-top: 4px solid var(--keihan-color); }
 
         .dir-tab {
-            flex: 1; text-align: center; background: #f4f4f4; color: #555;
-            padding: 10px 4px; font-size: 13px; font-weight: bold; cursor: pointer;
-            border-radius: 4px; transition: all 0.2s; border: 1px solid #ddd;
+            flex: 1; text-align: center; background: #f4f4f4; color: #555; padding: 10px 4px; font-size: 13px; font-weight: bold; 
+            cursor: pointer; border-radius: 4px; transition: all 0.2s; border: 1px solid #ddd;
         }
         .dir-tab:hover { background: #e9e9e9; }
         .dir-tab.active { background: #fff; color: #333; border-color: #bbb; box-shadow: inset 0 -4px 0 var(--accent-orange); }
@@ -153,8 +112,7 @@
         /* 3. 先発カード */
         .next-card {
             border-radius: 8px; padding: 15px; margin: 10px 0; position: relative;
-            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 2px solid #eee; cursor: pointer;
-            transition: background 0.2s;
+            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 2px solid #eee; cursor: pointer; transition: background 0.2s;
         }
         .next-card:active { background: #f9f9f9; }
         .next-card.seishin { border-left: 8px solid var(--subway-green); }
@@ -177,14 +135,17 @@
         .bg-kaigan { background: var(--kaigan-blue); }
         .bg-keihan { background: var(--keihan-color); }
 
-        .bg-type-ltd { background: #e60012; color: #fff; }
-        .bg-type-liner { background: #333; color: #fff; }
-        .bg-type-com-exp { background: #8a2be2; color: #fff; }
-        .bg-type-rapid-exp { background: #da70d6; color: #fff; }
-        .bg-type-exp { background: #ff8c00; color: #fff; }
-        .bg-type-sub-exp { background: #00bfff; color: #fff; }
-        .bg-type-semi-exp { background: #32cd32; color: #fff; }
-        .bg-type-local { background: #555; color: #fff; }
+        /* 京阪種別カラー */
+        .bg-type-rapid-ltd { background: #e6005c; color: #fff; } /* 快速特急 */
+        .bg-type-ltd { background: #e60012; color: #fff; } /* 特急 */
+        .bg-type-liner { background: #333; color: #fff; } /* ライナー */
+        .bg-type-com-exp { background: #8a2be2; color: #fff; } /* 通勤快急 */
+        .bg-type-rapid-exp { background: #da70d6; color: #fff; } /* 快速急行 */
+        .bg-type-exp { background: #ff8c00; color: #fff; } /* 急行 */
+        .bg-type-com-sub-exp { background: #0040ff; color: #fff; } /* 通勤準急 */
+        .bg-type-sub-exp { background: #00bfff; color: #fff; } /* 準急 */
+        .bg-type-semi-exp { background: #32cd32; color: #fff; } /* 区間急行 */
+        .bg-type-local { background: #555; color: #fff; } /* 普通 */
         
         .dep-time { font-size: 18px; font-weight: bold; margin-right: 15px; min-width: 50px; }
         .dep-dest { flex: 1; font-weight: bold; font-size: 14px; }
@@ -196,55 +157,31 @@
 
         /* === ローディングモーダル === */
         .loading-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; z-index: 2000;
-            align-items: center; justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 2000; align-items: center; justify-content: center;
         }
         .loading-content {
-            background: #fff; width: 80%; max-width: 300px; padding: 25px 20px;
-            border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; gap: 15px;
-            animation: fadeIn 0.2s ease-out;
+            background: #fff; width: 80%; max-width: 300px; padding: 25px 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 15px; animation: fadeIn 0.2s ease-out;
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
         .loading-title { font-size: 16px; font-weight: bold; color: #333; }
-        
-        .loading-bar-wrap {
-            width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .loading-bar {
-            width: 0%; height: 100%; border-radius: 4px;
-        }
-        
+        .loading-bar-wrap { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .loading-bar { width: 0%; height: 100%; border-radius: 4px; }
         .loading-cancel-btn {
-            margin-top: 10px; padding: 10px; border-radius: 6px; border: 1px solid #ddd;
-            background: #fafafa; color: #555; font-weight: bold; cursor: pointer;
-            font-size: 14px; transition: background 0.2s;
+            margin-top: 10px; padding: 10px; border-radius: 6px; border: 1px solid #ddd; background: #fafafa; color: #555; font-weight: bold; cursor: pointer; font-size: 14px; transition: background 0.2s;
         }
         .loading-cancel-btn:active { background: #e0e0e0; }
 
         /* === 停車駅一覧モーダル === */
         .stops-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); display: none; z-index: 1000;
-            align-items: flex-end; justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; align-items: flex-end; justify-content: center;
         }
         .stops-content {
-            background: #f4f4f7; width: 100%; max-width: 500px; height: 85vh;
-            border-radius: 12px 12px 0 0; display: flex; flex-direction: column;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out;
+            background: #f4f4f7; width: 100%; max-width: 500px; height: 85vh; border-radius: 12px 12px 0 0; display: flex; flex-direction: column; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
-        .stops-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: #fff; border-radius: 12px 12px 0 0; border-bottom: 1px solid #ddd;
-        }
+        .stops-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-radius: 12px 12px 0 0; border-bottom: 1px solid #ddd; }
         .stops-close { color: #007aff; cursor: pointer; font-size: 15px; font-weight: normal; }
         .stops-title { font-size: 16px; font-weight: bold; }
-        
         .stops-subtitle { padding: 15px 20px; font-size: 14px; color: #333; background: #fff; border-bottom: 1px solid #eee; }
         .stops-list-container { flex: 1; overflow-y: auto; background: #fff; padding-bottom: 40px; }
         
@@ -252,12 +189,8 @@
         .stop-time { width: 55px; font-size: 14px; color: #333; text-align: right; margin-right: 15px; }
         .stop-line { width: 20px; height: 100%; position: absolute; left: 90px; top: 0; display: flex; justify-content: center; }
         .stop-line-bar { width: 6px; background-color: #8fa0ac; height: 100%; }
-        .stop-dot {
-            width: 8px; height: 8px; background: white; border: 3px solid #8fa0ac;
-            border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
-        }
+        .stop-dot { width: 8px; height: 8px; background: white; border: 3px solid #8fa0ac; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; }
         .stop-name { margin-left: 45px; font-size: 16px; font-weight: bold; color: #333; }
-        
         .stop-item:first-child .stop-line-bar { top: 50%; height: 50%; position: absolute; }
         .stop-item:last-child .stop-line-bar { bottom: 50%; height: 50%; position: absolute; }
     </style>
@@ -275,15 +208,26 @@
     </div>
     
     <div class="search-panel" id="settingsPanel">
-        <div style="font-weight:bold; margin-bottom:10px;">検証用シミュレーター</div>
+        <div style="font-weight:bold; margin-bottom:10px;">表示設定 / シミュレーター</div>
         <div class="search-box">
-            <input type="datetime-local" id="setting-datetime">
-            <select id="setting-schedule-type">
+            <input type="datetime-local" id="setting-datetime" title="日時指定">
+            <select id="setting-schedule-type" title="ダイヤ指定">
                 <option value="auto">自動判定</option>
                 <option value="weekday">平日固定</option>
                 <option value="holiday">土休日固定</option>
             </select>
-            <button class="btn-apply" onclick="applySettings()">時間を適用</button>
+            <select id="setting-keihan-type" title="京阪線 種別絞り込み">
+                <option value="all">京阪線: すべて表示</option>
+                <option value="快速特急">快速特急 (洛楽)</option>
+                <option value="特急">特急</option>
+                <option value="快速急行">快速急行</option>
+                <option value="急行">急行</option>
+                <option value="通勤準急">通勤準急</option>
+                <option value="準急">準急</option>
+                <option value="区間急行">区間急行</option>
+                <option value="普通">普通</option>
+            </select>
+            <button class="btn-apply" onclick="applySettings()">適用</button>
             <button class="btn-reset" onclick="resetSettings()">リセット</button>
         </div>
     </div>
@@ -308,9 +252,7 @@
 <div id="loadingModal" class="loading-modal">
     <div class="loading-content">
         <div class="loading-title">停車駅を読み込み中...</div>
-        <div class="loading-bar-wrap">
-            <div id="loadingBar" class="loading-bar"></div>
-        </div>
+        <div class="loading-bar-wrap"><div id="loadingBar" class="loading-bar"></div></div>
         <button class="loading-cancel-btn" onclick="cancelLoading()">キャンセル</button>
     </div>
 </div>
@@ -324,9 +266,7 @@
             <span style="width: 45px;"></span>
         </div>
         <div id="stopsSubtitle" class="stops-subtitle"></div>
-        <div class="stops-list-container" id="stopsList">
-            <!-- 動的にリストが生成されます -->
-        </div>
+        <div class="stops-list-container" id="stopsList"></div>
     </div>
 </div>
 
@@ -355,10 +295,10 @@
         { id:"S17", name:"西神中央", time:0 }
     ];
     const KH_STATIONS =[
-        { id:"KH01", name:"淀屋橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
-        { id:"KH02", name:"北浜", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
-        { id:"KH03", name:"天満橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:3 },
-        { id:"KH04", name:"京橋", types:["local","semi_exp","sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH01", name:"淀屋橋", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
+        { id:"KH02", name:"北浜", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
+        { id:"KH03", name:"天満橋", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:3 },
+        { id:"KH04", name:"京橋", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
         { id:"KH05", name:"野江", types:["local"], time:2 }, { id:"KH06", name:"関目", types:["local"], time:2 },
         { id:"KH07", name:"森小路", types:["local"], time:1 }, { id:"KH08", name:"千林", types:["local"], time:1 },
         { id:"KH09", name:"滝井", types:["local"], time:1 }, { id:"KH10", name:"土居", types:["local"], time:1 },
@@ -386,12 +326,12 @@
         { id:"KH34", name:"伏見稲荷", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:2 },
         { id:"KH35", name:"鳥羽街道", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
         { id:"KH36", name:"東福寺", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
-        { id:"KH37", name:"七条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH37", name:"七条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
         { id:"KH38", name:"清水五条", types:["local","semi_exp","sub_exp","com_sub_exp"], time:2 },
-        { id:"KH39", name:"祇園四条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
-        { id:"KH40", name:"三条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:2 },
+        { id:"KH39", name:"祇園四条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
+        { id:"KH40", name:"三条", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:2 },
         { id:"KH41", name:"神宮丸太町", types:["local","semi_exp","sub_exp","com_sub_exp","exp"], time:2 },
-        { id:"KH42", name:"出町柳", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner"], time:0 }
+        { id:"KH42", name:"出町柳", types:["local","semi_exp","sub_exp","com_sub_exp","exp","rapid_exp","com_exp","ltd","liner","rapid_ltd"], time:0 }
     ];
 
     // 状態管理変数
@@ -400,15 +340,14 @@
     let timeOffset = 0;
     let isSimulated = false;
     let scheduleOverride = 'auto';
+    let keihanFilter = 'all'; // 京阪種別フィルター状態
     let loadingTimer = null;
 
-    // 駅タブの横スクロール状態（グラデーション制御用）を更新
+    // 駅タブの横スクロール状態
     function updateScrollGradient() {
         const tabsEl = document.getElementById('stationTabs');
         const container = document.getElementById('tabsContainer');
         if (!tabsEl || !container) return;
-        
-        // 横スクロールが右端に到達しているか判定 (1pxの誤差を許容)
         if (tabsEl.scrollWidth - tabsEl.clientWidth - tabsEl.scrollLeft <= 1) {
             container.classList.add('is-end');
         } else {
@@ -433,10 +372,8 @@
             sTabs.appendChild(div);
         });
         renderDirectionTabs();
-
-        // スクロール時のグラデーション更新イベント
         sTabs.addEventListener('scroll', updateScrollGradient);
-        setTimeout(updateScrollGradient, 50); // DOM反映後に初期判定
+        setTimeout(updateScrollGradient, 50);
     }
 
     function renderDirectionTabs() {
@@ -446,7 +383,6 @@
         dTabs.classList.add(conf.lineColor);
         
         let dirs = conf.directions;
-        // 京阪線の場合は順序を「出町柳方面」が先になるように入れ替える
         if (conf.lineColor === 'keihan') {
             dirs = [...conf.directions].sort((a, b) => {
                 if (a.label.includes('出町柳')) return -1;
@@ -454,7 +390,6 @@
                 return 0;
             });
         }
-
         dirs.forEach(d => {
             const div = document.createElement('div');
             div.className = 'dir-tab';
@@ -468,8 +403,6 @@
     function selectStation(st) { 
         if(currentStation === st) return; 
         currentStation = st; 
-
-        // 京阪線の場合は初期選択も「出町柳方面」をデフォルトにする
         const conf = stationConfig[st];
         let defaultView = conf.directions[0].id;
         if (conf.lineColor === 'keihan') {
@@ -477,7 +410,6 @@
             if (d) defaultView = d.id;
         }
         currentView = defaultView;
-
         initTabs(); 
         render(); 
     }
@@ -532,14 +464,38 @@
                 let match = mStr.match(/^\d+([^\d\*]+)?/);
                 if (match && match[1]) { typeKey = match[1].charAt(0); destKey = match[1].substring(1); }
                 let totalMin = displayHour * 60 + m;
-                if(totalMin >= currentTotalMin - 2) { list.push({ hour, min: m, abs: totalMin, isMisaki, typeKey, destKey }); }
+
+                // --- フィルター機能 (京阪線のみ適用) ---
+                let isTargetType = true;
+                if (config.colorClass === 'keihan' && keihanFilter !== 'all') {
+                    let typeName = "普通";
+                    if (typeKey && typeof keihanTypeMap !== 'undefined' && keihanTypeMap[typeKey]) {
+                        typeName = keihanTypeMap[typeKey].name;
+                    }
+                    
+                    // 「快速特急」の場合は「快速特急 洛楽」等も含むようにする
+                    if (keihanFilter === '快速特急' && typeName.includes('快速特急')) {
+                        isTargetType = true;
+                    } else if (typeName !== keihanFilter) {
+                        isTargetType = false;
+                    }
+                }
+
+                if(totalMin >= currentTotalMin - 2 && isTargetType) { 
+                    list.push({ hour, min: m, abs: totalMin, isMisaki, typeKey, destKey }); 
+                }
             });
         }
         list.sort((a,b) => a.abs - b.abs);
 
         const nextArea = document.getElementById('nextArea'); const listArea = document.getElementById('listArea');
         nextArea.innerHTML = ''; listArea.innerHTML = '';
-        if(list.length === 0) { nextArea.innerHTML = '<div style="padding:20px;text-align:center;">本日の運転は終了しました</div>'; return; }
+        
+        if(list.length === 0) { 
+            let msg = keihanFilter !== 'all' ? `指定した種別（${keihanFilter}）の列車は現在ありません` : "本日の運転は終了しました";
+            nextArea.innerHTML = `<div style="padding:20px;text-align:center;color:#666;">${msg}</div>`; 
+            return; 
+        }
 
         // --- 先発列車の描画 ---
         const next = list[0];
@@ -607,50 +563,40 @@
         if (isSimulated) timeOffset += 1000;
     }
 
-    // ロード画面を表示して2秒後にモーダルを開く処理
+    // ロード画面表示
     function triggerOpenStopsModal(hour, min, destName, lineClass, typeName, symbol, configName) {
         const loadingModal = document.getElementById('loadingModal');
         const loadingBar = document.getElementById('loadingBar');
         
-        const colorMap = {
-            'kaigan': 'var(--kaigan-blue)',
-            'seishin': 'var(--subway-green)',
-            'keihan': 'var(--keihan-color)'
-        };
+        const colorMap = { 'kaigan': 'var(--kaigan-blue)', 'seishin': 'var(--subway-green)', 'keihan': 'var(--keihan-color)' };
         loadingBar.style.background = colorMap[lineClass] || 'var(--kaigan-blue)';
         
         loadingModal.style.display = 'flex';
         loadingBar.style.transition = 'none';
         loadingBar.style.width = '0%';
         
-        setTimeout(() => {
-            loadingBar.style.transition = 'width 2s linear';
-            loadingBar.style.width = '100%';
-        }, 50);
+        setTimeout(() => { loadingBar.style.transition = 'width 2s linear'; loadingBar.style.width = '100%'; }, 50);
 
         if (loadingTimer) clearTimeout(loadingTimer);
-        
         loadingTimer = setTimeout(() => {
             loadingModal.style.display = 'none';
             openStopsModal(hour, min, destName, lineClass, typeName, symbol, configName);
         }, 2000);
     }
 
-    // キャンセルボタン
     function cancelLoading() {
         if (loadingTimer) clearTimeout(loadingTimer);
         loadingTimer = null;
         document.getElementById('loadingModal').style.display = 'none';
     }
 
-    // 実際の停車駅一覧モーダル
+    // 停車駅一覧生成
     function openStopsModal(hour, min, destName, lineClass, typeName, symbol, configName) {
         const modal = document.getElementById('stopsModal');
         const listContainer = document.getElementById('stopsList');
         listContainer.innerHTML = '';
 
-        let lineTitle = "";
-        let stations =[];
+        let lineTitle = ""; let stations =[];
         if (lineClass === 'kaigan') { lineTitle = "神戸市営地下鉄海岸線"; stations = K_STATIONS; }
         else if (lineClass === 'seishin') { lineTitle = "神戸市営地下鉄西神・山手線"; stations = S_STATIONS; }
         else if (lineClass === 'keihan') { lineTitle = "京阪電車"; stations = KH_STATIONS; }
@@ -665,26 +611,28 @@
 
         let startIdx = stations.findIndex(s => s.id === symbol);
         if (startIdx === -1) startIdx = 0;
-
         let endIdx = stations.findIndex(s => s.name.includes(cleanDest) || cleanDest.includes(s.name));
         if (endIdx === -1) endIdx = (startIdx > stations.length / 2) ? 0 : stations.length - 1;
 
         let step = startIdx < endIdx ? 1 : -1;
 
+        // 種別内部IDへのマッピング (快速特急、通勤準急などを追加)
         let typeKey = "local";
         if (lineClass === 'keihan') {
             const map = {
+                "快速特急":"rapid_ltd", "快速特急 洛楽":"rapid_ltd",
                 "特急":"ltd", "ライナー":"liner", "通勤快急":"com_exp", "快速急行":"rapid_exp",
-                "急行":"exp", "準急":"sub_exp", "通勤準急":"com_sub_exp", "区間急行":"semi_exp"
+                "急行":"exp", "通勤準急":"com_sub_exp", "準急":"sub_exp", "区間急行":"semi_exp"
             };
             typeKey = map[typeName] || "local";
+            // 表記ゆれ対応
+            if (typeName.includes("快速特急")) typeKey = "rapid_ltd";
         }
 
         let currentTime = new Date();
         currentTime.setHours(hour, min, 0, 0);
         
-        let html = "";
-        let isFirst = true;
+        let html = ""; let isFirst = true;
 
         for (let i = startIdx; i !== endIdx + step; i += step) {
             let st = stations[i];
@@ -694,18 +642,14 @@
             }
 
             if (isStop) {
-                let h = currentTime.getHours();
-                let m = currentTime.getMinutes();
+                let h = currentTime.getHours(); let m = currentTime.getMinutes();
                 let timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
                 let actionStr = isFirst ? "発" : "着";
                 
                 html += `
                 <div class="stop-item">
                     <div class="stop-time">${timeStr}${actionStr}</div>
-                    <div class="stop-line">
-                        <div class="stop-line-bar"></div>
-                        <div class="stop-dot"></div>
-                    </div>
+                    <div class="stop-line"><div class="stop-line-bar"></div><div class="stop-dot"></div></div>
                     <div class="stop-name">${st.name}</div>
                 </div>`;
                 isFirst = false;
@@ -722,19 +666,25 @@
         modal.style.display = 'flex';
     }
 
-    function closeStopsModal() {
-        document.getElementById('stopsModal').style.display = 'none';
-    }
+    function closeStopsModal() { document.getElementById('stopsModal').style.display = 'none'; }
 
-    // シミュレーター制御
+    // 設定パネル操作
     function toggleSettings() { document.getElementById('settingsPanel').classList.toggle('open'); }
     function applySettings() {
         const val = document.getElementById('setting-datetime').value;
         if(val) { timeOffset = new Date(val).getTime() - Date.now(); isSimulated = true; }
         scheduleOverride = document.getElementById('setting-schedule-type').value;
+        keihanFilter = document.getElementById('setting-keihan-type').value;
         render();
     }
-    function resetSettings() { timeOffset = 0; isSimulated = false; scheduleOverride = 'auto'; render(); }
+    function resetSettings() { 
+        timeOffset = 0; isSimulated = false; scheduleOverride = 'auto'; 
+        keihanFilter = 'all';
+        document.getElementById('setting-datetime').value = '';
+        document.getElementById('setting-schedule-type').value = 'auto';
+        document.getElementById('setting-keihan-type').value = 'all';
+        render(); 
+    }
 
     initTabs();
     setInterval(render, 1000);
