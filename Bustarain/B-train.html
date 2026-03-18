@@ -272,13 +272,14 @@
     }
     .train-btn-row .train-btn {
       flex: 1;
-      padding: 15px 5px;
-      font-size: 13px; /* 横並びで文字が収まるように少し小さく */
+      padding: 10px2px;
+      font-size: 11px; /* 横並びで文字が収まるように少し小さく */
       line-height: 1.4;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
+      word-break: keep-all
     }
     
     /* 個別路線カラー */
@@ -308,6 +309,13 @@
     }
     .btn-kaigan:hover {
       background-color: #0288d1;
+    }
+    /* 神戸市バスのカラー（例としてオレンジ色にしています。お好みで変更可能です） */
+    .btn-citybus {
+      background-color: #e65100; /* オレンジ */
+    }
+    .btn-citybus:hover {
+      background-color: #f57c00;
     }
 
     /* --- 戻るボタン --- */
@@ -449,6 +457,7 @@
         <div class="train-btn-row">
           <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">西神・山手線<br>(非公式)</button>
           <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">海岸線<br>(非公式)</button>
+          <button class="train-btn btn-citybus" date-url="https://location.its-mo.com/kobe/https://location.its-mo.com/kobe/" date-title="神戸市バス">神戸市バス</button>
         </div>
       </div>
       <button id="close-train-btn" class="cancel-btn" style="margin-top: 25px;">
