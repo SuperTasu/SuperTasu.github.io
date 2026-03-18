@@ -263,6 +263,23 @@
       transform: translateY(-3px);
       box-shadow: 0 6px 12px rgba(0,0,0,0.4);
     }
+
+    /* 2列横並び用のスタイル */
+    .train-btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+    .train-btn-row .train-btn {
+      flex: 1;
+      padding: 15px 5px;
+      font-size: 13px; /* 横並びで文字が収まるように少し小さく */
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
     
     /* 個別路線カラー */
     .btn-keihan {
@@ -270,6 +287,13 @@
     }
     .btn-keihan:hover {
       background-color: #8e24aa;
+    }
+
+    .btn-hanshin {
+      background-color: #b71c1c; /* 濃い赤 */
+    }
+    .btn-hanshin:hover {
+      background-color: #d32f2f;
     }
     
     .btn-seishin {
@@ -419,8 +443,13 @@
       <div class="loading-text">路線を選択してください</div>
       <div class="train-btn-group">
         <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">京阪電車(公式)</button>
-        <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">西神・山手線(非公式)</button>
-        <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">海岸線(非公式)</button>
+        <button class="train-btn btn-hanshin" data-url="https://unyohub.2pd.jp/railroad_hk_kobe/" data-title="阪神電車(非公式)">阪神電車(非公式)</button>
+        
+        <!-- 西神・山手線と海岸線を横並びにするラッパー -->
+        <div class="train-btn-row">
+          <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">西神・山手線<br>(非公式)</button>
+          <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">海岸線<br>(非公式)</button>
+        </div>
       </div>
       <button id="close-train-btn" class="cancel-btn" style="margin-top: 25px;">
         <i class="fas fa-times"></i> 閉じる
@@ -540,7 +569,7 @@
         });
       }
 
-      // 路線（京阪線・西神山手線・海岸線）のボタンをクリックした時の処理
+      // 各路線ボタンをクリックした時の処理
       trainBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           const url = btn.getAttribute('data-url');
