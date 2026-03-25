@@ -261,7 +261,7 @@
       transition: all 0.2s;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
       display: flex;
-      flex-direction: row; /* 横並びに変更 */
+      flex-direction: row; /* 横並び */
       align-items: center;
       justify-content: center;
       gap: 12px; /* アイコンとの余白 */
@@ -459,29 +459,30 @@
         <!-- 京阪電車(公式)と京阪電車(非公式)を横並び -->
         <div class="train-btn-row">
           <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">
-            <img src="http://trainfrontview.net/p/khan3004.png" alt="京阪電車アイコン" class="train-icon">
+            <!-- プロキシ経由で画像を読み込む -->
+            <img src="https://wsrv.nl/?url=trainfrontview.net/p/khan3004.png" alt="京阪電車アイコン" class="train-icon" crossorigin="anonymous">
             <span>京阪電車<br>(公式)</span>
           </button>
           <button class="train-btn btn-keihan" data-url="https://unyohub.2pd.jp/railroad_keihan/" data-title="京阪電車(非公式)">
-            <img src="http://trainfrontview.net/p/khan3004.png" alt="京阪電車アイコン" class="train-icon">
+            <img src="https://wsrv.nl/?url=trainfrontview.net/p/khan3004.png" alt="京阪電車アイコン" class="train-icon" crossorigin="anonymous">
             <span>京阪電車<br>(非公式)</span>
           </button>
         </div>
 
         <!-- 阪急電車 -->
         <button class="train-btn btn-hankyu" data-url="https://unyohub.2pd.jp/railroad_hk_kobe/" data-title="阪急電車(非公式)">
-          <img src="http://trainfrontview.net/p/hnq1000.png" alt="阪急電車アイコン" class="train-icon">
+          <img src="https://wsrv.nl/?url=trainfrontview.net/p/hnq1000.png" alt="阪急電車アイコン" class="train-icon" crossorigin="anonymous">
           <span>阪急電車(非公式)</span>
         </button>
         
         <!-- 西神・山手線と海岸線と市バスを横並びにするラッパー -->
         <div class="train-btn-row">
           <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">
-            <img src="http://trainfrontview.net/p/kob2000.png" alt="西神・山手線アイコン" class="train-icon">
+            <img src="https://wsrv.nl/?url=trainfrontview.net/p/kob2000.png" alt="西神・山手線アイコン" class="train-icon" crossorigin="anonymous">
             <span>西神・山手線<br>(非公式)</span>
           </button>
           <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">
-            <img src="http://trainfrontview.net/p/kob5000.png" alt="海岸線アイコン" class="train-icon">
+            <img src="https://wsrv.nl/?url=trainfrontview.net/p/kob5000.png" alt="海岸線アイコン" class="train-icon" crossorigin="anonymous">
             <span>海岸線<br>(非公式)</span>
           </button>
           <button class="train-btn btn-citybus" data-url="https://location.its-mo.com/kobe/" data-title="神戸市バス">
@@ -512,13 +513,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // ロード中モーダル関連
       const overlay = document.getElementById('loading-overlay');
       const progressBar = document.getElementById('progress-bar');
       const cancelBtn = document.getElementById('cancel-btn');
       const loadingTargetText = document.getElementById('loading-target-text');
       
-      // 路線選択モーダル関連
       const trainSelectOverlay = document.getElementById('train-select-overlay');
       const trainLocationCard = document.getElementById('train-location-card');
       const closeTrainBtn = document.getElementById('close-train-btn');
@@ -527,11 +526,8 @@
 
       let loadTimeout;
       let progressInterval;
-      
-      // 別タブで開くかどうかの状態保持
       let isNewTabMode = false;
       
-      // 共通のロード処理関数 (同じタブで開く場合)
       function startLoading(url, title) {
         if (trainSelectOverlay.style.display === 'flex') {
           trainSelectOverlay.style.display = 'none';
@@ -559,28 +555,24 @@
         }, totalTime);
       }
 
-      // ── 新しいタブで開くボタンの処理 ──
       const newTabBtns = document.querySelectorAll('.new-tab-btn');
       newTabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation(); // カード本体のクリックイベントが発火するのを防ぐ
+          e.stopPropagation(); 
           
           const card = btn.closest('.app-card');
           if (card.id === 'train-location-card') {
-            // トレロケーションの場合は別タブ用としてモーダルを開く
             isNewTabMode = true;
             trainSelectTitle.textContent = '路線を選択してください (別タブ)';
             trainSelectOverlay.style.display = 'flex';
           } else {
-            // それ以外は即座に新しいタブで開く
             const url = card.getAttribute('href');
             window.open(url, '_blank');
           }
         });
       });
 
-      // 通常のカード（aタグ）のクリック処理
       const appCards = document.querySelectorAll('a.app-card');
       appCards.forEach(card => {
         card.addEventListener('click', function(e) {
@@ -591,7 +583,6 @@
         });
       });
 
-      // トレロケーションのカードがクリックされた時（選択モーダルを開く）
       if (trainLocationCard) {
         trainLocationCard.addEventListener('click', () => {
           isNewTabMode = false;
@@ -600,31 +591,26 @@
         });
       }
 
-      // 選択モーダルの「閉じる」ボタン処理
       if (closeTrainBtn) {
         closeTrainBtn.addEventListener('click', () => {
           trainSelectOverlay.style.display = 'none';
         });
       }
 
-      // 各路線ボタンをクリックした時の処理
       trainBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           const url = btn.getAttribute('data-url');
           const title = btn.getAttribute('data-title');
           
           if (isNewTabMode) {
-            // 別タブモードならモーダルを閉じて新しいタブで開く
             trainSelectOverlay.style.display = 'none';
             window.open(url, '_blank');
           } else {
-            // 通常モードならロード画面を挟んで現在のタブで開く
             startLoading(url, title);
           }
         });
       });
       
-      // ロード中画面の「キャンセル」ボタン処理
       cancelBtn.addEventListener('click', () => {
         clearTimeout(loadTimeout); 
         clearInterval(progressInterval); 
