@@ -272,17 +272,24 @@
     }
     .train-btn-row .train-btn {
       flex: 1;
-      padding: 10px2px;
+      padding: 10px 2px;
       font-size: 11px; /* 横並びで文字が収まるように少し小さく */
       line-height: 1.4;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      word-break: keep-all
+      word-break: keep-all;
     }
     
     /* 個別路線カラー */
+    .btn-jrwest {
+      background-color: #0072bc; /* JR西日本カラー */
+    }
+    .btn-jrwest:hover {
+      background-color: #005a96;
+    }
+
     .btn-keihan {
       background-color: #6a1b9a; /* 紫 */
     }
@@ -310,7 +317,7 @@
     .btn-kaigan:hover {
       background-color: #0288d1;
     }
-    /* 神戸市バスのカラー（例としてオレンジ色にしています。お好みで変更可能です） */
+    /* 神戸市バスのカラー */
     .btn-citybus {
       background-color: #e65100; /* オレンジ */
     }
@@ -383,22 +390,7 @@
     <div id="traffic-view">
         <div id="mobile-traffic-all" class="traffic-grid">
             
-            <!-- 1. 電車一覧 -->
-            <a href="train/wadmisaki-train.html" class="app-card">
-                <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
-                <div class="card-left"><i class="fas fa-subway"></i></div>
-                <div class="card-divider"></div>
-                <div class="card-right">
-                    <div class="card-title">電車一覧</div>
-                    <div class="card-details">
-                        (西・山手線)板宿<br>
-                        (海岸線)新長田、和田岬、ハーバーランド、三宮<br>
-                        (京阪線)京橋、寝屋川
-                    </div>
-                </div>
-            </a>
-            
-            <!-- 2. トレロケーション (京阪・地下鉄統合) -->
+            <!-- 1. バストレロケーション -->
             <div id="train-location-card" class="app-card">
                 <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-train"></i></div>
@@ -406,11 +398,12 @@
                 <div class="card-right">
                     <div class="card-title">バストレロケーション</div>
                     <div class="card-details">
-                        京阪線、西神・山手線、海岸線の<br>列車走行位置情報
+                        JR線、京阪線、西神・山手線、海岸線などの<br>走行位置情報
                     </div>
                 </div>
             </div>
-                      <!-- 3. 神戸市バス一覧 -->
+
+            <!-- 2. 神戸市バス一覧 -->
             <a href="bus/imadezaike.html" class="app-card">
                 <div class="new-tab-btn" title="新しいタブで開く"><i class="fas fa-external-link-alt"></i></div>
                 <div class="card-left"><i class="fas fa-bus-alt"></i></div>
@@ -420,7 +413,6 @@
                     <div class="card-details">和田岬、今出在家町、県立兵庫津M前、中央市場</div>
                 </div>
             </a>
-
         
         </div>
     </div>
@@ -439,10 +431,18 @@
     <div class="loading-box">
       <div class="loading-text">路線を選択してください</div>
       <div class="train-btn-group">
-        <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">京阪電車(公式)</button>
+        <!-- 追加・配置変更：JR西日本(一番上) -->
+        <button class="train-btn btn-jrwest" data-url="https://www.train-guide.westjr.co.jp/kobesanyo.html?st=0417" data-title="JR西日本(公式)">JR西日本(公式)</button>
+
+        <!-- 追加・配置変更：京阪電車(公式)と京阪電車(非公式)を横並び -->
+        <div class="train-btn-row">
+          <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">京阪電車<br>(公式)</button>
+          <button class="train-btn btn-keihan" data-url="https://unyohub.2pd.jp/railroad_keihan/" data-title="京阪電車(非公式)">京阪電車<br>(非公式)</button>
+        </div>
+
         <button class="train-btn btn-hanshin" data-url="https://unyohub.2pd.jp/railroad_hk_kobe/" data-title="阪神電車(非公式)">阪急電車(非公式)</button>
         
-        <!-- 西神・山手線と海岸線を横並びにするラッパー -->
+        <!-- 西神・山手線と海岸線と市バスを横並びにするラッパー -->
         <div class="train-btn-row">
           <button class="train-btn btn-seishin" data-url="https://unyohub.2pd.jp/railroad_seishin_yamate/" data-title="西神・山手線(非公式)">西神・山手線<br>(非公式)</button>
           <button class="train-btn btn-kaigan" data-url="https://unyohub.2pd.jp/railroad_kaigan/" data-title="海岸線(非公式)">海岸線<br>(非公式)</button>
