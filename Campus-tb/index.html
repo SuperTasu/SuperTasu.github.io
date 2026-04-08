@@ -61,15 +61,14 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         }
 
-        /* 画像のデザイン */
+        /* 画像のデザイン（タグにwidthなどが書いてあっても枠に綺麗に収める設定） */
         .book-card img {
             width: 100%;
             height: 260px;
-            object-fit: cover;
+            object-fit: cover; /* 比率を保ちながら枠いっぱいに表示 */
             border-radius: 4px;
             cursor: pointer;
             border: 1px solid #eee;
-            /* 画像が読み込めなかった時に枠が崩れないように背景色を設定 */
             background-color: #e0e0e0; 
         }
 
@@ -119,7 +118,8 @@
         const booksData = [
             {
                 title: "REDING ACCESS",
-                imageUrl: "Campus-tb/IMG/Racces1.jpeg", /* リポジトリ内のパス */
+                // ★ <img> タグをそのまま書くように変更しました。全体をシングルクォーテーション(')で囲んでいます。
+                imageTag: '<img src="Campus-tb/IMG/Racces1.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
                 linkUrl: "page1.html",  
                 pages: "P.1 〜 P.200",  
                 status: "入荷済み",     
@@ -127,7 +127,7 @@
             },
             {
                 title: "C言語 プログラミング",
-                imageUrl: "IMG/book2.jpg", /* リポジトリ内のパス (最初の / を削除しました) */
+                imageTag: '<img src="IMG/book2.jpg" alt="C言語 プログラミング" title="C言語" width="300" height="400">',
                 linkUrl: "page2.html",
                 pages: "P.1 〜 P.120",
                 status: "入荷済み",
@@ -135,7 +135,7 @@
             },
             {
                 title: "アルゴリズムとデータ構造",
-                imageUrl: "IMG/book3.jpg",
+                imageTag: '<img src="IMG/book3.jpg" alt="アルゴリズムとデータ構造" title="アルゴリズム">',
                 linkUrl: "page3.html",
                 pages: "未収録",
                 status: "11月中旬 入荷予定",
@@ -143,7 +143,7 @@
             },
             {
                 title: "離散数学",
-                imageUrl: "IMG/book4.jpg",
+                imageTag: '<img src="IMG/book4.jpg" alt="離散数学" title="離散数学">',
                 linkUrl: "page4.html",
                 pages: "P.1 〜 P.50",
                 status: "後半ページ作成中",
@@ -151,7 +151,7 @@
             },
             {
                 title: "コンピュータアーキテクチャ",
-                imageUrl: "IMG/book5.jpg",
+                imageTag: '<img src="IMG/book5.jpg" alt="コンピュータアーキテクチャ" title="アーキテクチャ">',
                 linkUrl: "page5.html",
                 pages: "準備中",
                 status: "入荷未定",
@@ -159,7 +159,7 @@
             },
             {
                 title: "オペレーティングシステム",
-                imageUrl: "IMG/book6.jpg",
+                imageTag: '<img src="IMG/book6.jpg" alt="オペレーティングシステム" title="OS">',
                 linkUrl: "page6.html",
                 pages: "P.1 〜 P.250",
                 status: "全ページ入荷",
@@ -176,8 +176,8 @@
                 <div class="book-card">
                     <!-- 画像リンク -->
                     <a href="${book.linkUrl}">
-                        <!-- 外部URLは使わず、設定したリポジトリ内のパスのみを読み込みます -->
-                        <img src="${book.imageUrl}" alt="${book.title}">
+                        <!-- JavaScriptで書いた<img>タグがそのままここに入ります -->
+                        ${book.imageTag}
                     </a>
                     
                     <div class="book-title">${book.title}</div>
