@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教科書館 - 管理画面</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+        .admin-badge { color: red; font-weight: bold; font-size: 1.2em; border: 2px solid red; padding: 5px 10px; border-radius: 5px; }
+        .form-container { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #2c3e50; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #1a252f; }
+        .links { text-align: center; margin-top: 20px; }
+        .links a { color: #03A9F4; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>教科書館 データ登録</h2>
+        <div class="admin-badge">ADMIN</div>
+    </div>
+
+    <div class="form-container">
+        <form id="bookForm">
+            <div class="form-group">
+                <label>year: (年次 1〜3)</label>
+                <select id="year" required>
+                    <option value="1">1年次</option>
+                    <option value="2">2年次</option>
+                    <option value="3">3年次</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>title: (本のタイトル)</label>
+                <input type="text" id="title" placeholder="例: C言語 プログラミング" required>
+            </div>
+            <div class="form-group">
+                <label>画像のパス: (※srcの "ここのみ" を記入)</label>
+                <input type="text" id="imageSrc" placeholder="例: IMG/book1.jpg" required>
+            </div>
+            <div class="form-group">
+                <label>linkUrl: (飛び先のURL)</label>
+                <input type="text" id="linkUrl" placeholder="例: page1.html" required>
+            </div>
+            <div class="form-group">
+                <label>pages: (収録範囲)</label>
+                <input type="text" id="pages" placeholder="例: P.1 〜 P.200" required>
+            </div>
+            <div class="form-group">
+                <label>status: (入荷状況)</label>
+                <input type="text" id="status" placeholder="例: 入荷済み" required>
+            </div>
+            <div class="form-group">
+                <label>statusCode: (バッジの色)</label>
+                <select id="statusCode" required>
+                    <option value="#4CAF50">緑 (#4CAF50)</option>
+                    <option value="#FF9800">オレンジ (#FF9800)</option>
+                    <option value="#03A9F4">青 (#03A9F4)</option>
+                    <option value="#9E9E9E">グレー (#9E9E9E)</option>
+                    <option value="#E91E63">ピンク (#E91E63)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>lastUpdated: (最終更新履歴)</label>
+                <input type="text" id="lastUpdated" placeholder="例: 2023.10.24" required>
+            </div>
+            <button type="submit">登録する</button>
+        </form>
+    </div>
+
+    <div class="links">
+        <a href="index.html">→ 表示ページ（閲覧画面）へ行く</a>
+    </div>
+
+    <script>
+        document.getElementById('bookForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 画面リロードを防ぐ
+
+            // 入力された値を取得
+            const title = document.getElementById('title').value;
+            const imageSrc = document.getElementById('imageSrc').value;
+            
+            // imageTagを自動作成（入力されたパスとタイトルを組み込む）
+            const imageTag = `<img src="${imageSrc}" alt="${title}" title="${title}">`;
+
+            // 保存する1冊分のデータを作成
+            const newBook = {
+                year: Number(document.getElementById('year').value),
+                title: title,
+                imageTag: imageTag,
+                linkUrl: document.getElementById('linkUrl').value,
+                pages: document.getElementById('pages').value,
+                status: document.getElementById('status').value,
+                statusCode: document.getElementById('statusCode').value,
+                lastUpdated: document.getElementById('lastUpdated').value
+            };
+
+            // これまでに保存されているデータを取得（無ければ空の配列）
+            let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
+            
+            // 新しいデータを追加して保存
+            savedData.push(newBook);
+            localStorage.setItem('myBooksData', JSON.stringify(savedData));
+
+            alert('本を登録しました！表示ページで確認してください。');
+            this.reset(); // フォームの中身を空にする
+        });
+    </script>
+</body>
+</html>
