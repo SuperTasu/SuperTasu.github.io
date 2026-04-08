@@ -1,1 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参考書ライブラリ</title>
+    <style>
+        /* --- デザイン（CSS） --- */
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        /* 本を並べるグリッドレイアウト */
+        .book-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
+        /* 本1冊あたりのカードデザイン */
+        .book-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 画像のデザイン */
+        .book-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover; /* 画像の比率を保ってトリミング */
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #eee;
+        }
+
+        /* テキスト情報のデザイン */
+        .book-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 10px 0 5px;
+            line-height: 1.4;
+        }
+        .book-pages {
+            font-size: 0.9em;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        /* 入荷予定のバッジデザイン */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        /* ステータスごとの色分け */
+        .status-instock { background-color: #e8f5e9; color: #2e7d32; } /* 入荷済み（緑） */
+        .status-planned { background-color: #fff3e0; color: #ef6c00; } /* 入荷予定（オレンジ） */
+    </style>
+</head>
+<body>
+
+    <h1>参考書ライブラリ</h1>
+    <!-- ここにJavaScriptで本が自動追加されます -->
+    <div id="book-list" class="book-container"></div>
+
+    <script>
+        /* --- データ管理（JavaScript） --- */
+        
+        // ★ここを編集するだけで、サイトの本を更新できます★
+        const booksData = [
+            {
+                title: "英語長文 レベル1",
+                imageUrl: "https://placehold.co/200x300/4a90e2/white?text=English+Book", // 画像のURL
+                linkUrl: "page1.html",  // 画像を押したときの飛び先URL
+                pages: "P.1 〜 P.150",  // どこまでのページがあるか
+                status: "入荷済み",     // 入荷状況
+                statusCode: "instock"   // 色分け用（instock か planned）
+            },
+            {
+                title: "基礎数学 問題集",
+                imageUrl: "https://placehold.co/200x300/e74c3c/white?text=Math+Book",
+                linkUrl: "page2.html",
+                pages: "P.1 〜 P.80",
+                status: "入荷済み",
+                statusCode: "instock"
+            },
+            {
+                title: "日本史 一問一答",
+                imageUrl: "https://placehold.co/200x300/2ecc71/white?text=History+Book",
+                linkUrl: "page3.html",
+                pages: "未収録 (準備中)",
+                status: "10月中旬 入荷予定",
+                statusCode: "planned"
+            },
+            {
+                title: "物理 基礎固め",
+                imageUrl: "https://placehold.co/200x300/f39c12/white?text=Physics+Book",
+                linkUrl: "page4.html",
+                pages: "P.1 〜 P.45",
+                status: "11月追加ページ入荷予定",
+                statusCode: "planned"
+            }
+        ];
+
+        /* --- 画面に表示する処理 --- */
+        const bookListContainer = document.getElementById('book-list');
+        let htmlContent = '';
+
+        // データを1件ずつ処理してHTMLを作成
+        booksData.forEach(book => {
+            htmlContent += `
+                <div class="book-card">
+                    <!-- 画像リンク -->
+                    <a href="${book.linkUrl}">
+                        <img src="${book.imageUrl}" alt="${book.title}の表紙">
+                    </a>
+                    
+                    <!-- 本の情報 -->
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-pages">収録範囲: ${book.pages}</div>
+                    <div class="status-badge status-${book.statusCode}">${book.status}</div>
+                </div>
+            `;
+        });
+
+        // 作成したHTMLを画面に反映
+        bookListContainer.innerHTML = htmlContent;
+    </script>
+
+</body>
+</html>
