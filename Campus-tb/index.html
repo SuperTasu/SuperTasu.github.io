@@ -16,12 +16,12 @@
         
         /* --- 付箋風ヘッダーのデザイン --- */
         .fusen-header {
-            background-color: #ffffcc; /* 付箋の薄い黄色 */
+            background-color: #ffffcc;
             padding: 20px 30px;
             margin: 20px auto 50px;
             max-width: 900px;
-            box-shadow: 3px 5px 10px rgba(0,0,0,0.15); /* 影をつけて浮いているように */
-            border-left: 10px solid #ffeb3b; /* 左側の濃い黄色ライン */
+            box-shadow: 3px 5px 10px rgba(0,0,0,0.15);
+            border-left: 10px solid #ffeb3b;
             border-radius: 2px;
         }
         .fusen-header h1 {
@@ -41,9 +41,9 @@
         /* --- 本を横に5冊並べるレイアウト --- */
         .book-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* ここで横5列を指定 */
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
-            max-width: 1200px; /* 5列が綺麗に入る幅 */
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -69,6 +69,8 @@
             border-radius: 4px;
             cursor: pointer;
             border: 1px solid #eee;
+            /* 画像が読み込めなかった時に枠が崩れないように背景色を設定 */
+            background-color: #e0e0e0; 
         }
 
         /* テキスト情報のデザイン */
@@ -84,43 +86,40 @@
             margin: 5px 0 10px;
         }
         
-        /* 入荷予定のバッジ（色はJavaScriptから指定） */
+        /* 入荷予定のバッジ */
         .status-badge {
             display: inline-block;
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.8em;
             font-weight: bold;
-            color: #fff; /* 文字は白で固定 */
+            color: #fff;
         }
 
         /* --- スマホなど画面が狭い時の調整 --- */
         @media (max-width: 900px) {
-            .book-container { grid-template-columns: repeat(3, 1fr); } /* 狭い時は3列 */
+            .book-container { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 500px) {
-            .book-container { grid-template-columns: repeat(2, 1fr); } /* スマホは2列 */
+            .book-container { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
 
-    <!-- 付箋デザインのヘッダー -->
     <div class="fusen-header">
         <h1>大学の教科書館</h1>
         <p class="department">p-情報工学科</p>
     </div>
 
-    <!-- 本のリスト（ここに自動追加されます） -->
     <div id="book-list" class="book-container"></div>
 
     <script>
-        /* --- データ管理（★ここを編集して本を追加・変更します） --- */
-        
+        /* --- データ管理 --- */
         const booksData = [
             {
-                title: "REDING ACCESS", /* ← ★ここにカンマ(,)を追加しました！ */
-                imageUrl: "Campus-tb/IMG/Racces1.jpeg",
+                title: "REDING ACCESS",
+                imageUrl: "Campus-tb/IMG/Racces1.jpeg", /* リポジトリ内のパス */
                 linkUrl: "page1.html",  
                 pages: "P.1 〜 P.200",  
                 status: "入荷済み",     
@@ -128,7 +127,7 @@
             },
             {
                 title: "C言語 プログラミング",
-                imageUrl: "/IMG/book2.jpg",
+                imageUrl: "IMG/book2.jpg", /* リポジトリ内のパス (最初の / を削除しました) */
                 linkUrl: "page2.html",
                 pages: "P.1 〜 P.120",
                 status: "入荷済み",
@@ -136,7 +135,7 @@
             },
             {
                 title: "アルゴリズムとデータ構造",
-                imageUrl: "/IMG/book3.jpg",
+                imageUrl: "IMG/book3.jpg",
                 linkUrl: "page3.html",
                 pages: "未収録",
                 status: "11月中旬 入荷予定",
@@ -144,7 +143,7 @@
             },
             {
                 title: "離散数学",
-                imageUrl: "/IMG/book4.jpg",
+                imageUrl: "IMG/book4.jpg",
                 linkUrl: "page4.html",
                 pages: "P.1 〜 P.50",
                 status: "後半ページ作成中",
@@ -152,7 +151,7 @@
             },
             {
                 title: "コンピュータアーキテクチャ",
-                imageUrl: "/IMG/book5.jpg",
+                imageUrl: "IMG/book5.jpg",
                 linkUrl: "page5.html",
                 pages: "準備中",
                 status: "入荷未定",
@@ -160,7 +159,7 @@
             },
             {
                 title: "オペレーティングシステム",
-                imageUrl: "/IMG/book6.jpg",
+                imageUrl: "IMG/book6.jpg",
                 linkUrl: "page6.html",
                 pages: "P.1 〜 P.250",
                 status: "全ページ入荷",
@@ -177,15 +176,13 @@
                 <div class="book-card">
                     <!-- 画像リンク -->
                     <a href="${book.linkUrl}">
-                        <!-- 画像がない場合の代替画像を表示する処理も入れています -->
-                        <img src="${book.imageUrl}" alt="${book.title}" onerror="this.src='https://placehold.co/200x300/e0e0e0/666?text=No+Image'">
+                        <!-- 外部URLは使わず、設定したリポジトリ内のパスのみを読み込みます -->
+                        <img src="${book.imageUrl}" alt="${book.title}">
                     </a>
                     
-                    <!-- 本の情報 -->
                     <div class="book-title">${book.title}</div>
                     <div class="book-pages">収録範囲: ${book.pages}</div>
                     
-                    <!-- ステータス（ここでstatusCodeの色を背景色に適用しています） -->
                     <div class="status-badge" style="background-color: ${book.statusCode};">
                         ${book.status}
                     </div>
