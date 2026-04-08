@@ -8,108 +8,228 @@
         body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
         .admin-badge { color: red; font-weight: bold; font-size: 1.2em; border: 2px solid red; padding: 5px 10px; border-radius: 5px; }
-        .form-container { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-container { background: #fff; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-        input[type="text"], input[type="number"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #2c3e50; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
-        button:hover { background-color: #1a252f; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; font-size: 1em; border-radius: 4px; cursor: pointer; border: none; }
+        .btn-submit { background-color: #2c3e50; color: white; }
+        .btn-cancel { background-color: #9e9e9e; color: white; display: none; } /* 編集時のみ表示 */
+        
+        /* 管理リストのスタイル */
+        .admin-list { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
+        th { background: #f8f9fa; }
+        .btn-edit { background: #4CAF50; color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8em; margin-right: 5px; }
+        .btn-delete { background: #f44336; color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8em; }
+        
         .links { text-align: center; margin-top: 20px; }
         .links a { color: #03A9F4; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>教科書館 データ登録</h2>
-        <div class="admin-badge">ADMIN</div>
-    </div>
+<div class="header">
+    <h2>教科書館 データ管理</h2>
+    <div class="admin-badge">ADMIN</div>
+</div>
 
-    <div class="form-container">
-        <form id="bookForm">
-            <div class="form-group">
-                <label>year: (年次 1〜3)</label>
-                <select id="year" required>
-                    <option value="1">1年次</option>
-                    <option value="2">2年次</option>
-                    <option value="3">3年次</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>title: (本のタイトル)</label>
-                <input type="text" id="title" placeholder="例: C言語 プログラミング" required>
-            </div>
-            <div class="form-group">
-                <label>画像のパス: (※srcの "ここのみ" を記入)</label>
-                <input type="text" id="imageSrc" placeholder="例: IMG/book1.jpg" required>
-            </div>
-            <div class="form-group">
-                <label>linkUrl: (飛び先のURL)</label>
-                <input type="text" id="linkUrl" placeholder="例: page1.html" required>
-            </div>
-            <div class="form-group">
-                <label>pages: (収録範囲)</label>
-                <input type="text" id="pages" placeholder="例: P.1 〜 P.200" required>
-            </div>
-            <div class="form-group">
-                <label>status: (入荷状況)</label>
-                <input type="text" id="status" placeholder="例: 入荷済み" required>
-            </div>
-            <div class="form-group">
-                <label>statusCode: (バッジの色)</label>
-                <select id="statusCode" required>
-                    <option value="#4CAF50">緑 (#4CAF50)</option>
-                    <option value="#FF9800">オレンジ (#FF9800)</option>
-                    <option value="#03A9F4">青 (#03A9F4)</option>
-                    <option value="#9E9E9E">グレー (#9E9E9E)</option>
-                    <option value="#E91E63">ピンク (#E91E63)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>lastUpdated: (最終更新履歴)</label>
-                <input type="text" id="lastUpdated" placeholder="例: 2023.10.24" required>
-            </div>
-            <button type="submit">登録する</button>
-        </form>
-    </div>
+<div class="form-container">
+    <h3 id="form-title">新規登録</h3>
+    <form id="bookForm">
+        <!-- 編集時にIDを保持するための隠しフィールド -->
+        <input type="hidden" id="editIndex" value="-1">
 
-    <div class="links">
-        <a href="index.html">→ 表示ページ（閲覧画面）へ行く</a>
-    </div>
+        <div class="form-group">
+            <label>年次 (year)</label>
+            <select id="year" required>
+                <option value="1">1年次</option>
+                <option value="2">2年次</option>
+                <option value="3">3年次</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>本のタイトル (title)</label>
+            <input type="text" id="title" placeholder="例: C言語 プログラミング" required>
+        </div>
+        <div class="form-group">
+            <label>本の詳細説明 (description)</label>
+            <textarea id="description" placeholder="本の詳しい内容や使い道を記入してください" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>画像のパス (imageSrc)</label>
+            <input type="text" id="imageSrc" placeholder="例: IMG/book1.jpg" required>
+        </div>
+        <div class="form-group">
+            <label>リンクURL (linkUrl)</label>
+            <input type="text" id="linkUrl" placeholder="例: page1.html" required>
+        </div>
+        <div class="form-group">
+            <label>収録範囲 (pages)</label>
+            <input type="text" id="pages" placeholder="例: P.1 〜 P.200" required>
+        </div>
+        <div class="form-group">
+            <label>入荷状況 (status)</label>
+            <input type="text" id="status" placeholder="例: 入荷済み" required>
+        </div>
+        <div class="form-group">
+            <label>バッジの色 (statusCode)</label>
+            <select id="statusCode" required>
+                <option value="#4CAF50">緑 (入荷済み)</option>
+                <option value="#FF9800">オレンジ (在庫僅少)</option>
+                <option value="#03A9F4">青 (予約受付中)</option>
+                <option value="#9E9E9E">グレー (未入荷)</option>
+                <option value="#E91E63">ピンク (要確認)</option>
+            </select>
+        </div>
+        
+        <div class="btn-group">
+            <button type="submit" class="btn-submit" id="submitBtn">登録する</button>
+            <button type="button" class="btn-cancel" id="cancelBtn" onclick="resetForm()">キャンセル</button>
+        </div>
+    </form>
+</div>
 
-    <script>
-        document.getElementById('bookForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // 画面リロードを防ぐ
+<!-- 登録済みリスト -->
+<div class="admin-list">
+    <h3>登録済み教科書一覧</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>年次</th>
+                <th>タイトル</th>
+                <th>更新日時</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="adminTableBody">
+            <!-- ここにJSでデータが入ります -->
+        </tbody>
+    </table>
+</div>
 
-            // 入力された値を取得
-            const title = document.getElementById('title').value;
-            const imageSrc = document.getElementById('imageSrc').value;
-            
-            // imageTagを自動作成（入力されたパスとタイトルを組み込む）
-            const imageTag = `<img src="${imageSrc}" alt="${title}" title="${title}">`;
+<div class="links">
+    <a href="index.html">→ 表示ページ（閲覧画面）へ行く</a>
+</div>
 
-            // 保存する1冊分のデータを作成
-            const newBook = {
-                year: Number(document.getElementById('year').value),
-                title: title,
-                imageTag: imageTag,
-                linkUrl: document.getElementById('linkUrl').value,
-                pages: document.getElementById('pages').value,
-                status: document.getElementById('status').value,
-                statusCode: document.getElementById('statusCode').value,
-                lastUpdated: document.getElementById('lastUpdated').value
-            };
+<script>
+    const bookForm = document.getElementById('bookForm');
+    const adminTableBody = document.getElementById('adminTableBody');
+    const editIndexField = document.getElementById('editIndex');
+    const submitBtn = document.getElementById('submitBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const formTitle = document.getElementById('form-title');
 
-            // これまでに保存されているデータを取得（無ければ空の配列）
-            let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
-            
-            // 新しいデータを追加して保存
-            savedData.push(newBook);
-            localStorage.setItem('myBooksData', JSON.stringify(savedData));
+    // ページ読み込み時に表示
+    renderList();
 
-            alert('本を登録しました！表示ページで確認してください。');
-            this.reset(); // フォームの中身を空にする
+    // 日時取得関数
+    function getCurrentDateTime() {
+        const now = new Date();
+        return `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // リストを表示する関数
+    function renderList() {
+        let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
+        adminTableBody.innerHTML = '';
+
+        savedData.forEach((book, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${book.year}年</td>
+                <td>${book.title}</td>
+                <td>${book.lastUpdated}</td>
+                <td>
+                    <button class="btn-edit" onclick="editBook(${index})">編集</button>
+                    <button class="btn-delete" onclick="deleteBook(${index})">削除</button>
+                </td>
+            `;
+            adminTableBody.appendChild(tr);
         });
-    </script>
+    }
+
+    // 登録・更新処理
+    bookForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const index = parseInt(editIndexField.value);
+        let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
+
+        const title = document.getElementById('title').value;
+        const imageSrc = document.getElementById('imageSrc').value;
+        
+        const newBook = {
+            year: Number(document.getElementById('year').value),
+            title: title,
+            description: document.getElementById('description').value, // 詳細
+            imageTag: `<img src="${imageSrc}" alt="${title}" title="${title}">`,
+            imageSrc: imageSrc, // 編集用に元のパスも保持
+            linkUrl: document.getElementById('linkUrl').value,
+            pages: document.getElementById('pages').value,
+            status: document.getElementById('status').value,
+            statusCode: document.getElementById('statusCode').value,
+            lastUpdated: getCurrentDateTime() // 自動日時
+        };
+
+        if (index === -1) {
+            // 新規登録
+            savedData.push(newBook);
+            alert('登録しました！');
+        } else {
+            // 上書き更新
+            savedData[index] = newBook;
+            alert('更新しました！');
+        }
+
+        localStorage.setItem('myBooksData', JSON.stringify(savedData));
+        resetForm();
+        renderList();
+    });
+
+    // 編集ボタン
+    window.editBook = function(index) {
+        let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
+        const book = savedData[index];
+
+        document.getElementById('year').value = book.year;
+        document.getElementById('title').value = book.title;
+        document.getElementById('description').value = book.description || "";
+        document.getElementById('imageSrc').value = book.imageSrc || "";
+        document.getElementById('linkUrl').value = book.linkUrl;
+        document.getElementById('pages').value = book.pages;
+        document.getElementById('status').value = book.status;
+        document.getElementById('statusCode').value = book.statusCode;
+        
+        editIndexField.value = index;
+        submitBtn.innerText = "更新する";
+        formTitle.innerText = "データを編集中";
+        cancelBtn.style.display = "inline-block";
+        window.scrollTo(0, 0);
+    };
+
+    // 削除ボタン
+    window.deleteBook = function(index) {
+        if(confirm('本当に削除してもよろしいですか？')) {
+            let savedData = JSON.parse(localStorage.getItem('myBooksData')) || [];
+            savedData.splice(index, 1);
+            localStorage.setItem('myBooksData', JSON.stringify(savedData));
+            renderList();
+        }
+    };
+
+    // フォームリセット
+    function resetForm() {
+        bookForm.reset();
+        editIndexField.value = "-1";
+        submitBtn.innerText = "登録する";
+        formTitle.innerText = "新規登録";
+        cancelBtn.style.display = "none";
+    }
+</script>
 </body>
 </html>
