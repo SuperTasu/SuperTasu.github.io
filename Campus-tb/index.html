@@ -3,123 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>参考書ライブラリ</title>
+    <title>大学の教科書館</title>
     <style>
-        /* --- デザイン（CSS） --- */
+        /* --- 全体のデザイン --- */
         body {
             font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
-            background-color: #f7f9fc;
+            background-color: #f4f7f6;
             color: #333;
             margin: 0;
             padding: 20px;
         }
-        h1 {
+        
+        /* --- 付箋風ヘッダーのデザイン --- */
+        .fusen-header {
+            background-color: #ffffcc; /* 付箋の薄い黄色 */
+            padding: 20px 30px;
+            margin: 20px auto 50px;
+            max-width: 900px;
+            box-shadow: 3px 5px 10px rgba(0,0,0,0.15); /* 影をつけて浮いているように */
+            border-left: 10px solid #ffeb3b; /* 左側の濃い黄色ライン */
+            border-radius: 2px;
+        }
+        .fusen-header h1 {
             text-align: center;
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
             color: #2c3e50;
         }
-        
-        /* 本を並べるグリッドレイアウト */
+        .fusen-header .department {
+            text-align: left;
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* --- 本を横に5冊並べるレイアウト --- */
         .book-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 25px;
-            max-width: 1000px;
+            grid-template-columns: repeat(5, 1fr); /* ここで横5列を指定 */
+            gap: 20px;
+            max-width: 1200px; /* 5列が綺麗に入る幅 */
             margin: 0 auto;
         }
 
-        /* 本1冊あたりのカードデザイン */
+        /* --- 本1冊あたりのカードデザイン --- */
         .book-card {
             background: #fff;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
             transition: transform 0.2s, box-shadow 0.2s;
             text-align: center;
         }
         .book-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         }
 
         /* 画像のデザイン */
         .book-card img {
             width: 100%;
-            height: 280px;
-            object-fit: cover; /* 画像の比率を保ってトリミング */
-            border-radius: 5px;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 4px;
             cursor: pointer;
             border: 1px solid #eee;
         }
 
         /* テキスト情報のデザイン */
         .book-title {
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: bold;
             margin: 10px 0 5px;
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .book-pages {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #666;
-            margin: 5px 0;
+            margin: 5px 0 10px;
         }
         
-        /* 入荷予定のバッジデザイン */
+        /* 入荷予定のバッジ（色はJavaScriptから指定） */
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 0.8em;
             font-weight: bold;
-            margin-top: 5px;
+            color: #fff; /* 文字は白で固定 */
         }
-        /* ステータスごとの色分け */
-        .status-instock { background-color: #e8f5e9; color: #2e7d32; } /* 入荷済み（緑） */
-        .status-planned { background-color: #fff3e0; color: #ef6c00; } /* 入荷予定（オレンジ） */
+
+        /* --- スマホなど画面が狭い時の調整 --- */
+        @media (max-width: 900px) {
+            .book-container { grid-template-columns: repeat(3, 1fr); } /* 狭い時は3列 */
+        }
+        @media (max-width: 500px) {
+            .book-container { grid-template-columns: repeat(2, 1fr); } /* スマホは2列 */
+        }
     </style>
 </head>
 <body>
 
-    <h1>参考書ライブラリ</h1>
-    <!-- ここにJavaScriptで本が自動追加されます -->
+    <!-- 付箋デザインのヘッダー -->
+    <div class="fusen-header">
+        <h1>大学の教科書館</h1>
+        <p class="department">p-情報工学科</p>
+    </div>
+
+    <!-- 本のリスト（ここに自動追加されます） -->
     <div id="book-list" class="book-container"></div>
 
     <script>
-        /* --- データ管理（JavaScript） --- */
+        /* --- データ管理（★ここを編集して本を追加・変更します） --- */
         
-        // ★ここを編集するだけで、サイトの本を更新できます★
         const booksData = [
             {
-                title: "Reading Access",
-                imageUrl: "/Campus-tb/IMG/Racces1.jpg", // 画像のURL
-                linkUrl: "page1.html",  // 画像を押したときの飛び先URL
-                pages: "P.1 〜 P.65",  // どこまでのページがあるか
-                status: "途中まで入荷済",     // 入荷状況
-                statusCode: "instock"   // 色分け用（instock か planned）
+                title: "情報工学 基礎",
+                imageUrl: "/IMG/book1.jpg", 
+                linkUrl: "page1.html",  
+                pages: "P.1 〜 P.200",  
+                status: "入荷済み",     
+                statusCode: "#4CAF50"   // ★緑色（カラーコードや色の名前を指定）
             },
             {
-                title: "Skills for Success",
-                imageUrl: "https://placehold.co/200x300/e74c3c/white?text=Math+Book",
+                title: "C言語 プログラミング",
+                imageUrl: "/IMG/book2.jpg",
                 linkUrl: "page2.html",
-                pages: "P.1 〜 P.80",
-                status: "5月までに入荷予定",
-                statusCode: "instock"
+                pages: "P.1 〜 P.120",
+                status: "入荷済み",
+                statusCode: "#4CAF50"   // 緑色
             },
             {
-                title: "日本史 一問一答",
-                imageUrl: "https://placehold.co/200x300/2ecc71/white?text=History+Book",
+                title: "アルゴリズムとデータ構造",
+                imageUrl: "/IMG/book3.jpg",
                 linkUrl: "page3.html",
-                pages: "未収録 (準備中)",
-                status: "10月中旬 入荷予定",
-                statusCode: "planned"
+                pages: "未収録",
+                status: "11月中旬 入荷予定",
+                statusCode: "#FF9800"   // ★オレンジ色
             },
             {
-                title: "物理 基礎固め",
-                imageUrl: "https://placehold.co/200x300/f39c12/white?text=Physics+Book",
+                title: "離散数学",
+                imageUrl: "/IMG/book4.jpg",
                 linkUrl: "page4.html",
-                pages: "P.1 〜 P.45",
-                status: "11月追加ページ入荷予定",
-                statusCode: "planned"
+                pages: "P.1 〜 P.50",
+                status: "後半ページ作成中",
+                statusCode: "#03A9F4"   // ★青色
+            },
+            {
+                title: "コンピュータアーキテクチャ",
+                imageUrl: "/IMG/book5.jpg",
+                linkUrl: "page5.html",
+                pages: "準備中",
+                status: "入荷未定",
+                statusCode: "#9E9E9E"   // ★グレー
+            },
+            {
+                title: "オペレーティングシステム",
+                imageUrl: "/IMG/book6.jpg",
+                linkUrl: "page6.html",
+                pages: "P.1 〜 P.250",
+                status: "全ページ入荷",
+                statusCode: "#4CAF50"
             }
         ];
 
@@ -127,24 +172,27 @@
         const bookListContainer = document.getElementById('book-list');
         let htmlContent = '';
 
-        // データを1件ずつ処理してHTMLを作成
         booksData.forEach(book => {
             htmlContent += `
                 <div class="book-card">
                     <!-- 画像リンク -->
                     <a href="${book.linkUrl}">
-                        <img src="${book.imageUrl}" alt="${book.title}の表紙">
+                        <!-- 画像がない場合の代替画像を表示する処理も入れています -->
+                        <img src="${book.imageUrl}" alt="${book.title}" onerror="this.src='https://placehold.co/200x300/e0e0e0/666?text=No+Image'">
                     </a>
                     
                     <!-- 本の情報 -->
                     <div class="book-title">${book.title}</div>
                     <div class="book-pages">収録範囲: ${book.pages}</div>
-                    <div class="status-badge status-${book.statusCode}">${book.status}</div>
+                    
+                    <!-- ステータス（ここでstatusCodeの色を背景色に適用しています） -->
+                    <div class="status-badge" style="background-color: ${book.statusCode};">
+                        ${book.status}
+                    </div>
                 </div>
             `;
         });
 
-        // 作成したHTMLを画面に反映
         bookListContainer.innerHTML = htmlContent;
     </script>
 
