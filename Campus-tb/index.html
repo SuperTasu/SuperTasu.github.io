@@ -11,69 +11,66 @@
             background-color: #f4f7f6;
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
         }
         
         /* --- 付箋風ヘッダーのデザイン --- */
         .fusen-header {
             background-color: #ffffcc;
-            padding: 20px 30px;
-            margin: 20px auto 30px; /* 下の余白を少し調整 */
-            max-width: 900px;
+            padding: 15px 20px;
+            margin: 10px auto 25px;
+            max-width: 1000px;
             box-shadow: 3px 5px 10px rgba(0,0,0,0.15);
             border-left: 10px solid #ffeb3b;
-            border-radius: 2px;
+            position: relative;
         }
         .fusen-header h1 {
             text-align: center;
-            margin: 0 0 15px 0;
-            font-size: 1.8em;
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
             color: #2c3e50;
         }
-        .fusen-header .department {
-            text-align: left;
-            margin: 0;
-            font-size: 1.2em;
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
             font-weight: bold;
             color: #555;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        /* --- 年次切り替えタブのデザイン --- */
+        /* --- 年次切り替えタブ --- */
         .tab-container {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         .tab-btn {
-            padding: 10px 30px;
-            font-size: 1.1em;
+            padding: 8px 15px;
+            font-size: 0.95em;
             font-weight: bold;
             border: none;
-            border-radius: 25px;
+            border-radius: 20px;
             background-color: #e0e0e0;
             color: #555;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        /* 選択されているタブの色 */
         .tab-btn.active {
             background-color: #2c3e50;
             color: #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: translateY(-2px);
-        }
-        .tab-btn:hover:not(.active) {
-            background-color: #d5d5d5;
         }
 
-        /* --- 本を横に5冊並べるレイアウト --- */
+        /* --- 本のグリッドレイアウト --- */
         .book-container {
             display: grid;
+            /* 基本は5列、画面が狭くなると自動調整 */
             grid-template-columns: repeat(5, 1fr);
-            gap: 20px;
-            max-width: 1200px;
+            gap: 15px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
@@ -81,70 +78,102 @@
         .book-card {
             background: #fff;
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-align: center;
-        }
-        .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
-        .book-card img {
+        /* 画像コンテナ：比率を維持 */
+        .book-img-wrapper {
+            position: relative;
             width: 100%;
-            height: 260px;
-            object-fit: cover;
+            aspect-ratio: 3 / 4; /* 本らしい比率を維持 */
+            overflow: hidden;
             border-radius: 4px;
+            background-color: #eee;
+            border: 1px solid #ddd;
+        }
+        .book-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 比率を保ちつつ枠を満たす */
+        }
+
+        /* ステータスバッジ（画像の上に重ねる） */
+        .status-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: #fff;
+            z-index: 2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            pointer-events: none; /* 下の画像クリックを邪魔しない */
+        }
+
+        /* お気に入りボタン（星） */
+        .fav-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
-            border: 1px solid #eee;
-            background-color: #e0e0e0; 
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            color: #ccc;
+            transition: transform 0.2s;
+        }
+        .fav-btn.active {
+            color: #f1c40f;
+        }
+        .fav-btn:active {
+            transform: scale(1.2);
         }
 
         .book-title {
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: bold;
-            margin: 10px 0 5px;
+            margin: 8px 0 4px;
             line-height: 1.3;
+            height: 2.6em; /* 2行分確保 */
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
         .book-pages {
-            font-size: 0.85em;
-            color: #333;
-            margin: 5px 0;
-        }
-        
-        /* 最終更新履歴のデザイン */
-        .book-updated {
             font-size: 0.75em;
-            color: #888;
-            margin: 0 0 10px 0;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        /* 本がない時のメッセージ */
-        .no-books-msg {
-            grid-column: 1 / -1;
-            text-align: center;
-            font-size: 1.1em;
             color: #666;
-            padding: 40px;
         }
 
-        /* --- スマホなど画面が狭い時の調整 --- */
+        /* --- レスポンシブ調整 --- */
         @media (max-width: 900px) {
             .book-container { grid-template-columns: repeat(3, 1fr); }
         }
-        @media (max-width: 500px) {
-            .book-container { grid-template-columns: repeat(2, 1fr); }
-            .tab-btn { padding: 8px 20px; font-size: 1em; } /* スマホではボタンを少し小さく */
+        @media (max-width: 550px) {
+            .book-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .fusen-header h1 { font-size: 1.3em; }
+            .header-meta { font-size: 0.8em; }
+        }
+
+        .no-books-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #666;
+            padding: 40px;
         }
     </style>
 </head>
@@ -152,12 +181,14 @@
 
     <div class="fusen-header">
         <h1>大学の教科書館</h1>
-        <p class="department">p-情報工学科</p>
+        <div class="header-meta">
+            <span class="department">p-情報工学科</span>
+            <span class="total-updated">最終更新: 2026.04.19</span>
+        </div>
     </div>
 
     <!-- 年次切り替えタブ -->
     <div class="tab-container">
-        <!-- 初期状態では1年次が選択(active)されています -->
         <button class="tab-btn active" onclick="changeTab(1, this)">1年次</button>
         <button class="tab-btn" onclick="changeTab(2, this)">2年次</button>
         <button class="tab-btn" onclick="changeTab(3, this)">3年次</button>
@@ -167,196 +198,91 @@
     <div id="book-list" class="book-container"></div>
 
     <script>
-        /* --- データ管理 --- */
+        /* --- データ管理 (IDを追加して管理しやすくしました) --- */
         const booksData = [
-            {
-                year: 1,  /* 1年次 */
-                title: "REDING ACCESS",
-                imageTag: '<img src="IMG/Racces1.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "https://answeri.wordpress.com/wp-content/uploads/2026/04/reading-acces-chap6.pdf",  
-                pages: "P.1 〜 P.200",  
-                status: "入荷途中",     
-                statusCode: "#00FFFF",
-                lastUpdated: "2026.04.10" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "Skills for Success",
-                imageTag: '<img src="IMG/Sacces3.jpeg" alt="C言語 プログラミング" title="C言語">',
-                linkUrl: "https://answeri.wordpress.com/wp-content/uploads/2026/04/sacces1to2.pdf",
-                pages: "P.1 〜 P.120",
-                status: "入荷途中",
-                statusCode: "#00FFFF",
-                lastUpdated: "2026.04.10"
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "インターネットの光と影　Ver?",
-                imageTag: '<img src="IMG/Kage.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "page1.html",  
-                pages: "P.1 〜 P.200",  
-                status: "5月末までに入荷予定",     
-                statusCode: "#FF4500",
-                lastUpdated: "2026.04.10" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "やさしいC　第５版",
-                imageTag: '<img src="IMG/Yasac.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "page1.html",  
-                pages: "P.1 〜 P.200",  
-                status: "4月末までに入荷予定",     
-                statusCode: "#FF4500",
-                lastUpdated: "2026.04.10" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "情報リテラシーの基礎",
-                imageTag: '<img src="IMG/Ritera.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "page1.html",  
-                pages: "P. 〜 P.",  
-                status: "入荷未定",     
-                statusCode: "#DC143C",
-                lastUpdated: "2026.04.10" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "キタミ式　基本情報技術者",
-                imageTag: '<img src="IMG/IMG_0290.png" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "https://answeri.wordpress.com/wp-content/uploads/2026/04/e382ade382bfe3839fe5bc8fe382a4e383a9e382b9e38388ite5a1be-e59fbae69cace68385e5a0b1e68a80e8a193e88085-e4bba4e5928c8e5b9b4_compressed.pdf",  
-                pages: "all",  
-                status: "入荷済み",     
-                statusCode: "#5AFF19",
-                lastUpdated: "2026.04.19" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "新編　基礎線形代数",
-                imageTag: '<img src="IMG/Senkei.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "https://answeri.wordpress.com/wp-content/uploads/2026/04/e59fbae7a48e-e7b79ae5bda2e4bba3e695b0full.pdf",  
-                pages: "all",  
-                status: "入荷済み",     
-                statusCode: "#5AFF19",
-                lastUpdated: "2026.04.19" /* 最終更新履歴 */
-            },
-                        {
-                year: 1,  /* 1年次 */
-                title: "基礎線形代数 ワークブック",
-                imageTag: '<img src="IMG/IMG_0289.png" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "https://answeri.wordpress.com/wp-content/uploads/2026/04/e7b79ae5bda2e4bba3e695b0-e383afe383bce382afe38396e38383e382af.pdf",  
-                pages: "all",  
-                status: "入荷済み",     
-                statusCode: "#5AFF19",
-                lastUpdated: "2026.04.19" /* 最終更新履歴 */
-            },
-            {
-                year: 1,  /* 1年次 */
-                title: "新編　基礎解析",
-                imageTag: '<img src="IMG/Kaiseki.jpeg" alt="REDING ACCESS" title="REDING ACCESS">',
-                linkUrl: "page1.html",  
-                pages: "P.1 〜 P.200",  
-                status: "もうすぐ入荷",     
-                statusCode: "#FF4500",
-                lastUpdated: "2026.04.10" /* 最終更新履歴 */
-            },
-            {
-                year: 2,  /* 2年次 */
-                title: "未定",
-                imageTag: '<img src="IMG/book3.jpg" alt="アルゴリズムとデータ構造">',
-                linkUrl: "page3.html",
-                pages: "未収録",
-                status: "11月中旬 入荷予定",
-                statusCode: "#FF9800",
-                lastUpdated: "2023.09.15"
-            },
-            {
-                year: 2,  /* 2年次 */
-                title: "未定",
-                imageTag: '<img src="IMG/book4.jpg" alt="離散数学">',
-                linkUrl: "page4.html",
-                pages: "P.1 〜 P.50",
-                status: "後半ページ作成中",
-                statusCode: "#03A9F4",
-                lastUpdated: "2023.10.22"
-            },
-            {
-                year: 3,  /* 3年次 */
-                title: "コンピュータアーキテクチャ",
-                imageTag: '<img src="IMG/book5.jpg" alt="コンピュータアーキテクチャ">',
-                linkUrl: "page5.html",
-                pages: "準備中",
-                status: "入荷未定",
-                statusCode: "#9E9E9E",
-                lastUpdated: "2023.08.01"
-            },
-            {
-                year: 3,  /* 3年次 */
-                title: "オペレーティングシステム",
-                imageTag: '<img src="IMG/book6.jpg" alt="オペレーティングシステム">',
-                linkUrl: "page6.html",
-                pages: "P.1 〜 P.250",
-                status: "全ページ入荷",
-                statusCode: "#4CAF50",
-                lastUpdated: "2023.10.24"
-            }
+            { id: 1, year: 1, title: "REDING ACCESS", image: "IMG/Racces1.jpeg", link: "https://example.com", pages: "P.1〜200", status: "入荷途中", color: "#00FFFF" },
+            { id: 2, year: 1, title: "Skills for Success", image: "IMG/Sacces3.jpeg", link: "https://example.com", pages: "P.1〜120", status: "入荷途中", color: "#00FFFF" },
+            { id: 3, year: 1, title: "インターネットの光と影 Ver?", image: "IMG/Kage.jpeg", link: "page1.html", pages: "P.1〜200", status: "5月末入荷予定", color: "#FF4500" },
+            { id: 4, year: 1, title: "やさしいC 第５版", image: "IMG/Yasac.jpeg", link: "page1.html", pages: "P.1〜200", status: "4月末入荷予定", color: "#FF4500" },
+            { id: 5, year: 1, title: "情報リテラシーの基礎", image: "IMG/Ritera.jpeg", link: "page1.html", pages: "未定", status: "入荷未定", color: "#DC143C" },
+            { id: 6, year: 1, title: "キタミ式 基本情報技術者", image: "IMG/IMG_0290.png", link: "https://example.com", pages: "all", status: "入荷済み", color: "#4CAF50" },
+            { id: 7, year: 1, title: "新編 基礎線形代数", image: "IMG/Senkei.jpeg", link: "https://example.com", pages: "all", status: "入荷済み", color: "#4CAF50" },
+            { id: 8, year: 1, title: "基礎線形代数 ワークブック", image: "IMG/IMG_0289.png", link: "https://example.com", pages: "all", status: "入荷済み", color: "#4CAF50" },
+            { id: 9, year: 1, title: "新編 基礎解析", image: "IMG/Kaiseki.jpeg", link: "page1.html", pages: "P.1〜200", status: "もうすぐ入荷", color: "#FF4500" },
+            { id: 10, year: 2, title: "未定の教科書 A", image: "IMG/book3.jpg", link: "#", pages: "未収録", status: "11月入荷予定", color: "#FF9800" },
+            { id: 11, year: 2, title: "未定の教科書 B", image: "IMG/book4.jpg", link: "#", pages: "P.1〜50", status: "作成中", color: "#03A9F4" },
+            { id: 12, year: 3, title: "コンピュータアーキテクチャ", image: "IMG/book5.jpg", link: "#", pages: "準備中", status: "入荷未定", color: "#9E9E9E" },
+            { id: 13, year: 3, title: "オペレーティングシステム", image: "IMG/book6.jpg", link: "#", pages: "P.1〜250", status: "全頁入荷", color: "#4CAF50" }
         ];
 
-        /* --- 画面の表示と切り替えの処理 --- */
-        const bookListContainer = document.getElementById('book-list');
+        let currentYear = 1;
 
-        // 本を画面に表示する関数
-        function displayBooks(targetYear) {
-            let htmlContent = '';
-            
-            // 選ばれた年次の本だけを抽出（フィルター）する
-            const filteredData = booksData.filter(book => book.year === targetYear);
-
-            // 抽出した本が1冊以上ある場合
-            if (filteredData.length > 0) {
-                filteredData.forEach(book => {
-                    htmlContent += `
-                        <div class="book-card">
-                            <a href="${book.linkUrl}">
-                                ${book.imageTag}
-                            </a>
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-pages">収録範囲: ${book.pages}</div>
-                            
-                            <!-- 最終更新履歴 -->
-                            <div class="book-updated">最終更新: ${book.lastUpdated}</div>
-                            
-                            <div class="status-badge" style="background-color: ${book.statusCode};">
-                                ${book.status}
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                // その年次の本が1冊も登録されていない場合
-                htmlContent = `<p class="no-books-msg">この年次の教科書はまだ登録されていません。</p>`;
-            }
-
-            bookListContainer.innerHTML = htmlContent;
+        // お気に入り情報の取得 (LocalStorage)
+        function getFavorites() {
+            const favs = localStorage.getItem('textbook-favs');
+            return favs ? JSON.parse(favs) : [];
         }
 
-        // タブボタンを押したときの処理
+        // お気に入りの切り替え
+        function toggleFav(id) {
+            let favs = getFavorites();
+            if (favs.includes(id)) {
+                favs = favs.filter(favId => favId !== id);
+            } else {
+                favs.push(id);
+            }
+            localStorage.setItem('textbook-favs', JSON.stringify(favs));
+            displayBooks(currentYear); // 再描画
+        }
+
+        function displayBooks(targetYear) {
+            currentYear = targetYear;
+            const bookListContainer = document.getElementById('book-list');
+            const favs = getFavorites();
+            
+            let filteredData = booksData.filter(book => book.year === targetYear);
+
+            // ソート：お気に入りが先頭、それ以外は元の順序
+            filteredData.sort((a, b) => {
+                const aFav = favs.includes(a.id) ? 1 : 0;
+                const bFav = favs.includes(b.id) ? 1 : 0;
+                return bFav - aFav;
+            });
+
+            if (filteredData.length > 0) {
+                bookListContainer.innerHTML = filteredData.map(book => {
+                    const isFav = favs.includes(book.id);
+                    return `
+                        <div class="book-card">
+                            <div class="book-img-wrapper">
+                                <div class="status-badge" style="background-color: ${book.color};">
+                                    ${book.status}
+                                </div>
+                                <a href="${book.link}">
+                                    <img src="${book.image}" alt="${book.title}" loading="lazy">
+                                </a>
+                                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFav(${book.id})" title="お気に入り">
+                                    ${isFav ? '★' : '☆'}
+                                </button>
+                            </div>
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-pages">範囲: ${book.pages}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                bookListContainer.innerHTML = `<p class="no-books-msg">この年次の教科書はまだ登録されていません。</p>`;
+            }
+        }
+
         function changeTab(year, clickedButton) {
-            // 全てのボタンから 'active' クラス（選択中の色）を外す
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            // 押されたボタンに 'active' クラスを付ける
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             clickedButton.classList.add('active');
-
-            // 押された年次の本を表示する
             displayBooks(year);
         }
 
-        // --- サイトを開いた時の最初の処理 ---
-        // 最初は1年次の本を表示する
+        // 初回表示
         displayBooks(1);
-
     </script>
-
 </body>
 </html>
