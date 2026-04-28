@@ -120,7 +120,7 @@
       border-radius: var(--card-radius);
       padding: 30px 20px;
       width: 100%;
-      max-width: 600px; 
+      max-width: 600px; /* 左右に分けるため少し広め */
       text-align: center;
       box-shadow: 0 8px 20px rgba(0,0,0,0.5);
       display: flex;
@@ -174,7 +174,7 @@
       flex-shrink: 0; 
     }
 
-    /* --- JRと京阪の左右分割レイアウト --- */
+    /* --- 京阪とJRの左右分割レイアウト --- */
     .train-split-container {
       display: flex;
       gap: 15px;
@@ -200,6 +200,7 @@
       padding-bottom: 10px;
     }
     
+    /* 分割枠内のボタン調整（スマホで収まるように） */
     .train-group .train-btn {
       padding: 10px 8px;
       font-size: 13px;
@@ -394,35 +395,35 @@
       <div class="selection-title">路線を選択してください</div>
       <div class="train-btn-group">
         
-        <!-- JR と 京阪 を左右に並べる枠 -->
+        <!-- JR西日本 と 京阪 を左右に並べる枠 (左:JR / 右:京阪) -->
         <div class="train-split-container">
           
           <!-- 左側：JR西日本枠 -->
           <div class="train-group">
             <div class="group-title">JR西日本</div>
-
-            <!-- 追加: JR西日本 運行状況・路線図 -->
+            
+            <!-- 運行状況・路線図 を一番上に -->
             <button class="train-btn btn-jrwest" data-url="https://trafficinfo.westjr.co.jp/kinki.html?id=1" data-title="JR西日本 運行状況">
               <i class="fas fa-info-circle"></i>
               <span>運行状況<br>路線図</span>
             </button>
-
+            
             <button class="train-btn btn-jrwest" data-url="https://www.train-guide.westjr.co.jp/kobesanyo.html?st=0417" data-title="JR西日本(公式)">
               <i class="fas fa-train"></i>
               <span>走行位置<br>(公式)</span>
             </button>
           </div>
-          
+
           <!-- 右側：京阪枠 -->
           <div class="train-group">
             <div class="group-title">京阪電車</div>
             
-            <!-- 追加: 京阪 運行状況・路線図 -->
+            <!-- 運行状況・路線図 を一番上に -->
             <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/traffic/information/" data-title="京阪 運行情報">
               <i class="fas fa-info-circle"></i>
               <span>運行状況<br>路線図</span>
             </button>
-
+            
             <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">
               <img src="https://wsrv.nl/?url=trainfrontview.net/p/khan3004.png" alt="京阪電車" class="train-icon" crossorigin="anonymous">
               <span>走行位置<br>(公式)</span>
@@ -510,10 +511,14 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
+            // 分と秒をゼロ埋めで常に2桁（十の位まで）表示するように設定
+            const mStr = String(minutes).padStart(2, '0');
+            const sStr = String(seconds).padStart(2, '0');
+
             let text = '';
             if (hours > 0) text += `${hours}時間`;
-            if (minutes > 0 || hours > 0) text += `${minutes}分`;
-            text += `${seconds}秒`;
+            if (hours > 0 || minutes > 0) text += `${mStr}分`;
+            text += `${sStr}秒`;
             
             timeText.textContent = text;
             timeText.classList.remove('ended');
