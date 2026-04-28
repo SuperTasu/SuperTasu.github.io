@@ -217,6 +217,60 @@
       width: 30px;
     }
 
+    /* --- トグルスイッチのスタイル --- */
+    .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 25px; /* スペーサー用としての高さ */
+    }
+    .switch-label {
+      font-size: 12px;
+      color: var(--text-color-secondary);
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+    .switch-label.active {
+      color: #ffffff; /* 選択中の文字色を白くする */
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #555555;
+      transition: .3s;
+      border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #6a1b9a; /* 京阪カラー */
+    }
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
     /* 3列以上の横並び用のスタイル（地下鉄・市バス用） */
     .train-btn-row {
       display: flex;
@@ -402,12 +456,14 @@
           <div class="train-group">
             <div class="group-title">JR西日本</div>
             
-            <!-- 運行状況・路線図 を一番上に -->
             <button class="train-btn btn-jrwest" data-url="https://trafficinfo.westjr.co.jp/kinki.html?id=1" data-title="JR西日本 運行状況">
               <i class="fas fa-info-circle"></i>
               <span>運行状況<br>路線図</span>
             </button>
             
+            <!-- 京阪のトグルスイッチに高さを合わせるための透明スペーサー -->
+            <div style="height: 25px;"></div>
+
             <button class="train-btn btn-jrwest" data-url="https://www.train-guide.westjr.co.jp/kobesanyo.html?st=0417" data-title="JR西日本(公式)">
               <i class="fas fa-train"></i>
               <span>走行位置<br>(公式)</span>
@@ -418,20 +474,25 @@
           <div class="train-group">
             <div class="group-title">京阪電車</div>
             
-            <!-- 運行状況・路線図 を一番上に -->
             <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/traffic/information/" data-title="京阪 運行情報">
               <i class="fas fa-info-circle"></i>
               <span>運行状況<br>路線図</span>
             </button>
             
-            <button class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">
+            <!-- 公式・非公式 切り替えスイッチ -->
+            <div class="switch-container">
+              <span id="lbl-official" class="switch-label active">公式</span>
+              <label class="switch">
+                <input type="checkbox" id="keihan-toggle">
+                <span class="slider"></span>
+              </label>
+              <span id="lbl-unofficial" class="switch-label">非公式</span>
+            </div>
+
+            <!-- 動的に切り替わるボタン -->
+            <button id="keihan-location-btn" class="train-btn btn-keihan" data-url="https://www.keihan.co.jp/zaisen/" data-title="京阪電車(公式)">
               <img src="https://wsrv.nl/?url=trainfrontview.net/p/khan3004.png" alt="京阪電車" class="train-icon" crossorigin="anonymous">
-              <span>走行位置<br>(公式)</span>
-            </button>
-            
-            <button class="train-btn btn-keihan" data-url="https://unyohub.2pd.jp/railroad_keihan/" data-title="京阪電車(非公式)">
-              <img src="https://wsrv.nl/?url=trainfrontview.net/p/khan3004.png" alt="京阪電車" class="train-icon" crossorigin="anonymous">
-              <span>走行位置<br>(非公式)</span>
+              <span id="keihan-location-text">走行位置<br>(公式)</span>
             </button>
           </div>
           
@@ -511,7 +572,6 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // 分と秒をゼロ埋めで常に2桁（十の位まで）表示するように設定
             const mStr = String(minutes).padStart(2, '0');
             const sStr = String(seconds).padStart(2, '0');
 
@@ -543,6 +603,31 @@
 
       setInterval(updateCountdown, 1000);
       updateCountdown();
+
+      // --- 京阪トグルスイッチの処理 ---
+      const keihanToggle = document.getElementById('keihan-toggle');
+      const keihanBtn = document.getElementById('keihan-location-btn');
+      const keihanText = document.getElementById('keihan-location-text');
+      const lblOfficial = document.getElementById('lbl-official');
+      const lblUnofficial = document.getElementById('lbl-unofficial');
+
+      keihanToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          // 非公式がオンの場合
+          keihanBtn.setAttribute('data-url', 'https://unyohub.2pd.jp/railroad_keihan/');
+          keihanBtn.setAttribute('data-title', '京阪電車(非公式)');
+          keihanText.innerHTML = '走行位置<br>(非公式)';
+          lblOfficial.classList.remove('active');
+          lblUnofficial.classList.add('active');
+        } else {
+          // 公式がオンの場合
+          keihanBtn.setAttribute('data-url', 'https://www.keihan.co.jp/zaisen/');
+          keihanBtn.setAttribute('data-title', '京阪電車(公式)');
+          keihanText.innerHTML = '走行位置<br>(公式)';
+          lblUnofficial.classList.remove('active');
+          lblOfficial.classList.add('active');
+        }
+      });
 
       // --- ボタン・ロード中モーダルの処理 ---
       const overlay = document.getElementById('loading-overlay');
