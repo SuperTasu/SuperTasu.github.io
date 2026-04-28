@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>京阪電車 運行情報切り抜き</title>
+<style>
+  /* 切り抜いて表示する「枠」の設定 */
+  .keihan-crop-box {
+    width: 600px;       /* 表示したい小窓の幅 */
+    height: 400px;      /* 表示したい小窓の高さ */
+    overflow: hidden;   /* 枠からはみ出た部分を隠す（ここで切り抜く） */
+    position: relative;
+    border: 2px solid #ccc; /* 枠線（お好みで消してください） */
+    border-radius: 8px;
+  }
+
+  /* 読み込むページ本体の設定 */
+  .keihan-crop-box iframe {
+    position: absolute;
+    /* ↓↓ ここで切り抜く位置（座標）を調整します ↓↓ */
+    top: -250px;  /* 上からどれくらい隠すか（マイナス値で上にずらす） */
+    left: -50px;  /* 左からどれくらい隠すか（マイナス値で左にずらす） */
+    /* ↑↑ 実際のページを見ながら数値を変更してください ↑↑ */
+
+    width: 1200px;  /* ページ全体をPC版として読み込むための幅 */
+    height: 1500px; /* 十分な高さを確保 */
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+  <h3>京阪電車 運行情報</h3>
+  
+  <!-- ここから切り抜き表示 -->
+  <div class="keihan-crop-box">
+    <iframe src="https://www.keihan.co.jp/traffic/information/" scrolling="no"></iframe>
+  </div>
+  <!-- ここまで -->
+
+</body>
+</html>
