@@ -41,6 +41,31 @@
             gap: 10px;
         }
 
+        /* --- ヘッダー右下のコンテナとボタン --- */
+        .meta-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .answer-uni-btn {
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .answer-uni-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
         /* --- 年次切り替えタブ --- */
         .tab-container {
             display: flex;
@@ -167,6 +192,9 @@
             .book-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .fusen-header h1 { font-size: 1.3em; }
             .header-meta { font-size: 0.8em; }
+            /* スマホ時にはメタ情報を少し詰める */
+            .meta-right { gap: 10px; }
+            .answer-uni-btn { padding: 4px 12px; font-size: 0.85em; }
         }
 
         .no-books-msg {
@@ -183,7 +211,11 @@
         <h1>大学の教科書館</h1>
         <div class="header-meta">
             <span class="department">p-情報工学科</span>
-            <span class="total-updated">最終更新: 2026.04.19</span>
+            <!-- ここにボタンと最終更新日をグループ化して右下に配置 -->
+            <div class="meta-right">
+                <span class="total-updated">最終更新: 2026.04.19</span>
+                <a href="https://sites.google.com/view/answer-oecu-uni/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" class="answer-uni-btn">Answer_Uni</a>
+            </div>
         </div>
     </div>
 
@@ -198,7 +230,7 @@
     <div id="book-list" class="book-container"></div>
 
     <script>
-        /* --- データ管理 (IDを追加して管理しやすくしました) --- */
+        /* --- データ管理 --- */
         const booksData = [
             { id: 1, year: 1, title: "REDING ACCESS", image: "IMG/Racces1.jpeg", link: "https://answeri.wordpress.com/wp-content/uploads/2026/04/reading-acces-chap6.pdf", pages: "P.1〜200", status: "入荷途中", color: "#00FFFF" },
             { id: 2, year: 1, title: "Skills for Success", image: "IMG/Sacces3.jpeg", link: "https://example.com", pages: "P.1〜120", status: "入荷途中", color: "#00FFFF" },
@@ -217,13 +249,11 @@
 
         let currentYear = 1;
 
-        // お気に入り情報の取得 (LocalStorage)
         function getFavorites() {
             const favs = localStorage.getItem('textbook-favs');
             return favs ? JSON.parse(favs) : [];
         }
 
-        // お気に入りの切り替え
         function toggleFav(id) {
             let favs = getFavorites();
             if (favs.includes(id)) {
@@ -232,7 +262,7 @@
                 favs.push(id);
             }
             localStorage.setItem('textbook-favs', JSON.stringify(favs));
-            displayBooks(currentYear); // 再描画
+            displayBooks(currentYear);
         }
 
         function displayBooks(targetYear) {
@@ -242,7 +272,6 @@
             
             let filteredData = booksData.filter(book => book.year === targetYear);
 
-            // ソート：お気に入りが先頭、それ以外は元の順序
             filteredData.sort((a, b) => {
                 const aFav = favs.includes(a.id) ? 1 : 0;
                 const bFav = favs.includes(b.id) ? 1 : 0;
@@ -281,7 +310,6 @@
             displayBooks(year);
         }
 
-        // 初回表示
         displayBooks(1);
     </script>
 </body>
