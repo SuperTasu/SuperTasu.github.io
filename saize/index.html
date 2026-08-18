@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>シフト管理 (一言メモ＆高耐久バックアップ版)</title>
+<title>シフト管理 (下部固定タブ・ポータル連携版)</title>
 <style>
   :root {
     --primary: #2563eb;
@@ -28,6 +28,7 @@
     background-color: var(--bg);
     color: var(--text);
     padding: 8px;
+    padding-bottom: 75px; /* 下部固定タブと被らないように余白確保 */
     font-size: 12px;
   }
 
@@ -111,7 +112,6 @@
     overflow: hidden;
   }
 
-  /* 今日（TODAY）ハイライト */
   .day-card.is-today {
     border: 2px solid #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 4px 10px rgba(37, 99, 235, 0.15);
@@ -132,7 +132,6 @@
     opacity: 0.85;
   }
 
-  /* 日曜・月曜の区切り */
   .sunday-separator {
     margin-bottom: 18px !important;
     position: relative;
@@ -228,7 +227,6 @@
   }
   .pos-badge .hour-tag { font-size: 8px; opacity: 0.9; }
 
-  /* ラストタスク専用バッジ */
   .task-badge {
     background: var(--pos-task) !important;
     border: 1px solid #bae6fd;
@@ -277,9 +275,7 @@
     cursor: pointer;
   }
 
-  /* =====================================
-     一言メモ（新機能）
-  ===================================== */
+  /* 一言メモ */
   .memo-row {
     padding: 4px 8px;
     display: flex;
@@ -304,9 +300,7 @@
     background: #fff;
   }
 
-  /* =====================================
-     出勤メンバー
-  ===================================== */
+  /* 出勤メンバー */
   .coworker-toggle {
     width: 100%;
     background: #fafbfc;
@@ -392,6 +386,62 @@
     border-radius: 4px;
     cursor: pointer;
     margin-top: 4px;
+  }
+
+  /* =====================================
+     下部固定タブバー (ポータル連携)
+  ===================================== */
+  .bottom-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 999;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #334155;
+    height: 100%;
+    transition: all 0.15s ease;
+  }
+
+  .bottom-nav-item:active {
+    background: #f1f5f9;
+  }
+
+  .bottom-nav-icon {
+    font-size: 18px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .bottom-nav-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: 0.2px;
+  }
+
+  .nav-divider {
+    width: 1px;
+    height: 28px;
+    background-color: #e2e8f0;
   }
 
   /* モーダル */
@@ -512,6 +562,31 @@
   </div>
 </div>
 
+<!-- =====================================
+     下部固定タブバー（リンク先設定）
+===================================== -->
+<nav class="bottom-nav-bar">
+  <!-- つながるくん -->
+  <a href="https://szxme.saizeriya.co.jp/cloudlink/module.php/authway/loginuserpass.php?AuthState=_af43252be38212ce6083355e3c9987bd5c29726e5b%3Ahttps%3A%2F%2Fszxme.saizeriya.co.jp%2Fcloudlink%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Dclportalout%26RelayState%3Dhttps%253A%252F%252Fszxme.saizeriya.co.jp%252Fportal-outside%252F%26cookieTime%3D1787062010" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     class="bottom-nav-item">
+    <span class="bottom-nav-icon">🐂</span>
+    <span class="bottom-nav-label">つながるくん</span>
+  </a>
+
+  <div class="nav-divider"></div>
+
+  <!-- 出勤予定 (MY Portal) -->
+  <a href="https://szfgc.saizeriya.co.jp/main/Yotei" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     class="bottom-nav-item">
+    <span class="bottom-nav-icon">📅</span>
+    <span class="bottom-nav-label">出勤予定 (MY Portal)</span>
+  </a>
+</nav>
+
 <!-- 書き出し・読み込み モーダル -->
 <div id="backup-modal" class="modal-overlay">
   <div class="modal-box">
@@ -562,7 +637,7 @@ for (let i = 0; i < 14; i++) {
 }
 
 // LocalStorageから取得
-let shiftData = JSON.parse(localStorage.getItem("pro_shift_v11")) || {};
+let shiftData = JSON.parse(localStorage.getItem("pro_shift_v12")) || {};
 
 twoWeeks.forEach(item => {
   if (!shiftData[item.key]) {
@@ -572,7 +647,7 @@ twoWeeks.forEach(item => {
       start: "17:00",
       end: "21:00",
       posText: "c ft d ゴミ捨て",
-      memo: "", // 一言メモ初期値
+      memo: "",
       coworkers: ["山田 (店長)", "田中 (バイト)", "佐藤"]
     };
   }
@@ -587,7 +662,7 @@ let modalMode = "export";
 // 2. 自動保存
 // ==========================================
 function saveData() {
-  localStorage.setItem("pro_shift_v11", JSON.stringify(shiftData));
+  localStorage.setItem("pro_shift_v12", JSON.stringify(shiftData));
   const st = document.getElementById("save-status");
   st.textContent = "✓ 自動保存済み";
 }
@@ -658,7 +733,7 @@ function render() {
       `;
     }
 
-    // --- 3. 一言メモ行（新機能） ---
+    // --- 3. 一言メモ行 ---
     let memoHtml = `
       <div class="memo-row">
         <span style="font-size:11px; color:#64748b;">📝</span>
@@ -837,7 +912,7 @@ function escapeHtml(str) {
 }
 
 // ==========================================
-// 5. 書き出し & 読み込み (高耐久・バグ対策済み)
+// 5. 書き出し & 読み込み
 // ==========================================
 function openExportModal() {
   modalMode = "export";
@@ -880,13 +955,11 @@ function handleModalSubmit() {
     if (!raw) return alert("コードが入力されていません。");
 
     try {
-      // 1. JSON部分を安全に抽出
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error("JSONが見つかりません");
       
       const parsedData = JSON.parse(jsonMatch[0]);
 
-      // 2. データのバリデーションと正規化（メモや形式の欠損を補完）
       Object.keys(parsedData).forEach(key => {
         const item = parsedData[key];
         if (typeof item === "object" && item !== null) {
@@ -895,13 +968,11 @@ function handleModalSubmit() {
           if (!Array.isArray(item.coworkers)) {
             item.coworkers = [];
           } else {
-            // 古いオブジェクト形式 {name: '...'} が混ざっていても文字列に変換
             item.coworkers = item.coworkers.map(c => typeof c === "object" ? (c.name || "") : String(c));
           }
         }
       });
 
-      // 3. マージして反映
       shiftData = Object.assign(shiftData, parsedData);
       saveData();
       render();
