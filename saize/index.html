@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>シフト管理 (下部固定タブ・ポータル連携版)</title>
+<title>シフト管理 (完全同期＆ファイルダウンロード版)</title>
 <style>
   :root {
     --primary: #2563eb;
@@ -28,7 +28,7 @@
     background-color: var(--bg);
     color: var(--text);
     padding: 8px;
-    padding-bottom: 75px; /* 下部固定タブと被らないように余白確保 */
+    padding-bottom: 75px; /* 下部固定タブ用 */
     font-size: 12px;
   }
 
@@ -388,9 +388,7 @@
     margin-top: 4px;
   }
 
-  /* =====================================
-     下部固定タブバー (ポータル連携)
-  ===================================== */
+  /* 下部固定タブバー */
   .bottom-nav-bar {
     position: fixed;
     bottom: 0;
@@ -418,33 +416,14 @@
     text-decoration: none;
     color: #334155;
     height: 100%;
-    transition: all 0.15s ease;
   }
+  .bottom-nav-item:active { background: #f1f5f9; }
 
-  .bottom-nav-item:active {
-    background: #f1f5f9;
-  }
+  .bottom-nav-icon { font-size: 18px; line-height: 1.2; margin-bottom: 2px; }
+  .bottom-nav-label { font-size: 11px; font-weight: 800; color: #1e293b; }
+  .nav-divider { width: 1px; height: 28px; background-color: #e2e8f0; }
 
-  .bottom-nav-icon {
-    font-size: 18px;
-    line-height: 1.2;
-    margin-bottom: 2px;
-  }
-
-  .bottom-nav-label {
-    font-size: 11px;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 0.2px;
-  }
-
-  .nav-divider {
-    width: 1px;
-    height: 28px;
-    background-color: #e2e8f0;
-  }
-
-  /* モーダル */
+  /* 読み込み専用モーダル */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -461,7 +440,7 @@
   .modal-box {
     background: #fff;
     width: 100%;
-    max-width: 560px;
+    max-width: 500px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     overflow: hidden;
@@ -480,10 +459,20 @@
     font-weight: 900;
   }
 
-  .modal-body { padding: 12px; }
+  .modal-body { padding: 14px; }
+  .file-select-area {
+    border: 2px dashed #93c5fd;
+    background: #eff6ff;
+    padding: 16px;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+
   .modal-textarea {
     width: 100%;
-    height: 180px;
+    height: 110px;
     font-family: monospace;
     font-size: 11px;
     padding: 8px;
@@ -508,7 +497,7 @@
     color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font-weight: 800;
     font-size: 11px;
     cursor: pointer;
@@ -537,15 +526,19 @@
 <body>
 
 <div class="container">
-  <!-- 固定ヘッダー -->
+  <!-- 固定ヘッダー（ダウンロード ＆ 読み込み） -->
   <div class="top-bar">
     <div class="top-bar-left">
       <div class="app-title">⚡ シフト管理</div>
       <div id="save-status" class="save-status">✓ 自動保存済み</div>
     </div>
     <div class="backup-btn-group">
-      <button class="btn-action" onclick="openExportModal()">📤 書き出し (コード)</button>
-      <button class="btn-action" onclick="openImportModal()">📥 読み込み</button>
+      <button class="btn-action" onclick="downloadBackupFile()" style="background:#eff6ff; color:#1d4ed8; border-color:#93c5fd;">
+        💾 ダウンロード (.json)
+      </button>
+      <button class="btn-action" onclick="openImportModal()">
+        📥 読み込み (ファイル/貼付)
+      </button>
     </div>
   </div>
 
@@ -562,11 +555,8 @@
   </div>
 </div>
 
-<!-- =====================================
-     下部固定タブバー（リンク先設定）
-===================================== -->
+<!-- 下部固定タブバー -->
 <nav class="bottom-nav-bar">
-  <!-- つながるくん -->
   <a href="https://szxme.saizeriya.co.jp/cloudlink/module.php/authway/loginuserpass.php?AuthState=_af43252be38212ce6083355e3c9987bd5c29726e5b%3Ahttps%3A%2F%2Fszxme.saizeriya.co.jp%2Fcloudlink%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Dclportalout%26RelayState%3Dhttps%253A%252F%252Fszxme.saizeriya.co.jp%252Fportal-outside%252F%26cookieTime%3D1787062010" 
      target="_blank" 
      rel="noopener noreferrer" 
@@ -577,7 +567,6 @@
 
   <div class="nav-divider"></div>
 
-  <!-- 出勤予定 (MY Portal) -->
   <a href="https://szfgc.saizeriya.co.jp/main/Yotei" 
      target="_blank" 
      rel="noopener noreferrer" 
@@ -587,22 +576,29 @@
   </a>
 </nav>
 
-<!-- 書き出し・読み込み モーダル -->
-<div id="backup-modal" class="modal-overlay">
+<!-- 読み込み専用モーダル -->
+<div id="import-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <span id="modal-title">📤 シフトデータの書き出し</span>
+      <span>📥 シフトデータの読み込み</span>
       <button style="border:none; background:none; font-size:14px; cursor:pointer;" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <p id="modal-desc" style="font-size:11px; color:#64748b; margin-bottom:6px;">
-        以下のコードをコピーして保存したり、他の端末へ送信できます。
-      </p>
-      <textarea id="modal-textarea" class="modal-textarea" spellcheck="false"></textarea>
+      <!-- 1. ファイル選択 -->
+      <div class="file-select-area" onclick="document.getElementById('file-upload-input').click()">
+        <span style="font-size:18px;">📁</span><br>
+        <strong style="color:#1d4ed8; font-size:12px;">ここを押してバックアップファイルを選択</strong>
+        <p style="font-size:10px; color:#64748b; margin-top:2px;">(.json または .js ファイル)</p>
+        <input type="file" id="file-upload-input" accept=".json,.js,.txt" style="display:none;" onchange="handleFileSelected(event)">
+      </div>
+
+      <!-- 2. テキスト貼り付け -->
+      <p style="font-size:11px; color:#64748b; margin-bottom:4px;">またはコードを直接貼り付け：</p>
+      <textarea id="import-textarea" class="modal-textarea" placeholder="ここにJSON/JSコードを貼り付け..." spellcheck="false"></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal()">閉じる</button>
-      <button id="modal-submit-btn" class="btn-primary" onclick="handleModalSubmit()">📋 コードをコピー</button>
+      <button class="btn-secondary" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="applyImportText()">反映する</button>
     </div>
   </div>
 </div>
@@ -637,7 +633,7 @@ for (let i = 0; i < 14; i++) {
 }
 
 // LocalStorageから取得
-let shiftData = JSON.parse(localStorage.getItem("pro_shift_v12")) || {};
+let shiftData = JSON.parse(localStorage.getItem("pro_shift_v13")) || {};
 
 twoWeeks.forEach(item => {
   if (!shiftData[item.key]) {
@@ -656,13 +652,41 @@ twoWeeks.forEach(item => {
 let openDrawerKey = null;
 let editingPosKey = null;
 let editingCwKey = null;
-let modalMode = "export";
 
 // ==========================================
-// 2. 自動保存
+// 2. 画面上の全入力値を強制同期する関数（★バグ解決）
 // ==========================================
+function syncAllDomInputs() {
+  twoWeeks.forEach(item => {
+    const key = item.key;
+    if (!shiftData[key]) return;
+
+    // 時間
+    const startEl = document.querySelector(`input[data-key="${key}"][data-field="start"]`);
+    if (startEl) shiftData[key].start = startEl.value;
+
+    const endEl = document.querySelector(`input[data-key="${key}"][data-field="end"]`);
+    if (endEl) shiftData[key].end = endEl.value;
+
+    // 一言メモ
+    const memoEl = document.querySelector(`input[data-key="${key}"][data-field="memo"]`);
+    if (memoEl) shiftData[key].memo = memoEl.value;
+
+    // ポジションテキスト（編集パネルが開いている場合）
+    const posEl = document.querySelector(`input[data-key="${key}"][data-field="posText"]`);
+    if (posEl) shiftData[key].posText = posEl.value;
+
+    // 出勤メンバー名（編集パネルが開いている場合）
+    const cwEls = document.querySelectorAll(`input[data-key="${key}"][data-cw-idx]`);
+    if (cwEls.length > 0) {
+      shiftData[key].coworkers = Array.from(cwEls).map(el => el.value);
+    }
+  });
+}
+
+// 自動保存
 function saveData() {
-  localStorage.setItem("pro_shift_v12", JSON.stringify(shiftData));
+  localStorage.setItem("pro_shift_v13", JSON.stringify(shiftData));
   const st = document.getElementById("save-status");
   st.textContent = "✓ 自動保存済み";
 }
@@ -697,9 +721,9 @@ function render() {
           <span class="date-title ${item.dayClass}">${item.display}</span>
           ${isWork ? `
             <div class="time-range">
-              <input type="text" class="time-input" value="${d.start || ''}" oninput="updateTime('${item.key}', 'start', this.value)">
+              <input type="text" class="time-input" data-key="${item.key}" data-field="start" value="${d.start || ''}" oninput="updateTime('${item.key}', 'start', this.value)">
               <span>〜</span>
-              <input type="text" class="time-input" value="${d.end || ''}" oninput="updateTime('${item.key}', 'end', this.value)">
+              <input type="text" class="time-input" data-key="${item.key}" data-field="end" value="${d.end || ''}" oninput="updateTime('${item.key}', 'end', this.value)">
             </div>
           ` : ''}
         </div>
@@ -724,7 +748,7 @@ function render() {
 
         ${isEditingPos ? `
           <div class="edit-panel">
-            <input type="text" class="pos-input-text" value="${escapeHtml(d.posText || '')}" 
+            <input type="text" class="pos-input-text" data-key="${item.key}" data-field="posText" value="${escapeHtml(d.posText || '')}" 
                    placeholder="例: c ft d ゴミ捨て (最後がタスク)" 
                    oninput="updatePosText('${item.key}', this.value)">
             <button class="btn-save-done" onclick="toggleEditPos('${item.key}')">完了</button>
@@ -737,7 +761,7 @@ function render() {
     let memoHtml = `
       <div class="memo-row">
         <span style="font-size:11px; color:#64748b;">📝</span>
-        <input type="text" class="memo-input" value="${escapeHtml(d.memo || '')}" 
+        <input type="text" class="memo-input" data-key="${item.key}" data-field="memo" value="${escapeHtml(d.memo || '')}" 
                placeholder="一言メモ (例: 19時〜納品, 早上がり希望...)" 
                oninput="updateMemo('${item.key}', this.value)">
       </div>
@@ -833,7 +857,7 @@ function renderCwEditRows(key, list) {
 
   return list.map((name, idx) => `
     <div class="cw-edit-row">
-      <input type="text" class="cw-name-input" value="${escapeHtml(name)}" placeholder="スタッフ名" oninput="updateCw('${key}', ${idx}, this.value)">
+      <input type="text" class="cw-name-input" data-key="${key}" data-cw-idx="${idx}" value="${escapeHtml(name)}" placeholder="スタッフ名" oninput="updateCw('${key}', ${idx}, this.value)">
       <button class="cw-del" onclick="deleteCw('${key}', ${idx})">✕</button>
     </div>
   `).join('');
@@ -843,6 +867,7 @@ function renderCwEditRows(key, list) {
 // 4. アクションハンドラー
 // ==========================================
 function toggleStatus(key) {
+  syncAllDomInputs();
   shiftData[key].status = shiftData[key].status === "出勤" ? "休み" : "出勤";
   saveData();
   render();
@@ -859,19 +884,23 @@ function updateMemo(key, val) {
 }
 
 function toggleEditPos(key) {
+  syncAllDomInputs();
   editingPosKey = editingPosKey === key ? null : key;
+  saveData();
   render();
 }
 
 function toggleEditCw(key) {
+  syncAllDomInputs();
   editingCwKey = editingCwKey === key ? null : key;
+  saveData();
   render();
 }
 
 function updatePosText(key, text) {
   shiftData[key].posText = text;
   saveData();
-  const card = document.querySelector(`.pos-input-text`);
+  const card = document.querySelector(`input[data-key="${key}"][data-field="posText"]`);
   if (card) {
     const rail = card.closest('.day-card').querySelector('.badge-rail');
     rail.innerHTML = generateBadges(shiftData[key].start, text);
@@ -879,11 +908,13 @@ function updatePosText(key, text) {
 }
 
 function toggleDrawer(key) {
+  syncAllDomInputs();
   openDrawerKey = openDrawerKey === key ? null : key;
   render();
 }
 
 function addCoworker(key) {
+  syncAllDomInputs();
   if (!shiftData[key].coworkers) shiftData[key].coworkers = [];
   shiftData[key].coworkers.push("新しいスタッフ");
   saveData();
@@ -891,6 +922,7 @@ function addCoworker(key) {
 }
 
 function deleteCw(key, idx) {
+  syncAllDomInputs();
   shiftData[key].coworkers.splice(idx, 1);
   saveData();
   render();
@@ -912,75 +944,89 @@ function escapeHtml(str) {
 }
 
 // ==========================================
-// 5. 書き出し & 読み込み
+// 5. 書き出し（ファイル直接ダウンロード） & 読み込み
 // ==========================================
-function openExportModal() {
-  modalMode = "export";
-  document.getElementById("modal-title").textContent = "📤 シフトデータの書き出し (JS形式)";
-  document.getElementById("modal-desc").textContent = "以下のコードをコピーして保存したり、他の端末へ送信できます。";
-  document.getElementById("modal-submit-btn").textContent = "📋 コードをコピー";
+function downloadBackupFile() {
+  // 1. 最新の入力内容をDOMから100%吸い上げて同期
+  syncAllDomInputs();
+  saveData();
 
-  const exportJsCode = `// ===== バイトシフト設定データ =====\nconst myShiftBackup = ${JSON.stringify(shiftData, null, 2)};\n`;
-  document.getElementById("modal-textarea").value = exportJsCode;
-  document.getElementById("backup-modal").classList.add("open");
+  // 2. JSONデータ作成
+  const jsonContent = JSON.stringify(shiftData, null, 2);
+  const blob = new Blob([jsonContent], { type: "application/json;charset=utf-8" });
+
+  // 3. 日付スタンプ付きファイル名で自動ダウンロード
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+  const fileName = `shift_data_${dateStr}.json`;
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
 function openImportModal() {
-  modalMode = "import";
-  document.getElementById("modal-title").textContent = "📥 シフトデータの読み込み";
-  document.getElementById("modal-desc").textContent = "書き出したJSコード（またはJSON）を貼り付けて「反映する」を押してください。";
-  document.getElementById("modal-submit-btn").textContent = "📥 反映する";
-
-  document.getElementById("modal-textarea").value = "";
-  document.getElementById("backup-modal").classList.add("open");
+  document.getElementById("import-textarea").value = "";
+  document.getElementById("import-modal").classList.add("open");
 }
 
 function closeModal() {
-  document.getElementById("backup-modal").classList.remove("open");
+  document.getElementById("import-modal").classList.remove("open");
 }
 
-function handleModalSubmit() {
-  const textarea = document.getElementById("modal-textarea");
+// ファイル選択時の自動読み込み
+function handleFileSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-  if (modalMode === "export") {
-    navigator.clipboard.writeText(textarea.value).then(() => {
-      alert("✓ コードをクリップボードにコピーしました！");
-    }).catch(() => {
-      textarea.select();
-      document.execCommand("copy");
-      alert("✓ コードをコピーしました！");
-    });
-  } else {
-    const raw = textarea.value.trim();
-    if (!raw) return alert("コードが入力されていません。");
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    applyParsedText(e.target.result);
+  };
+  reader.readAsText(file, "UTF-8");
+  event.target.value = ""; // リセット
+}
 
-    try {
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("JSONが見つかりません");
-      
-      const parsedData = JSON.parse(jsonMatch[0]);
+// テキスト貼り付けからの反映
+function applyImportText() {
+  const text = document.getElementById("import-textarea").value.trim();
+  if (!text) return alert("データが入力されていません。");
+  applyParsedText(text);
+}
 
-      Object.keys(parsedData).forEach(key => {
-        const item = parsedData[key];
-        if (typeof item === "object" && item !== null) {
-          if (typeof item.memo !== "string") item.memo = "";
-          if (typeof item.posText !== "string") item.posText = "";
-          if (!Array.isArray(item.coworkers)) {
-            item.coworkers = [];
-          } else {
-            item.coworkers = item.coworkers.map(c => typeof c === "object" ? (c.name || "") : String(c));
-          }
+// パースと反映の共通処理
+function applyParsedText(rawText) {
+  try {
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("JSON形式が見つかりません");
+
+    const parsedData = JSON.parse(jsonMatch[0]);
+
+    // データ正規化
+    Object.keys(parsedData).forEach(key => {
+      const item = parsedData[key];
+      if (typeof item === "object" && item !== null) {
+        if (typeof item.memo !== "string") item.memo = "";
+        if (typeof item.posText !== "string") item.posText = "";
+        if (!Array.isArray(item.coworkers)) {
+          item.coworkers = [];
+        } else {
+          item.coworkers = item.coworkers.map(c => typeof c === "object" ? (c.name || "") : String(c));
         }
-      });
+      }
+    });
 
-      shiftData = Object.assign(shiftData, parsedData);
-      saveData();
-      render();
-      closeModal();
-      alert("✓ データを正常に復元・読み込みました！");
-    } catch (e) {
-      alert("⚠️ コードの読み込みに失敗しました。\n書き出したコードをそのまま貼り付けてください。");
-    }
+    shiftData = Object.assign(shiftData, parsedData);
+    saveData();
+    render();
+    closeModal();
+    alert("✓ データを正常に読み込み・反映しました！");
+  } catch (e) {
+    alert("⚠️ データの読み込みに失敗しました。\n正しいバックアップファイルまたはコードを選択してください。");
   }
 }
 
