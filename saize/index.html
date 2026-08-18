@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>バイトシフト・ポジション表</title>
+<title>シフト・ポジション簡単変更UI</title>
 <style>
   body {
     font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #333;
-    background-color: #f8f9fa;
+    background-color: #f4f6f8;
     padding: 16px;
     margin: 0;
   }
 
   .shift-container {
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
     background: #fff;
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 
   .table-wrapper {
-    overflow-x: auto; /* 画面が小さい時は横スクロール */
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -35,7 +35,7 @@
     white-space: nowrap;
   }
 
-  /* ヘッダーデザイン（画像の色合いを再現） */
+  /* ヘッダーデザイン（画像再現） */
   th {
     background-color: #5088c4;
     color: #ffffff;
@@ -45,69 +45,84 @@
   }
 
   td {
-    padding: 10px 8px;
+    padding: 8px 6px;
     border: 1px solid #dcdcdc;
     vertical-align: middle;
   }
 
-  /* 行のスタイル */
   tr:nth-child(even) {
     background-color: #fafbfc;
   }
 
-  /* 休み行 */
-  .day-off {
-    background-color: #fff;
-    color: #888;
+  /* 休み行のスタイル */
+  tr.is-off {
+    background-color: #f9f9f9;
+    color: #999;
   }
 
-  /* 区分セル（縦書き風） */
-  .kubun {
+  /* 区分セル（縦書き） */
+  .kubun-cell {
     writing-mode: vertical-rl;
     letter-spacing: 2px;
     font-size: 12px;
-    padding: 6px 4px;
+    cursor: pointer;
   }
 
-  /* 時間別ポジションの表示エリア */
+  /* 時間選択プルダウン */
+  select.time-select {
+    font-size: 13px;
+    padding: 3px 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  /* 1時間ごとのスケジュール枠 */
   .hourly-schedule {
     display: flex;
     gap: 6px;
     justify-content: flex-start;
+    align-items: center;
   }
 
   .hour-slot {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #f1f3f5;
+    background: #eef2f5;
     border-radius: 4px;
-    padding: 4px 6px;
-    min-width: 44px;
+    padding: 4px 5px;
+    min-width: 48px;
   }
 
   .hour-label {
     font-size: 10px;
-    color: #666;
+    color: #555;
     margin-bottom: 2px;
+    font-weight: bold;
   }
 
-  /* ポジション別バッジ */
-  .badge {
+  /* ポジション選択プルダウン（バッジ風デザイン） */
+  select.pos-select {
     font-size: 11px;
     font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 3px;
     color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    outline: none;
+    text-align: center;
   }
 
-  .badge-c  { background-color: #e67e22; } /* C: オレンジ (例: カウンター/キャッシャー) */
-  .badge-ft { background-color: #27ae60; } /* Ft: 緑 (例: フロア/フロント) */
-  .badge-d  { background-color: #8e44ad; } /* D: 紫 (例: ドライブスルー/ディッシュ) */
-  .badge-k  { background-color: #e74c3c; } /* 予備: 赤 (例: キッチン) */
-  .badge-rest { background-color: #95a5a6; } /* 休憩 */
+  /* ポジションごとの色 */
+  .bg-C    { background-color: #e67e22 !important; } /* オレンジ */
+  .bg-Ft   { background-color: #27ae60 !important; } /* 緑 */
+  .bg-D    { background-color: #8e44ad !important; } /* 紫 */
+  .bg-K    { background-color: #d35400 !important; } /* 茶/赤 (キッチン等) */
+  .bg-REST { background-color: #7f8c8d !important; } /* グレー (休憩) */
 
-  /* フッター注記 */
   .note {
     margin-top: 14px;
     font-size: 12px;
@@ -128,372 +143,168 @@
           <th>区分</th>
           <th>入店</th>
           <th>退店</th>
-          <th style="min-width: 240px;">時間別ポジション</th>
+          <th style="min-width: 320px;">時間別ポジション（変更可能）</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- 8/24 休み -->
-        <tr class="day-off">
-          <td>8/24 (月)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">休み</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-
-        <!-- 8/25 出勤 -->
-        <tr>
-          <td>8/25 (火)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>18:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-d">D</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/26 休み -->
-        <tr class="day-off">
-          <td>8/26 (水)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">休み</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-
-        <!-- 8/27 出勤 -->
-        <tr>
-          <td>8/27 (木)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>18:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-c">C</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/28 出勤 -->
-        <tr>
-          <td>8/28 (金)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-rest">休</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-ft">Ft</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/29 出勤 -->
-        <tr>
-          <td>8/29 (土)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>22:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">21:00</span><span class="badge badge-d">D</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/30 出勤 -->
-        <tr>
-          <td>8/30 (日)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>22:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">21:00</span><span class="badge badge-ft">Ft</span></div>
-            </div>
-          </td>
-        </tr>
+      <tbody id="shift-tbody">
+        <!-- JavaScriptで自動描画されます -->
       </tbody>
     </table>
   </div>
 
   <div class="note">
-    ※2日前時点でのデータです。<br>
-    直前で変更になっている場合があります。
+    ※区分・時間・ポジションはプルダウンから直接変更できます。<br>
+    ※2日前時点でのデータです。直前で変更になっている場合があります。
   </div>
 </div>
 
-</body>
-</html><!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>バイトシフト・ポジション表</title>
-<style>
-  body {
-    font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-    color: #333;
-    background-color: #f8f9fa;
-    padding: 16px;
-    margin: 0;
+<script>
+// ==========================================
+// 1. シフトの初期データ（ここを書き換えても反映されます）
+// ==========================================
+const shiftData = [
+  { date: "8/24 (月)", store: "イオンモール神戸南", status: "休み", start: 18, end: 21, positions: [] },
+  { date: "8/25 (火)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 21, positions: ["C", "Ft", "D"] },
+  { date: "8/26 (水)", store: "イオンモール神戸南", status: "休み", start: 18, end: 21, positions: [] },
+  { date: "8/27 (木)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 21, positions: ["Ft", "Ft", "C"] },
+  { date: "8/28 (金)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 21, positions: ["D", "C", "REST", "Ft"] },
+  { date: "8/29 (土)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["Ft", "Ft", "C", "C", "D"] },
+  { date: "8/30 (日)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["C", "D", "D", "Ft", "Ft"] }
+];
+
+// 利用可能なポジション一覧
+const POSITION_OPTIONS = [
+  { value: "C",    label: "C",   class: "bg-C" },
+  { value: "Ft",   label: "Ft",  class: "bg-Ft" },
+  { value: "D",    label: "D",   class: "bg-D" },
+  { value: "K",    label: "K",   class: "bg-K" },
+  { value: "REST", label: "休",  class: "bg-REST" }
+];
+
+// ==========================================
+// 2. 画面描画ロジック
+// ==========================================
+function renderTable() {
+  const tbody = document.getElementById("shift-tbody");
+  tbody.innerHTML = "";
+
+  shiftData.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    if (row.status === "休み") tr.classList.add("is-off");
+
+    // 日付・店舗
+    tr.innerHTML = `
+      <td>${row.date}</td>
+      <td>${row.store}</td>
+    `;
+
+    // 区分 (出勤 / 休み 切り替え)
+    const tdKubun = document.createElement("td");
+    tdKubun.innerHTML = `
+      <select onchange="changeStatus(${index}, this.value)" style="font-size:11px;">
+        <option value="出勤" ${row.status === '出勤' ? 'selected' : ''}>出勤</option>
+        <option value="休み" ${row.status === '休み' ? 'selected' : ''}>休み</option>
+      </select>
+    `;
+    tr.appendChild(tdKubun);
+
+    if (row.status === "休み") {
+      tr.innerHTML += `<td>-</td><td>-</td><td>-</td>`;
+    } else {
+      // 入店時間セレクト
+      const tdStart = document.createElement("td");
+      tdStart.appendChild(createTimeSelect(row.start, (val) => changeTime(index, 'start', val)));
+      tr.appendChild(tdStart);
+
+      // 退店時間セレクト
+      const tdEnd = document.createElement("td");
+      tdEnd.appendChild(createTimeSelect(row.end, (val) => changeTime(index, 'end', val)));
+      tr.appendChild(tdEnd);
+
+      // 時間別ポジション枠
+      const tdPos = document.createElement("td");
+      const scheduleDiv = document.createElement("div");
+      scheduleDiv.className = "hourly-schedule";
+
+      const totalHours = Math.max(0, row.end - row.start);
+      for (let h = 0; h < totalHours; h++) {
+        const currentHour = row.start + h;
+        const currentPos = row.positions[h] || "C";
+
+        const slot = document.createElement("div");
+        slot.className = "hour-slot";
+        slot.innerHTML = `<span class="hour-label">${currentHour}:00</span>`;
+
+        // ポジション選択
+        const posSelect = document.createElement("select");
+        posSelect.className = `pos-select bg-${currentPos}`;
+        
+        POSITION_OPTIONS.forEach(opt => {
+          const option = document.createElement("option");
+          option.value = opt.value;
+          option.textContent = opt.label;
+          if (opt.value === currentPos) option.selected = true;
+          posSelect.appendChild(option);
+        });
+
+        posSelect.onchange = (e) => {
+          row.positions[h] = e.target.value;
+          posSelect.className = `pos-select bg-${e.target.value}`;
+        };
+
+        slot.appendChild(posSelect);
+        scheduleDiv.appendChild(slot);
+      }
+
+      tdPos.appendChild(scheduleDiv);
+      tr.appendChild(tdPos);
+    }
+
+    tbody.appendChild(tr);
+  });
+}
+
+// 時間プルダウンの生成ヘルパー (10:00〜23:00)
+function createTimeSelect(selectedVal, onChangeCallback) {
+  const select = document.createElement("select");
+  select.className = "time-select";
+  for (let t = 10; t <= 23; t++) {
+    const opt = document.createElement("option");
+    opt.value = t;
+    opt.textContent = `${t}:00`;
+    if (t === selectedVal) opt.selected = true;
+    select.appendChild(opt);
   }
+  select.onchange = (e) => onChangeCallback(parseInt(e.target.value, 10));
+  return select;
+}
 
-  .shift-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+// ==========================================
+// 3. 状態変更関数
+// ==========================================
+function changeStatus(index, newStatus) {
+  shiftData[index].status = newStatus;
+  renderTable();
+}
+
+function changeTime(index, type, newVal) {
+  if (type === 'start') {
+    shiftData[index].start = newVal;
+    if (shiftData[index].start >= shiftData[index].end) {
+      shiftData[index].end = shiftData[index].start + 1;
+    }
+  } else {
+    shiftData[index].end = newVal;
+    if (shiftData[index].end <= shiftData[index].start) {
+      shiftData[index].start = shiftData[index].end - 1;
+    }
   }
+  renderTable();
+}
 
-  .table-wrapper {
-    overflow-x: auto; /* 画面が小さい時は横スクロール */
-    -webkit-overflow-scrolling: touch;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-
-  /* ヘッダーデザイン（画像の色合いを再現） */
-  th {
-    background-color: #5088c4;
-    color: #ffffff;
-    padding: 10px 8px;
-    font-weight: normal;
-    border: 1px solid #3e73ad;
-  }
-
-  td {
-    padding: 10px 8px;
-    border: 1px solid #dcdcdc;
-    vertical-align: middle;
-  }
-
-  /* 行のスタイル */
-  tr:nth-child(even) {
-    background-color: #fafbfc;
-  }
-
-  /* 休み行 */
-  .day-off {
-    background-color: #fff;
-    color: #888;
-  }
-
-  /* 区分セル（縦書き風） */
-  .kubun {
-    writing-mode: vertical-rl;
-    letter-spacing: 2px;
-    font-size: 12px;
-    padding: 6px 4px;
-  }
-
-  /* 時間別ポジションの表示エリア */
-  .hourly-schedule {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-start;
-  }
-
-  .hour-slot {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #f1f3f5;
-    border-radius: 4px;
-    padding: 4px 6px;
-    min-width: 44px;
-  }
-
-  .hour-label {
-    font-size: 10px;
-    color: #666;
-    margin-bottom: 2px;
-  }
-
-  /* ポジション別バッジ */
-  .badge {
-    font-size: 11px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 3px;
-    color: #fff;
-  }
-
-  .badge-c  { background-color: #e67e22; } /* C: オレンジ (例: カウンター/キャッシャー) */
-  .badge-ft { background-color: #27ae60; } /* Ft: 緑 (例: フロア/フロント) */
-  .badge-d  { background-color: #8e44ad; } /* D: 紫 (例: ドライブスルー/ディッシュ) */
-  .badge-k  { background-color: #e74c3c; } /* 予備: 赤 (例: キッチン) */
-  .badge-rest { background-color: #95a5a6; } /* 休憩 */
-
-  /* フッター注記 */
-  .note {
-    margin-top: 14px;
-    font-size: 12px;
-    color: #333;
-    line-height: 1.5;
-  }
-</style>
-</head>
-<body>
-
-<div class="shift-container">
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>勤務日</th>
-          <th>勤務店舗</th>
-          <th>区分</th>
-          <th>入店</th>
-          <th>退店</th>
-          <th style="min-width: 240px;">時間別ポジション</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- 8/24 休み -->
-        <tr class="day-off">
-          <td>8/24 (月)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">休み</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-
-        <!-- 8/25 出勤 -->
-        <tr>
-          <td>8/25 (火)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>18:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-d">D</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/26 休み -->
-        <tr class="day-off">
-          <td>8/26 (水)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">休み</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-
-        <!-- 8/27 出勤 -->
-        <tr>
-          <td>8/27 (木)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>18:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-c">C</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/28 出勤 -->
-        <tr>
-          <td>8/28 (金)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>21:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-rest">休</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-ft">Ft</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/29 出勤 -->
-        <tr>
-          <td>8/29 (土)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>22:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">21:00</span><span class="badge badge-d">D</span></div>
-            </div>
-          </td>
-        </tr>
-
-        <!-- 8/30 出勤 -->
-        <tr>
-          <td>8/30 (日)</td>
-          <td>イオンモール神戸南</td>
-          <td class="kubun">出勤</td>
-          <td>17:00</td>
-          <td>22:00</td>
-          <td>
-            <div class="hourly-schedule">
-              <div class="hour-slot"><span class="hour-label">17:00</span><span class="badge badge-c">C</span></div>
-              <div class="hour-slot"><span class="hour-label">18:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">19:00</span><span class="badge badge-d">D</span></div>
-              <div class="hour-slot"><span class="hour-label">20:00</span><span class="badge badge-ft">Ft</span></div>
-              <div class="hour-slot"><span class="hour-label">21:00</span><span class="badge badge-ft">Ft</span></div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="note">
-    ※2日前時点でのデータです。<br>
-    直前で変更になっている場合があります。
-  </div>
-</div>
+// 初期描画実行
+renderTable();
+</script>
 
 </body>
 </html>
