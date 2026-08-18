@@ -2,284 +2,474 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>バイトシフト管理（折りたたみ同僚シフト・名前編集対応）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>シフト管理 - Modern App UI</title>
 <style>
-  body {
-    font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-    color: #333;
-    background-color: #f0f2f5;
-    padding: 16px;
+  :root {
+    --primary: #3b82f6;
+    --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --bg: #f1f5f9;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #64748b;
+    --border: #e2e8f0;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    
+    /* ポジションカラー */
+    --pos-c: #f97316;
+    --pos-ft: #10b981;
+    --pos-d: #8b5cf6;
+    --pos-k: #ef4444;
+    --pos-rest: #64748b;
+  }
+
+  * {
+    box-sizing: border-box;
     margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .container {
-    max-width: 1000px;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    padding-bottom: 40px;
+  }
+
+  /* 固定トップバー (Glassmorphism) */
+  .top-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 12px 16px;
+  }
+
+  .nav-content {
+    max-width: 680px;
     margin: 0 auto;
-  }
-
-  .shift-card {
-    background: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  }
-
-  .header-area {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
   }
 
-  .title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin: 0;
+  .app-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  .save-status {
+  .save-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 稼働サマリーカード */
+  .summary-banner {
+    max-width: 680px;
+    margin: 14px auto 6px;
+    padding: 0 16px;
+  }
+
+  .summary-card {
+    background: var(--primary-gradient);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.35);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .summary-label {
     font-size: 12px;
-    color: #27ae60;
-    font-weight: bold;
-    transition: opacity 0.3s;
+    opacity: 0.9;
+    margin-bottom: 4px;
   }
 
-  .table-wrapper {
+  .summary-val {
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .summary-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* メインコンテンツ一覧 */
+  .container {
+    max-width: 680px;
+    margin: 12px auto;
+    padding: 0 16px;
+  }
+
+  /* 日付カード */
+  .shift-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .shift-card.is-off {
+    background: #f8fafc;
+    border-style: dashed;
+  }
+
+  /* カードヘッダー */
+  .card-head {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .date-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .date-tag {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .sat { color: #2563eb; }
+  .sun { color: #ef4444; }
+
+  .today-chip {
+    font-size: 10px;
+    font-weight: 800;
+    background: #fef08a;
+    color: #854d0e;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+
+  /* スタイリッシュなトグルスイッチ */
+  .status-switch {
+    display: flex;
+    background: #e2e8f0;
+    padding: 3px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  .status-btn {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .status-btn.active-work {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .status-btn.active-off {
+    background: #fff;
+    color: #ef4444;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  /* カードボディ（出勤時） */
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  /* 時間選択バー */
+  .time-bar {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    justify-content: space-between;
+  }
+
+  .time-select-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  select.modern-select {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .duration-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    background: #eff6ff;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ポジション・レール */
+  .pos-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pos-rail {
+    display: flex;
+    gap: 8px;
     overflow-x: auto;
+    padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    font-size: 13px;
-    white-space: nowrap;
-  }
+  .pos-rail::-webkit-scrollbar { display: none; }
 
-  th {
-    background-color: #5088c4;
-    color: #ffffff;
-    padding: 10px 8px;
-    font-weight: normal;
-    border: 1px solid #3e73ad;
-  }
-
-  td {
-    padding: 6px 6px;
-    border: 1px solid #dcdcdc;
-    vertical-align: middle;
-  }
-
-  tr:nth-child(even) { background-color: #fafbfc; }
-  tr.is-off { background-color: #f9f9f9; color: #999; }
-  tr.is-open { background-color: #eaf3fc !important; }
-
-  /* 曜日ごとの色 */
-  .sat { color: #1a73e8; font-weight: bold; }
-  .sun { color: #e74c3c; font-weight: bold; }
-
-  /* 店舗名アコーディオントリガーボタン */
-  .store-toggle-btn {
-    color: #1a73e8;
-    cursor: pointer;
-    text-decoration: underline;
-    background: none;
-    border: none;
-    font-size: 13px;
-    padding: 3px 6px;
-    font-family: inherit;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .store-toggle-btn:hover {
-    color: #0b57d0;
-    background-color: #e8f0fe;
-    border-radius: 4px;
-  }
-
-  /* セレクトボックス */
-  select.time-select {
-    font-size: 12px;
-    padding: 3px 2px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #fff;
-    cursor: pointer;
-  }
-
-  /* 1時間ごとのポジション枠（自分用） */
-  .hourly-schedule {
-    display: flex;
-    gap: 4px;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .hour-slot {
+  .pos-card {
+    flex: 0 0 auto;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    padding: 6px;
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #eef2f5;
-    border-radius: 4px;
-    padding: 3px 4px;
-    min-width: 46px;
+    min-width: 58px;
   }
 
-  .hour-label {
+  .pos-time-text {
     font-size: 10px;
-    color: #555;
-    margin-bottom: 2px;
-    font-weight: bold;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 4px;
   }
 
-  select.pos-select {
-    font-size: 11px;
-    font-weight: bold;
+  select.pos-chip-select {
+    width: 100%;
+    font-size: 12px;
+    font-weight: 800;
     color: #fff;
     border: none;
-    border-radius: 3px;
-    padding: 2px 4px;
-    outline: none;
+    border-radius: 6px;
+    padding: 4px 0;
     text-align: center;
     cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 
-  /* ポジション別カラー */
-  .bg-C    { background-color: #e67e22 !important; }
-  .bg-Ft   { background-color: #27ae60 !important; }
-  .bg-D    { background-color: #8e44ad !important; }
-  .bg-K    { background-color: #d35400 !important; }
-  .bg-REST { background-color: #7f8c8d !important; }
+  .bg-C    { background: var(--pos-c) !important; }
+  .bg-Ft   { background: var(--pos-ft) !important; }
+  .bg-D    { background: var(--pos-d) !important; }
+  .bg-K    { background: var(--pos-k) !important; }
+  .bg-REST { background: var(--pos-rest) !important; }
 
-  /* =====================================
-     折りたたみ（同僚メンバー）アコーディオン
-  ===================================== */
-  .coworker-drawer {
-    display: none;
-    background-color: #f6f9fc;
-  }
-  .coworker-drawer.show {
-    display: table-row;
-  }
-
-  .drawer-inner {
+  /* 同僚ドロワー（アコーディオン） */
+  .coworker-trigger {
+    width: 100%;
+    background: #f8fafc;
+    border: none;
+    border-top: 1px solid var(--border);
     padding: 12px 16px;
-    text-align: left;
-    border: 1px solid #c9def5;
-    background: #f8fbfe;
-    border-radius: 6px;
-    margin: 4px;
-  }
-
-  .drawer-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: background 0.15s;
+  }
+
+  .coworker-trigger:active {
+    background: #f1f5f9;
+  }
+
+  .avatar-stack {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .avatar-chip {
+    width: 24px;
+    height: 24px;
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+  }
+
+  .drawer-panel {
+    display: none;
+    background: #f8fafc;
+    border-top: 1px dashed #cbd5e1;
+    padding: 14px 16px;
+  }
+
+  .drawer-panel.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cw-item-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
     margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #1a73e8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
   }
 
-  .coworker-list-table {
-    width: 100%;
-    max-width: 600px;
+  .cw-input {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 4px;
+    color: var(--text-main);
+    min-width: 0;
+  }
+
+  .cw-input:focus {
+    border-color: var(--primary);
     background: #fff;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-    font-size: 12px;
-  }
-
-  .coworker-list-table th {
-    background-color: #e3effa;
-    color: #333;
-    font-weight: bold;
-    padding: 6px;
-    border: 1px solid #d0e0f0;
-  }
-
-  .coworker-list-table td {
-    padding: 5px 8px;
-    border: 1px solid #e5e5e5;
-  }
-
-  /* 名前入力フィールド */
-  .name-input {
-    width: 90%;
-    font-size: 12px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
     border-radius: 4px;
-    font-family: inherit;
-  }
-  .name-input:focus {
-    border-color: #1a73e8;
     outline: none;
+  }
+
+  .cw-time-select {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     background: #fff;
   }
 
-  .btn-sm {
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 4px;
+  .cw-del-btn {
+    background: #fee2e2;
+    color: #ef4444;
     border: none;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
     cursor: pointer;
   }
-  .btn-add { background: #27ae60; color: #fff; }
-  .btn-add:hover { background: #219150; }
-  .btn-del { background: #e74c3c; color: #fff; }
-  .btn-del:hover { background: #c0392b; }
 
-  .note {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #666;
-    line-height: 1.5;
+  .cw-add-btn {
+    width: 100%;
+    background: #fff;
+    border: 1px dashed #93c5fd;
+    color: var(--primary);
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.15s;
+  }
+
+  .cw-add-btn:active {
+    background: #eff6ff;
   }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="shift-card">
-    <div class="header-area">
-      <h2 class="title">📋 2週間の勤務スケジュール</h2>
-      <div id="save-status" class="save-status">✓ 自動保存済み</div>
-    </div>
-
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>勤務日</th>
-            <th>勤務店舗 (クリックでメンバー展開)</th>
-            <th>区分</th>
-            <th>入店</th>
-            <th>退店</th>
-            <th style="min-width: 320px;">時間別ポジション</th>
-          </tr>
-        </thead>
-        <tbody id="shift-tbody">
-          <!-- JSで自動生成 -->
-        </tbody>
-      </table>
-    </div>
-
-    <div class="note">
-      ※<strong>店舗名（イオンモール神戸南）</strong>を押すと、その日のすぐ下に出勤メンバーが展開します。<br>
-      ※メンバーの名前・時間は自由に打ち換えることができ、自動保存されます。
-    </div>
+<!-- 固定トップバー -->
+<div class="top-navbar">
+  <div class="nav-content">
+    <div class="app-title">⚡ SHIFT SCHEDULE</div>
+    <div id="save-status" class="save-pill">✓ 自動保存済み</div>
   </div>
 </div>
 
+<!-- 2週間の稼働サマリー -->
+<div class="summary-banner">
+  <div class="summary-card">
+    <div>
+      <div class="summary-label">2週間の予定</div>
+      <div id="total-hours" class="summary-val">0 時間</div>
+    </div>
+    <div id="work-days-count" class="summary-badge">出勤 0日</div>
+  </div>
+</div>
+
+<!-- シフトカードコンテナ -->
+<div class="container" id="shift-container"></div>
+
 <script>
 // ==========================================
-// 1. 定数・ポジション・時間設定
+// 1. 基本設定・ポジション定義
 // ==========================================
 const STORE_NAME = "イオンモール神戸南";
 const POSITION_OPTIONS = [
@@ -301,7 +491,7 @@ for (let h = 8; h <= 23; h++) {
 }
 
 // ==========================================
-// 2. 今日から14日分（2週間）の日付生成
+// 2. 今日から2週間分（14日）の日付生成
 // ==========================================
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
 const twoWeeksList = [];
@@ -324,13 +514,14 @@ for (let i = 0; i < 14; i++) {
   twoWeeksList.push({
     key: dateKey,
     display: `${d.getMonth() + 1}/${d.getDate()} (${dayStr})`,
+    isToday: i === 0,
     dayClass: dayClass,
     dayIndex: d.getDay()
   });
 }
 
-// LocalStorageから取得（なければ初期データ生成）
-let savedShiftMap = JSON.parse(localStorage.getItem("my_accordion_shift_data_v3")) || {};
+// LocalStorageから取得
+let savedShiftMap = JSON.parse(localStorage.getItem("modern_shift_data_v5")) || {};
 
 twoWeeksList.forEach(item => {
   if (!savedShiftMap[item.key]) {
@@ -340,7 +531,6 @@ twoWeeksList.forEach(item => {
       start: isWeekend ? "12:00" : "17:15",
       end: isWeekend ? "21:30" : "21:45",
       positions: {},
-      // 同僚メンバー（初期サンプル）
       coworkers: isWeekend ? [
         { name: "山田 (店長)", start: "10:00", end: "19:00" },
         { name: "佐藤 (バイト)", start: "12:00", end: "21:30" },
@@ -354,271 +544,235 @@ twoWeeksList.forEach(item => {
   }
 });
 
-// 開いているアコーディオンの管理
 let openedKey = null;
 
 // ==========================================
-// 3. 自動保存処理
+// 3. データ保存 & サマリー計算
 // ==========================================
 function saveData() {
-  localStorage.setItem("my_accordion_shift_data_v3", JSON.stringify(savedShiftMap));
+  localStorage.setItem("modern_shift_data_v5", JSON.stringify(savedShiftMap));
   const statusEl = document.getElementById("save-status");
   statusEl.textContent = "✓ 自動保存済み";
-  statusEl.style.opacity = "1";
+  updateSummary();
+}
+
+function updateSummary() {
+  let totalMinutes = 0;
+  let workDays = 0;
+
+  twoWeeksList.forEach(item => {
+    const data = savedShiftMap[item.key];
+    if (data.status === "出勤") {
+      workDays++;
+      const [sH, sM] = data.start.split(":").map(Number);
+      const [eH, eM] = data.end.split(":").map(Number);
+      let diff = (eH * 60 + eM) - (sH * 60 + sM);
+      if (diff > 0) totalMinutes += diff;
+    }
+  });
+
+  const hours = (totalMinutes / 60).toFixed(1);
+  document.getElementById("total-hours").textContent = `${hours} 時間`;
+  document.getElementById("work-days-count").textContent = `出勤 ${workDays}日 / 14日`;
 }
 
 // ==========================================
-// 4. メインテーブル描画
+// 4. モダンカード描画
 // ==========================================
-function renderTable() {
-  const tbody = document.getElementById("shift-tbody");
-  tbody.innerHTML = "";
+function renderCards() {
+  const container = document.getElementById("shift-container");
+  container.innerHTML = "";
 
   twoWeeksList.forEach(item => {
     const data = savedShiftMap[item.key];
     const isOpen = (openedKey === item.key);
+    const isWork = data.status === "出勤";
 
-    // --- 本体の行 ---
-    const tr = document.createElement("tr");
-    if (data.status === "休み") tr.classList.add("is-off");
-    if (isOpen) tr.classList.add("is-open");
+    const card = document.createElement("div");
+    card.className = `shift-card ${isWork ? '' : 'is-off'}`;
 
-    // 日付
-    const tdDate = document.createElement("td");
-    tdDate.innerHTML = `<span class="${item.dayClass}">${item.display}</span>`;
-    tr.appendChild(tdDate);
-
-    // 店舗名（折りたたみトリガー）
-    const tdStore = document.createElement("td");
-    const storeBtn = document.createElement("button");
-    storeBtn.className = "store-toggle-btn";
-    storeBtn.innerHTML = `${STORE_NAME} <span>${isOpen ? '▲' : '▼'}</span>`;
-    storeBtn.onclick = () => toggleCoworkerDrawer(item.key);
-    tdStore.appendChild(storeBtn);
-    tr.appendChild(tdStore);
-
-    // 区分
-    const tdKubun = document.createElement("td");
-    tdKubun.innerHTML = `
-      <select onchange="changeStatus('${item.key}', this.value)" style="font-size:11px;">
-        <option value="出勤" ${data.status === '出勤' ? 'selected' : ''}>出勤</option>
-        <option value="休み" ${data.status === '休み' ? 'selected' : ''}>休み</option>
-      </select>
-    `;
-    tr.appendChild(tdKubun);
-
-    if (data.status === "休み") {
-      tr.innerHTML += `<td>-</td><td>-</td><td>-</td>`;
-    } else {
-      // 入店時間
-      const tdStart = document.createElement("td");
-      tdStart.appendChild(createTimeSelect(data.start, (val) => changeTime(item.key, 'start', val)));
-      tr.appendChild(tdStart);
-
-      // 退店時間
-      const tdEnd = document.createElement("td");
-      tdEnd.appendChild(createTimeSelect(data.end, (val) => changeTime(item.key, 'end', val)));
-      tr.appendChild(tdEnd);
-
-      // 時間別ポジション（自分用）
-      const tdPos = document.createElement("td");
-      const scheduleDiv = document.createElement("div");
-      scheduleDiv.className = "hourly-schedule";
-
-      const startHour = parseInt(data.start.split(":")[0], 10);
-      const endHour = parseInt(data.end.split(":")[0], 10);
-      const endMinute = parseInt(data.end.split(":")[1], 10);
-      const maxHour = endMinute > 0 ? endHour : endHour - 1;
-
-      for (let h = startHour; h <= maxHour; h++) {
-        const hourStr = String(h);
-        const currentPos = data.positions[hourStr] || "C";
-
-        const slot = document.createElement("div");
-        slot.className = "hour-slot";
-        slot.innerHTML = `<span class="hour-label">${h}:00~</span>`;
-
-        const posSelect = document.createElement("select");
-        posSelect.className = `pos-select bg-${currentPos}`;
-        
-        POSITION_OPTIONS.forEach(opt => {
-          const option = document.createElement("option");
-          option.value = opt.value;
-          option.textContent = opt.label;
-          if (opt.value === currentPos) option.selected = true;
-          posSelect.appendChild(option);
-        });
-
-        posSelect.onchange = (e) => {
-          data.positions[hourStr] = e.target.value;
-          posSelect.className = `pos-select bg-${e.target.value}`;
-          saveData();
-        };
-
-        slot.appendChild(posSelect);
-        scheduleDiv.appendChild(slot);
-      }
-
-      tdPos.appendChild(scheduleDiv);
-      tr.appendChild(tdPos);
-    }
-    tbody.appendChild(tr);
-
-    // --- 下に展開する折りたたみ行（同僚メンバー） ---
-    const drawerTr = document.createElement("tr");
-    drawerTr.className = `coworker-drawer ${isOpen ? 'show' : ''}`;
-    
-    const drawerTd = document.createElement("td");
-    drawerTd.colSpan = 6;
-    drawerTd.innerHTML = `
-      <div class="drawer-inner">
-        <div class="drawer-header">
-          <span>👥 ${item.display} の出勤メンバー一覧</span>
-          <button class="btn-sm btn-add" onclick="addCoworker('${item.key}')">＋ メンバー追加</button>
+    // --- カード上部 ---
+    let cardHtml = `
+      <div class="card-head">
+        <div class="date-group">
+          <span class="date-tag ${item.dayClass}">${item.display}</span>
+          ${item.isToday ? '<span class="today-chip">TODAY</span>' : ''}
         </div>
-        <table class="coworker-list-table">
-          <thead>
-            <tr>
-              <th style="width: 45%;">スタッフ名前</th>
-              <th style="width: 25%;">入店</th>
-              <th style="width: 25%;">退店</th>
-              <th style="width: 5%;"></th>
-            </tr>
-          </thead>
-          <tbody id="coworker-tbody-${item.key}">
-          </tbody>
-        </table>
+        <div class="status-switch">
+          <button class="status-btn ${isWork ? 'active-work' : ''}" onclick="setStatus('${item.key}', '出勤')">出勤</button>
+          <button class="status-btn ${!isWork ? 'active-off' : ''}" onclick="setStatus('${item.key}', '休み')">休み</button>
+        </div>
       </div>
     `;
-    drawerTr.appendChild(drawerTd);
-    tbody.appendChild(drawerTr);
 
-    // 同僚リストの中身を描画
-    if (isOpen) {
-      renderCoworkerList(item.key);
+    // --- 出勤時の時間・ポジション ---
+    if (isWork) {
+      const [sH, sM] = data.start.split(":").map(Number);
+      const [eH, eM] = data.end.split(":").map(Number);
+      const durationHours = (((eH * 60 + eM) - (sH * 60 + sM)) / 60).toFixed(1);
+
+      cardHtml += `
+        <div class="card-body">
+          <div class="time-bar">
+            <div class="time-select-group">
+              <select class="modern-select" onchange="setTime('${item.key}', 'start', this.value)">
+                ${generateTimeOptions(data.start)}
+              </select>
+              <span style="font-weight:bold; color:#94a3b8;">➔</span>
+              <select class="modern-select" onchange="setTime('${item.key}', 'end', this.value)">
+                ${generateTimeOptions(data.end)}
+              </select>
+            </div>
+            <div class="duration-badge">${durationHours} 時間</div>
+          </div>
+
+          <div class="pos-section-label">HOURLY POSITIONS</div>
+          <div class="pos-rail">
+            ${renderHourlySlots(item.key, data)}
+          </div>
+        </div>
+      `;
     }
+
+    // --- 同僚アコーディオン ---
+    const coworkers = data.coworkers || [];
+    const avatarStack = coworkers.slice(0, 3).map(c => `
+      <div class="avatar-chip">${(c.name || 'ス')[0]}</div>
+    `).join('');
+
+    cardHtml += `
+      <button class="coworker-trigger" onclick="toggleDrawer('${item.key}')">
+        <div class="avatar-stack">
+          ${avatarStack}
+          <span>📍 ${STORE_NAME} (${coworkers.length}名)</span>
+        </div>
+        <span style="font-size:12px; color:#64748b;">${isOpen ? '▲ 閉じる' : '▼ メンバー'}</span>
+      </button>
+
+      <div class="drawer-panel ${isOpen ? 'show' : ''}">
+        <div>
+          ${renderCoworkers(item.key, coworkers)}
+        </div>
+        <button class="cw-add-btn" onclick="addCoworker('${item.key}')">＋ メンバーを追加</button>
+      </div>
+    `;
+
+    card.innerHTML = cardHtml;
+    container.appendChild(card);
   });
+
+  updateSummary();
 }
 
-// 同僚リストの中身を生成
-function renderCoworkerList(key) {
-  const container = document.getElementById(`coworker-tbody-${key}`);
-  if (!container) return;
-  container.innerHTML = "";
+// 1時間ポジション生成
+function renderHourlySlots(key, data) {
+  const startHour = parseInt(data.start.split(":")[0], 10);
+  const endHour = parseInt(data.end.split(":")[0], 10);
+  const endMinute = parseInt(data.end.split(":")[1], 10);
+  const maxHour = endMinute > 0 ? endHour : endHour - 1;
 
-  const list = savedShiftMap[key].coworkers || [];
+  let html = "";
+  for (let h = startHour; h <= maxHour; h++) {
+    const hStr = String(h);
+    const pos = data.positions[hStr] || "C";
 
+    let opts = "";
+    POSITION_OPTIONS.forEach(opt => {
+      opts += `<option value="${opt.value}" ${opt.value === pos ? 'selected' : ''}>${opt.label}</option>`;
+    });
+
+    html += `
+      <div class="pos-card">
+        <span class="pos-time-text">${h}:00~</span>
+        <select class="pos-chip-select bg-${pos}" onchange="setPos('${key}', '${hStr}', this)">
+          ${opts}
+        </select>
+      </div>
+    `;
+  }
+  return html;
+}
+
+// 同僚リスト
+function renderCoworkers(key, list) {
   if (list.length === 0) {
-    container.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">メンバーはいません</td></tr>`;
-    return;
+    return `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:8px;">メンバーが登録されていません</div>`;
   }
 
-  list.forEach((cw, idx) => {
-    const tr = document.createElement("tr");
-
-    // 名前入力欄（変更可能）
-    const tdName = document.createElement("td");
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.className = "name-input";
-    nameInput.value = cw.name;
-    nameInput.placeholder = "スタッフ名";
-    nameInput.oninput = (e) => {
-      cw.name = e.target.value;
-      saveData();
-    };
-    tdName.appendChild(nameInput);
-    tr.appendChild(tdName);
-
-    // 入店時間
-    const tdStart = document.createElement("td");
-    tdStart.appendChild(createTimeSelect(cw.start, (val) => {
-      cw.start = val;
-      saveData();
-    }));
-    tr.appendChild(tdStart);
-
-    // 退店時間
-    const tdEnd = document.createElement("td");
-    tdEnd.appendChild(createTimeSelect(cw.end, (val) => {
-      cw.end = val;
-      saveData();
-    }));
-    tr.appendChild(tdEnd);
-
-    // 削除ボタン
-    const tdDel = document.createElement("td");
-    const delBtn = document.createElement("button");
-    delBtn.className = "btn-sm btn-del";
-    delBtn.textContent = "✕";
-    delBtn.onclick = () => deleteCoworker(key, idx);
-    tdDel.appendChild(delBtn);
-    tr.appendChild(tdDel);
-
-    container.appendChild(tr);
-  });
+  return list.map((cw, idx) => `
+    <div class="cw-item-card">
+      <input type="text" class="cw-input" value="${cw.name}" placeholder="スタッフ名" oninput="updateCwName('${key}', ${idx}, this.value)">
+      <select class="cw-time-select" onchange="updateCwTime('${key}', ${idx}, 'start', this.value)">
+        ${generateTimeOptions(cw.start)}
+      </select>
+      <span style="color:#94a3b8; font-size:11px;">〜</span>
+      <select class="cw-time-select" onchange="updateCwTime('${key}', ${idx}, 'end', this.value)">
+        ${generateTimeOptions(cw.end)}
+      </select>
+      <button class="cw-del-btn" onclick="deleteCoworker('${key}', ${idx})">✕</button>
+    </div>
+  `).join('');
 }
 
-// 15分刻みセレクト生成
-function createTimeSelect(selectedVal, onChangeCallback) {
-  const select = document.createElement("select");
-  select.className = "time-select";
-  TIME_OPTIONS.forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t;
-    opt.textContent = t;
-    if (t === selectedVal) opt.selected = true;
-    select.appendChild(opt);
-  });
-  select.onchange = (e) => onChangeCallback(e.target.value);
-  return select;
+function generateTimeOptions(selectedVal) {
+  return TIME_OPTIONS.map(t => `<option value="${t}" ${t === selectedVal ? 'selected' : ''}>${t}</option>`).join('');
 }
 
 // ==========================================
-// 5. イベント処理
+// 5. アクション
 // ==========================================
-function toggleCoworkerDrawer(key) {
+function setStatus(key, status) {
+  savedShiftMap[key].status = status;
+  saveData();
+  renderCards();
+}
+
+function setTime(key, type, val) {
+  savedShiftMap[key][type] = val;
+  if (type === 'start' && savedShiftMap[key].start >= savedShiftMap[key].end) {
+    const nextIdx = Math.min(TIME_OPTIONS.indexOf(val) + 4, TIME_OPTIONS.length - 1);
+    savedShiftMap[key].end = TIME_OPTIONS[nextIdx];
+  }
+  saveData();
+  renderCards();
+}
+
+function setPos(key, hourStr, selectEl) {
+  savedShiftMap[key].positions[hourStr] = selectEl.value;
+  selectEl.className = `pos-chip-select bg-${selectEl.value}`;
+  saveData();
+}
+
+function toggleDrawer(key) {
   openedKey = (openedKey === key) ? null : key;
-  renderTable();
+  renderCards();
 }
 
 function addCoworker(key) {
-  if (!savedShiftMap[key].coworkers) {
-    savedShiftMap[key].coworkers = [];
-  }
-  savedShiftMap[key].coworkers.push({
-    name: "新しいスタッフ",
-    start: "17:00",
-    end: "21:00"
-  });
+  if (!savedShiftMap[key].coworkers) savedShiftMap[key].coworkers = [];
+  savedShiftMap[key].coworkers.push({ name: "新しいスタッフ", start: "17:00", end: "21:00" });
   saveData();
-  renderCoworkerList(key);
+  renderCards();
 }
 
 function deleteCoworker(key, idx) {
   savedShiftMap[key].coworkers.splice(idx, 1);
   saveData();
-  renderCoworkerList(key);
+  renderCards();
 }
 
-function changeStatus(key, newStatus) {
-  savedShiftMap[key].status = newStatus;
+function updateCwName(key, idx, val) {
+  savedShiftMap[key].coworkers[idx].name = val;
   saveData();
-  renderTable();
 }
 
-function changeTime(key, type, newVal) {
-  savedShiftMap[key][type] = newVal;
-  if (type === 'start' && savedShiftMap[key].start >= savedShiftMap[key].end) {
-    const nextIdx = Math.min(TIME_OPTIONS.indexOf(newVal) + 4, TIME_OPTIONS.length - 1);
-    savedShiftMap[key].end = TIME_OPTIONS[nextIdx];
-  }
+function updateCwTime(key, idx, type, val) {
+  savedShiftMap[key].coworkers[idx][type] = val;
   saveData();
-  renderTable();
 }
 
 // 初回レンダリング
-renderTable();
+renderCards();
 </script>
 
 </body>
