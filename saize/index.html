@@ -3,23 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>シフト・ポジション簡単変更UI</title>
+<title>シフト・ポジション管理（自動保存＆同僚シフト確認）</title>
 <style>
   body {
     font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
     color: #333;
-    background-color: #f4f6f8;
+    background-color: #f0f2f5;
     padding: 16px;
     margin: 0;
   }
 
-  .shift-container {
-    max-width: 960px;
+  .container {
+    max-width: 980px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .shift-card {
     background: #fff;
     padding: 16px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+
+  .save-status {
+    font-size: 12px;
+    color: #27ae60;
+    font-weight: bold;
+    transition: opacity 0.3s;
   }
 
   .table-wrapper {
@@ -31,11 +58,10 @@
     width: 100%;
     border-collapse: collapse;
     text-align: center;
-    font-size: 14px;
+    font-size: 13px;
     white-space: nowrap;
   }
 
-  /* ヘッダーデザイン（画像再現） */
   th {
     background-color: #5088c4;
     color: #ffffff;
@@ -50,27 +76,30 @@
     vertical-align: middle;
   }
 
-  tr:nth-child(even) {
-    background-color: #fafbfc;
-  }
+  tr:nth-child(even) { background-color: #fafbfc; }
+  tr.is-off { background-color: #f9f9f9; color: #999; }
+  tr.is-selected { background-color: #e8f4fd !important; }
 
-  /* 休み行のスタイル */
-  tr.is-off {
-    background-color: #f9f9f9;
-    color: #999;
-  }
-
-  /* 区分セル（縦書き） */
-  .kubun-cell {
-    writing-mode: vertical-rl;
-    letter-spacing: 2px;
-    font-size: 12px;
+  /* 店舗名リンクボタン */
+  .store-btn {
+    color: #1a73e8;
     cursor: pointer;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    font-size: 13px;
+    padding: 2px 4px;
+    font-family: inherit;
+  }
+  .store-btn:hover {
+    color: #0b57d0;
+    background-color: #e8f0fe;
+    border-radius: 4px;
   }
 
-  /* 時間選択プルダウン */
+  /* セレクトボックス系 */
   select.time-select {
-    font-size: 13px;
+    font-size: 12px;
     padding: 3px 4px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -78,10 +107,9 @@
     cursor: pointer;
   }
 
-  /* 1時間ごとのスケジュール枠 */
   .hourly-schedule {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     justify-content: flex-start;
     align-items: center;
   }
@@ -92,8 +120,8 @@
     align-items: center;
     background: #eef2f5;
     border-radius: 4px;
-    padding: 4px 5px;
-    min-width: 48px;
+    padding: 3px 4px;
+    min-width: 44px;
   }
 
   .hour-label {
@@ -103,66 +131,124 @@
     font-weight: bold;
   }
 
-  /* ポジション選択プルダウン（バッジ風デザイン） */
-  select.pos-select {
+  /* ポジション別バッジ / セレクト */
+  select.pos-select, .pos-badge {
     font-size: 11px;
     font-weight: bold;
     color: #fff;
     border: none;
     border-radius: 3px;
-    padding: 2px 4px;
-    cursor: pointer;
+    padding: 2px 5px;
     outline: none;
     text-align: center;
   }
 
-  /* ポジションごとの色 */
-  .bg-C    { background-color: #e67e22 !important; } /* オレンジ */
-  .bg-Ft   { background-color: #27ae60 !important; } /* 緑 */
-  .bg-D    { background-color: #8e44ad !important; } /* 紫 */
-  .bg-K    { background-color: #d35400 !important; } /* 茶/赤 (キッチン等) */
-  .bg-REST { background-color: #7f8c8d !important; } /* グレー (休憩) */
+  select.pos-select { cursor: pointer; }
+
+  .bg-C    { background-color: #e67e22 !important; } /* オレンジ: キャッシャー */
+  .bg-Ft   { background-color: #27ae60 !important; } /* 緑: フロント */
+  .bg-D    { background-color: #8e44ad !important; } /* 紫: ドライブスルー */
+  .bg-K    { background-color: #d35400 !important; } /* 赤茶: キッチン */
+  .bg-REST { background-color: #7f8c8d !important; } /* グレー: 休憩 */
 
   .note {
-    margin-top: 14px;
+    margin-top: 10px;
     font-size: 12px;
-    color: #333;
+    color: #666;
     line-height: 1.5;
+  }
+
+  /* 同僚シフト詳細エリア */
+  #coworker-section {
+    display: none; /* 初期は非表示 */
+    border-left: 4px solid #5088c4;
+  }
+
+  .coworker-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #1a73e8;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .close-btn {
+    cursor: pointer;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
   }
 </style>
 </head>
 <body>
 
-<div class="shift-container">
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>勤務日</th>
-          <th>勤務店舗</th>
-          <th>区分</th>
-          <th>入店</th>
-          <th>退店</th>
-          <th style="min-width: 320px;">時間別ポジション（変更可能）</th>
-        </tr>
-      </thead>
-      <tbody id="shift-tbody">
-        <!-- JavaScriptで自動描画されます -->
-      </tbody>
-    </table>
+<div class="container">
+  <!-- メイン：自分のシフト表 -->
+  <div class="shift-card">
+    <div class="header-area">
+      <h2 class="title">📋 勤務スケジュール</h2>
+      <div id="save-status" class="save-status">✓ 自動保存済み</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>勤務日</th>
+            <th>勤務店舗 (クリックで他スタッフ確認)</th>
+            <th>区分</th>
+            <th>入店</th>
+            <th>退店</th>
+            <th style="min-width: 320px;">時間別ポジション</th>
+          </tr>
+        </thead>
+        <tbody id="shift-tbody">
+          <!-- JSで自動生成 -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      ※店舗名を押すと、その日に一緒に入るスタッフのシフト一覧が下に表示されます。<br>
+      ※時間・ポジション・区分を変更すると自動でブラウザに保存されます。
+    </div>
   </div>
 
-  <div class="note">
-    ※区分・時間・ポジションはプルダウンから直接変更できます。<br>
-    ※2日前時点でのデータです。直前で変更になっている場合があります。
+  <!-- サブ：選択した日の同僚出勤状況 -->
+  <div id="coworker-section" class="shift-card">
+    <div class="coworker-title">
+      <span id="coworker-heading">👥 同日の出勤メンバー一覧</span>
+      <button class="close-btn" onclick="closeCoworkers()">閉じる ✕</button>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>スタッフ名</th>
+            <th>勤務店舗</th>
+            <th>区分</th>
+            <th>入店</th>
+            <th>退店</th>
+            <th style="min-width: 300px;">時間別ポジション</th>
+          </tr>
+        </thead>
+        <tbody id="coworker-tbody">
+          <!-- JSで動的に表示 -->
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <script>
 // ==========================================
-// 1. シフトの初期データ（ここを書き換えても反映されます）
+// 1. データ定義（初期値 & 同僚データ）
 // ==========================================
-const shiftData = [
+const DEFAULT_MY_SHIFTS = [
   { date: "8/24 (月)", store: "イオンモール神戸南", status: "休み", start: 18, end: 21, positions: [] },
   { date: "8/25 (火)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 21, positions: ["C", "Ft", "D"] },
   { date: "8/26 (水)", store: "イオンモール神戸南", status: "休み", start: 18, end: 21, positions: [] },
@@ -172,7 +258,40 @@ const shiftData = [
   { date: "8/30 (日)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["C", "D", "D", "Ft", "Ft"] }
 ];
 
-// 利用可能なポジション一覧
+// 他のスタッフのデータ（日別の出勤状況サンプル）
+const COWORKERS_DATABASE = {
+  "8/24 (月)": [
+    { name: "山田 (店長)", store: "イオンモール神戸南", status: "出勤", start: 9, end: 18, positions: ["K", "K", "REST", "Ft", "C", "C", "Ft", "D"] },
+    { name: "佐藤 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 21, positions: ["C", "Ft", "Ft", "D"] }
+  ],
+  "8/25 (火)": [
+    { name: "田中 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 21, positions: ["Ft", "C", "C", "REST"] },
+    { name: "鈴木 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 22, positions: ["D", "D", "Ft", "C"] },
+    { name: "高橋 (社員)", store: "イオンモール神戸南", status: "出勤", start: 12, end: 21, positions: ["K", "K", "REST", "Ft", "C", "D", "D", "Ft"] }
+  ],
+  "8/26 (水)": [
+    { name: "山田 (店長)", store: "イオンモール神戸南", status: "出勤", start: 9, end: 18, positions: ["K", "K", "Ft", "C"] },
+    { name: "中村 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 22, positions: ["C", "Ft", "D", "D"] }
+  ],
+  "8/27 (木)": [
+    { name: "佐藤 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 21, positions: ["C", "C", "Ft", "D"] },
+    { name: "高橋 (社員)", store: "イオンモール神戸南", status: "出勤", start: 15, end: 22, positions: ["K", "K", "REST", "Ft", "D", "D", "C"] }
+  ],
+  "8/28 (金)": [
+    { name: "田中 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["C", "Ft", "Ft", "D", "D"] },
+    { name: "鈴木 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 21, positions: ["Ft", "D", "C"] }
+  ],
+  "8/29 (土)": [
+    { name: "山田 (店長)", store: "イオンモール神戸南", status: "出勤", start: 11, end: 20, positions: ["K", "K", "C", "REST", "Ft", "Ft", "D", "C"] },
+    { name: "中村 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["C", "C", "Ft", "D", "D"] },
+    { name: "渡辺 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 18, end: 22, positions: ["Ft", "Ft", "D", "C"] }
+  ],
+  "8/30 (日)": [
+    { name: "高橋 (社員)", store: "イオンモール神戸南", status: "出勤", start: 12, end: 21, positions: ["K", "K", "Ft", "REST", "C", "D", "Ft", "Ft"] },
+    { name: "佐藤 (バイト)", store: "イオンモール神戸南", status: "出勤", start: 17, end: 22, positions: ["Ft", "Ft", "C", "C", "D"] }
+  ]
+};
+
 const POSITION_OPTIONS = [
   { value: "C",    label: "C",   class: "bg-C" },
   { value: "Ft",   label: "Ft",  class: "bg-Ft" },
@@ -181,24 +300,48 @@ const POSITION_OPTIONS = [
   { value: "REST", label: "休",  class: "bg-REST" }
 ];
 
+// LocalStorageから読み込み、無ければ初期値
+let myShifts = JSON.parse(localStorage.getItem("my_shift_data")) || DEFAULT_MY_SHIFTS;
+let selectedRowIndex = null;
+
 // ==========================================
-// 2. 画面描画ロジック
+// 2. 自動保存処理
+// ==========================================
+function saveData() {
+  localStorage.setItem("my_shift_data", JSON.stringify(myShifts));
+  const statusEl = document.getElementById("save-status");
+  statusEl.textContent = "✓ 自動保存済み";
+  statusEl.style.opacity = "1";
+}
+
+// ==========================================
+// 3. メインシフト表の描画
 // ==========================================
 function renderTable() {
   const tbody = document.getElementById("shift-tbody");
   tbody.innerHTML = "";
 
-  shiftData.forEach((row, index) => {
+  myShifts.forEach((row, index) => {
     const tr = document.createElement("tr");
     if (row.status === "休み") tr.classList.add("is-off");
+    if (selectedRowIndex === index) tr.classList.add("is-selected");
 
-    // 日付・店舗
-    tr.innerHTML = `
-      <td>${row.date}</td>
-      <td>${row.store}</td>
-    `;
+    // 日付
+    const tdDate = document.createElement("td");
+    tdDate.textContent = row.date;
+    tr.appendChild(tdDate);
 
-    // 区分 (出勤 / 休み 切り替え)
+    // 店舗名（クリックで同僚表示）
+    const tdStore = document.createElement("td");
+    const storeBtn = document.createElement("button");
+    storeBtn.className = "store-btn";
+    storeBtn.textContent = row.store;
+    storeBtn.title = "タップして同僚のシフトを確認";
+    storeBtn.onclick = () => showCoworkers(index, row.date, row.store);
+    tdStore.appendChild(storeBtn);
+    tr.appendChild(tdStore);
+
+    // 区分 (出勤 / 休み)
     const tdKubun = document.createElement("td");
     tdKubun.innerHTML = `
       <select onchange="changeStatus(${index}, this.value)" style="font-size:11px;">
@@ -211,17 +354,17 @@ function renderTable() {
     if (row.status === "休み") {
       tr.innerHTML += `<td>-</td><td>-</td><td>-</td>`;
     } else {
-      // 入店時間セレクト
+      // 入店時間
       const tdStart = document.createElement("td");
       tdStart.appendChild(createTimeSelect(row.start, (val) => changeTime(index, 'start', val)));
       tr.appendChild(tdStart);
 
-      // 退店時間セレクト
+      // 退店時間
       const tdEnd = document.createElement("td");
       tdEnd.appendChild(createTimeSelect(row.end, (val) => changeTime(index, 'end', val)));
       tr.appendChild(tdEnd);
 
-      // 時間別ポジション枠
+      // 時間別ポジション
       const tdPos = document.createElement("td");
       const scheduleDiv = document.createElement("div");
       scheduleDiv.className = "hourly-schedule";
@@ -235,7 +378,6 @@ function renderTable() {
         slot.className = "hour-slot";
         slot.innerHTML = `<span class="hour-label">${currentHour}:00</span>`;
 
-        // ポジション選択
         const posSelect = document.createElement("select");
         posSelect.className = `pos-select bg-${currentPos}`;
         
@@ -250,6 +392,7 @@ function renderTable() {
         posSelect.onchange = (e) => {
           row.positions[h] = e.target.value;
           posSelect.className = `pos-select bg-${e.target.value}`;
+          saveData();
         };
 
         slot.appendChild(posSelect);
@@ -264,11 +407,10 @@ function renderTable() {
   });
 }
 
-// 時間プルダウンの生成ヘルパー (10:00〜23:00)
 function createTimeSelect(selectedVal, onChangeCallback) {
   const select = document.createElement("select");
   select.className = "time-select";
-  for (let t = 10; t <= 23; t++) {
+  for (let t = 9; t <= 23; t++) {
     const opt = document.createElement("option");
     opt.value = t;
     opt.textContent = `${t}:00`;
@@ -279,30 +421,87 @@ function createTimeSelect(selectedVal, onChangeCallback) {
   return select;
 }
 
-// ==========================================
-// 3. 状態変更関数
-// ==========================================
 function changeStatus(index, newStatus) {
-  shiftData[index].status = newStatus;
+  myShifts[index].status = newStatus;
+  saveData();
   renderTable();
 }
 
 function changeTime(index, type, newVal) {
   if (type === 'start') {
-    shiftData[index].start = newVal;
-    if (shiftData[index].start >= shiftData[index].end) {
-      shiftData[index].end = shiftData[index].start + 1;
+    myShifts[index].start = newVal;
+    if (myShifts[index].start >= myShifts[index].end) {
+      myShifts[index].end = myShifts[index].start + 1;
     }
   } else {
-    shiftData[index].end = newVal;
-    if (shiftData[index].end <= shiftData[index].start) {
-      shiftData[index].start = shiftData[index].end - 1;
+    myShifts[index].end = newVal;
+    if (myShifts[index].end <= myShifts[index].start) {
+      myShifts[index].start = myShifts[index].end - 1;
     }
   }
+  saveData();
   renderTable();
 }
 
-// 初期描画実行
+// ==========================================
+// 4. 同僚の出勤状況を表示する処理
+// ==========================================
+function showCoworkers(index, dateStr, storeName) {
+  selectedRowIndex = index;
+  renderTable(); // 選択行をハイライト
+
+  const section = document.getElementById("coworker-section");
+  const heading = document.getElementById("coworker-heading");
+  const tbody = document.getElementById("coworker-tbody");
+
+  heading.textContent = `👥 ${dateStr}（${storeName}）の出勤メンバー`;
+  tbody.innerHTML = "";
+
+  const list = COWORKERS_DATABASE[dateStr] || [];
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:#888;">この日の他スタッフの登録データはありません</td></tr>`;
+  } else {
+    list.forEach(worker => {
+      const tr = document.createElement("tr");
+      
+      let scheduleHtml = `<div class="hourly-schedule">`;
+      const hoursCount = worker.end - worker.start;
+      for (let h = 0; h < hoursCount; h++) {
+        const hour = worker.start + h;
+        const pos = worker.positions[h] || "C";
+        scheduleHtml += `
+          <div class="hour-slot">
+            <span class="hour-label">${hour}:00</span>
+            <span class="pos-badge bg-${pos}">${pos === 'REST' ? '休' : pos}</span>
+          </div>
+        `;
+      }
+      scheduleHtml += `</div>`;
+
+      tr.innerHTML = `
+        <td style="font-weight:bold;">${worker.name}</td>
+        <td>${worker.store}</td>
+        <td><span style="font-size:11px;">${worker.status}</span></td>
+        <td>${worker.start}:00</td>
+        <td>${worker.end}:00</td>
+        <td>${scheduleHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  section.style.display = "block";
+  section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function closeCoworkers() {
+  document.getElementById("coworker-section").style.display = "none";
+  selectedRowIndex = null;
+  renderTable();
+}
+
+// 初期化描画
 renderTable();
 </script>
 
