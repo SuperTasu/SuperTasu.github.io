@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>シフト管理 (書き出し・読み込み対応版)</title>
+<title>シフト管理 (一言メモ＆高耐久バックアップ版)</title>
 <style>
   :root {
     --primary: #2563eb;
@@ -11,12 +11,14 @@
     --card-border: #cbd5e1;
     --text: #0f172a;
     
-    --pos-c: #ea580c;  /* オレンジ */
-    --pos-ft: #16a34a; /* 緑 */
-    --pos-d: #7c3aed;  /* 紫 */
-    --pos-v: #0284c7;  /* 水色 */
-    --pos-k: #dc2626;  /* 赤 */
-    --pos-rest: #64748b; /* グレー */
+    /* ポジションカラー */
+    --pos-c: #ea580c;    /* オレンジ: C */
+    --pos-ft: #16a34a;   /* 緑: Ft */
+    --pos-d: #7c3aed;    /* 紫: D */
+    --pos-v: #0284c7;    /* 水色: V */
+    --pos-k: #dc2626;    /* 赤: K */
+    --pos-rest: #64748b; /* グレー: 休 */
+    --pos-task: #0284c7; /* 水色: ラストタスク */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,21 +54,11 @@
     gap: 6px;
   }
 
-  .top-bar-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
+  .top-bar-left { display: flex; align-items: center; gap: 6px; }
   .app-title { font-size: 13px; font-weight: 900; color: var(--primary); }
   .save-status { font-size: 10px; font-weight: bold; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 10px; }
 
-  /* バックアップ操作ボタン */
-  .backup-btn-group {
-    display: flex;
-    gap: 4px;
-  }
-
+  .backup-btn-group { display: flex; gap: 4px; }
   .btn-action {
     font-size: 11px;
     font-weight: 800;
@@ -83,7 +75,7 @@
   .btn-action:hover { background: #e2e8f0; }
 
   /* =====================================
-     PC版：縦2列レイアウト（1週目 | 2週目）
+     PC版：縦2列レイアウト
   ===================================== */
   .weeks-grid {
     display: grid;
@@ -119,16 +111,12 @@
     overflow: hidden;
   }
 
-  /* 今日（TODAY）の強力ハイライト */
+  /* 今日（TODAY）ハイライト */
   .day-card.is-today {
     border: 2px solid #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 4px 10px rgba(37, 99, 235, 0.15);
   }
-
-  .day-card.is-today .card-header {
-    background: #eff6ff;
-  }
-
+  .day-card.is-today .card-header { background: #eff6ff; }
   .today-badge {
     background: #ef4444;
     color: #fff;
@@ -144,7 +132,7 @@
     opacity: 0.85;
   }
 
-  /* 日曜日と月曜日の区切り */
+  /* 日曜・月曜の区切り */
   .sunday-separator {
     margin-bottom: 18px !important;
     position: relative;
@@ -184,11 +172,7 @@
   .sat { color: #2563eb; }
   .sun { color: #dc2626; }
 
-  .time-range {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
+  .time-range { display: flex; align-items: center; gap: 2px; }
 
   .time-input {
     font-size: 12px;
@@ -244,6 +228,14 @@
   }
   .pos-badge .hour-tag { font-size: 8px; opacity: 0.9; }
 
+  /* ラストタスク専用バッジ */
+  .task-badge {
+    background: var(--pos-task) !important;
+    border: 1px solid #bae6fd;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
+    min-width: 48px;
+  }
+
   .btn-sm-edit {
     font-size: 10px;
     font-weight: 700;
@@ -257,7 +249,6 @@
   }
   .btn-sm-edit:hover { background: #cbd5e1; }
 
-  /* ポジション入力パネル */
   .edit-panel {
     display: flex;
     gap: 4px;
@@ -286,7 +277,36 @@
     cursor: pointer;
   }
 
-  /* 同僚アコーディオン */
+  /* =====================================
+     一言メモ（新機能）
+  ===================================== */
+  .memo-row {
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fafbfc;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .memo-input {
+    flex: 1;
+    font-size: 11px;
+    color: #334155;
+    padding: 3px 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #ffffff;
+  }
+  .memo-input:focus {
+    border-color: var(--primary);
+    outline: none;
+    background: #fff;
+  }
+
+  /* =====================================
+     出勤メンバー
+  ===================================== */
   .coworker-toggle {
     width: 100%;
     background: #fafbfc;
@@ -326,11 +346,12 @@
 
   .cw-chip {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     background: #fff;
+    color: #1e293b;
     border: 1px solid #cbd5e1;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
   }
 
   .cw-edit-row {
@@ -344,20 +365,9 @@
     flex: 1;
     font-size: 11px;
     font-weight: 600;
-    padding: 3px 4px;
+    padding: 4px 6px;
     border: 1px solid #f59e0b;
     border-radius: 4px;
-    min-width: 0;
-  }
-
-  .cw-time-input {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 2px;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    width: 52px;
-    text-align: center;
   }
 
   .cw-del {
@@ -365,8 +375,9 @@
     color: #dc2626;
     border: none;
     border-radius: 4px;
-    padding: 3px 6px;
+    padding: 4px 8px;
     font-size: 10px;
+    font-weight: bold;
     cursor: pointer;
   }
 
@@ -383,9 +394,7 @@
     margin-top: 4px;
   }
 
-  /* =====================================
-     書き出し・読み込み用モーダル
-  ===================================== */
+  /* モーダル */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -421,10 +430,7 @@
     font-weight: 900;
   }
 
-  .modal-body {
-    padding: 12px;
-  }
-
+  .modal-body { padding: 12px; }
   .modal-textarea {
     width: 100%;
     height: 180px;
@@ -457,7 +463,6 @@
     font-size: 11px;
     cursor: pointer;
   }
-
   .btn-secondary {
     background: #e2e8f0;
     color: #334155;
@@ -482,7 +487,7 @@
 <body>
 
 <div class="container">
-  <!-- 固定ヘッダー（書き出し・読み込みボタン設置） -->
+  <!-- 固定ヘッダー -->
   <div class="top-bar">
     <div class="top-bar-left">
       <div class="app-title">⚡ シフト管理</div>
@@ -507,9 +512,7 @@
   </div>
 </div>
 
-<!-- =====================================
-     書き出し・読み込み モーダル
-===================================== -->
+<!-- 書き出し・読み込み モーダル -->
 <div id="backup-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -518,7 +521,7 @@
     </div>
     <div class="modal-body">
       <p id="modal-desc" style="font-size:11px; color:#64748b; margin-bottom:6px;">
-        以下のJSコードをコピーして保存したり、他の端末へ送信できます。
+        以下のコードをコピーして保存したり、他の端末へ送信できます。
       </p>
       <textarea id="modal-textarea" class="modal-textarea" spellcheck="false"></textarea>
     </div>
@@ -559,7 +562,7 @@ for (let i = 0; i < 14; i++) {
 }
 
 // LocalStorageから取得
-let shiftData = JSON.parse(localStorage.getItem("pro_shift_v9")) || {};
+let shiftData = JSON.parse(localStorage.getItem("pro_shift_v11")) || {};
 
 twoWeeks.forEach(item => {
   if (!shiftData[item.key]) {
@@ -568,11 +571,9 @@ twoWeeks.forEach(item => {
       status: isOff ? "休み" : "出勤",
       start: "17:00",
       end: "21:00",
-      posText: "c ft d c",
-      coworkers: [
-        { name: "山田 (店長)", start: "10:00", end: "19:00" },
-        { name: "田中 (バイト)", start: "17:00", end: "21:30" }
-      ]
+      posText: "c ft d ゴミ捨て",
+      memo: "", // 一言メモ初期値
+      coworkers: ["山田 (店長)", "田中 (バイト)", "佐藤"]
     };
   }
 });
@@ -580,13 +581,13 @@ twoWeeks.forEach(item => {
 let openDrawerKey = null;
 let editingPosKey = null;
 let editingCwKey = null;
-let modalMode = "export"; // 'export' or 'import'
+let modalMode = "export";
 
 // ==========================================
 // 2. 自動保存
 // ==========================================
 function saveData() {
-  localStorage.setItem("pro_shift_v9", JSON.stringify(shiftData));
+  localStorage.setItem("pro_shift_v11", JSON.stringify(shiftData));
   const st = document.getElementById("save-status");
   st.textContent = "✓ 自動保存済み";
 }
@@ -603,7 +604,7 @@ function render() {
   twoWeeks.forEach((item, idx) => {
     const targetCol = idx < 7 ? col1 : col2;
     const d = shiftData[item.key] || {
-      status: "休み", start: "17:00", end: "21:00", posText: "", coworkers: []
+      status: "休み", start: "17:00", end: "21:00", posText: "", memo: "", coworkers: []
     };
     const isWork = d.status === "出勤";
     const isOpen = openDrawerKey === item.key;
@@ -613,7 +614,7 @@ function render() {
     const card = document.createElement("div");
     card.className = `day-card ${isWork ? '' : 'is-off'} ${item.isToday ? 'is-today' : ''} ${item.isSunday ? 'sunday-separator' : ''}`;
 
-    // --- ヘッダー ---
+    // --- 1. ヘッダー ---
     let headerHtml = `
       <div class="card-header">
         <div class="header-left">
@@ -621,9 +622,9 @@ function render() {
           <span class="date-title ${item.dayClass}">${item.display}</span>
           ${isWork ? `
             <div class="time-range">
-              <input type="text" class="time-input" value="${d.start}" oninput="updateTime('${item.key}', 'start', this.value)">
+              <input type="text" class="time-input" value="${d.start || ''}" oninput="updateTime('${item.key}', 'start', this.value)">
               <span>〜</span>
-              <input type="text" class="time-input" value="${d.end}" oninput="updateTime('${item.key}', 'end', this.value)">
+              <input type="text" class="time-input" value="${d.end || ''}" oninput="updateTime('${item.key}', 'end', this.value)">
             </div>
           ` : ''}
         </div>
@@ -633,7 +634,7 @@ function render() {
       </div>
     `;
 
-    // --- ポジション行 ---
+    // --- 2. ポジション ＆ ラストタスク行 ---
     let posHtml = "";
     if (isWork) {
       posHtml = `
@@ -648,7 +649,8 @@ function render() {
 
         ${isEditingPos ? `
           <div class="edit-panel">
-            <input type="text" class="pos-input-text" value="${d.posText || ''}" placeholder="例: c c ft d / c v ft 休" 
+            <input type="text" class="pos-input-text" value="${escapeHtml(d.posText || '')}" 
+                   placeholder="例: c ft d ゴミ捨て (最後がタスク)" 
                    oninput="updatePosText('${item.key}', this.value)">
             <button class="btn-save-done" onclick="toggleEditPos('${item.key}')">完了</button>
           </div>
@@ -656,7 +658,17 @@ function render() {
       `;
     }
 
-    // --- 出勤メンバー ---
+    // --- 3. 一言メモ行（新機能） ---
+    let memoHtml = `
+      <div class="memo-row">
+        <span style="font-size:11px; color:#64748b;">📝</span>
+        <input type="text" class="memo-input" value="${escapeHtml(d.memo || '')}" 
+               placeholder="一言メモ (例: 19時〜納品, 早上がり希望...)" 
+               oninput="updateMemo('${item.key}', this.value)">
+      </div>
+    `;
+
+    // --- 4. 出勤メンバー ---
     const count = (d.coworkers || []).length;
     let cwHtml = `
       <button class="coworker-toggle" onclick="toggleDrawer('${item.key}')">
@@ -669,7 +681,7 @@ function render() {
           <div class="cw-view-wrap">
             <div class="cw-view-list">
               ${(d.coworkers || []).length > 0 
-                ? d.coworkers.map(c => `<span class="cw-chip">${c.name} (${c.start}〜${c.end})</span>`).join('')
+                ? d.coworkers.map(name => `<span class="cw-chip">👤 ${escapeHtml(name)}</span>`).join('')
                 : '<span style="font-size:10px; color:#94a3b8;">メンバーなし</span>'}
             </div>
             <button class="btn-sm-edit" onclick="toggleEditCw('${item.key}')">✏️ 変更</button>
@@ -677,7 +689,7 @@ function render() {
         ` : `
           <div style="background:#fffbeb; padding:6px; border-radius:6px; border:1px dashed #f59e0b;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <span style="font-size:10px; font-weight:bold; color:#b45309;">メンバー編集中</span>
+              <span style="font-size:10px; font-weight:bold; color:#b45309;">メンバー名前編集</span>
               <button class="btn-save-done" onclick="toggleEditCw('${item.key}')">完了</button>
             </div>
             ${renderCwEditRows(item.key, d.coworkers)}
@@ -687,20 +699,28 @@ function render() {
       </div>
     `;
 
-    card.innerHTML = headerHtml + posHtml + cwHtml;
+    card.innerHTML = headerHtml + posHtml + memoHtml + cwHtml;
     targetCol.appendChild(card);
   });
 }
 
-// ポジションバッジ生成
+// ポジション ＆ ラストタスク自動判定
 function generateBadges(startTime, posText) {
   if (!posText || !posText.trim()) return `<span style="font-size:10px; color:#94a3b8;">ポジション未設定</span>`;
   
   const tokens = posText.trim().split(/\s+/);
   const startHour = parseInt((startTime || "17:00").split(":")[0], 10) || 17;
 
-  return tokens.map((token, idx) => {
-    const upper = token.toUpperCase();
+  let positionTokens = tokens;
+  let taskToken = null;
+
+  if (tokens.length >= 2) {
+    positionTokens = tokens.slice(0, -1);
+    taskToken = tokens[tokens.length - 1];
+  }
+
+  let html = positionTokens.map((token, idx) => {
+    const upper = escapeHtml(token.toUpperCase());
     const lower = token.toLowerCase();
     const hour = startHour + idx;
 
@@ -719,24 +739,33 @@ function generateBadges(startTime, posText) {
       </div>
     `;
   }).join('');
+
+  if (taskToken) {
+    html += `
+      <div class="pos-badge task-badge">
+        <span class="hour-tag">ラスト</span>
+        <span>📌 ${escapeHtml(taskToken)}</span>
+      </div>
+    `;
+  }
+
+  return html;
 }
 
+// 同僚の名前編集フォーム
 function renderCwEditRows(key, list) {
   if (!list || list.length === 0) return `<div style="font-size:10px; color:#94a3b8; padding:3px;">メンバーなし</div>`;
 
-  return list.map((cw, idx) => `
+  return list.map((name, idx) => `
     <div class="cw-edit-row">
-      <input type="text" class="cw-name-input" value="${cw.name}" placeholder="名前" oninput="updateCw('${key}', ${idx}, 'name', this.value)">
-      <input type="text" class="cw-time-input" value="${cw.start}" placeholder="17:00" oninput="updateCw('${key}', ${idx}, 'start', this.value)">
-      <span style="font-size:9px; color:#94a3b8;">〜</span>
-      <input type="text" class="cw-time-input" value="${cw.end}" placeholder="21:00" oninput="updateCw('${key}', ${idx}, 'end', this.value)">
+      <input type="text" class="cw-name-input" value="${escapeHtml(name)}" placeholder="スタッフ名" oninput="updateCw('${key}', ${idx}, this.value)">
       <button class="cw-del" onclick="deleteCw('${key}', ${idx})">✕</button>
     </div>
   `).join('');
 }
 
 // ==========================================
-// 4. イベントハンドラー
+// 4. アクションハンドラー
 // ==========================================
 function toggleStatus(key) {
   shiftData[key].status = shiftData[key].status === "出勤" ? "休み" : "出勤";
@@ -746,6 +775,11 @@ function toggleStatus(key) {
 
 function updateTime(key, field, val) {
   shiftData[key][field] = val;
+  saveData();
+}
+
+function updateMemo(key, val) {
+  shiftData[key].memo = val;
   saveData();
 }
 
@@ -776,7 +810,7 @@ function toggleDrawer(key) {
 
 function addCoworker(key) {
   if (!shiftData[key].coworkers) shiftData[key].coworkers = [];
-  shiftData[key].coworkers.push({ name: "スタッフ", start: "17:00", end: "21:00" });
+  shiftData[key].coworkers.push("新しいスタッフ");
   saveData();
   render();
 }
@@ -787,21 +821,30 @@ function deleteCw(key, idx) {
   render();
 }
 
-function updateCw(key, idx, field, val) {
-  shiftData[key].coworkers[idx][field] = val;
+function updateCw(key, idx, val) {
+  shiftData[key].coworkers[idx] = val;
   saveData();
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // ==========================================
-// 5. 書き出し & 読み込み (バックアップ)
+// 5. 書き出し & 読み込み (高耐久・バグ対策済み)
 // ==========================================
 function openExportModal() {
   modalMode = "export";
   document.getElementById("modal-title").textContent = "📤 シフトデータの書き出し (JS形式)";
-  document.getElementById("modal-desc").textContent = "以下のコードをコピーして保存したり、他の端末へ送ることができます。";
+  document.getElementById("modal-desc").textContent = "以下のコードをコピーして保存したり、他の端末へ送信できます。";
   document.getElementById("modal-submit-btn").textContent = "📋 コードをコピー";
 
-  // JSコード形式に整形して出力
   const exportJsCode = `// ===== バイトシフト設定データ =====\nconst myShiftBackup = ${JSON.stringify(shiftData, null, 2)};\n`;
   document.getElementById("modal-textarea").value = exportJsCode;
   document.getElementById("backup-modal").classList.add("open");
@@ -810,11 +853,10 @@ function openExportModal() {
 function openImportModal() {
   modalMode = "import";
   document.getElementById("modal-title").textContent = "📥 シフトデータの読み込み";
-  document.getElementById("modal-desc").textContent = "書き出したJSコード（またはJSON）をここに貼り付けて「反映する」を押してください。";
+  document.getElementById("modal-desc").textContent = "書き出したJSコード（またはJSON）を貼り付けて「反映する」を押してください。";
   document.getElementById("modal-submit-btn").textContent = "📥 反映する";
 
   document.getElementById("modal-textarea").value = "";
-  document.getElementById("modal-textarea").placeholder = "ここに書き出しコードを貼り付け...";
   document.getElementById("backup-modal").classList.add("open");
 }
 
@@ -826,7 +868,6 @@ function handleModalSubmit() {
   const textarea = document.getElementById("modal-textarea");
 
   if (modalMode === "export") {
-    // クリップボードへコピー
     navigator.clipboard.writeText(textarea.value).then(() => {
       alert("✓ コードをクリップボードにコピーしました！");
     }).catch(() => {
@@ -835,28 +876,39 @@ function handleModalSubmit() {
       alert("✓ コードをコピーしました！");
     });
   } else {
-    // 読み込み実行 (JSコード/JSONからオブジェクトを安全に抽出)
     const raw = textarea.value.trim();
-    if (!raw) {
-      alert("コードが入力されていません。");
-      return;
-    }
+    if (!raw) return alert("コードが入力されていません。");
 
     try {
-      // JSON形式の波括弧部分を抽出してパース
+      // 1. JSON部分を安全に抽出
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("JSON形式が見つかりません");
+      if (!jsonMatch) throw new Error("JSONが見つかりません");
       
       const parsedData = JSON.parse(jsonMatch[0]);
 
-      // データをマージして反映
+      // 2. データのバリデーションと正規化（メモや形式の欠損を補完）
+      Object.keys(parsedData).forEach(key => {
+        const item = parsedData[key];
+        if (typeof item === "object" && item !== null) {
+          if (typeof item.memo !== "string") item.memo = "";
+          if (typeof item.posText !== "string") item.posText = "";
+          if (!Array.isArray(item.coworkers)) {
+            item.coworkers = [];
+          } else {
+            // 古いオブジェクト形式 {name: '...'} が混ざっていても文字列に変換
+            item.coworkers = item.coworkers.map(c => typeof c === "object" ? (c.name || "") : String(c));
+          }
+        }
+      });
+
+      // 3. マージして反映
       shiftData = Object.assign(shiftData, parsedData);
       saveData();
       render();
       closeModal();
       alert("✓ データを正常に復元・読み込みました！");
     } catch (e) {
-      alert("⚠️ コードの形式が正しくありません。\n書き出したコードをそのまま貼り付けてください。");
+      alert("⚠️ コードの読み込みに失敗しました。\n書き出したコードをそのまま貼り付けてください。");
     }
   }
 }
