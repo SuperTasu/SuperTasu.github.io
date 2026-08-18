@@ -3,15 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>コンパクトシフト管理</title>
+<title>シフト管理 (PC2列・今日強調・簡単編集)</title>
 <style>
   :root {
     --primary: #2563eb;
-    --bg: #f1f5f9;
+    --bg: #e2e8f0;
     --card-border: #cbd5e1;
     --text: #0f172a;
     
-    /* ポジションカラー */
     --pos-c: #ea580c;  /* オレンジ */
     --pos-ft: #16a34a; /* 緑 */
     --pos-d: #7c3aed;  /* 紫 */
@@ -30,13 +29,12 @@
     font-size: 12px;
   }
 
-  /* PC向けに横幅を広く取るコンテナ (最大1200px) */
   .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
   }
 
-  /* コンパクト固定ヘッダー */
+  /* 固定トップバー */
   .top-bar {
     position: sticky;
     top: 4px;
@@ -44,7 +42,7 @@
     background: #ffffff;
     border-radius: 8px;
     padding: 6px 12px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     display: flex;
     justify-content: space-between;
@@ -56,28 +54,64 @@
   .save-status { font-size: 10px; font-weight: bold; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 10px; }
 
   /* =====================================
-     PC版は2列グリッド、スマホは1列
+     PC版：縦2列レイアウト（1週目 | 2週目）
   ===================================== */
-  .grid-layout {
+  .weeks-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 12px;
   }
 
-  @media (min-width: 768px) {
-    .grid-layout {
-      grid-template-columns: repeat(2, 1fr); /* PC時は2列表示 */
-      gap: 10px;
+  @media (min-width: 860px) {
+    .weeks-grid {
+      grid-template-columns: 1fr 1fr; /* PC時は左右に縦2列 */
+      gap: 16px;
+      align-items: start;
     }
   }
 
-  /* 1日ごとのカード（極小コンパクト設計） */
+  .week-column-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #475569;
+    margin-bottom: 6px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* =====================================
+     カードデザイン & 「今日」の強調
+  ===================================== */
   .day-card {
     background: #ffffff;
     border-radius: 10px;
     border: 1px solid var(--card-border);
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 6px;
     overflow: hidden;
+    position: relative;
+  }
+
+  /* 今日（TODAY）の強力ハイライト */
+  .day-card.is-today {
+    border: 2px solid #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25), 0 4px 10px rgba(37, 99, 235, 0.15);
+  }
+
+  .day-card.is-today .card-header {
+    background: #eff6ff;
+  }
+
+  .today-badge {
+    background: #ef4444;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
   }
 
   .day-card.is-off {
@@ -86,7 +120,25 @@
     opacity: 0.85;
   }
 
-  /* ヘッダー：日付・時間・区分を横並びで1行に集約 */
+  /* 日曜日と月曜日の間の大きな区切り */
+  .sunday-separator {
+    margin-bottom: 18px !important;
+    position: relative;
+  }
+  .sunday-separator::after {
+    content: "── 次の週へ ──";
+    display: block;
+    position: absolute;
+    bottom: -16px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #94a3b8;
+  }
+
+  /* カードヘッダー */
   .card-header {
     background: #f8fafc;
     padding: 6px 8px;
@@ -108,7 +160,6 @@
   .sat { color: #2563eb; }
   .sun { color: #dc2626; }
 
-  /* 日付の横に並ぶ時間入力欄 */
   .time-range {
     display: flex;
     align-items: center;
@@ -122,11 +173,10 @@
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     background: #fff;
-    width: 62px;
+    width: 60px;
     text-align: center;
   }
 
-  /* 出勤 / 休みボタン */
   .toggle-status-btn {
     font-size: 11px;
     font-weight: 800;
@@ -139,9 +189,9 @@
   .work-mode { background: #2563eb; color: #fff; }
   .off-mode { background: #94a3b8; color: #fff; }
 
-  /* ポジション表示行 */
+  /* ポジション行 */
   .pos-row {
-    padding: 6px 8px;
+    padding: 5px 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -171,7 +221,7 @@
   }
   .pos-badge .hour-tag { font-size: 8px; opacity: 0.9; }
 
-  .btn-edit-pos {
+  .btn-sm-edit {
     font-size: 10px;
     font-weight: 700;
     background: #e2e8f0;
@@ -182,9 +232,10 @@
     cursor: pointer;
     white-space: nowrap;
   }
+  .btn-sm-edit:hover { background: #cbd5e1; }
 
-  /* ポジション一括入力パネル（変更ボタンを押した時だけ展開） */
-  .pos-edit-panel {
+  /* 入力・変更パネル */
+  .edit-panel {
     display: flex;
     gap: 4px;
     padding: 6px 8px;
@@ -201,7 +252,7 @@
     border-radius: 4px;
   }
 
-  .btn-save-pos {
+  .btn-save-done {
     font-size: 10px;
     font-weight: 800;
     background: #f59e0b;
@@ -212,7 +263,9 @@
     cursor: pointer;
   }
 
-  /* 同僚アコーディオントグル */
+  /* =====================================
+     出勤メンバー（閲覧 & 編集モード切り替え）
+  ===================================== */
   .coworker-toggle {
     width: 100%;
     background: #fafbfc;
@@ -236,24 +289,48 @@
   }
   .coworker-drawer.show { display: block; }
 
-  .cw-row {
+  .cw-view-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cw-view-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .cw-chip {
+    font-size: 10px;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* 編集モード時の行 */
+  .cw-edit-row {
     display: flex;
     align-items: center;
     gap: 4px;
     margin-bottom: 4px;
   }
 
-  .cw-name {
+  .cw-name-input {
     flex: 1;
     font-size: 11px;
     font-weight: 600;
     padding: 3px 4px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #f59e0b;
     border-radius: 4px;
     min-width: 0;
   }
 
-  .cw-time {
+  .cw-time-input {
     font-size: 11px;
     font-weight: 600;
     padding: 3px 2px;
@@ -276,14 +353,14 @@
   .cw-add-btn {
     width: 100%;
     background: #fff;
-    border: 1px dashed #93c5fd;
-    color: var(--primary);
+    border: 1px dashed #f59e0b;
+    color: #b45309;
     padding: 4px;
     font-size: 10px;
     font-weight: 700;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 2px;
+    margin-top: 4px;
   }
 
   /* バッジ背景色 */
@@ -301,17 +378,26 @@
 <div class="container">
   <!-- 固定ヘッダー -->
   <div class="top-bar">
-    <div class="app-title">⚡ シフト管理 (2週間)</div>
+    <div class="app-title">⚡ シフト管理 (PC 2列ビュー)</div>
     <div id="save-status" class="save-status">✓ 自動保存済み</div>
   </div>
 
-  <!-- 2週間シフト一覧（PC時は2列レイアウト） -->
-  <div id="grid-list" class="grid-layout"></div>
+  <!-- 2週間グリッド（PC時は左右2列） -->
+  <div class="weeks-grid">
+    <div>
+      <div class="week-column-title">📅 1週目 (今週)</div>
+      <div id="col-week-1"></div>
+    </div>
+    <div>
+      <div class="week-column-title">📅 2週目 (来週)</div>
+      <div id="col-week-2"></div>
+    </div>
+  </div>
 </div>
 
 <script>
 // ==========================================
-// 1. データ定義 & 2週間生成
+// 1. データ定義 & 2週間（14日）生成
 // ==========================================
 const STORE_NAME = "イオンモール神戸南";
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
@@ -332,12 +418,14 @@ for (let i = 0; i < 14; i++) {
     key: dateKey,
     display: `${d.getMonth() + 1}/${d.getDate()} (${dayStr})`,
     dayClass: dayClass,
-    dayIndex: d.getDay()
+    dayIndex: d.getDay(),
+    isToday: (i === 0), // 今日フラグ
+    isSunday: (d.getDay() === 0) // 日曜フラグ（区切り用）
   });
 }
 
 // LocalStorageから取得
-let shiftData = JSON.parse(localStorage.getItem("compact_shift_v7")) || {};
+let shiftData = JSON.parse(localStorage.getItem("pro_shift_v8")) || {};
 
 twoWeeks.forEach(item => {
   if (!shiftData[item.key]) {
@@ -355,14 +443,15 @@ twoWeeks.forEach(item => {
   }
 });
 
-let openDrawerKey = null;
-let editingPosKey = null; // ポジション入力欄を開いている日付のkey
+let openDrawerKey = null;   // アコーディオン開閉
+let editingPosKey = null;   // ポジション編集中
+let editingCwKey = null;    // 同僚メンバー編集中
 
 // ==========================================
 // 2. 自動保存
 // ==========================================
 function saveData() {
-  localStorage.setItem("compact_shift_v7", JSON.stringify(shiftData));
+  localStorage.setItem("pro_shift_v8", JSON.stringify(shiftData));
   const st = document.getElementById("save-status");
   st.textContent = "✓ 自動保存済み";
 }
@@ -371,22 +460,28 @@ function saveData() {
 // 3. レンダリング
 // ==========================================
 function render() {
-  const gridEl = document.getElementById("grid-list");
-  gridEl.innerHTML = "";
+  const col1 = document.getElementById("col-week-1");
+  const col2 = document.getElementById("col-week-2");
+  col1.innerHTML = "";
+  col2.innerHTML = "";
 
-  twoWeeks.forEach(item => {
+  twoWeeks.forEach((item, idx) => {
+    const targetCol = idx < 7 ? col1 : col2;
     const d = shiftData[item.key];
     const isWork = d.status === "出勤";
     const isOpen = openDrawerKey === item.key;
     const isEditingPos = editingPosKey === item.key;
+    const isEditingCw = editingCwKey === item.key;
 
     const card = document.createElement("div");
-    card.className = `day-card ${isWork ? '' : 'is-off'}`;
+    // 日曜日の場合は下に大きな区切りを入れる
+    card.className = `day-card ${isWork ? '' : 'is-off'} ${item.isToday ? 'is-today' : ''} ${item.isSunday ? 'sunday-separator' : ''}`;
 
-    // --- ヘッダー（日付の真横に時間を配置） ---
+    // --- ヘッダー（今日バッジ・日付・時間・区分） ---
     let headerHtml = `
       <div class="card-header">
         <div class="header-left">
+          ${item.isToday ? '<span class="today-badge">TODAY</span>' : ''}
           <span class="date-title ${item.dayClass}">${item.display}</span>
           ${isWork ? `
             <div class="time-range">
@@ -402,7 +497,7 @@ function render() {
       </div>
     `;
 
-    // --- ポジション行（出勤時のみ） ---
+    // --- ポジション行 ---
     let posHtml = "";
     if (isWork) {
       posHtml = `
@@ -410,22 +505,22 @@ function render() {
           <div class="badge-rail">
             ${generateBadges(d.start, d.posText)}
           </div>
-          <button class="btn-edit-pos" onclick="toggleEditPos('${item.key}')">
+          <button class="btn-sm-edit" onclick="toggleEditPos('${item.key}')">
             ${isEditingPos ? '閉じる' : '✏️ 変更'}
           </button>
         </div>
 
         ${isEditingPos ? `
-          <div class="pos-edit-panel">
+          <div class="edit-panel">
             <input type="text" class="pos-input-text" value="${d.posText || ''}" placeholder="例: c c ft d / c v ft 休" 
                    oninput="updatePosText('${item.key}', this.value)">
-            <button class="btn-save-pos" onclick="toggleEditPos('${item.key}')">完了</button>
+            <button class="btn-save-done" onclick="toggleEditPos('${item.key}')">完了</button>
           </div>
         ` : ''}
       `;
     }
 
-    // --- 同僚アコーディオン ---
+    // --- 出勤メンバー（閲覧 & 変更モード） ---
     const count = (d.coworkers || []).length;
     let cwHtml = `
       <button class="coworker-toggle" onclick="toggleDrawer('${item.key}')">
@@ -434,13 +529,32 @@ function render() {
       </button>
 
       <div class="coworker-drawer ${isOpen ? 'show' : ''}">
-        ${renderCoworkers(item.key, d.coworkers)}
-        <button class="cw-add-btn" onclick="addCoworker('${item.key}')">＋ メンバー追加</button>
+        ${!isEditingCw ? `
+          <!-- 閲覧モード（スッキリ表示） -->
+          <div class="cw-view-wrap">
+            <div class="cw-view-list">
+              ${(d.coworkers || []).length > 0 
+                ? d.coworkers.map(c => `<span class="cw-chip">${c.name} (${c.start}〜${c.end})</span>`).join('')
+                : '<span style="font-size:10px; color:#94a3b8;">メンバーなし</span>'}
+            </div>
+            <button class="btn-sm-edit" onclick="toggleEditCw('${item.key}')">✏️ 変更</button>
+          </div>
+        ` : `
+          <!-- 変更モード（入力フォーム展開） -->
+          <div style="background:#fffbeb; padding:6px; border-radius:6px; border:1px dashed #f59e0b;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="font-size:10px; font-weight:bold; color:#b45309;">メンバー編集中</span>
+              <button class="btn-save-done" onclick="toggleEditCw('${item.key}')">完了</button>
+            </div>
+            ${renderCwEditRows(item.key, d.coworkers)}
+            <button class="cw-add-btn" onclick="addCoworker('${item.key}')">＋ メンバー追加</button>
+          </div>
+        `}
       </div>
     `;
 
     card.innerHTML = headerHtml + posHtml + cwHtml;
-    gridEl.appendChild(card);
+    targetCol.appendChild(card);
   });
 }
 
@@ -473,16 +587,16 @@ function generateBadges(startTime, posText) {
   }).join('');
 }
 
-// 同僚リスト
-function renderCoworkers(key, list) {
+// 同僚 編集用行の描画
+function renderCwEditRows(key, list) {
   if (!list || list.length === 0) return `<div style="font-size:10px; color:#94a3b8; padding:3px;">メンバーなし</div>`;
 
   return list.map((cw, idx) => `
-    <div class="cw-row">
-      <input type="text" class="cw-name" value="${cw.name}" placeholder="名前" oninput="updateCw('${key}', ${idx}, 'name', this.value)">
-      <input type="text" class="cw-time" value="${cw.start}" placeholder="17:00" oninput="updateCw('${key}', ${idx}, 'start', this.value)">
+    <div class="cw-edit-row">
+      <input type="text" class="cw-name-input" value="${cw.name}" placeholder="名前" oninput="updateCw('${key}', ${idx}, 'name', this.value)">
+      <input type="text" class="cw-time-input" value="${cw.start}" placeholder="17:00" oninput="updateCw('${key}', ${idx}, 'start', this.value)">
       <span style="font-size:9px; color:#94a3b8;">〜</span>
-      <input type="text" class="cw-time" value="${cw.end}" placeholder="21:00" oninput="updateCw('${key}', ${idx}, 'end', this.value)">
+      <input type="text" class="cw-time-input" value="${cw.end}" placeholder="21:00" oninput="updateCw('${key}', ${idx}, 'end', this.value)">
       <button class="cw-del" onclick="deleteCw('${key}', ${idx})">✕</button>
     </div>
   `).join('');
@@ -507,10 +621,14 @@ function toggleEditPos(key) {
   render();
 }
 
+function toggleEditCw(key) {
+  editingCwKey = editingCwKey === key ? null : key;
+  render();
+}
+
 function updatePosText(key, text) {
   shiftData[key].posText = text;
   saveData();
-  // バッジプレビューを即時更新
   const card = document.querySelector(`.pos-input-text`);
   if (card) {
     const rail = card.closest('.day-card').querySelector('.badge-rail');
@@ -541,7 +659,7 @@ function updateCw(key, idx, field, val) {
   saveData();
 }
 
-// 初回レンダリング
+// 初期レンダリング
 render();
 </script>
 
