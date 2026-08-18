@@ -3,423 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>シフト管理 - Modern App UI</title>
+<title>爆速シフト管理</title>
 <style>
   :root {
-    --primary: #3b82f6;
-    --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    --bg: #f1f5f9;
-    --card-bg: #ffffff;
-    --text-main: #0f172a;
-    --text-sub: #64748b;
-    --border: #e2e8f0;
-    --radius-lg: 18px;
-    --radius-md: 12px;
-    --radius-sm: 8px;
+    --primary: #2563eb;
+    --bg: #e2e8f0; /* 背景を少し濃くしてカードの輪郭を強調 */
+    --card-border: #94a3b8;
+    --text: #0f172a;
     
-    /* ポジションカラー */
-    --pos-c: #f97316;
-    --pos-ft: #10b981;
-    --pos-d: #8b5cf6;
-    --pos-k: #ef4444;
-    --pos-rest: #64748b;
+    --pos-c: #ea580c;  /* オレンジ: C */
+    --pos-ft: #16a34a; /* 緑: Ft */
+    --pos-d: #7c3aed;  /* 紫: D */
+    --pos-v: #0284c7;  /* 水色: V */
+    --pos-k: #dc2626;  /* 赤: K */
+    --pos-rest: #64748b; /* グレー: 休 */
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
     background-color: var(--bg);
-    color: var(--text-main);
-    padding-bottom: 40px;
+    color: var(--text);
+    padding: 12px;
+    padding-bottom: 60px;
   }
 
-  /* 固定トップバー (Glassmorphism) */
-  .top-navbar {
+  .container { max-width: 600px; margin: 0 auto; }
+
+  /* 固定トップバー */
+  .top-bar {
     position: sticky;
-    top: 0;
+    top: 8px;
     z-index: 100;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    padding: 12px 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid #cbd5e1;
   }
 
-  .nav-content {
-    max-width: 680px;
-    margin: 0 auto;
+  .app-title { font-size: 15px; font-weight: 900; color: var(--primary); }
+  .save-status { font-size: 11px; font-weight: bold; color: #16a34a; background: #dcfce7; padding: 4px 8px; border-radius: 12px; }
+
+  /* =====================================
+     1日ごとのカード（区切りをくっきり明確化）
+  ===================================== */
+  .day-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 2px solid var(--card-border);
+    margin-bottom: 20px; /* カード同士の間隔を広げて区切りを強調 */
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  .day-card.is-off {
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+  }
+
+  /* カードヘッダー（太い色帯） */
+  .card-header {
+    background: #f1f5f9;
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--card-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .app-title {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .date-title { font-size: 16px; font-weight: 900; }
+  .sat { color: #2563eb; }
+  .sun { color: #dc2626; }
 
-  .save-pill {
-    font-size: 11px;
-    font-weight: 700;
-    color: #10b981;
-    background: #ecfdf5;
-    padding: 4px 10px;
-    border-radius: 20px;
+  /* 出勤/休みボタン */
+  .toggle-status-btn {
+    font-size: 13px;
+    font-weight: 900;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+  }
+  .work-mode { background: #2563eb; color: #fff; }
+  .off-mode { background: #94a3b8; color: #fff; }
+
+  .card-body { padding: 14px; }
+
+  /* =====================================
+     時間入力エリア（手入力＋クイックボタン）
+  ===================================== */
+  .section-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #475569;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 4px;
   }
 
-  /* 稼働サマリーカード */
-  .summary-banner {
-    max-width: 680px;
-    margin: 14px auto 6px;
-    padding: 0 16px;
-  }
-
-  .summary-card {
-    background: var(--primary-gradient);
-    color: #fff;
-    padding: 16px 20px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.35);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .summary-label {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-bottom: 4px;
-  }
-
-  .summary-val {
-    font-size: 22px;
-    font-weight: 800;
-  }
-
-  .summary-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  /* メインコンテンツ一覧 */
-  .container {
-    max-width: 680px;
-    margin: 12px auto;
-    padding: 0 16px;
-  }
-
-  /* 日付カード */
-  .shift-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    margin-bottom: 14px;
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .shift-card.is-off {
-    background: #f8fafc;
-    border-style: dashed;
-  }
-
-  /* カードヘッダー */
-  .card-head {
-    padding: 12px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .date-group {
+  .time-input-group {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 8px;
   }
 
-  .date-tag {
+  .time-box {
     font-size: 16px;
     font-weight: 800;
-    letter-spacing: -0.3px;
-  }
-
-  .sat { color: #2563eb; }
-  .sun { color: #ef4444; }
-
-  .today-chip {
-    font-size: 10px;
-    font-weight: 800;
-    background: #fef08a;
-    color: #854d0e;
-    padding: 2px 6px;
-    border-radius: 6px;
-  }
-
-  /* スタイリッシュなトグルスイッチ */
-  .status-switch {
-    display: flex;
-    background: #e2e8f0;
-    padding: 3px;
-    border-radius: 20px;
-    cursor: pointer;
-  }
-
-  .status-btn {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 16px;
-    border: none;
-    background: transparent;
-    color: var(--text-sub);
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .status-btn.active-work {
+    padding: 8px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    width: 95px;
+    text-align: center;
     background: #fff;
-    color: var(--primary);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
+  .time-box:focus { border-color: var(--primary); outline: none; }
 
-  .status-btn.active-off {
-    background: #fff;
-    color: #ef4444;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-
-  /* カードボディ（出勤時） */
-  .card-body {
-    padding: 14px 16px;
-  }
-
-  /* 時間選択バー */
-  .time-bar {
+  /* クイック時間プリセットボタン */
+  .quick-chips {
     display: flex;
-    align-items: center;
-    background: #f8fafc;
-    border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: var(--radius-md);
-    margin-bottom: 12px;
-    justify-content: space-between;
-  }
-
-  .time-select-group {
-    display: flex;
-    align-items: center;
     gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
   }
-
-  select.modern-select {
-    font-size: 15px;
+  .chip-btn {
+    font-size: 11px;
     font-weight: 700;
-    color: var(--text-main);
-    background: #fff;
-    border: 1px solid #cbd5e1;
-    border-radius: var(--radius-sm);
-    padding: 6px 8px;
-    outline: none;
+    background: #e2e8f0;
+    color: #334155;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    white-space: nowrap;
     cursor: pointer;
   }
+  .chip-btn:active { background: #cbd5e1; }
 
-  .duration-badge {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--primary);
-    background: #eff6ff;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-  }
-
-  /* ポジション・レール */
-  .pos-section-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-sub);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .pos-rail {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .pos-rail::-webkit-scrollbar { display: none; }
-
-  .pos-card {
-    flex: 0 0 auto;
+  /* =====================================
+     ポジション爆速一括入力エリア
+  ===================================== */
+  .pos-container {
     background: #f8fafc;
-    border: 1px solid var(--border);
-    padding: 6px;
-    border-radius: var(--radius-md);
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  .text-pos-input {
+    width: 100%;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    border: 2px solid #94a3b8;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: #fff;
+  }
+  .text-pos-input:focus { border-color: var(--primary); outline: none; }
+
+  /* 生成されたバッジ表示レール */
+  .badge-rail {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .pos-badge {
+    font-size: 12px;
+    font-weight: 900;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 58px;
+    min-width: 44px;
   }
+  .pos-badge .hour-tag { font-size: 9px; opacity: 0.85; margin-bottom: 2px; font-weight: normal; }
 
-  .pos-time-text {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-sub);
-    margin-bottom: 4px;
-  }
+  .bg-c    { background: var(--pos-c); }
+  .bg-ft   { background: var(--pos-ft); }
+  .bg-d    { background: var(--pos-d); }
+  .bg-v    { background: var(--pos-v); }
+  .bg-k    { background: var(--pos-k); }
+  .bg-rest { background: var(--pos-rest); }
+  .bg-def  { background: #475569; }
 
-  select.pos-chip-select {
+  /* =====================================
+     同僚アコーディオン
+  ===================================== */
+  .coworker-toggle {
     width: 100%;
-    font-size: 12px;
-    font-weight: 800;
-    color: #fff;
+    background: #f1f5f9;
     border: none;
-    border-radius: 6px;
-    padding: 4px 0;
-    text-align: center;
-    cursor: pointer;
-    outline: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-
-  .bg-C    { background: var(--pos-c) !important; }
-  .bg-Ft   { background: var(--pos-ft) !important; }
-  .bg-D    { background: var(--pos-d) !important; }
-  .bg-K    { background: var(--pos-k) !important; }
-  .bg-REST { background: var(--pos-rest) !important; }
-
-  /* 同僚ドロワー（アコーディオン） */
-  .coworker-trigger {
-    width: 100%;
-    background: #f8fafc;
-    border: none;
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
+    border-top: 2px solid var(--card-border);
+    padding: 10px 14px;
     font-size: 13px;
-    font-weight: 700;
-    color: #334155;
-    cursor: pointer;
+    font-weight: 800;
+    color: var(--primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: background 0.15s;
+    cursor: pointer;
   }
 
-  .coworker-trigger:active {
-    background: #f1f5f9;
+  .coworker-drawer {
+    display: none;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-top: 1px dashed #94a3b8;
   }
+  .coworker-drawer.show { display: block; }
 
-  .avatar-stack {
+  .cw-row {
     display: flex;
     align-items: center;
     gap: 6px;
-  }
-
-  .avatar-chip {
-    width: 24px;
-    height: 24px;
-    background: #e2e8f0;
-    color: #475569;
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #fff;
-  }
-
-  .drawer-panel {
-    display: none;
-    background: #f8fafc;
-    border-top: 1px dashed #cbd5e1;
-    padding: 14px 16px;
-  }
-
-  .drawer-panel.show {
-    display: block;
-    animation: fadeIn 0.2s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .cw-item-card {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #fff;
-    border: 1px solid var(--border);
-    padding: 8px 10px;
-    border-radius: var(--radius-md);
     margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    background: #fff;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
   }
 
-  .cw-input {
+  .cw-name {
     flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    border: 1px solid transparent;
-    background: transparent;
-    padding: 4px;
-    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
     min-width: 0;
   }
 
-  .cw-input:focus {
-    border-color: var(--primary);
-    background: #fff;
-    border-radius: 4px;
-    outline: none;
-  }
-
-  .cw-time-select {
+  .cw-time {
     font-size: 13px;
-    font-weight: 600;
-    padding: 4px;
-    border: 1px solid var(--border);
+    font-weight: 700;
+    padding: 6px 4px;
+    border: 1px solid #cbd5e1;
     border-radius: 6px;
-    background: #fff;
+    width: 65px;
+    text-align: center;
   }
 
-  .cw-del-btn {
+  .cw-del {
     background: #fee2e2;
-    color: #ef4444;
+    color: #dc2626;
     border: none;
     border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
+    padding: 6px 8px;
     font-weight: bold;
     cursor: pointer;
   }
@@ -427,352 +271,265 @@
   .cw-add-btn {
     width: 100%;
     background: #fff;
-    border: 1px dashed #93c5fd;
+    border: 2px dashed #93c5fd;
     color: var(--primary);
-    padding: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: var(--radius-md);
+    padding: 8px;
+    font-weight: 800;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 4px;
-    transition: all 0.15s;
-  }
-
-  .cw-add-btn:active {
-    background: #eff6ff;
   }
 </style>
 </head>
 <body>
 
-<!-- 固定トップバー -->
-<div class="top-navbar">
-  <div class="nav-content">
-    <div class="app-title">⚡ SHIFT SCHEDULE</div>
-    <div id="save-status" class="save-pill">✓ 自動保存済み</div>
+<div class="container">
+  <!-- 固定バー -->
+  <div class="top-bar">
+    <div class="app-title">⚡ 爆速シフトマネージャー</div>
+    <div id="save-status" class="save-status">✓ 保存済み</div>
   </div>
-</div>
 
-<!-- 2週間の稼働サマリー -->
-<div class="summary-banner">
-  <div class="summary-card">
-    <div>
-      <div class="summary-label">2週間の予定</div>
-      <div id="total-hours" class="summary-val">0 時間</div>
-    </div>
-    <div id="work-days-count" class="summary-badge">出勤 0日</div>
-  </div>
+  <!-- 2週間シフト一覧 -->
+  <div id="card-list"></div>
 </div>
-
-<!-- シフトカードコンテナ -->
-<div class="container" id="shift-container"></div>
 
 <script>
 // ==========================================
-// 1. 基本設定・ポジション定義
+// 1. 設定 & 2週間データ生成
 // ==========================================
 const STORE_NAME = "イオンモール神戸南";
-const POSITION_OPTIONS = [
-  { value: "C",    label: "C",   class: "bg-C" },
-  { value: "Ft",   label: "Ft",  class: "bg-Ft" },
-  { value: "D",    label: "D",   class: "bg-D" },
-  { value: "K",    label: "K",   class: "bg-K" },
-  { value: "REST", label: "休",  class: "bg-REST" }
-];
-
-// 15分刻み (08:00 〜 23:45)
-const TIME_OPTIONS = [];
-for (let h = 8; h <= 23; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    const hh = String(h).padStart(2, '0');
-    const mm = String(m).padStart(2, '0');
-    TIME_OPTIONS.push(`${hh}:${mm}`);
-  }
-}
-
-// ==========================================
-// 2. 今日から2週間分（14日）の日付生成
-// ==========================================
 const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
-const twoWeeksList = [];
+const twoWeeks = [];
 const today = new Date();
 
 for (let i = 0; i < 14; i++) {
   const d = new Date(today);
   d.setDate(today.getDate() + i);
-
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const dateKey = `${yyyy}-${mm}-${dd}`;
+  const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const dayStr = daysOfWeek[d.getDay()];
 
   let dayClass = "";
   if (d.getDay() === 6) dayClass = "sat";
   if (d.getDay() === 0) dayClass = "sun";
 
-  twoWeeksList.push({
+  twoWeeks.push({
     key: dateKey,
     display: `${d.getMonth() + 1}/${d.getDate()} (${dayStr})`,
-    isToday: i === 0,
     dayClass: dayClass,
     dayIndex: d.getDay()
   });
 }
 
 // LocalStorageから取得
-let savedShiftMap = JSON.parse(localStorage.getItem("modern_shift_data_v5")) || {};
+let shiftData = JSON.parse(localStorage.getItem("fast_shift_v6")) || {};
 
-twoWeeksList.forEach(item => {
-  if (!savedShiftMap[item.key]) {
-    const isWeekend = (item.dayIndex === 0 || item.dayIndex === 6);
-    savedShiftMap[item.key] = {
-      status: (item.dayIndex === 1 || item.dayIndex === 3) ? "休み" : "出勤",
-      start: isWeekend ? "12:00" : "17:15",
-      end: isWeekend ? "21:30" : "21:45",
-      positions: {},
-      coworkers: isWeekend ? [
+twoWeeks.forEach(item => {
+  if (!shiftData[item.key]) {
+    const isOff = (item.dayIndex === 1 || item.dayIndex === 3);
+    shiftData[item.key] = {
+      status: isOff ? "休み" : "出勤",
+      start: "17:00",
+      end: "21:00",
+      posText: "c ft d c", // スペース区切りの初期値
+      coworkers: [
         { name: "山田 (店長)", start: "10:00", end: "19:00" },
-        { name: "佐藤 (バイト)", start: "12:00", end: "21:30" },
-        { name: "中村 (バイト)", start: "17:15", end: "22:00" }
-      ] : [
-        { name: "高橋 (社員)", start: "14:00", end: "22:00" },
-        { name: "田中 (バイト)", start: "17:30", end: "21:45" },
-        { name: "鈴木 (バイト)", start: "18:00", end: "22:00" }
+        { name: "田中 (バイト)", start: "17:00", end: "21:30" }
       ]
     };
   }
 });
 
-let openedKey = null;
+let openDrawerKey = null;
 
 // ==========================================
-// 3. データ保存 & サマリー計算
+// 2. 自動保存
 // ==========================================
 function saveData() {
-  localStorage.setItem("modern_shift_data_v5", JSON.stringify(savedShiftMap));
-  const statusEl = document.getElementById("save-status");
-  statusEl.textContent = "✓ 自動保存済み";
-  updateSummary();
-}
-
-function updateSummary() {
-  let totalMinutes = 0;
-  let workDays = 0;
-
-  twoWeeksList.forEach(item => {
-    const data = savedShiftMap[item.key];
-    if (data.status === "出勤") {
-      workDays++;
-      const [sH, sM] = data.start.split(":").map(Number);
-      const [eH, eM] = data.end.split(":").map(Number);
-      let diff = (eH * 60 + eM) - (sH * 60 + sM);
-      if (diff > 0) totalMinutes += diff;
-    }
-  });
-
-  const hours = (totalMinutes / 60).toFixed(1);
-  document.getElementById("total-hours").textContent = `${hours} 時間`;
-  document.getElementById("work-days-count").textContent = `出勤 ${workDays}日 / 14日`;
+  localStorage.setItem("fast_shift_v6", JSON.stringify(shiftData));
+  const st = document.getElementById("save-status");
+  st.textContent = "✓ 保存済み";
 }
 
 // ==========================================
-// 4. モダンカード描画
+// 3. 画面レンダリング
 // ==========================================
-function renderCards() {
-  const container = document.getElementById("shift-container");
-  container.innerHTML = "";
+function render() {
+  const listEl = document.getElementById("card-list");
+  listEl.innerHTML = "";
 
-  twoWeeksList.forEach(item => {
-    const data = savedShiftMap[item.key];
-    const isOpen = (openedKey === item.key);
-    const isWork = data.status === "出勤";
+  twoWeeks.forEach(item => {
+    const d = shiftData[item.key];
+    const isWork = d.status === "出勤";
+    const isOpen = openDrawerKey === item.key;
 
     const card = document.createElement("div");
-    card.className = `shift-card ${isWork ? '' : 'is-off'}`;
+    card.className = `day-card ${isWork ? '' : 'is-off'}`;
 
-    // --- カード上部 ---
-    let cardHtml = `
-      <div class="card-head">
-        <div class="date-group">
-          <span class="date-tag ${item.dayClass}">${item.display}</span>
-          ${item.isToday ? '<span class="today-chip">TODAY</span>' : ''}
-        </div>
-        <div class="status-switch">
-          <button class="status-btn ${isWork ? 'active-work' : ''}" onclick="setStatus('${item.key}', '出勤')">出勤</button>
-          <button class="status-btn ${!isWork ? 'active-off' : ''}" onclick="setStatus('${item.key}', '休み')">休み</button>
-        </div>
+    // --- ヘッダー ---
+    let html = `
+      <div class="card-header">
+        <span class="date-title ${item.dayClass}">📅 ${item.display}</span>
+        <button class="toggle-status-btn ${isWork ? 'work-mode' : 'off-mode'}" onclick="toggleStatus('${item.key}')">
+          ${isWork ? '出勤' : '休み'}
+        </button>
       </div>
     `;
 
-    // --- 出勤時の時間・ポジション ---
+    // --- 出勤時のみ表示 ---
     if (isWork) {
-      const [sH, sM] = data.start.split(":").map(Number);
-      const [eH, eM] = data.end.split(":").map(Number);
-      const durationHours = (((eH * 60 + eM) - (sH * 60 + sM)) / 60).toFixed(1);
-
-      cardHtml += `
+      html += `
         <div class="card-body">
-          <div class="time-bar">
-            <div class="time-select-group">
-              <select class="modern-select" onchange="setTime('${item.key}', 'start', this.value)">
-                ${generateTimeOptions(data.start)}
-              </select>
-              <span style="font-weight:bold; color:#94a3b8;">➔</span>
-              <select class="modern-select" onchange="setTime('${item.key}', 'end', this.value)">
-                ${generateTimeOptions(data.end)}
-              </select>
-            </div>
-            <div class="duration-badge">${durationHours} 時間</div>
+          <!-- 時間入力 -->
+          <div class="section-label">⏰ 勤務時間 (直接入力またはプリセット)</div>
+          <div class="time-input-group">
+            <input type="time" class="time-box" value="${d.start}" onchange="updateTime('${item.key}', 'start', this.value)">
+            <span style="font-weight:900; color:#64748b;">〜</span>
+            <input type="time" class="time-box" value="${d.end}" onchange="updateTime('${item.key}', 'end', this.value)">
           </div>
 
-          <div class="pos-section-label">HOURLY POSITIONS</div>
-          <div class="pos-rail">
-            ${renderHourlySlots(item.key, data)}
+          <!-- クイック時間プリセット -->
+          <div class="quick-chips">
+            <button class="chip-btn" onclick="setPresetTime('${item.key}', '17:00', '21:00')">17-21時</button>
+            <button class="chip-btn" onclick="setPresetTime('${item.key}', '17:30', '21:45')">17:30-21:45</button>
+            <button class="chip-btn" onclick="setPresetTime('${item.key}', '18:00', '22:00')">18-22時</button>
+            <button class="chip-btn" onclick="setPresetTime('${item.key}', '12:00', '21:30')">12-21:30 (土日)</button>
+          </div>
+
+          <!-- ポジション爆速テキスト入力 -->
+          <div class="pos-container">
+            <div class="section-label">⚡ ポジション一括入力 (スペース区切り)</div>
+            <input type="text" class="text-pos-input" value="${d.posText || ''}" placeholder="例: c c ft d や c v ft 休" 
+                   oninput="updatePosText('${item.key}', this.value)">
+            <div class="badge-rail">
+              ${generateBadges(d.start, d.posText)}
+            </div>
           </div>
         </div>
       `;
     }
 
     // --- 同僚アコーディオン ---
-    const coworkers = data.coworkers || [];
-    const avatarStack = coworkers.slice(0, 3).map(c => `
-      <div class="avatar-chip">${(c.name || 'ス')[0]}</div>
-    `).join('');
-
-    cardHtml += `
-      <button class="coworker-trigger" onclick="toggleDrawer('${item.key}')">
-        <div class="avatar-stack">
-          ${avatarStack}
-          <span>📍 ${STORE_NAME} (${coworkers.length}名)</span>
-        </div>
-        <span style="font-size:12px; color:#64748b;">${isOpen ? '▲ 閉じる' : '▼ メンバー'}</span>
+    const count = (d.coworkers || []).length;
+    html += `
+      <button class="coworker-toggle" onclick="toggleDrawer('${item.key}')">
+        <span>📍 ${STORE_NAME} (他 ${count}名)</span>
+        <span>${isOpen ? '▲ 閉じる' : '▼ メンバー確認'}</span>
       </button>
 
-      <div class="drawer-panel ${isOpen ? 'show' : ''}">
-        <div>
-          ${renderCoworkers(item.key, coworkers)}
-        </div>
+      <div class="coworker-drawer ${isOpen ? 'show' : ''}">
+        ${renderCoworkers(item.key, d.coworkers)}
         <button class="cw-add-btn" onclick="addCoworker('${item.key}')">＋ メンバーを追加</button>
       </div>
     `;
 
-    card.innerHTML = cardHtml;
-    container.appendChild(card);
+    card.innerHTML = html;
+    listEl.appendChild(card);
   });
-
-  updateSummary();
 }
 
-// 1時間ポジション生成
-function renderHourlySlots(key, data) {
-  const startHour = parseInt(data.start.split(":")[0], 10);
-  const endHour = parseInt(data.end.split(":")[0], 10);
-  const endMinute = parseInt(data.end.split(":")[1], 10);
-  const maxHour = endMinute > 0 ? endHour : endHour - 1;
+// ポジションテキスト(c ft d)からバッジを生成
+function generateBadges(startTime, posText) {
+  if (!posText || !posText.trim()) return `<span style="font-size:11px; color:#94a3b8;">文字を入力するとここにバッジが出ます</span>`;
+  
+  const tokens = posText.trim().split(/\s+/);
+  const startHour = parseInt((startTime || "17:00").split(":")[0], 10);
 
-  let html = "";
-  for (let h = startHour; h <= maxHour; h++) {
-    const hStr = String(h);
-    const pos = data.positions[hStr] || "C";
+  return tokens.map((token, idx) => {
+    const upper = token.toUpperCase();
+    const lower = token.toLowerCase();
+    const hour = startHour + idx;
 
-    let opts = "";
-    POSITION_OPTIONS.forEach(opt => {
-      opts += `<option value="${opt.value}" ${opt.value === pos ? 'selected' : ''}>${opt.label}</option>`;
-    });
+    let colorClass = "bg-def";
+    if (lower === "c") colorClass = "bg-c";
+    else if (lower === "ft") colorClass = "bg-ft";
+    else if (lower === "d") colorClass = "bg-d";
+    else if (lower === "v") colorClass = "bg-v";
+    else if (lower === "k") colorClass = "bg-k";
+    else if (lower === "休" || lower === "rest") colorClass = "bg-rest";
 
-    html += `
-      <div class="pos-card">
-        <span class="pos-time-text">${h}:00~</span>
-        <select class="pos-chip-select bg-${pos}" onchange="setPos('${key}', '${hStr}', this)">
-          ${opts}
-        </select>
+    return `
+      <div class="pos-badge ${colorClass}">
+        <span class="hour-tag">${hour}:00~</span>
+        <span>${upper}</span>
       </div>
     `;
-  }
-  return html;
+  }).join('');
 }
 
 // 同僚リスト
 function renderCoworkers(key, list) {
-  if (list.length === 0) {
-    return `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:8px;">メンバーが登録されていません</div>`;
-  }
+  if (!list || list.length === 0) return `<div style="font-size:12px; color:#94a3b8; padding:6px;">メンバーなし</div>`;
 
   return list.map((cw, idx) => `
-    <div class="cw-item-card">
-      <input type="text" class="cw-input" value="${cw.name}" placeholder="スタッフ名" oninput="updateCwName('${key}', ${idx}, this.value)">
-      <select class="cw-time-select" onchange="updateCwTime('${key}', ${idx}, 'start', this.value)">
-        ${generateTimeOptions(cw.start)}
-      </select>
-      <span style="color:#94a3b8; font-size:11px;">〜</span>
-      <select class="cw-time-select" onchange="updateCwTime('${key}', ${idx}, 'end', this.value)">
-        ${generateTimeOptions(cw.end)}
-      </select>
-      <button class="cw-del-btn" onclick="deleteCoworker('${key}', ${idx})">✕</button>
+    <div class="cw-row">
+      <input type="text" class="cw-name" value="${cw.name}" placeholder="名前" oninput="updateCw('${key}', ${idx}, 'name', this.value)">
+      <input type="text" class="cw-time" value="${cw.start}" placeholder="17:00" oninput="updateCw('${key}', ${idx}, 'start', this.value)">
+      <span style="font-size:11px; color:#94a3b8;">〜</span>
+      <input type="text" class="cw-time" value="${cw.end}" placeholder="21:00" oninput="updateCw('${key}', ${idx}, 'end', this.value)">
+      <button class="cw-del" onclick="deleteCw('${key}', ${idx})">✕</button>
     </div>
   `).join('');
 }
 
-function generateTimeOptions(selectedVal) {
-  return TIME_OPTIONS.map(t => `<option value="${t}" ${t === selectedVal ? 'selected' : ''}>${t}</option>`).join('');
-}
-
 // ==========================================
-// 5. アクション
+// 4. 操作イベント
 // ==========================================
-function setStatus(key, status) {
-  savedShiftMap[key].status = status;
+function toggleStatus(key) {
+  shiftData[key].status = shiftData[key].status === "出勤" ? "休み" : "出勤";
   saveData();
-  renderCards();
+  render();
 }
 
-function setTime(key, type, val) {
-  savedShiftMap[key][type] = val;
-  if (type === 'start' && savedShiftMap[key].start >= savedShiftMap[key].end) {
-    const nextIdx = Math.min(TIME_OPTIONS.indexOf(val) + 4, TIME_OPTIONS.length - 1);
-    savedShiftMap[key].end = TIME_OPTIONS[nextIdx];
+function updateTime(key, type, val) {
+  shiftData[key][type] = val;
+  saveData();
+  render();
+}
+
+function setPresetTime(key, start, end) {
+  shiftData[key].start = start;
+  shiftData[key].end = end;
+  saveData();
+  render();
+}
+
+// ポジションテキストの即時反映
+function updatePosText(key, text) {
+  shiftData[key].posText = text;
+  saveData();
+  // バッジ部分だけスムーズに書き換え
+  const card = document.querySelector(`input[oninput="updatePosText('${key}', this.value)"]`);
+  if (card) {
+    const rail = card.nextElementSibling;
+    rail.innerHTML = generateBadges(shiftData[key].start, text);
   }
-  saveData();
-  renderCards();
-}
-
-function setPos(key, hourStr, selectEl) {
-  savedShiftMap[key].positions[hourStr] = selectEl.value;
-  selectEl.className = `pos-chip-select bg-${selectEl.value}`;
-  saveData();
 }
 
 function toggleDrawer(key) {
-  openedKey = (openedKey === key) ? null : key;
-  renderCards();
+  openDrawerKey = openDrawerKey === key ? null : key;
+  render();
 }
 
 function addCoworker(key) {
-  if (!savedShiftMap[key].coworkers) savedShiftMap[key].coworkers = [];
-  savedShiftMap[key].coworkers.push({ name: "新しいスタッフ", start: "17:00", end: "21:00" });
+  if (!shiftData[key].coworkers) shiftData[key].coworkers = [];
+  shiftData[key].coworkers.push({ name: "スタッフ", start: "17:00", end: "21:00" });
   saveData();
-  renderCards();
+  render();
 }
 
-function deleteCoworker(key, idx) {
-  savedShiftMap[key].coworkers.splice(idx, 1);
+function deleteCw(key, idx) {
+  shiftData[key].coworkers.splice(idx, 1);
   saveData();
-  renderCards();
+  render();
 }
 
-function updateCwName(key, idx, val) {
-  savedShiftMap[key].coworkers[idx].name = val;
-  saveData();
-}
-
-function updateCwTime(key, idx, type, val) {
-  savedShiftMap[key].coworkers[idx][type] = val;
+function updateCw(key, idx, field, val) {
+  shiftData[key].coworkers[idx][field] = val;
   saveData();
 }
 
 // 初回レンダリング
-renderCards();
+render();
 </script>
 
 </body>
